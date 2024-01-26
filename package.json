@@ -1,0 +1,48 @@
+{
+  "name": "@asamuzakjp/css-color",
+  "description": "CSS color - CSS color resolver, parser, converter.",
+  "author": "asamuzaK",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asamuzaK/cssColor.git"
+  },
+  "homepage": "https://github.com/asamuzaK/cssColor#readme",
+  "bugs": {
+    "url": "https://github.com/asamuzaK/cssColor/issues"
+  },
+  "files": [
+    "dist",
+    "src",
+    "types"
+  ],
+  "type": "module",
+  "exports": {
+    "import": "./src/index.js",
+    "require": "./dist/cjs/index.js"
+  },
+  "types": "types/index.d.ts",
+  "devDependencies": {
+    "c8": "^9.0.0",
+    "chai": "^5.0.0",
+    "commander": "^11.1.0",
+    "esbuild": "^0.19.11",
+    "eslint": "^8.56.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsdoc": "^48.0.2",
+    "eslint-plugin-regexp": "^2.1.2",
+    "eslint-plugin-unicorn": "^50.0.1",
+    "mocha": "^10.2.0",
+    "sinon": "^17.0.1",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "build": "npm run tsc && npm run lint && npm test && npm run compat",
+    "compat": "esbuild --format=cjs --platform=node --outdir=dist/cjs/ --minify --sourcemap src/**/*.js",
+    "lint": "eslint --fix .",
+    "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
+    "tsc": "npx tsc"
+  },
+  "version": "0.0.1"
+}
