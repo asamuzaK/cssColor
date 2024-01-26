@@ -6,11 +6,10 @@
  */
 
 import {
-  convertRgbToHex, convertXyzD50ToHex, convertXyzD50ToLab, convertXyzD50ToLch,
-  convertXyzD50ToRgb, convertXyzToHex, convertXyzToHsl, convertXyzToHwb,
-  convertXyzToOklab, convertXyzToOklch, convertXyzToRgb, convertXyzToXyzD50,
-  parseColorFunc, parseColorValue, resolveColorFunc, resolveColorMix,
-  resolveColorValue
+  convertRgbToHex, convertXyzD50ToLab, convertXyzD50ToLch, convertXyzToHex,
+  convertXyzToHsl, convertXyzToHwb, convertXyzToOklab, convertXyzToOklch,
+  convertXyzToRgb, convertXyzToXyzD50, parseColorFunc, parseColorValue,
+  resolveColorFunc, resolveColorMix, resolveColorValue
 } from './js/color.js';
 import { getType, isString } from './js/common.js';
 
@@ -162,10 +161,8 @@ export const parse = (value, opt = {}) => {
  * @property {Function} xyzToXyzD50 - convert xyz to xyz d50
  */
 export const convert = {
-  xyzD50ToHex: convertXyzD50ToHex,
   xyzD50ToLab: convertXyzD50ToLab,
   xyzD50ToLch: convertXyzD50ToLch,
-  xyzD50ToRgb: convertXyzD50ToRgb,
   xyzToHex: convertXyzToHex,
   xyzToHsl: convertXyzToHsl,
   xyzToHwb: convertXyzToHwb,

@@ -146,17 +146,6 @@ Convert xyz to xyz-d50 color array.
 Returns **[Array][96]<[number][97]>** xyz - `[x, y, z, a]` x|y|z|a: 0..1
 
 
-### convert.xyzD50ToHex
-
-Convert xyz-d50 to hex color notation.
-
-#### Parameters
-
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
-
-Returns **[string][93]** #rrggbbaa
-
-
 ### convert.xyzD50ToLab
 
 Convert xyz-d50 to lab color array.
@@ -177,18 +166,6 @@ Convert xyz-d50 to lch color array.
 * `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 Returns **[Array][96]<[number][97]>** `[l, c, h, a]` l: 0..100 c: 0..150 h: 0..360 a: 0..1
-
-
-### convert.xyzD50ToRgb
-
-Convert xyz-d50 to rgb color array.
-
-#### Parameters
-
-* `xyz` **[Array][96]** `[x, y, z, a]` x|y|z|a: 0..1
-
-Returns **[Array][96]<[number][97]>** `[r, g, b, a]` r|g|b: 0..255 a: 0..1
-
 ---
 Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
 
