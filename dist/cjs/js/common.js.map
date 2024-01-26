@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/js/common.js"],
+  "sourcesContent": ["/**\r\n * common.js\r\n */\r\n\r\n/* constants */\r\nconst TYPE_FROM = 8;\r\nconst TYPE_TO = -1;\r\n\r\n/**\r\n * get type\r\n * @param {*} o - object to check\r\n * @returns {string} - type of object\r\n */\r\nexport const getType = o =>\r\n  Object.prototype.toString.call(o).slice(TYPE_FROM, TYPE_TO);\r\n\r\n/**\r\n * is string\r\n * @param {*} o - object to check\r\n * @returns {boolean} - result\r\n */\r\nexport const isString = o => typeof o === 'string' || o instanceof String;\r\n"],
+  "mappings": "4ZAAA,IAAAA,EAAA,GAAAC,EAAAD,EAAA,aAAAE,EAAA,aAAAC,IAAA,eAAAC,EAAAJ,GAKA,MAAMK,EAAY,EACZC,EAAU,GAOHJ,EAAUK,GACrB,OAAO,UAAU,SAAS,KAAKA,CAAC,EAAE,MAAM,EAAW,EAAO,EAO/CJ,EAAWI,GAAK,OAAOA,GAAM,UAAYA,aAAa",
+  "names": ["common_exports", "__export", "getType", "isString", "__toCommonJS", "TYPE_FROM", "TYPE_TO", "o"]
+}
