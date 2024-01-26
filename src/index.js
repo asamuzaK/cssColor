@@ -1,5 +1,5 @@
 /*!
- * CSS color - CSS color resolver, parser, converter.
+ * CSS color - Resolve, parse, convert CSS color.
  * @license MIT
  * @copyright asamuzaK (Kazz)
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}

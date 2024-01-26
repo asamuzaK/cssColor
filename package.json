@@ -1,6 +1,6 @@
 {
   "name": "@asamuzakjp/css-color",
-  "description": "CSS color - CSS color resolver, parser, converter.",
+  "description": "CSS color - Resolve, parse, convert CSS color.",
   "author": "asamuzaK",
   "license": "MIT",
   "repository": {

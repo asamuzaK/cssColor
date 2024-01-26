@@ -1,6 +1,6 @@
 # CSS color
 
-CSS color resolver, parser, converter.
+Resolve, parse, convert CSS color.
 
 
 ## Install
@@ -20,7 +20,7 @@ import { convert, parse, resolve } from '@asamuzakjp/css-color';
 
 ### resolve
 
-resolve CSS color
+Resolve CSS color.
 
 #### Parameters
 
@@ -33,14 +33,15 @@ resolve CSS color
   * `opt.key` **any?** key e.g. CSS property `background-color`
 
 Returns **([string][93]? | [Array][96])** `rgba?()`, `[r, g, b, a]`, `#rrggbb(aa)?`, `null`, or if `key` is specified, `[key, rgba?()|[r, g, b, a]|#rrggbb(aa)?|null]`
-* in `rgb`, `r`, `g`, `b` values are rounded
-* in `array`, values are floating point
-* in `hex`, `transparent` resolves as `null`
+* In `rgb`, `r`, `g`, `b` values are rounded.
+* In `array`, values are floats.
+* In `hex`, `transparent` keyword resolves as `null`, `currentcolor` as `#000000` if `opt.currentColor` not specified.
+* In `hexAlpha`, `transparent` keyword resolves as `#00000000`, `currentcolor` as `#00000000` if `opt.currentColor` not specified.
 
 
 ### parse
 
-parse CSS color
+Parse CSS color.
 
 #### Parameters
 
@@ -54,12 +55,12 @@ Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 ### convert
 
-container for conversion functions
+Container for conversion functions.
 
 
 ### convert.xyzToHex
 
-convert xyz to hex color
+Convert xyz to hex color notation.
 
 #### Parameters
 
@@ -70,7 +71,7 @@ Returns **[string][93]** `#rrggbbaa`
 
 ### convert.xyzToHsl
 
-convert xyz to hsl
+Convert xyz to hsl color array.
 
 #### Parameters
 
@@ -81,7 +82,7 @@ Returns **[Array][96]<[number][97]>** `[h, s, l, a]` h: 0..360 s|l: 0..100 a: 0.
 
 ### convert.xyzToHwb
 
-convert xyz to hwb
+Convert xyz to hwb color array.
 
 #### Parameters
 
@@ -92,7 +93,7 @@ Returns **[Array][96]<[number][97]>** `[h, w, b, a]` h: 0..360 w|b: 0..100 a: 0.
 
 ### convert.xyzToOklab
 
-convert xyz to oklab
+Convert xyz to oklab color array.
 
 #### Parameters
 
@@ -103,7 +104,7 @@ Returns **[Array][96]<[number][97]>** `[l, a, b, A]` l|A: 0..1 a|b: -0.4..0.4
 
 ### convert.xyzToOklch
 
-convert xyz to oklch
+Convert xyz to oklch color array.
 
 #### Parameters
 
@@ -114,7 +115,7 @@ Returns **[Array][96]<[number][97]>** `[l, c, h, a]` l|a: 0..1 c: 0..0.4 h: 0..3
 
 ### convert.xyzToRgb
 
-convert xyz to rgb
+Convert xyz to rgb color array.
 
 #### Parameters
 
@@ -125,7 +126,7 @@ Returns **[Array][96]<[number][97]>** `[r, g, b, a]` r|g|b: 0..255 a: 0..1
 
 ### convert.xyzToXyzD50
 
-convert xyz to xyz-d50
+Convert xyz to xyz-d50 color array.
 
 #### Parameters
 
@@ -136,7 +137,7 @@ Returns **[Array][96]<[number][97]>** xyz - `[x, y, z, a]` x|y|z|a: 0..1
 
 ### convert.xyzD50ToHex
 
-convert xyz D50 to hex color
+Convert xyz-d50 to hex color notation.
 
 #### Parameters
 
@@ -147,7 +148,7 @@ Returns **[string][93]** #rrggbbaa
 
 ### convert.xyzD50ToLab
 
-convert xyz-d50 to lab
+Convert xyz-d50 to lab color array.
 
 #### Parameters
 
@@ -158,7 +159,7 @@ Returns **[Array][96]<[number][97]>** `[l, a, b, A]` l: 0..100 a|b: -125..125 A:
 
 ### convert.xyzD50ToLch
 
-convert xyz-d50 to lch
+Convert xyz-d50 to lch color array.
 
 #### Parameters
 
@@ -169,7 +170,7 @@ Returns **[Array][96]<[number][97]>** `[l, c, h, a]` l: 0..100 c: 0..150 h: 0..3
 
 ### convert.xyzD50ToRgb
 
-convert xyz D50 to rgb
+Convert xyz-d50 to rgb color array.
 
 #### Parameters
 
