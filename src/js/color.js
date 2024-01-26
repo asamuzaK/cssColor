@@ -649,7 +649,7 @@ export const convertLinearRgbToRgb = rgb => {
 
 /**
  * convert linear rgb to hex color
- * @param {Array} rgb - [r, g, b, a] r|g|b|a: 0..1
+ * @param {Array.<number>} rgb - [r, g, b, a] r|g|b|a: 0..1
  * @returns {string} - hex color
  */
 export const convertLinearRgbToHex = rgb => {
@@ -672,7 +672,7 @@ export const convertLinearRgbToHex = rgb => {
 
 /**
  * convert xyz to hex color
- * @param {Array} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
  * @returns {string} - hex color
  */
 export const convertXyzToHex = xyz => {
@@ -692,7 +692,7 @@ export const convertXyzToHex = xyz => {
 
 /**
  * convert xyz D50 to hex color
- * @param {Array} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
  * @returns {string} - hex color
  */
 export const convertXyzD50ToHex = xyz => {
@@ -859,7 +859,7 @@ export const convertXyzToOklch = xyz => {
 
 /**
  * convert xyz D50 to rgb
- * @param {Array} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
  * @returns {Array.<number>} - [r, g, b, a] r|g|b: 0..255 a: 0..1
  */
 export const convertXyzD50ToRgb = xyz => {

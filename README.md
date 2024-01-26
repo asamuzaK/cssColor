@@ -58,7 +58,7 @@ convert xyz to hex color
 
 ### Parameters
 
-* `xyz` **[Array][96]** `[x, y, z, a]` x|y|z|a: 0..1
+* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 Returns **[string][93]** `#rrggbbaa`
 
@@ -135,7 +135,7 @@ convert xyz D50 to hex color
 
 ### Parameters
 
-* `xyz` **[Array][96]** `[x, y, z, a]` x|y|z|a: 0..1
+* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 Returns **[string][93]** #rrggbbaa
 
