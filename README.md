@@ -166,6 +166,7 @@ Convert xyz-d50 to lch color array.
 * `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 Returns **[Array][96]<[number][97]>** `[l, c, h, a]` l: 0..100 c: 0..150 h: 0..360 a: 0..1
+
 ---
 Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
 
