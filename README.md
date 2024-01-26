@@ -55,7 +55,7 @@ Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 ### convert
 
-Container for conversion functions.
+Contains conversion functions as properties.
 
 
 ### convert.xyzToHex
