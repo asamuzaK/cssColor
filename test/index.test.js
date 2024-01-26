@@ -148,3 +148,33 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res, ['foo', '#00800080'], 'result');
   });
 });
+
+describe('parse CSS color', () => {
+  const func = api.parse;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func('color-mix(in srgb, red, blue)'), Error,
+      'color-mix() is not supported.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(3));
+    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green');
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(3));
+    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+  });
+});
