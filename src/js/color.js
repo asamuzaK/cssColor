@@ -105,7 +105,7 @@ const REG_COLOR_SPACE_COLOR_MIX =
 const REG_COLOR_SPACE_RGB =
   `(?:a98|prophoto)-rgb|display-p3|rec2020|${REG_SRGB}`;
 const REG_NUM =
-  '-?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?';
+  '[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?';
 const REG_PCT = `${REG_NUM}%`;
 const REG_HSL_HWB = `(?:${REG_NUM}(?:${REG_ANGLE})?|${NONE})(?:\\s+(?:${REG_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
 const REG_HSL_LV3 = `${REG_NUM}(?:${REG_ANGLE})?(?:\\s*,\\s*${REG_PCT}){2}(?:\\s*,\\s*(?:${REG_NUM}|${REG_PCT}))?`;
@@ -117,6 +117,7 @@ const REG_COLOR_FUNC = `(?:${REG_COLOR_SPACE_RGB}|${REG_COLOR_SPACE_XYZ})(?:\\s+
 const REG_COLOR_TYPE = `[a-z]+|#(?:[\\da-f]{3}|[\\da-f]{4}|[\\da-f]{6}|[\\da-f]{8})|hsla?\\(\\s*(?:${REG_HSL_HWB}|${REG_HSL_LV3})\\s*\\)|hwb\\(\\s*${REG_HSL_HWB}\\s*\\)|rgba?\\(\\s*(?:${REG_RGB}|${REG_RGB_LV3})\\s*\\)|(?:ok)?lab\\(\\s*${REG_LAB}\\s*\\)|(?:ok)?lch\\(\\s*${REG_LCH}\\s*\\)|color\\(\\s*${REG_COLOR_FUNC}\\s*\\)`;
 const REG_COLOR_MIX_PART = `(?:${REG_COLOR_TYPE})(?:\\s+${REG_PCT})?`;
 const REG_COLOR_MIX_CAPT = `color-mix\\(\\s*in\\s+(${REG_COLOR_SPACE_COLOR_MIX})\\s*,\\s*(${REG_COLOR_MIX_PART})\\s*,\\s*(${REG_COLOR_MIX_PART})\\s*\\)`;
+const REG_CURRENT_COLOR = /^currentColor$/i;
 
 /* named colors */
 const NAMED_COLORS = {
@@ -1642,7 +1643,7 @@ export const parseColorValue = (value, d50 = false) => {
   }
   let x, y, z, a;
   // complement currentcolor as a missing color
-  if (/^currentcolor$/.test(value)) {
+  if (REG_CURRENT_COLOR.test(value)) {
     x = 0;
     y = 0;
     z = 0;
@@ -1788,8 +1789,8 @@ export const resolveColorValue = value => {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
   let r, g, b, a;
-  // currentcolor
-  if (value === 'currentcolor') {
+  // complement currentcolor as a missing color
+  if (REG_CURRENT_COLOR.test(value)) {
     r = 0;
     g = 0;
     b = 0;
@@ -1888,12 +1889,10 @@ export const resolveColorMix = (value, opt = {}) => {
   }
   const CC_LCH = 'lch(none none none / none)';
   const CC_RGB = 'rgb(none none none / none)';
-  const [, colorSpace, colorPartA, colorPartB] = value.match(regColorMix);
   const regColorPart =
     new RegExp(`^(${REG_COLOR_TYPE})(?:\\s+(${REG_PCT}))?$`, 'i');
-  const regCurrentColor = /^currentColor$/i;
-  const regMissingLch = /^(?:h(?:sla?|wb)|(?:ok)?l(?:ab|ch))\((?:.*none){1,4}.*\)$/;
-  const regMissingRgb = /^(?:color|rgba?)\((?:.*none){1,4}.*\)$/;
+  const regMissingColor = new RegExp(NONE);
+  const [, colorSpace, colorPartA, colorPartB] = value.match(regColorMix);
   const [, colorA, pctA] = colorPartA.match(regColorPart);
   const [, colorB, pctB] = colorPartB.match(regColorPart);
   // normalize percentages and set multipler
@@ -1942,14 +1941,14 @@ export const resolveColorMix = (value, opt = {}) => {
     let rgbB = convertColorValueToRgb(colorB, {
       alpha: true
     });
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       rgbA = reInsertMissingColorComponents(CC_RGB, rgbA);
-    } else if (regMissingRgb.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       rgbA = reInsertMissingColorComponents(colorA, rgbA);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       rgbB = reInsertMissingColorComponents(CC_RGB, rgbB);
-    } else if (regMissingRgb.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       rgbB = reInsertMissingColorComponents(colorB, rgbB);
     }
     const [
@@ -1976,14 +1975,14 @@ export const resolveColorMix = (value, opt = {}) => {
     let rgbB = convertColorValueToLinearRgb(colorB, {
       alpha: true
     });
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       rgbA = reInsertMissingColorComponents(CC_RGB, rgbA);
-    } else if (regMissingRgb.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       rgbA = reInsertMissingColorComponents(colorA, rgbA);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       rgbB = reInsertMissingColorComponents(CC_RGB, rgbB);
-    } else if (regMissingRgb.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       rgbB = reInsertMissingColorComponents(colorB, rgbB);
     }
     const [
@@ -2015,14 +2014,14 @@ export const resolveColorMix = (value, opt = {}) => {
     } else {
       xyzB = parseColorValue(colorB);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       xyzA = reInsertMissingColorComponents(CC_RGB, xyzA);
-    } else if (regMissingRgb.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       xyzA = reInsertMissingColorComponents(colorA, xyzA);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       xyzB = reInsertMissingColorComponents(CC_RGB, xyzB);
-    } else if (regMissingRgb.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       xyzB = reInsertMissingColorComponents(colorB, xyzB);
     }
     const [
@@ -2056,14 +2055,14 @@ export const resolveColorMix = (value, opt = {}) => {
     } else {
       xyzB = parseColorValue(colorB, true);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       xyzA = reInsertMissingColorComponents(CC_RGB, xyzA);
-    } else if (regMissingRgb.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       xyzA = reInsertMissingColorComponents(colorA, xyzA);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       xyzB = reInsertMissingColorComponents(CC_RGB, xyzB);
-    } else if (regMissingRgb.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       xyzB = reInsertMissingColorComponents(colorB, xyzB);
     }
     const [
@@ -2102,17 +2101,17 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorValue(colorB);
       [hB, sB, lB, aB] = convertXyzToHsl(xyz);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       [lA, sA, hA, aA] =
         reInsertMissingColorComponents(CC_LCH, [lA, sA, hA, aA]);
-    } else if (regMissingLch.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       [lA, sA, hA, aA] =
         reInsertMissingColorComponents(colorA, [lA, sA, hA, aA]);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       [lB, sB, hB, aB] =
         reInsertMissingColorComponents(CC_LCH, [lB, sB, hB, aB]);
-    } else if (regMissingLch.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       [lB, sB, hB, aB] =
         reInsertMissingColorComponents(colorB, [lB, sB, hB, aB]);
     }
@@ -2151,17 +2150,17 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorValue(colorB);
       [hB, wB, bB, aB] = convertXyzToHwb(xyz);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       [,, hA, aA] =
         reInsertMissingColorComponents(CC_LCH, [null, null, hA, aA]);
-    } else if (regMissingLch.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       [,, hA, aA] =
         reInsertMissingColorComponents(colorA, [null, null, hA, aA]);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       [,, hB, aB] =
         reInsertMissingColorComponents(CC_LCH, [null, null, hB, aB]);
-    } else if (regMissingLch.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       [,, hB, aB] =
         reInsertMissingColorComponents(colorB, [null, null, hB, aB]);
     }
@@ -2201,17 +2200,17 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorValue(colorB, true);
       [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       [lA,,, aaA] =
         reInsertMissingColorComponents(CC_LCH, [lA, null, null, aaA]);
-    } else if (regMissingLch.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       [lA,,, aaA] =
         reInsertMissingColorComponents(colorA, [lA, null, null, aaA]);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       [lB,,, aaB] =
         reInsertMissingColorComponents(CC_LCH, [lB, null, null, aaB]);
-    } else if (regMissingLch.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       [lB,,, aaB] =
         reInsertMissingColorComponents(colorB, [lB, null, null, aaB]);
     }
@@ -2250,14 +2249,14 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorValue(colorB, true);
       lchB = convertXyzD50ToLch(xyz);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       lchA = reInsertMissingColorComponents(CC_LCH, lchA);
-    } else if (regMissingLch.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       lchA = reInsertMissingColorComponents(colorA, lchA);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       lchB = reInsertMissingColorComponents(CC_LCH, lchB);
-    } else if (regMissingLch.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       lchB = reInsertMissingColorComponents(colorB, lchB);
     }
     const [
@@ -2296,17 +2295,17 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorValue(colorB);
       [lB, aB, bB, aaB] = convertXyzToOklab(xyz);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       [lA,,, aaA] =
         reInsertMissingColorComponents(CC_LCH, [lA, null, null, aaA]);
-    } else if (regMissingLch.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       [lA,,, aaA] =
         reInsertMissingColorComponents(colorA, [lA, null, null, aaA]);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       [lA,,, aaB] =
         reInsertMissingColorComponents(CC_LCH, [lB, null, null, aaB]);
-    } else if (regMissingLch.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       [lB,,, aaB] =
         reInsertMissingColorComponents(colorB, [lB, null, null, aaB]);
     }
@@ -2345,20 +2344,20 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorValue(colorB, true);
       lchB = convertXyzToOklch(xyz);
     }
-    if (regCurrentColor.test(colorA)) {
+    if (REG_CURRENT_COLOR.test(colorA)) {
       lchA = reInsertMissingColorComponents(CC_LCH, lchA);
-    } else if (regMissingLch.test(colorA)) {
+    } else if (regMissingColor.test(colorA)) {
       lchA = reInsertMissingColorComponents(colorA, lchA);
     }
-    if (regCurrentColor.test(colorB)) {
+    if (REG_CURRENT_COLOR.test(colorB)) {
       lchB = reInsertMissingColorComponents(CC_LCH, lchB);
-    } else if (regMissingLch.test(colorB)) {
+    } else if (regMissingColor.test(colorB)) {
       lchB = reInsertMissingColorComponents(colorB, lchB);
     }
-    if (regMissingLch.test(colorA)) {
+    if (regMissingColor.test(colorA)) {
       lchA = reInsertMissingColorComponents(colorA, lchA);
     }
-    if (regMissingLch.test(colorB)) {
+    if (regMissingColor.test(colorB)) {
       lchB = reInsertMissingColorComponents(colorB, lchB);
     }
     const [
