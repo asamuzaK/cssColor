@@ -28,8 +28,8 @@ resolve CSS color
   * [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported
 * `opt` **[object][94]?** options
   * `opt.currentColor` **[string][93]?** color to use for `currentcolor` keyword
-  * `opt.format` **[string][93]?** `rgb`(default), `array`, `hex` or `hexAlpha`
-    * `hexAlpha` is a hex color notation with alpha channel, i.e. `#rrggbbaa`
+  * `opt.format` **[string][93]?** one of `rgb`(default), `array`, `hex` or `hexAlpha`
+    * `hexAlpha` gets hex color with alpha channel, i.e. `#rrggbbaa`
   * `opt.key` **any?** key e.g. CSS property `background-color`
 
 Returns **([string][93]? | [Array][96])** `rgba?()`, `[r, g, b, a]`, `#rrggbb(aa)?`, `null`, or if `key` is specified, `[key, rgba?()|[r, g, b, a]|#rrggbb(aa)?|null]`
