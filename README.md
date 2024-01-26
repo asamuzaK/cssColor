@@ -56,7 +56,7 @@ Parse CSS color.
 
 #### Parameters
 
-* `value` **[string][93]** color value
+* `color` **[string][93]** color value
   * `color-mix()` and [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported
 * `opt` **[object][94]?** options
   * `opt.d50` **[boolean][95]?** get xyz values in d50 white point
