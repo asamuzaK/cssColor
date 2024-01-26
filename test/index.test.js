@@ -178,3 +178,13 @@ describe('parse CSS color', () => {
     assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
   });
 });
+
+describe('convert', () => {
+  const { convert, parse } = api;
+
+  it('should get value', () => {
+    const xyz = parse('lab(46.2775% -47.5621 48.5837)');
+    const hex = convert.xyzToHex(xyz);
+    assert.strictEqual(hex, '#008000', 'result');
+  });
+});
