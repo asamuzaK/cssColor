@@ -52,6 +52,11 @@ parse CSS color
 Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 
+## convert
+
+container for conversion functions
+
+
 ## convert.xyzToHex
 
 convert xyz to hex color
