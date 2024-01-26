@@ -1892,8 +1892,8 @@ export const resolveColorMix = (value, opt = {}) => {
   const regColorPart =
     new RegExp(`^(${REG_COLOR_TYPE})(?:\\s+(${REG_PCT}))?$`, 'i');
   const regCurrentColor = /^currentColor$/i;
-  const regMissingLch = /^(?:h(?:sla?|wb)|(?:ok)?l(?:ab|ch))\(.*none.*\)$/;
-  const regMissingRgb = /^(?:color|rgba?)\(.*none.*\)$/;
+  const regMissingLch = /^(?:h(?:sla?|wb)|(?:ok)?l(?:ab|ch))\((?:.*none){1,4}.*\)$/;
+  const regMissingRgb = /^(?:color|rgba?)\((?:.*none){1,4}.*\)$/;
   const [, colorA, pctA] = colorPartA.match(regColorPart);
   const [, colorB, pctB] = colorPartB.match(regColorPart);
   // normalize percentages and set multipler
