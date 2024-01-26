@@ -28,7 +28,7 @@ resolve CSS color
   * [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported
 * `opt` **[object][94]?** options
   * `opt.currentColor` **[string][93]?** color to use for `currentcolor` keyword
-  * `opt.format` **[string][93]?** one of `rgb`(default), `array`, `hex` or `hexAlpha`
+  * `opt.format` **[string][93]?** output format, one of `rgb`(default), `array`, `hex` or `hexAlpha`
     * `hexAlpha` gets hex color with alpha channel, i.e. `#rrggbbaa`
   * `opt.key` **any?** key e.g. CSS property `background-color`
 
@@ -47,7 +47,7 @@ parse CSS color
 * `value` **[string][93]** color value
   * `color-mix()` and [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported
 * `opt` **[object][94]?** options
-  * `opt.d50` **[boolean][95]?** xyz in d50 white point
+  * `opt.d50` **[boolean][95]?** get xyz values in d50 white point
 
 Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
