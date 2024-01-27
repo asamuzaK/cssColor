@@ -16,17 +16,22 @@ import { getType, isString } from './js/common.js';
 /**
  * resolve CSS color
  * @param {string} color - color value
- *  - system colors are not supported
+ *   - system colors are not supported
  * @param {object} [opt] - options
- * @param {string} [opt.currentColor] - color to use for 'currentcolor' keyword
- * @param {string} [opt.format] - 'rgb'(default), 'array', 'hex' or 'hexAlpha'
- *   - 'hexAlpha' is a hex color notation with alpha channel, i.e. #rrggbbaa
+ * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
+ * @param {string} [opt.format] - `rgb`(default), `array`, `hex` or `hexAlpha`
+ *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array} - rgba?(), [r, g, b, a], #rrggbb(aa)?, null
  *   - if `key` is specified, [key, rgba?()|[r, g, b, a]|#rrggbb(aa)?|null]
- *   - in 'rgb', 'r', 'g', 'b' values are rounded
- *   - in 'array', values are floating point
- *   - in 'hex', 'transparent' resolves as 'null'
+ *   - in `rgb`, `r`, `g`, `b` values are rounded,
+ *     resolves as empty string if any of `r`, `g`, `b`, `a` is not a number
+ *   - in `array`, values are floating point,
+ *     if any of `r`, `g`, `b`, `a` is not a number then they stay as is,
+ *     e.g. [undefined, undefined, undefined, undefined]
+ *   - in `hex`, `transparent` resolves as `null`,
+ *     also resolves as `null` if any of `r`, `g`, `b`, `a` is not a number
+ *   - in `hexAlpha`, resolves as `null` if any of `r`, `g`, `b`, `a` is not a number
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
@@ -75,7 +80,7 @@ export const resolve = (color, opt = {}) => {
     }
     case 'hex': {
       let hex;
-      if (/^transparent$/i.test(color)) {
+      if (/^transparent$/i.test(color) || isNaN(r) || isNaN(g) || isNaN(b)) {
         hex = null;
       } else {
         hex = convertRgbToHex([r, g, b]);
@@ -91,6 +96,8 @@ export const resolve = (color, opt = {}) => {
       let hex;
       if (/^transparent$/i.test(color)) {
         hex = '#00000000';
+      } else if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
+        hex = null;
       } else {
         hex = convertRgbToHex([r, g, b, a]);
       }
@@ -103,11 +110,17 @@ export const resolve = (color, opt = {}) => {
     }
     default: {
       let rgb;
-      if (a === 1) {
-        rgb = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
+        rgb = '';
       } else {
-        rgb =
-          `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
+        r = Math.round(r);
+        g = Math.round(g);
+        b = Math.round(b);
+        if (a === 1) {
+          rgb = `rgb(${r}, ${g}, ${b})`;
+        } else {
+          rgb = `rgba(${r}, ${g}, ${b}, ${a})`;
+        }
       }
       if (key) {
         res = [key, rgb];
