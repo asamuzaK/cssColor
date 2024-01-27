@@ -18,6 +18,7 @@
   ],
   "type": "module",
   "exports": {
+    "browser": "./dist/esm/css-color.js",
     "import": "./src/index.js",
     "require": "./dist/cjs/index.js"
   },
@@ -34,12 +35,15 @@
     "eslint-plugin-regexp": "^2.2.0",
     "eslint-plugin-unicorn": "^50.0.1",
     "mocha": "^10.2.0",
+    "npm-run-all": "^4.1.5",
     "sinon": "^17.0.1",
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "build": "npm run tsc && npm run lint && npm test && npm run compat",
-    "compat": "esbuild --format=cjs --platform=node --outdir=dist/cjs/ --minify --sourcemap src/**/*.js",
+    "build": "npm run tsc && npm run lint && npm test && npm run bundle",
+    "bundle": "npm-run-all -s bundle-*",
+    "bundle-browser": "esbuild --format=esm --platform=node --outfile=dist/esm/css-color.js --bundle --minify --sourcemap src/index.js",
+    "bundle-cjs": "esbuild --format=cjs --platform=node --outdir=dist/cjs/ --minify --sourcemap src/**/*.js",
     "lint": "eslint --fix .",
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
     "tsc": "npx tsc"
