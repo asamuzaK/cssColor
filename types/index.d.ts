@@ -7,6 +7,7 @@ export function parse(value: string, opt?: {
     d50?: boolean;
 }): Array<number>;
 export namespace convert {
+    export { convertRgbToHex as rgbToHex };
     export { convertXyzD50ToLab as xyzD50ToLab };
     export { convertXyzD50ToLch as xyzD50ToLch };
     export { convertXyzToHex as xyzToHex };
@@ -17,6 +18,7 @@ export namespace convert {
     export { convertXyzToRgb as xyzToRgb };
     export { convertXyzToXyzD50 as xyzToXyzD50 };
 }
+import { convertRgbToHex } from './js/color.js';
 import { convertXyzD50ToLab } from './js/color.js';
 import { convertXyzD50ToLch } from './js/color.js';
 import { convertXyzToHex } from './js/color.js';
