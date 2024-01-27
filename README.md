@@ -79,6 +79,17 @@ Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 Contains conversion functions as properties.
 
 
+### convert.rgbToHex
+
+Convert rgb to hex color notation.
+
+#### Parameters
+
+* `rgb` **[Array][96]<[number][97]>** `[r, g, b, a]` r|g|b: 0..255 a: 0..1
+
+Returns **[string][93]** `#rrggbbaa`
+
+
 ### convert.xyzToHex
 
 Convert xyz to hex color notation.

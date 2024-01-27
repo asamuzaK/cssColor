@@ -161,6 +161,7 @@ export const parse = (value, opt = {}) => {
 
 /**
  * convert
+ * @property {Function} rgbToHex - convert rgb to hex
  * @property {Function} xyzD50ToHex - convert xyz d50 to hex
  * @property {Function} xyzD50ToLab - convert xyz d50 to lab
  * @property {Function} xyzD50ToLch - convert xyz d50 to lch
@@ -174,6 +175,7 @@ export const parse = (value, opt = {}) => {
  * @property {Function} xyzToXyzD50 - convert xyz to xyz d50
  */
 export const convert = {
+  rgbToHex: convertRgbToHex,
   xyzD50ToLab: convertXyzD50ToLab,
   xyzD50ToLch: convertXyzD50ToLch,
   xyzToHex: convertXyzToHex,
