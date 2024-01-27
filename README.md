@@ -46,18 +46,18 @@ Resolve CSS color.
 Returns **([string][93]? | [Array][96])** `rgba?()`, `[r, g, b, a]`, `#rrggbb(aa)?`, `null`, or if `key` is specified, `[key, rgba?()|[r, g, b, a]|#rrggbb(aa)?|null]`
 * In `rgb`:
   * `r`, `g`, `b` values are rounded.
-  * Returns empty string if any of `r`, `g`, `b`, `a` is not a number.
+  * Returns empty string for unknown / unsupported color name.
 * In `array`:
   * Values are floats.
-  * They stay as is even if any of `r`, `g`, `b`, `a` is not a number, e.g. `[undefined, undefined, undefined, undefined]`.
+  * Returns array filled with undefined for unknown / unsupported color name, i.e. `[undefined, undefined, undefined, undefined]`.
 * In `hex`:
   * `transparent` returns `null`.
-  * Also returns `null` if any of `r`, `g`, `b`, `a` is not a number.
+  * Also returns `null` for unknown / unsupported color name.
   * `currentcolor` resolves as `#000000` if `opt.currentColor` is not specified.
 * In `hexAlpha`:
   * `transparent` resolves as `#00000000`.
   * `currentcolor` resolves as `#00000000` if `opt.currentColor` is not specified.
-  * Returns `null` if any of `r`, `g`, `b`, `a` is not a number.
+  * Returns `null` for unknown / unsupported color name.
 
 
 ### parse
@@ -67,7 +67,7 @@ Parse CSS color.
 #### Parameters
 
 * `color` **[string][93]** color value
-  * `color-mix()` and [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported
+  * `color-mix()` and [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported. It throws.
 * `opt` **[object][94]?** options
   * `opt.d50` **[boolean][95]?** get xyz values in d50 white point
 
