@@ -1805,12 +1805,6 @@ export const resolveColorValue = value => {
       g = 0;
       b = 0;
       a = 0;
-    // initial
-    } else {
-      r = 0;
-      g = 0;
-      b = 0;
-      a = 1;
     }
   // hex-color
   } else if (value.startsWith('#')) {
@@ -1843,12 +1837,18 @@ export const resolveColorValue = value => {
   } else if (value.startsWith('hwb')) {
     [r, g, b, a] = parseHwb(value);
   }
-  return [
-    Math.round(r),
-    Math.round(g),
-    Math.round(b),
-    a
-  ];
+  let res;
+  if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
+    res = [];
+  } else {
+    res = [
+      Math.round(r),
+      Math.round(g),
+      Math.round(b),
+      a
+    ];
+  }
+  return res;
 };
 
 /**

@@ -4283,9 +4283,9 @@ describe('resolve color value', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should get null', () => {
+  it('should get empty array', () => {
     const res = func('foo');
-    assert.deepEqual(res, [0, 0, 0, 1], 'result');
+    assert.deepEqual(res, [], 'result');
   });
 
   it('should get value', () => {

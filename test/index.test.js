@@ -17,6 +17,11 @@ describe('resolve CSS color', () => {
       'Expected String but got Undefined.');
   });
 
+  it('should get empty string', () => {
+    const res = func('foo');
+    assert.strictEqual(res, '', 'result');
+  });
+
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
@@ -76,6 +81,18 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('foo)', {
+      format: 'array'
+    });
+    assert.deepEqual(res, [
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    ], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       format: 'array'
     });
@@ -92,6 +109,13 @@ describe('resolve CSS color', () => {
 
   it('should get null', () => {
     const res = func('transparent', {
+      format: 'hex'
+    });
+    assert.isNull(res, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo', {
       format: 'hex'
     });
     assert.isNull(res, 'result');
@@ -124,6 +148,13 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha'
     });
     assert.strictEqual(res, '#00000000', 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo', {
+      format: 'hexAlpha'
+    });
+    assert.isNull(res, 'result');
   });
 
   it('should get value', () => {
