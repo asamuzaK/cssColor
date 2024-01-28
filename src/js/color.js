@@ -107,14 +107,14 @@ const REG_COLOR_SPACE_RGB =
 const REG_NUM =
   '[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?';
 const REG_PCT = `${REG_NUM}%`;
-const REG_HSL_HWB = `(?:${REG_NUM}(?:${REG_ANGLE})?|${NONE})(?:\\s+(?:${REG_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
+const REG_HSL = `(?:${REG_NUM}(?:${REG_ANGLE})?|${NONE})(?:\\s+(?:${REG_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
 const REG_HSL_LV3 = `${REG_NUM}(?:${REG_ANGLE})?(?:\\s*,\\s*${REG_PCT}){2}(?:\\s*,\\s*(?:${REG_NUM}|${REG_PCT}))?`;
 const REG_RGB = `(?:(?:${REG_NUM}|${NONE})(?:\\s+(?:${REG_NUM}|${NONE})){2}|(?:${REG_PCT}|${NONE})(?:\\s+(?:${REG_PCT}|${NONE})){2})(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
 const REG_RGB_LV3 = `(?:${REG_NUM}(?:\\s*,\\s*${REG_NUM}){2}|${REG_PCT}(?:\\s*,\\s*${REG_PCT}){2})(?:\\s*,\\s*(?:${REG_NUM}|${REG_PCT}))?`;
 const REG_LAB = `(?:${REG_NUM}|${REG_PCT}|${NONE})(?:\\s+(?:${REG_NUM}|${REG_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
 const REG_LCH = `(?:(?:${REG_NUM}|${REG_PCT}|${NONE})\\s+){2}(?:${REG_NUM}(?:${REG_ANGLE})?|${NONE})(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
 const REG_COLOR_FUNC = `(?:${REG_COLOR_SPACE_RGB}|${REG_COLOR_SPACE_XYZ})(?:\\s+(?:${REG_NUM}|${REG_PCT}|${NONE})){3}(?:\\s*\\/\\s*(?:${REG_NUM}|${REG_PCT}|${NONE}))?`;
-const REG_COLOR_TYPE = `[a-z]+|#(?:[\\da-f]{3}|[\\da-f]{4}|[\\da-f]{6}|[\\da-f]{8})|hsla?\\(\\s*(?:${REG_HSL_HWB}|${REG_HSL_LV3})\\s*\\)|hwb\\(\\s*${REG_HSL_HWB}\\s*\\)|rgba?\\(\\s*(?:${REG_RGB}|${REG_RGB_LV3})\\s*\\)|(?:ok)?lab\\(\\s*${REG_LAB}\\s*\\)|(?:ok)?lch\\(\\s*${REG_LCH}\\s*\\)|color\\(\\s*${REG_COLOR_FUNC}\\s*\\)`;
+const REG_COLOR_TYPE = `[a-z]+|#(?:[\\da-f]{3}|[\\da-f]{4}|[\\da-f]{6}|[\\da-f]{8})|hsla?\\(\\s*(?:${REG_HSL}|${REG_HSL_LV3})\\s*\\)|hwb\\(\\s*${REG_HSL}\\s*\\)|rgba?\\(\\s*(?:${REG_RGB}|${REG_RGB_LV3})\\s*\\)|(?:ok)?lab\\(\\s*${REG_LAB}\\s*\\)|(?:ok)?lch\\(\\s*${REG_LCH}\\s*\\)|color\\(\\s*${REG_COLOR_FUNC}\\s*\\)`;
 const REG_COLOR_MIX_PART = `(?:${REG_COLOR_TYPE})(?:\\s+${REG_PCT})?`;
 const REG_COLOR_MIX_CAPT = `color-mix\\(\\s*in\\s+(${REG_COLOR_SPACE_COLOR_MIX})\\s*,\\s*(${REG_COLOR_MIX_PART})\\s*,\\s*(${REG_COLOR_MIX_PART})\\s*\\)`;
 const REG_CURRENT_COLOR = /^currentColor$/i;
@@ -397,7 +397,7 @@ export const reInsertMissingColorComponents = (value, color = []) => {
   if (/none/.test(value)) {
     const regRgb = new RegExp(`^rgba?\\(\\s*(${REG_RGB})\\s*\\)$`);
     const regColor = new RegExp(`^color\\(\\s*(${REG_COLOR_FUNC})\\s*\\)$`);
-    const regHsl = new RegExp(`^h(?:sla?|wb)\\(\\s*(${REG_HSL_HWB})\\s*\\)$`);
+    const regHsl = new RegExp(`^h(?:sla?|wb)\\(\\s*(${REG_HSL})\\s*\\)$`);
     const regLab = new RegExp(`^(?:ok)?lab\\(\\s*(${REG_LAB})\\s*\\)$`);
     const regLch = new RegExp(`^(?:ok)?lch\\(\\s*(${REG_LCH})\\s*\\)$`);
     // rgb()
@@ -1109,8 +1109,7 @@ export const parseHsl = value => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const reg =
-    new RegExp(`^hsla?\\(\\s*(${REG_HSL_HWB}|${REG_HSL_LV3})\\s*\\)$`);
+  const reg = new RegExp(`^hsla?\\(\\s*(${REG_HSL}|${REG_HSL_LV3})\\s*\\)$`);
   if (!reg.test(value)) {
     throw new Error(`Invalid property value: ${value}`);
   }
@@ -1198,7 +1197,7 @@ export const parseHwb = value => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const reg = new RegExp(`^hwb\\(\\s*(${REG_HSL_HWB})\\s*\\)$`);
+  const reg = new RegExp(`^hwb\\(\\s*(${REG_HSL})\\s*\\)$`);
   if (!reg.test(value)) {
     throw new Error(`Invalid property value: ${value}`);
   }
