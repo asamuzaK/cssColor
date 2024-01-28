@@ -49,7 +49,7 @@ Returns **([string][93]? | [Array][96])** `rgba?()`, `[r, g, b, a]`, `#rrggbb(aa
   * Returns empty string for unknown / unsupported color name.
 * In `array`:
   * Values are floats.
-  * Returns array filled with undefined for unknown / unsupported color name, i.e. `[undefined, undefined, undefined, undefined]`.
+  * Returns array filled with `undefined` for unknown / unsupported color name, i.e. `[undefined, undefined, undefined, undefined]`.
 * In `hex`:
   * `transparent` returns `null`.
   * Also returns `null` for unknown / unsupported color name.
@@ -76,7 +76,7 @@ Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
 
 ### convert
 
-Contains conversion functions as properties.
+Contains various conversion functions as properties.
 
 
 ### convert.numberToHex
