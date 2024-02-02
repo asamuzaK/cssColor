@@ -162,6 +162,8 @@ export const parse = (value, opt = {}) => {
 
 /**
  * convert
+ * @property {Function} hexToRgb - convert hex to rgb
+ * @property {Function} numberToHex - number to hex string
  * @property {Function} rgbToHex - convert rgb to hex
  * @property {Function} xyzD50ToHex - convert xyz d50 to hex
  * @property {Function} xyzD50ToLab - convert xyz d50 to lab
