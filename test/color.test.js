@@ -4383,6 +4383,11 @@ describe('resolve color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('rgb(50% 33% 34%)');
+    assert.deepEqual(res, [128, 84, 87, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('hsl(240 100% 50% / 0.5)');
     assert.deepEqual(res, [0, 0, 255, 0.5], 'result');
   });
