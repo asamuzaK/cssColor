@@ -45,7 +45,7 @@
     "bundle-cjs": "esbuild --format=cjs --platform=node --outfile=dist/cjs/css-color.min.cjs --bundle --minify --sourcemap src/index.js",
     "lint": "eslint --fix .",
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
-    "tsc": "npx tsc"
+    "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
   },
   "version": "1.0.4"
 }
