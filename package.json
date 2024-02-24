@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "exports": {
-    "browser": "./dist/esm/css-color.js",
+    "browser": "./dist/esm/css-color.min.js",
     "import": "./src/index.js",
     "require": "./dist/cjs/index.js"
   },
