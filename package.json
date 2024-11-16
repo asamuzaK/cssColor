@@ -24,12 +24,14 @@
   },
   "types": "types/index.d.ts",
   "devDependencies": {
+    "c8": "^10.1.2",
     "esbuild": "^0.24.0",
     "eslint": "^9.14.0",
     "eslint-plugin-import-x": "^4.4.2",
     "eslint-plugin-jsdoc": "^50.5.0",
     "eslint-plugin-regexp": "^2.6.0",
     "globals": "^15.12.0",
+    "mocha": "^10.8.2",
     "neostandard": "^0.11.8",
     "npm-run-all2": "^7.0.1",
     "sinon": "^19.0.2",
@@ -41,7 +43,7 @@
     "bundle-browser": "esbuild --format=esm --platform=browser --outfile=dist/esm/css-color.min.js --bundle --minify --sourcemap src/index.js",
     "bundle-cjs": "esbuild --format=cjs --platform=node --outfile=dist/cjs/css-color.min.cjs --bundle --minify --sourcemap src/index.js",
     "lint": "eslint --fix .",
-    "test": "node --test --experimental-test-coverage",
+    "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
     "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
   },
   "version": "1.1.0"
