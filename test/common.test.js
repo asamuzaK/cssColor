@@ -54,14 +54,14 @@ describe('is string', () => {
   it('should get false', () => {
     const items = [[], ['foo'], {}, { foo: 'bar' }, undefined, null, 1, true];
     for (const item of items) {
-      assert.equal(func(item), false);
+      assert.strictEqual(func(item), false);
     }
   });
 
   it('should get true', () => {
     const items = ['', 'foo'];
     for (const item of items) {
-      assert.equal(func(item), true);
+      assert.strictEqual(func(item), true);
     }
   });
 });
