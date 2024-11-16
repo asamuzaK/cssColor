@@ -3,8 +3,8 @@
  */
 
 /* api */
-import { assert } from 'chai';
-import { describe, it } from 'mocha';
+import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
 /* test */
 import * as common from '../src/js/common.js';
@@ -54,14 +54,14 @@ describe('is string', () => {
   it('should get false', () => {
     const items = [[], ['foo'], {}, { foo: 'bar' }, undefined, null, 1, true];
     for (const item of items) {
-      assert.isFalse(func(item));
+      assert.equal(func(item), false);
     }
   });
 
   it('should get true', () => {
     const items = ['', 'foo'];
     for (const item of items) {
-      assert.isTrue(func(item));
+      assert.equal(func(item), true);
     }
   });
 });

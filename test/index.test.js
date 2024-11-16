@@ -3,8 +3,8 @@
  */
 
 /* api */
-import { assert } from 'chai';
-import { describe, it } from 'mocha';
+import { strict as assert } from 'node:assert';
+import { describe, it } from 'node:test';
 
 /* test */
 import * as api from '../src/index.js';
@@ -111,14 +111,14 @@ describe('resolve CSS color', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.isNull(res, 'result');
+    assert.deepEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.isNull(res, 'result');
+    assert.deepEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -154,7 +154,7 @@ describe('resolve CSS color', () => {
     const res = func('foo', {
       format: 'hexAlpha'
     });
-    assert.isNull(res, 'result');
+    assert.deepEqual(res, null, 'result');
   });
 
   it('should get value', () => {

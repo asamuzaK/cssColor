@@ -531,6 +531,8 @@ export const angleToDeg = angle => {
   deg %= DEG;
   if (deg < 0) {
     deg += DEG;
+  } else if (Object.is(deg, -0)) {
+    deg = 0;
   }
   return deg;
 };
