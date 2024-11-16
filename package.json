@@ -41,7 +41,7 @@
     "bundle-browser": "esbuild --format=esm --platform=browser --outfile=dist/esm/css-color.min.js --bundle --minify --sourcemap src/index.js",
     "bundle-cjs": "esbuild --format=cjs --platform=node --outfile=dist/cjs/css-color.min.cjs --bundle --minify --sourcemap src/index.js",
     "lint": "eslint --fix .",
-    "test": "node --test --experimental-test-coverage",
+    "test": "node --test --experimental-test-coverage **/test/*.test.js",
     "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
   },
   "version": "1.1.0"
