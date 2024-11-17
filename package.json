@@ -23,6 +23,9 @@
     "require": "./dist/cjs/css-color.min.cjs"
   },
   "types": "types/index.d.ts",
+  "dependencies": {
+    "lru-cache": "^11.0.2"
+  },
   "devDependencies": {
     "c8": "^10.1.2",
     "esbuild": "^0.24.0",
