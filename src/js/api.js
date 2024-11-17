@@ -63,11 +63,24 @@ export const resolve = (color, opt = {}) => {
       b = 0;
       a = 0;
     }
+  } else if (/currentcolor/i.test(color)) {
+    if (/transparent/i.test(color)) {
+      color = color.replace(/transparent/gi, 'rgba(0, 0, 0, 0)');
+    }
+    if (currentColor && color.startsWith('color-mix')) {
+      color = color.replace(/currentcolor/gi, currentColor);
+      [r, g, b, a] = resolveColorMix(color);
+    }
   } else if (/^transparent$/i.test(color)) {
     r = 0;
     g = 0;
     b = 0;
     a = 0;
+  } else if (/transparent/i.test(color)) {
+    color = color.replace(/transparent/gi, 'rgba(0, 0, 0, 0)');
+    if (color.startsWith('color-mix')) {
+      [r, g, b, a] = resolveColorMix(color);
+    }
   } else if (color.startsWith('color-mix')) {
     [r, g, b, a] = resolveColorMix(color);
   } else if (color.startsWith('color(')) {

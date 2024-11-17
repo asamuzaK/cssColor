@@ -86,6 +86,35 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in srgb, blue, currentcolor)', {
+      currentColor: 'red'
+    });
+    assert.strictEqual(res, 'rgb(128, 0, 128)', 'result');
+    const res2 = func('color-mix(in srgb, blue, currentColor)', {
+      currentColor: 'red'
+    });
+    assert.strictEqual(res2, 'rgb(128, 0, 128)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in srgb, transparent, currentcolor)', {
+      currentColor: 'red'
+    });
+    assert.strictEqual(res, 'rgba(255, 0, 0, 0.5)', 'result');
+    const res2 = func('color-mix(in srgb, transparent, currentColor)', {
+      currentColor: 'red'
+    });
+    assert.strictEqual(res2, 'rgba(255, 0, 0, 0.5)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in srgb, transparent, red)');
+    assert.strictEqual(res, 'rgba(255, 0, 0, 0.5)', 'result');
+    const res2 = func('color-mix(in srgb, transparent, red)');
+    assert.strictEqual(res2, 'rgba(255, 0, 0, 0.5)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
     const res2 = func('color(srgb 0 0.5 0)');
