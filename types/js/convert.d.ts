@@ -1,0 +1,31 @@
+export const cachedResults: LRUCache<{}, {}, unknown>;
+export function hexToRgb(value: string): Array<number>;
+export function numberToHex(value: number): string;
+export function rgbToHex(rgb: Array<number>): string;
+export function convertXyz(xyz: Array<number>, name: string): string | Array<number>;
+export function xyzD50ToHex(xyz: Array<number>): string;
+export function xyzD50ToLab(xyz: Array<number>): Array<number>;
+export function xyzD50ToLch(xyz: Array<number>): Array<number>;
+export function xyzToHex(xyz: Array<number>): string;
+export function xyzToHsl(xyz: Array<number>): Array<number>;
+export function xyzToHwb(xyz: Array<number>): Array<number>;
+export function xyzToOklab(xyz: Array<number>): Array<number>;
+export function xyzToOklch(xyz: Array<number>): Array<number>;
+export function xyzToRgb(xyz: Array<number>): Array<number>;
+export function xyzToXyzD50(xyz: Array<number>): Array<number>;
+export namespace convert {
+    export { hexToRgb };
+    export { numberToHex };
+    export { rgbToHex };
+    export { xyzD50ToHex };
+    export { xyzD50ToLab };
+    export { xyzD50ToLch };
+    export { xyzToHex };
+    export { xyzToHsl };
+    export { xyzToHwb };
+    export { xyzToOklab };
+    export { xyzToOklch };
+    export { xyzToRgb };
+    export { xyzToXyzD50 };
+}
+import { LRUCache } from 'lru-cache';

@@ -7,16 +7,14 @@
 
 import { LRUCache } from 'lru-cache';
 import {
-  convertHexToRgb, convertRgbToHex, convertXyzD50ToLab, convertXyzD50ToLch,
-  convertXyzToHex, convertXyzToHsl, convertXyzToHwb, convertXyzToOklab,
-  convertXyzToOklch, convertXyzToRgb, convertXyzToXyzD50, numberToHexString,
-  parseColorFunc, parseColorValue, resolveColorFunc, resolveColorMix,
-  resolveColorValue
+  convertRgbToHex, parseColorFunc, parseColorValue, resolveColorFunc,
+  resolveColorMix, resolveColorValue
 } from './js/color.js';
 import { getType, isString } from './js/common.js';
+export { convert } from './js/convert.js';
 
-/* cache resolved colors */
-const resolvedColors = new LRUCache({
+/* cached results */
+export const cachedResults = new LRUCache({
   max: 4096
 });
 
@@ -46,9 +44,10 @@ export const resolve = (color, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(color)}.`);
   }
-  const cacheKey = `{color:${color.toLowerCase()},opt:${JSON.stringify(opt)}}`;
-  if (resolvedColors.has(cacheKey)) {
-    return resolvedColors.get(cacheKey);
+  const cacheKey =
+    `{resolve:${color.toLowerCase()},opt:${JSON.stringify(opt)}}`;
+  if (cachedResults.has(cacheKey)) {
+    return cachedResults.get(cacheKey);
   }
   const { currentColor, format, key } = opt;
   let r, g, b, a;
@@ -140,7 +139,7 @@ export const resolve = (color, opt = {}) => {
       }
     }
   }
-  resolvedColors.set(cacheKey, res);
+  cachedResults.set(cacheKey, res);
   return res;
 };
 
@@ -161,6 +160,10 @@ export const parse = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
+  const cacheKey = `{parse:${value.toLowerCase()},opt:${JSON.stringify(opt)}}`;
+  if (cachedResults.has(cacheKey)) {
+    return cachedResults.get(cacheKey);
+  }
   const { d50 } = opt;
   let xyz;
   if (value.startsWith('color(')) {
@@ -168,37 +171,6 @@ export const parse = (value, opt = {}) => {
   } else {
     xyz = parseColorValue(value, d50);
   }
+  cachedResults.set(cacheKey, xyz);
   return xyz;
-};
-
-/**
- * convert
- * @property {Function} hexToRgb - convert hex to rgb
- * @property {Function} numberToHex - number to hex string
- * @property {Function} rgbToHex - convert rgb to hex
- * @property {Function} xyzD50ToHex - convert xyz d50 to hex
- * @property {Function} xyzD50ToLab - convert xyz d50 to lab
- * @property {Function} xyzD50ToLch - convert xyz d50 to lch
- * @property {Function} xyzD50ToRgb - convert xyz d50 to rgb
- * @property {Function} xyzToHex - convert xyz to hex
- * @property {Function} xyzToHsl - convert xyz to hsl
- * @property {Function} xyzToHwb - convert xyz to hwb
- * @property {Function} xyzToOklab - convert xyz to oklab
- * @property {Function} xyzToOklch - convert xyz to oklch
- * @property {Function} xyzToRgb - convert xyz to rgb
- * @property {Function} xyzToXyzD50 - convert xyz to xyz d50
- */
-export const convert = {
-  hexToRgb: convertHexToRgb,
-  numberToHex: numberToHexString,
-  rgbToHex: convertRgbToHex,
-  xyzD50ToLab: convertXyzD50ToLab,
-  xyzD50ToLch: convertXyzD50ToLch,
-  xyzToHex: convertXyzToHex,
-  xyzToHsl: convertXyzToHsl,
-  xyzToHwb: convertXyzToHwb,
-  xyzToOklab: convertXyzToOklab,
-  xyzToOklch: convertXyzToOklch,
-  xyzToRgb: convertXyzToRgb,
-  xyzToXyzD50: convertXyzToXyzD50
 };

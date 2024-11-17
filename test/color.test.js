@@ -1401,6 +1401,13 @@ describe('xyz to hwb', () => {
   });
 
   it('should get value', () => {
+    const xyz = color.convertRgbToXyz([0, 128, 0]);
+    const res = func(xyz);
+    res[2] = Math.round(res[2]);
+    assert.deepEqual(res, [120, 0, 50, 1], 'result');
+  });
+
+  it('should get value', () => {
     const xyz = color.convertRgbToXyz([64, 128, 0]);
     const res = func(xyz);
     res[0] = Math.round(res[0]);
