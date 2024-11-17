@@ -1,3 +1,5 @@
+export { convert } from "./js/convert.js";
+export const cachedResults: LRUCache<{}, {}, unknown>;
 export function resolve(color: string, opt?: {
     currentColor?: string;
     format?: string;
@@ -6,29 +8,4 @@ export function resolve(color: string, opt?: {
 export function parse(value: string, opt?: {
     d50?: boolean;
 }): Array<number>;
-export namespace convert {
-    export { convertHexToRgb as hexToRgb };
-    export { numberToHexString as numberToHex };
-    export { convertRgbToHex as rgbToHex };
-    export { convertXyzD50ToLab as xyzD50ToLab };
-    export { convertXyzD50ToLch as xyzD50ToLch };
-    export { convertXyzToHex as xyzToHex };
-    export { convertXyzToHsl as xyzToHsl };
-    export { convertXyzToHwb as xyzToHwb };
-    export { convertXyzToOklab as xyzToOklab };
-    export { convertXyzToOklch as xyzToOklch };
-    export { convertXyzToRgb as xyzToRgb };
-    export { convertXyzToXyzD50 as xyzToXyzD50 };
-}
-import { convertHexToRgb } from './js/color.js';
-import { numberToHexString } from './js/color.js';
-import { convertRgbToHex } from './js/color.js';
-import { convertXyzD50ToLab } from './js/color.js';
-import { convertXyzD50ToLch } from './js/color.js';
-import { convertXyzToHex } from './js/color.js';
-import { convertXyzToHsl } from './js/color.js';
-import { convertXyzToHwb } from './js/color.js';
-import { convertXyzToOklab } from './js/color.js';
-import { convertXyzToOklch } from './js/color.js';
-import { convertXyzToRgb } from './js/color.js';
-import { convertXyzToXyzD50 } from './js/color.js';
+import { LRUCache } from 'lru-cache';
