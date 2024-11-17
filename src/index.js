@@ -5,6 +5,7 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
+import { LRUCache } from 'lru-cache';
 import {
   convertHexToRgb, convertRgbToHex, convertXyzD50ToLab, convertXyzD50ToLch,
   convertXyzToHex, convertXyzToHsl, convertXyzToHwb, convertXyzToOklab,
@@ -13,6 +14,11 @@ import {
   resolveColorValue
 } from './js/color.js';
 import { getType, isString } from './js/common.js';
+
+/* cache resolved colors */
+const resolvedColors = new LRUCache({
+  max: 4096
+});
 
 /**
  * resolve CSS color
@@ -39,6 +45,10 @@ export const resolve = (color, opt = {}) => {
     color = color.trim();
   } else {
     throw new TypeError(`Expected String but got ${getType(color)}.`);
+  }
+  const cacheKey = `{color:${color.toLowerCase()},opt:${JSON.stringify(opt)}}`;
+  if (resolvedColors.has(cacheKey)) {
+    return resolvedColors.get(cacheKey);
   }
   const { currentColor, format, key } = opt;
   let r, g, b, a;
@@ -130,6 +140,7 @@ export const resolve = (color, opt = {}) => {
       }
     }
   }
+  resolvedColors.set(cacheKey, res);
   return res;
 };
 

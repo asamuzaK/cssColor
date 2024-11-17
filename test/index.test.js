@@ -20,6 +20,8 @@ describe('resolve CSS color', () => {
   it('should get empty string', () => {
     const res = func('foo');
     assert.strictEqual(res, '', 'result');
+    const res2 = func('foo');
+    assert.strictEqual(res2, '', 'result');
   });
 
   it('should get value', () => {
@@ -27,6 +29,10 @@ describe('resolve CSS color', () => {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
     assert.strictEqual(res, 'rgb(128, 0, 128)', 'result');
+    const res2 = func('currentColor', {
+      currentColor: 'color-mix(in srgb, blue, red)'
+    });
+    assert.strictEqual(res2, 'rgb(128, 0, 128)', 'result');
   });
 
   it('should get value', () => {
@@ -34,6 +40,10 @@ describe('resolve CSS color', () => {
       currentColor: 'color(srgb 0 0.5 0 / 0.5)'
     });
     assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    const res2 = func('currentColor', {
+      currentColor: 'color(srgb 0 0.5 0 / 0.5)'
+    });
+    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
   });
 
   it('should get value', () => {
@@ -41,36 +51,52 @@ describe('resolve CSS color', () => {
       currentColor: 'green'
     });
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('currentColor', {
+      currentColor: 'green'
+    });
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('currentColor');
     assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    const res2 = func('currentColor');
+    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('transparent');
     assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    const res2 = func('transparent');
+    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)');
     assert.strictEqual(res, 'rgb(128, 0, 128)', 'result');
+    const res2 = func('color-mix(in srgb, blue, red)');
+    assert.strictEqual(res2, 'rgb(128, 0, 128)', 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('color(srgb 0 0.5 0)');
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('green');
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('green');
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func(' GREEN ');
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func(' GREEN ');
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
   it('should get value', () => {
@@ -78,13 +104,26 @@ describe('resolve CSS color', () => {
       key: 'foo'
     });
     assert.deepEqual(res, ['foo', 'rgb(128, 0, 128)'], 'result');
+    const res2 = func('color-mix(in srgb, blue, red)', {
+      key: 'foo'
+    });
+    assert.deepEqual(res2, ['foo', 'rgb(128, 0, 128)'], 'result');
   });
 
   it('should get value', () => {
-    const res = func('foo)', {
+    const res = func('foo', {
       format: 'array'
     });
     assert.deepEqual(res, [
+      undefined,
+      undefined,
+      undefined,
+      undefined
+    ], 'result');
+    const res2 = func('foo', {
+      format: 'array'
+    });
+    assert.deepEqual(res2, [
       undefined,
       undefined,
       undefined,
@@ -97,6 +136,10 @@ describe('resolve CSS color', () => {
       format: 'array'
     });
     assert.deepEqual(res, [127.5, 0, 127.5, 1], 'result');
+    const res2 = func('color-mix(in srgb, blue, red)', {
+      format: 'array'
+    });
+    assert.deepEqual(res2, [127.5, 0, 127.5, 1], 'result');
   });
 
   it('should get value', () => {
@@ -105,6 +148,11 @@ describe('resolve CSS color', () => {
       key: 'foo'
     });
     assert.deepEqual(res, ['foo', [127.5, 0, 127.5, 1]], 'result');
+    const res2 = func('color-mix(in srgb, blue, red)', {
+      format: 'array',
+      key: 'foo'
+    });
+    assert.deepEqual(res2, ['foo', [127.5, 0, 127.5, 1]], 'result');
   });
 
   it('should get null', () => {
@@ -112,6 +160,10 @@ describe('resolve CSS color', () => {
       format: 'hex'
     });
     assert.deepEqual(res, null, 'result');
+    const res2 = func('transparent', {
+      format: 'hex'
+    });
+    assert.deepEqual(res2, null, 'result');
   });
 
   it('should get null', () => {
@@ -119,6 +171,10 @@ describe('resolve CSS color', () => {
       format: 'hex'
     });
     assert.deepEqual(res, null, 'result');
+    const res2 = func('foo', {
+      format: 'hex'
+    });
+    assert.deepEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -126,6 +182,10 @@ describe('resolve CSS color', () => {
       format: 'hex'
     });
     assert.strictEqual(res, '#008000', 'result');
+    const res2 = func('rgba(0% 50% 0% / 0.5)', {
+      format: 'hex'
+    });
+    assert.strictEqual(res2, '#008000', 'result');
   });
 
   it('should get value', () => {
@@ -133,6 +193,10 @@ describe('resolve CSS color', () => {
       format: 'hex'
     });
     assert.strictEqual(res, '#000000', 'result');
+    const res2 = func('currentColor', {
+      format: 'hex'
+    });
+    assert.strictEqual(res2, '#000000', 'result');
   });
 
   it('should get value', () => {
@@ -141,6 +205,11 @@ describe('resolve CSS color', () => {
       key: 'foo'
     });
     assert.deepEqual(res, ['foo', '#008000'], 'result');
+    const res2 = func('rgba(0% 50% 0%)', {
+      format: 'hex',
+      key: 'foo'
+    });
+    assert.deepEqual(res2, ['foo', '#008000'], 'result');
   });
 
   it('should get value', () => {
@@ -148,6 +217,10 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha'
     });
     assert.strictEqual(res, '#00000000', 'result');
+    const res2 = func('transparent', {
+      format: 'hexAlpha'
+    });
+    assert.strictEqual(res2, '#00000000', 'result');
   });
 
   it('should get null', () => {
@@ -155,6 +228,10 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha'
     });
     assert.deepEqual(res, null, 'result');
+    const res2 = func('foo', {
+      format: 'hexAlpha'
+    });
+    assert.deepEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -162,6 +239,10 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha'
     });
     assert.strictEqual(res, '#00800080', 'result');
+    const res2 = func('rgba(0% 50% 0% / 0.5)', {
+      format: 'hexAlpha'
+    });
+    assert.strictEqual(res2, '#00800080', 'result');
   });
 
   it('should get value', () => {
@@ -169,6 +250,10 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha'
     });
     assert.strictEqual(res, '#00000000', 'result');
+    const res2 = func('currentColor', {
+      format: 'hexAlpha'
+    });
+    assert.strictEqual(res2, '#00000000', 'result');
   });
 
   it('should get value', () => {
@@ -177,6 +262,11 @@ describe('resolve CSS color', () => {
       key: 'foo'
     });
     assert.deepEqual(res, ['foo', '#00800080'], 'result');
+    const res2 = func('rgba(0% 50% 0% / 0.5)', {
+      format: 'hexAlpha',
+      key: 'foo'
+    });
+    assert.deepEqual(res2, ['foo', '#00800080'], 'result');
   });
 });
 
