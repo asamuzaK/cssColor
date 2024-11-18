@@ -22,19 +22,25 @@ export const cachedResults = new LRUCache({
  *   - system colors are not supported
  * @param {object} [opt] - options
  * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
- * @param {string} [opt.format] - `rgb`(default), `array`, `hex` or `hexAlpha`
+ * @param {string} [opt.format] - `spec`, `rgb`, `array`, `hex` or `hexAlpha`
+ *   - defaults to `spec` if omitted
  *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
- * @returns {?string|Array} - rgba?(), [r, g, b, a], #rrggbb(aa)?, null
- *   - if `key` is specified, [key, rgba?()|[r, g, b, a]|#rrggbb(aa)?|null]
- *   - in `rgb`, `r`, `g`, `b` values are rounded,
- *     resolves as empty string if any of `r`, `g`, `b`, `a` is not a number
- *   - in `array`, values are floating point,
- *     if any of `r`, `g`, `b`, `a` is not a number then they stay as is,
+ * @returns {?string|Array}
+ *   - rgba?(), color(space r g b / a), color(space x y z / a),
+ *     lab(l a b / A), lch(l c h / a), oklab(l a b / a), oklch(l c h / a),
+ *     [r, g, b, a], #rrggbb(aa)?, null
+ *     and [key, rgba?()] etc. if `key` is specified
+ *   - in `spec`, each value is a floating point number
+ *   - in `rgb`, `r`, `g`, `b` values are rounded to integers,
+ *     and returns empty string if any of `r`, `g`, `b`, `a` is not a number
+ *   - in `array`, values are an rgb array and each value is a floating point,
+ *     and if any of `r`, `g`, `b`, `a` is not a number then they stay as is,
  *     e.g. [undefined, undefined, undefined, undefined]
  *   - in `hex`, `transparent` resolves as `null`,
- *     also resolves as `null` if any of `r`, `g`, `b`, `a` is not a number
- *   - in `hexAlpha`, resolves as `null` if any of `r`, `g`, `b`, `a` is not a number
+ *     also returns `null` if any of `r`, `g`, `b`, `a` is not a number
+ *   - in `hexAlpha`, `transparent` resolves as `#00000000`,
+ *     and returns `null` if any of `r`, `g`, `b`, `a` is not a number
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
@@ -47,18 +53,43 @@ export const resolve = (color, opt = {}) => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  const { currentColor, format, key } = opt;
+  const { currentColor, format = 'spec', key } = opt;
   let r, g, b, a;
   if (/calc/i.test(color)) {
     color = calc(color);
   }
+  let res;
   if (/^currentcolor$/i.test(color)) {
     if (currentColor) {
       if (currentColor.startsWith('color-mix')) {
+        // TODO: color(space x y z / a)
+        /*
+        if (format === 'spec') {
+          // res =
+          // cachedResults.set(cacheKey, res);
+          // return res;
+        }
+        */
         [r, g, b, a] = resolveColorMix(currentColor);
       } else if (currentColor.startsWith('color(')) {
+        // TODO: color(space r g b / a) | color(space x y z / a)
+        /*
+        if (format === 'spec') {
+          // res =
+          // cachedResults.set(cacheKey, res);
+          // return res;
+        }
+        */
         [r, g, b, a] = resolveColorFunc(currentColor);
       } else {
+        // TODO: lab(), lch(), oklab(), oklch()
+        /*
+        if (format === 'spec') {
+          // res =
+          // cachedResults.set(cacheKey, res);
+          // return res;
+        }
+        */
         [r, g, b, a] = resolveColorValue(currentColor);
       }
     } else {
@@ -73,6 +104,14 @@ export const resolve = (color, opt = {}) => {
     }
     if (currentColor && color.startsWith('color-mix')) {
       color = color.replace(/currentcolor/gi, currentColor);
+      // TODO: color(space r g b / a) | color(space x y z / a)
+      /*
+      if (format === 'spec') {
+        // res =
+        // cachedResults.set(cacheKey, res);
+        // return res;
+      }
+      */
       [r, g, b, a] = resolveColorMix(color);
     }
   } else if (/^transparent$/i.test(color)) {
@@ -83,16 +122,47 @@ export const resolve = (color, opt = {}) => {
   } else if (/transparent/i.test(color)) {
     color = color.replace(/transparent/gi, 'rgba(0, 0, 0, 0)');
     if (color.startsWith('color-mix')) {
+      // TODO: color(space r g b / a) | color(space x y z / a)
+      /*
+      if (format === 'spec') {
+        // res =
+        // cachedResults.set(cacheKey, res);
+        // return res;
+      }
+      */
       [r, g, b, a] = resolveColorMix(color);
     }
   } else if (color.startsWith('color-mix')) {
+    // TODO: color(space r g b / a) | color(space x y z / a)
+    /*
+    if (format === 'spec') {
+      // res =
+      // cachedResults.set(cacheKey, res);
+      // return res;
+    }
+    */
     [r, g, b, a] = resolveColorMix(color);
   } else if (color.startsWith('color(')) {
+    // TODO: color(space r g b / a) | color(space x y z / a)
+    /*
+    if (format === 'spec') {
+      // res =
+      // cachedResults.set(cacheKey, res);
+      // return res;
+    }
+    */
     [r, g, b, a] = resolveColorFunc(color);
   } else {
+    // TODO: lab(), lch(), oklab(), oklch()
+    /*
+    if (format === 'spec') {
+      // res =
+      // cachedResults.set(cacheKey, res);
+      // return res;
+    }
+    */
     [r, g, b, a] = resolveColorValue(color);
   }
-  let res;
   switch (format) {
     case 'array': {
       if (key) {
@@ -132,14 +202,17 @@ export const resolve = (color, opt = {}) => {
       }
       break;
     }
+    case 'rgb':
     default: {
       let rgb;
       if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
         rgb = '';
       } else {
-        r = Math.round(r);
-        g = Math.round(g);
-        b = Math.round(b);
+        if (format === 'rgb') {
+          r = Math.round(r);
+          g = Math.round(g);
+          b = Math.round(b);
+        }
         if (a === 1) {
           rgb = `rgb(${r}, ${g}, ${b})`;
         } else {
