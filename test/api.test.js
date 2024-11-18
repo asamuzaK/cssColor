@@ -398,7 +398,7 @@ describe('parse CSS color', () => {
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
     assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
-  })
+  });
 });
 
 describe('convert', () => {
