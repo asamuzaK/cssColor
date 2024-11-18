@@ -304,6 +304,24 @@ describe('resolve CSS color', () => {
     });
     assert.deepEqual(res2, ['foo', '#00800080'], 'result');
   });
+
+  /* calc() */
+  it('should get value', () => {
+    const res = func('rgb(calc(64 * 2) 127 255)');
+    assert.deepEqual(res, 'rgb(128, 127, 255)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('hsl(38.82 calc(2 * 50%) 50%)');
+    assert.deepEqual(res, 'rgb(255, 165, 0)', 'result');
+    const res2 = func('rgb(255 165.2 0)');
+    assert.deepEqual(res2, 'rgb(255, 165, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(calc(100 * 4) 127 calc(20 - 35))');
+    assert.deepEqual(res, 'rgb(255, 127, 0)', 'result');
+  });
 });
 
 describe('parse CSS color', () => {
@@ -371,6 +389,16 @@ describe('parse CSS color', () => {
     res2[2] = parseFloat(res2[2].toFixed(2));
     assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
   });
+
+  it('should get value', () => {
+    const res = func('lab(calc(46.28%) calc(47.57 * -1) calc(48.58))', {
+      d50: true
+    });
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
+  })
 });
 
 describe('convert', () => {

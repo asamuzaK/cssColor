@@ -24,6 +24,7 @@
   },
   "types": "types/index.d.ts",
   "dependencies": {
+    "@csstools/css-calc": "^2.1.0",
     "lru-cache": "^11.0.2"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@
  * api.js
  */
 
+import { calc } from '@csstools/css-calc';
 import { LRUCache } from 'lru-cache';
 import {
   convertRgbToHex, parseColorFunc, parseColorValue, resolveColorFunc,
@@ -48,6 +49,9 @@ export const resolve = (color, opt = {}) => {
   }
   const { currentColor, format, key } = opt;
   let r, g, b, a;
+  if (/calc/i.test(color)) {
+    color = calc(color);
+  }
   if (/^currentcolor$/i.test(color)) {
     if (currentColor) {
       if (currentColor.startsWith('color-mix')) {
@@ -176,6 +180,9 @@ export const parse = (value, opt = {}) => {
   }
   const { d50 } = opt;
   let xyz;
+  if (/calc/i.test(value)) {
+    value = calc(value);
+  }
   if (value.startsWith('color(')) {
     xyz = parseColorFunc(value, d50);
   } else {
