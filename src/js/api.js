@@ -85,14 +85,26 @@ export const resolve = (color, opt = {}) => {
         }
         [r, g, b, a] = resolveColorFunc(currentColor);
       } else {
-        // TODO: lab(), lch(), oklab(), oklch()
-        /*
         if (format === 'spec') {
-          // res =
-          // cachedResults.set(cacheKey, res);
-          // return res;
+          [cs, r, g, b, a] = parseColorValue(currentColor, {
+            format
+          });
+          if (cs === 'rgb') {
+            if (a === 1) {
+              res = `${cs}(${r}, ${g}, ${b})`;
+            } else {
+              res = `${cs}a(${r}, ${g}, ${b}, ${a})`;
+            }
+          } else {
+            if (a === 1) {
+              res = `${cs}(${r} ${g} ${b})`;
+            } else {
+              res = `${cs}(${r} ${g} ${b} / ${a})`;
+            }
+          }
+          cachedResults.set(cacheKey, res);
+          return res;
         }
-        */
         [r, g, b, a] = resolveColorValue(currentColor);
       }
     } else {
@@ -160,14 +172,26 @@ export const resolve = (color, opt = {}) => {
     }
     [r, g, b, a] = resolveColorFunc(color);
   } else {
-    // TODO: lab(), lch(), oklab(), oklch()
-    /*
     if (format === 'spec') {
-      // res =
-      // cachedResults.set(cacheKey, res);
-      // return res;
+      [cs, r, g, b, a] = parseColorValue(color, {
+        format
+      });
+      if (cs === 'rgb') {
+        if (a === 1) {
+          res = `${cs}(${r}, ${g}, ${b})`;
+        } else {
+          res = `${cs}a(${r}, ${g}, ${b}, ${a})`;
+        }
+      } else {
+        if (a === 1) {
+          res = `${cs}(${r} ${g} ${b})`;
+        } else {
+          res = `${cs}(${r} ${g} ${b} / ${a})`;
+        }
+      }
+      cachedResults.set(cacheKey, res);
+      return res;
     }
-    */
     [r, g, b, a] = resolveColorValue(color);
   }
   switch (format) {
