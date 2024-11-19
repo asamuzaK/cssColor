@@ -4497,7 +4497,7 @@ describe('convert color value to linear rgb', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0, 0.31855, 0, 1], 'result');
+    assert.deepEqual(res, [0, 0.31855, 0, 0.5], 'result');
   });
 
   it('should get value', () => {
@@ -4511,7 +4511,7 @@ describe('convert color value to linear rgb', () => {
   });
 });
 
-describe('convert colorValue to rgb', () => {
+describe('convert color value to rgb', () => {
   const func = color.convertColorValueToRgb;
 
   it('should throw', () => {
@@ -4526,13 +4526,6 @@ describe('convert colorValue to rgb', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0 / 0.5)');
-    assert.deepEqual(res, [0, 128, 0, 0.5], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('color(srgb 0 0.5 0 / 0.5)', {
-      alpha: true
-    });
     assert.deepEqual(res, [0, 128, 0, 0.5], 'result');
   });
 });

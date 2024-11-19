@@ -275,7 +275,7 @@ const NAMED_COLORS = {
  * validate color components
  * @param {Array} arr - array of color components
  * @param {object} [opt] - options
- * @param {boolean} [opt.alpha] - alpha
+ * @param {boolean} [opt.alpha] - alpha channel
  * @param {number} [opt.minLength] - min length
  * @param {number} [opt.maxLength] - max length
  * @param {number} [opt.minRange] - min range
@@ -1835,7 +1835,6 @@ export const convertColorValueToLinearRgb = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const { alpha } = opt;
   let x, y, z, a;
   if (value.startsWith('color(')) {
     [x, y, z, a] = parseColorFunc(value);
@@ -1846,24 +1845,19 @@ export const convertColorValueToLinearRgb = (value, opt = {}) => {
   r = Math.min(Math.max(r, 0), 1);
   g = Math.min(Math.max(g, 0), 1);
   b = Math.min(Math.max(b, 0), 1);
-  const rgb = [r, g, b];
-  if (alpha) {
-    rgb.push(a);
-  } else {
-    rgb.push(1);
-  }
+  const rgb = [r, g, b, a];
   return rgb;
 };
 
 /**
  * convert color value to rgb
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [r, g, b, a] r|g|b: 0..255 a: 0..1
  */
-export const convertColorValueToRgb = value => {
-  let [r, g, b, a] = convertColorValueToLinearRgb(value, {
-    alpha: true
-  });
+export const convertColorValueToRgb = (value, opt = {}) => {
+  let r, g, b, a;
+  [r, g, b, a] = convertColorValueToLinearRgb(value);
   [r, g, b] = convertLinearRgbToRgb([r, g, b]);
   return [r, g, b, a];
 };
@@ -2026,12 +2020,8 @@ export const resolveColorMix = (value, opt = {}) => {
   let r, g, b, a;
   // in srgb
   if (colorSpace === 'srgb') {
-    let rgbA = convertColorValueToRgb(colorA, {
-      alpha: true
-    });
-    let rgbB = convertColorValueToRgb(colorB, {
-      alpha: true
-    });
+    let rgbA = convertColorValueToRgb(colorA);
+    let rgbB = convertColorValueToRgb(colorB);
     if (REG_CURRENT_COLOR.test(colorA)) {
       rgbA = reInsertMissingColorComponents(CC_RGB, rgbA);
     } else if (regMissingColor.test(colorA)) {
@@ -2060,12 +2050,8 @@ export const resolveColorMix = (value, opt = {}) => {
     }
   // in srgb-linear
   } else if (colorSpace === 'srgb-linear') {
-    let rgbA = convertColorValueToLinearRgb(colorA, {
-      alpha: true
-    });
-    let rgbB = convertColorValueToLinearRgb(colorB, {
-      alpha: true
-    });
+    let rgbA = convertColorValueToLinearRgb(colorA);
+    let rgbB = convertColorValueToLinearRgb(colorB);
     if (REG_CURRENT_COLOR.test(colorA)) {
       rgbA = reInsertMissingColorComponents(CC_RGB, rgbA);
     } else if (regMissingColor.test(colorA)) {
