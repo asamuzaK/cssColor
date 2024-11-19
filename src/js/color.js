@@ -350,14 +350,15 @@ export const validateColorComponents = (arr, opt = {}) => {
  * transform matrix
  * @param {Array.<Array.<number>>} mtx - 3 * 3 matrix
  * @param {Array.<number>} vct - vector
+ * @param {boolean} skip - skip alidate
  * @returns {Array.<number>} - [p1, p2, p3]
  */
-export const transformMatrix = (mtx, vct) => {
+export const transformMatrix = (mtx, vct, skip = false) => {
   if (!Array.isArray(mtx)) {
     throw new TypeError(`Expected Array but got ${getType(mtx)}.`);
   } else if (mtx.length !== TRIA) {
     throw new Error(`Expected array length of 3 but got ${mtx.length}.`);
-  } else {
+  } else if (!skip) {
     for (let i of mtx) {
       i = validateColorComponents(i, {
         maxLength: TRIA,
@@ -370,10 +371,15 @@ export const transformMatrix = (mtx, vct) => {
     [r2c1, r2c2, r2c3],
     [r3c1, r3c2, r3c3]
   ] = mtx;
-  const [v1, v2, v3] = validateColorComponents(vct, {
-    maxLength: TRIA,
-    validateRange: false
-  });
+  let v1, v2, v3;
+  if (skip) {
+    [v1, v2, v3] = vct;
+  } else {
+    [v1, v2, v3] = validateColorComponents(vct, {
+      maxLength: TRIA,
+      validateRange: false
+    });
+  }
   const p1 = r1c1 * v1 + r1c2 * v2 + r1c3 * v3;
   const p2 = r2c1 * v1 + r2c2 * v2 + r2c3 * v3;
   const p3 = r3c1 * v1 + r3c2 * v2 + r3c3 * v3;
@@ -436,9 +442,10 @@ export const reInsertMissingColorComponents = (value, color = []) => {
  * normalize color components
  * @param {Array} colorA - array of color components [v1, v2, v3, v4]
  * @param {Array} colorB - array of color components [v1, v2, v3, v4]
+ * @param {boolean} skip - skip validate
  * @returns {Array.<Array.<number>>} - [colorA, colorB]
  */
-export const normalizeColorComponents = (colorA, colorB) => {
+export const normalizeColorComponents = (colorA, colorB, skip = false) => {
   if (!Array.isArray(colorA)) {
     throw new TypeError(`Expected Array but got ${getType(colorA)}.`);
   } else if (colorA.length !== QUAT) {
@@ -461,14 +468,16 @@ export const normalizeColorComponents = (colorA, colorB) => {
     }
     i++;
   }
-  colorA = validateColorComponents(colorA, {
-    minLength: QUAT,
-    validateRange: false
-  });
-  colorB = validateColorComponents(colorB, {
-    minLength: QUAT,
-    validateRange: false
-  });
+  if (!skip) {
+    colorA = validateColorComponents(colorA, {
+      minLength: QUAT,
+      validateRange: false
+    });
+    colorB = validateColorComponents(colorB, {
+      minLength: QUAT,
+      validateRange: false
+    });
+  }
   return [colorA, colorB];
 };
 
@@ -540,13 +549,19 @@ export const angleToDeg = angle => {
 /**
  * convert rgb to linear rgb
  * @param {Array.<number>} rgb - [r, g, b] r|g|b: 0..255
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [r, g, b] r|g|b: 0..1
  */
-export const convertRgbToLinearRgb = rgb => {
-  const [rr, gg, bb] = validateColorComponents(rgb, {
-    maxLength: TRIA,
-    maxRange: MAX_RGB
-  });
+export const convertRgbToLinearRgb = (rgb, skip = false) => {
+  let rr, gg, bb;
+  if (skip) {
+    [rr, gg, bb] = rgb;
+  } else {
+    [rr, gg, bb] = validateColorComponents(rgb, {
+      maxLength: TRIA,
+      maxRange: MAX_RGB
+    });
+  }
   let r = rr / MAX_RGB;
   let g = gg / MAX_RGB;
   let b = bb / MAX_RGB;
@@ -572,15 +587,21 @@ export const convertRgbToLinearRgb = rgb => {
 /**
  * convert rgb to xyz
  * @param {Array.<number>} rgb - [r, g, b, [a]] r|g|b: 0..255 a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
  */
-export const convertRgbToXyz = rgb => {
-  const [r, g, b, a] = validateColorComponents(rgb, {
-    alpha: true,
-    maxRange: MAX_RGB
-  });
-  const [rr, gg, bb] = convertRgbToLinearRgb([r, g, b]);
-  const [x, y, z] = transformMatrix(MATRIX_RGB_TO_XYZ, [rr, gg, bb]);
+export const convertRgbToXyz = (rgb, skip = false) => {
+  let r, g, b, a;
+  if (skip) {
+    [r, g, b, a] = rgb;
+  } else {
+    [r, g, b, a] = validateColorComponents(rgb, {
+      alpha: true,
+      maxRange: MAX_RGB
+    });
+  }
+  const [rr, gg, bb] = convertRgbToLinearRgb([r, g, b], true);
+  const [x, y, z] = transformMatrix(MATRIX_RGB_TO_XYZ, [rr, gg, bb], true);
   return [x, y, z, a];
 };
 
@@ -591,7 +612,7 @@ export const convertRgbToXyz = rgb => {
  */
 export const convertRgbToXyzD50 = rgb => {
   const [xx, yy, zz, a] = convertRgbToXyz(rgb);
-  const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz]);
+  const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz], true);
   return [x, y, z, a];
 };
 
@@ -621,12 +642,18 @@ export const convertRgbToHex = rgb => {
 /**
  * convert linear rgb to rgb
  * @param {Array.<number>} rgb - [r, g, b] r|g|b: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [r, g, b] r|g|b: 0..255
  */
-export const convertLinearRgbToRgb = rgb => {
-  let [r, g, b] = validateColorComponents(rgb, {
-    maxLength: TRIA
-  });
+export const convertLinearRgbToRgb = (rgb, skip = false) => {
+  let r, g, b;
+  if (skip) {
+    [r, g, b] = rgb;
+  } else {
+    [r, g, b] = validateColorComponents(rgb, {
+      maxLength: TRIA
+    });
+  }
   const COND_POW = 809 / 258400;
   if (r > COND_POW) {
     r = Math.pow(r, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
@@ -653,13 +680,19 @@ export const convertLinearRgbToRgb = rgb => {
 /**
  * convert linear rgb to hex color
  * @param {Array.<number>} rgb - [r, g, b, a] r|g|b|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {string} - hex color
  */
-export const convertLinearRgbToHex = rgb => {
-  let [r, g, b, a] = validateColorComponents(rgb, {
-    minLength: QUAT
-  });
-  [r, g, b] = convertLinearRgbToRgb([r, g, b]);
+export const convertLinearRgbToHex = (rgb, skip = false) => {
+  let r, g, b, a;
+  if (skip) {
+    [r, g, b, a] = rgb;
+  } else {
+    [r, g, b, a] = validateColorComponents(rgb, {
+      minLength: QUAT
+    });
+  }
+  [r, g, b] = convertLinearRgbToRgb([r, g, b], true);
   const rr = numberToHexString(r);
   const gg = numberToHexString(g);
   const bb = numberToHexString(b);
@@ -683,13 +716,13 @@ export const convertXyzToHex = xyz => {
     minLength: QUAT,
     validateRange: false
   });
-  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, [x, y, z]);
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, [x, y, z], true);
   const hex = convertLinearRgbToHex([
     Math.min(Math.max(r, 0), 1),
     Math.min(Math.max(g, 0), 1),
     Math.min(Math.max(b, 0), 1),
     a
-  ]);
+  ], true);
   return hex;
 };
 
@@ -703,8 +736,8 @@ export const convertXyzD50ToHex = xyz => {
     minLength: QUAT,
     validateRange: false
   });
-  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
-  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, xyzD65);
+  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, xyzD65, true);
   const hex = convertLinearRgbToHex([
     Math.min(Math.max(r, 0), 1),
     Math.min(Math.max(g, 0), 1),
@@ -717,18 +750,24 @@ export const convertXyzD50ToHex = xyz => {
 /**
  * convert xyz to rgb
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [r, g, b, a] r|g|b: 0..255 a: 0..1
  */
-export const convertXyzToRgb = xyz => {
-  const [x, y, z, a] = validateColorComponents(xyz, {
-    validateRange: false
-  });
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, [x, y, z]);
+export const convertXyzToRgb = (xyz, skip = false) => {
+  let x, y, z, a;
+  if (skip) {
+    [x, y, z, a] = xyz;
+  } else {
+    [x, y, z, a] = validateColorComponents(xyz, {
+      validateRange: false
+    });
+  }
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, [x, y, z], true);
   [r, g, b] = convertLinearRgbToRgb([
     Math.min(Math.max(r, 0), 1),
     Math.min(Math.max(g, 0), 1),
     Math.min(Math.max(b, 0), 1)
-  ]);
+  ], true);
   return [r, g, b, a];
 };
 
@@ -741,17 +780,18 @@ export const convertXyzToXyzD50 = xyz => {
   const [xx, yy, zz, a] = validateColorComponents(xyz, {
     validateRange: false
   });
-  const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz]);
+  const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz], true);
   return [x, y, z, a];
 };
 
 /**
  * convert xyz to hsl
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [h, s, l, a] h: 0..360 s|l: 0..100 a: 0..1
  */
-export const convertXyzToHsl = xyz => {
-  const [rr, gg, bb, a] = convertXyzToRgb(xyz);
+export const convertXyzToHsl = (xyz, skip = false) => {
+  const [rr, gg, bb, a] = convertXyzToRgb(xyz, skip);
   const r = rr / MAX_RGB;
   const g = gg / MAX_RGB;
   const b = bb / MAX_RGB;
@@ -792,10 +832,11 @@ export const convertXyzToHsl = xyz => {
 /**
  * convert xyz to hwb
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [h, w, b, a] h: 0..360 w|b: 0..100 a: 0..1
  */
-export const convertXyzToHwb = xyz => {
-  const [r, g, b, a] = convertXyzToRgb(xyz);
+export const convertXyzToHwb = (xyz, skip = false) => {
+  const [r, g, b, a] = convertXyzToRgb(xyz, skip);
   const w = Math.min(r, g, b) / MAX_RGB;
   const bk = 1 - Math.max(r, g, b) / MAX_RGB;
   let h;
@@ -815,15 +856,21 @@ export const convertXyzToHwb = xyz => {
 /**
  * convert xyz to oklab
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [l, a, b, aa] l|aa: 0..1 a|b: -0.4..0.4
  */
-export const convertXyzToOklab = xyz => {
-  const [x, y, z, aa] = validateColorComponents(xyz, {
-    validateRange: false
-  });
-  const lms = transformMatrix(MATRIX_XYZ_TO_LMS, [x, y, z]);
+export const convertXyzToOklab = (xyz, skip = false) => {
+  let x, y, z, aa;
+  if (skip) {
+    [x, y, z, aa] = xyz;
+  } else {
+    [x, y, z, aa] = validateColorComponents(xyz, {
+      validateRange: false
+    });
+  }
+  const lms = transformMatrix(MATRIX_XYZ_TO_LMS, [x, y, z], true);
   const xyzLms = lms.map(c => Math.cbrt(c));
-  let [l, a, b] = transformMatrix(MATRIX_LMS_TO_OKLAB, xyzLms);
+  let [l, a, b] = transformMatrix(MATRIX_LMS_TO_OKLAB, xyzLms, true);
   l = Math.min(Math.max(l, 0), 1);
   const lPct = Math.round(parseFloat(l.toFixed(QUAT)) * MAX_PCT);
   if (lPct === 0 || lPct === MAX_PCT) {
@@ -836,10 +883,11 @@ export const convertXyzToOklab = xyz => {
 /**
  * convert xyz to oklch
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [l, c, h, aa] l|aa: 0..1 c: 0..0.4 h: 0..360
  */
-export const convertXyzToOklch = xyz => {
-  const [l, a, b, aa] = convertXyzToOklab(xyz);
+export const convertXyzToOklch = (xyz, skip = false) => {
+  const [l, a, b, aa] = convertXyzToOklab(xyz, skip);
   let c, h;
   const lPct = Math.round(parseFloat(l.toFixed(QUAT)) * MAX_PCT);
   if (lPct === 0 || lPct === MAX_PCT) {
@@ -863,27 +911,39 @@ export const convertXyzToOklch = xyz => {
 /**
  * convert xyz D50 to rgb
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [r, g, b, a] r|g|b: 0..255 a: 0..1
  */
-export const convertXyzD50ToRgb = xyz => {
-  const [x, y, z, a] = validateColorComponents(xyz, {
-    minLength: QUAT,
-    validateRange: false
-  });
-  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
-  const [r, g, b] = convertXyzToRgb(xyzD65);
+export const convertXyzD50ToRgb = (xyz, skip = false) => {
+  let x, y, z, a;
+  if (skip) {
+    [x, y, z, a] = xyz;
+  } else {
+    [x, y, z, a] = validateColorComponents(xyz, {
+      minLength: QUAT,
+      validateRange: false
+    });
+  }
+  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
+  const [r, g, b] = convertXyzToRgb(xyzD65, true);
   return [r, g, b, a];
 };
 
 /**
  * convert xyz-d50 to lab
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [l, a, b, aa] l: 0..100 a|b: -125..125 aa: 0..1
  */
-export const convertXyzD50ToLab = xyz => {
-  const [x, y, z, aa] = validateColorComponents(xyz, {
-    validateRange: false
-  });
+export const convertXyzD50ToLab = (xyz, skip = false) => {
+  let x, y, z, aa;
+  if (skip) {
+    [x, y, z, aa] = xyz;
+  } else {
+    [x, y, z, aa] = validateColorComponents(xyz, {
+      validateRange: false
+    });
+  }
   const xyzD50 = [x, y, z].map((val, i) => val / D50[i]);
   const [f0, f1, f2] = xyzD50.map(val => val > LAB_EPSILON
     ? Math.cbrt(val)
@@ -904,10 +964,11 @@ export const convertXyzD50ToLab = xyz => {
 /**
  * convert xyz-d50 to lch
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [l, c, h, a] l: 0..100 c: 0..150 h: 0..360 a: 0..1
  */
-export const convertXyzD50ToLch = xyz => {
-  const [l, a, b, aa] = convertXyzD50ToLab(xyz);
+export const convertXyzD50ToLch = (xyz, skip = false) => {
+  const [l, a, b, aa] = convertXyzD50ToLab(xyz, skip);
   let c, h;
   if (l === 0 || l === MAX_PCT) {
     c = NONE;
@@ -988,7 +1049,7 @@ export const convertHexToRgb = value => {
  */
 export const convertHexToLinearRgb = value => {
   const [rr, gg, bb, a] = convertHexToRgb(value);
-  const [r, g, b] = convertRgbToLinearRgb([rr, gg, bb]);
+  const [r, g, b] = convertRgbToLinearRgb([rr, gg, bb], true);
   return [r, g, b, a];
 };
 
@@ -999,7 +1060,7 @@ export const convertHexToLinearRgb = value => {
  */
 export const convertHexToXyz = value => {
   const [r, g, b, a] = convertHexToLinearRgb(value);
-  const [x, y, z] = transformMatrix(MATRIX_RGB_TO_XYZ, [r, g, b]);
+  const [x, y, z] = transformMatrix(MATRIX_RGB_TO_XYZ, [r, g, b], true);
   return [x, y, z, a];
 };
 
@@ -1473,7 +1534,7 @@ export const parseOklab = (value, opt = {}) => {
   }
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [l, a, b]);
   const xyzLms = lms.map(c => Math.pow(c, POW_CUBE));
-  const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms);
+  const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [x, y, z, aa];
 };
 
@@ -1550,7 +1611,7 @@ export const parseOklch = (value, opt = {}) => {
   const b = c * Math.sin(h * Math.PI / (DEG * HALF));
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [l, a, b]);
   const xyzLms = lms.map(cl => Math.pow(cl, POW_CUBE));
-  const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms);
+  const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [x, y, z, aa];
 };
 
@@ -1629,13 +1690,13 @@ export const parseColorFunc = (value, opt = {}) => {
   if (cs === 'srgb') {
     [x, y, z] = convertRgbToXyz([r * MAX_RGB, g * MAX_RGB, b * MAX_RGB]);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // srgb-linear
   } else if (cs === 'srgb-linear') {
     [x, y, z] = transformMatrix(MATRIX_RGB_TO_XYZ, [r, g, b]);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // display-p3
   } else if (cs === 'display-p3') {
@@ -1646,7 +1707,7 @@ export const parseColorFunc = (value, opt = {}) => {
     ]);
     [x, y, z] = transformMatrix(MATRIX_P3_TO_XYZ, linearRgb);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // rec2020
   } else if (cs === 'rec2020') {
@@ -1664,7 +1725,7 @@ export const parseColorFunc = (value, opt = {}) => {
     });
     [x, y, z] = transformMatrix(MATRIX_REC2020_TO_XYZ, rgb);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // a98-rgb
   } else if (cs === 'a98-rgb') {
@@ -1675,7 +1736,7 @@ export const parseColorFunc = (value, opt = {}) => {
     });
     [x, y, z] = transformMatrix(MATRIX_A98_TO_XYZ, rgb);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // prophoto-rgb
   } else if (cs === 'prophoto-rgb') {
@@ -1691,7 +1752,7 @@ export const parseColorFunc = (value, opt = {}) => {
     });
     [x, y, z] = transformMatrix(MATRIX_PROPHOTO_TO_XYZ_D50, rgb);
     if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
     }
   // xyz, xyz-d50, xyz-d65
   } else if (/^xyz(?:-d(?:50|65))?$/.test(cs)) {
@@ -1701,7 +1762,7 @@ export const parseColorFunc = (value, opt = {}) => {
         [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
       }
     } else if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   }
   return [x, y, z, a];
@@ -1740,9 +1801,9 @@ export const parseColorValue = (value, opt = {}) => {
       if (format === 'spec') {
         return ['rgb', r, g, b, a];
       }
-      [x, y, z] = convertRgbToXyz([r, g, b]);
+      [x, y, z] = convertRgbToXyz([r, g, b], true);
       if (d50) {
-        [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+        [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
       }
     } else {
       if (format === 'spec') {
@@ -1761,7 +1822,7 @@ export const parseColorValue = (value, opt = {}) => {
     }
     [x, y, z, a] = convertHexToXyz(value);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // lab()
   } else if (value.startsWith('lab')) {
@@ -1772,25 +1833,25 @@ export const parseColorValue = (value, opt = {}) => {
     }
     [x, y, z, a] = parseLab(value);
     if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
     }
   // lch()
   } else if (value.startsWith('lch')) {
     [x, y, z, a] = parseLch(value);
     if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
     }
   // oklab()
   } else if (value.startsWith('oklab')) {
     [x, y, z, a] = parseOklab(value);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   // oklch()
   } else if (value.startsWith('oklch')) {
     [x, y, z, a] = parseOklch(value);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   } else {
     let r, g, b;
@@ -1817,7 +1878,7 @@ export const parseColorValue = (value, opt = {}) => {
     }
     [x, y, z] = convertRgbToXyz([r, g, b]);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z]);
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
   }
   return [x, y, z, a];
@@ -1841,7 +1902,7 @@ export const convertColorValueToLinearRgb = (value, opt = {}) => {
   } else {
     [x, y, z, a] = parseColorValue(value);
   }
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, [x, y, z]);
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_RGB, [x, y, z], true);
   r = Math.min(Math.max(r, 0), 1);
   g = Math.min(Math.max(g, 0), 1);
   b = Math.min(Math.max(b, 0), 1);
@@ -1858,7 +1919,7 @@ export const convertColorValueToLinearRgb = (value, opt = {}) => {
 export const convertColorValueToRgb = (value, opt = {}) => {
   let r, g, b, a;
   [r, g, b, a] = convertColorValueToLinearRgb(value);
-  [r, g, b] = convertLinearRgbToRgb([r, g, b]);
+  [r, g, b] = convertLinearRgbToRgb([r, g, b], true);
   return [r, g, b, a];
 };
 
@@ -1952,7 +2013,7 @@ export const resolveColorFunc = value => {
     throw new Error(`Invalid property value: ${value}`);
   }
   const [x, y, z, a] = parseColorFunc(value);
-  const [r, g, b] = convertXyzToRgb([x, y, z]);
+  const [r, g, b] = convertXyzToRgb([x, y, z], true);
   return [r, g, b, a];
 };
 
@@ -2035,7 +2096,7 @@ export const resolveColorMix = (value, opt = {}) => {
     const [
       [rA, gA, bA, aA],
       [rB, gB, bB, aB]
-    ] = normalizeColorComponents(rgbA, rgbB);
+    ] = normalizeColorComponents(rgbA, rgbB, true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2065,7 +2126,7 @@ export const resolveColorMix = (value, opt = {}) => {
     const [
       [rA, gA, bA, aA],
       [rB, gB, bB, aB]
-    ] = normalizeColorComponents(rgbA, rgbB);
+    ] = normalizeColorComponents(rgbA, rgbB, true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2104,7 +2165,7 @@ export const resolveColorMix = (value, opt = {}) => {
     const [
       [xA, yA, zA, aA],
       [xB, yB, zB, aB]
-    ] = normalizeColorComponents(xyzA, xyzB);
+    ] = normalizeColorComponents(xyzA, xyzB, true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2118,7 +2179,7 @@ export const resolveColorMix = (value, opt = {}) => {
       y = (yA * factorA + yB * factorB) * a;
       z = (zA * factorA + zB * factorB) * a;
     }
-    [r, g, b] = convertXyzToRgb([x, y, z]);
+    [r, g, b] = convertXyzToRgb([x, y, z], true);
   // in xyz-d50
   } else if (colorSpace === 'xyz-d50') {
     let xyzA, xyzB;
@@ -2153,7 +2214,7 @@ export const resolveColorMix = (value, opt = {}) => {
     const [
       [xA, yA, zA, aA],
       [xB, yB, zB, aB]
-    ] = normalizeColorComponents(xyzA, xyzB);
+    ] = normalizeColorComponents(xyzA, xyzB, true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2167,24 +2228,24 @@ export const resolveColorMix = (value, opt = {}) => {
       y = (yA * factorA + yB * factorB) * a;
       z = (zA * factorA + zB * factorB) * a;
     }
-    [r, g, b] = convertXyzD50ToRgb([x, y, z, a]);
+    [r, g, b] = convertXyzD50ToRgb([x, y, z, a], true);
   // in hsl
   } else if (colorSpace === 'hsl') {
     let hA, sA, lA, aA;
     if (colorA.startsWith('color(')) {
       const xyz = parseColorFunc(colorA);
-      [hA, sA, lA, aA] = convertXyzToHsl(xyz);
+      [hA, sA, lA, aA] = convertXyzToHsl(xyz, true);
     } else {
       const xyz = parseColorValue(colorA);
-      [hA, sA, lA, aA] = convertXyzToHsl(xyz);
+      [hA, sA, lA, aA] = convertXyzToHsl(xyz, true);
     }
     let hB, sB, lB, aB;
     if (colorB.startsWith('color(')) {
       const xyz = parseColorFunc(colorB);
-      [hB, sB, lB, aB] = convertXyzToHsl(xyz);
+      [hB, sB, lB, aB] = convertXyzToHsl(xyz, true);
     } else {
       const xyz = parseColorValue(colorB);
-      [hB, sB, lB, aB] = convertXyzToHsl(xyz);
+      [hB, sB, lB, aB] = convertXyzToHsl(xyz, true);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       [lA, sA, hA, aA] =
@@ -2203,7 +2264,7 @@ export const resolveColorMix = (value, opt = {}) => {
     [
       [hA, sA, lA, aA],
       [hB, sB, lB, aB]
-    ] = normalizeColorComponents([hA, sA, lA, aA], [hB, sB, lB, aB]);
+    ] = normalizeColorComponents([hA, sA, lA, aA], [hB, sB, lB, aB], true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2222,18 +2283,18 @@ export const resolveColorMix = (value, opt = {}) => {
     let hA, wA, bA, aA;
     if (colorA.startsWith('color(')) {
       const xyz = parseColorFunc(colorA);
-      [hA, wA, bA, aA] = convertXyzToHwb(xyz);
+      [hA, wA, bA, aA] = convertXyzToHwb(xyz, true);
     } else {
       const xyz = parseColorValue(colorA);
-      [hA, wA, bA, aA] = convertXyzToHwb(xyz);
+      [hA, wA, bA, aA] = convertXyzToHwb(xyz, true);
     }
     let hB, wB, bB, aB;
     if (colorB.startsWith('color(')) {
       const xyz = parseColorFunc(colorB);
-      [hB, wB, bB, aB] = convertXyzToHwb(xyz);
+      [hB, wB, bB, aB] = convertXyzToHwb(xyz, true);
     } else {
       const xyz = parseColorValue(colorB);
-      [hB, wB, bB, aB] = convertXyzToHwb(xyz);
+      [hB, wB, bB, aB] = convertXyzToHwb(xyz, true);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       [,, hA, aA] =
@@ -2252,7 +2313,7 @@ export const resolveColorMix = (value, opt = {}) => {
     [
       [hA, wA, bA, aA],
       [hB, wB, bB, aB]
-    ] = normalizeColorComponents([hA, wA, bA, aA], [hB, wB, bB, aB]);
+    ] = normalizeColorComponents([hA, wA, bA, aA], [hB, wB, bB, aB], true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2274,24 +2335,24 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorFunc(colorA, {
         d50: true
       });
-      [lA, aA, bA, aaA] = convertXyzD50ToLab(xyz);
+      [lA, aA, bA, aaA] = convertXyzD50ToLab(xyz, true);
     } else {
       const xyz = parseColorValue(colorA, {
         d50: true
       });
-      [lA, aA, bA, aaA] = convertXyzD50ToLab(xyz);
+      [lA, aA, bA, aaA] = convertXyzD50ToLab(xyz, true);
     }
     let lB, aB, bB, aaB;
     if (colorB.startsWith('color(')) {
       const xyz = parseColorFunc(colorB, {
         d50: true
       });
-      [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz);
+      [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz, true);
     } else {
       const xyz = parseColorValue(colorB, {
         d50: true
       });
-      [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz);
+      [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz, true);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       [lA,,, aaA] =
@@ -2310,7 +2371,7 @@ export const resolveColorMix = (value, opt = {}) => {
     [
       [lA, aA, bA, aaA],
       [lB, aB, bB, aaB]
-    ] = normalizeColorComponents([lA, aA, bA, aaA], [lB, aB, bB, aaB]);
+    ] = normalizeColorComponents([lA, aA, bA, aaA], [lB, aB, bB, aaB], true);
     const factorA = aaA * pA;
     const factorB = aaB * pB;
     a = (factorA + factorB);
@@ -2332,23 +2393,23 @@ export const resolveColorMix = (value, opt = {}) => {
       const xyz = parseColorFunc(colorA, {
         d50: true
       });
-      lchA = convertXyzD50ToLch(xyz);
+      lchA = convertXyzD50ToLch(xyz, true);
     } else {
       const xyz = parseColorValue(colorA, {
         d50: true
       });
-      lchA = convertXyzD50ToLch(xyz);
+      lchA = convertXyzD50ToLch(xyz, true);
     }
     if (colorB.startsWith('color(')) {
       const xyz = parseColorFunc(colorB, {
         d50: true
       });
-      lchB = convertXyzD50ToLch(xyz);
+      lchB = convertXyzD50ToLch(xyz, true);
     } else {
       const xyz = parseColorValue(colorB, {
         d50: true
       });
-      lchB = convertXyzD50ToLch(xyz);
+      lchB = convertXyzD50ToLch(xyz, true);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       lchA = reInsertMissingColorComponents(CC_LCH, lchA);
@@ -2363,7 +2424,7 @@ export const resolveColorMix = (value, opt = {}) => {
     const [
       [lA, cA, hA, aA],
       [lB, cB, hB, aB]
-    ] = normalizeColorComponents(lchA, lchB);
+    ] = normalizeColorComponents(lchA, lchB, true);
     const factorA = aA * pA;
     const factorB = aB * pB;
     a = (factorA + factorB);
@@ -2383,18 +2444,18 @@ export const resolveColorMix = (value, opt = {}) => {
     let lA, aA, bA, aaA;
     if (colorA.startsWith('color(')) {
       const xyz = parseColorFunc(colorA);
-      [lA, aA, bA, aaA] = convertXyzToOklab(xyz);
+      [lA, aA, bA, aaA] = convertXyzToOklab(xyz, true);
     } else {
       const xyz = parseColorValue(colorA);
-      [lA, aA, bA, aaA] = convertXyzToOklab(xyz);
+      [lA, aA, bA, aaA] = convertXyzToOklab(xyz, true);
     }
     let lB, aB, bB, aaB;
     if (colorB.startsWith('color(')) {
       const xyz = parseColorFunc(colorB);
-      [lB, aB, bB, aaB] = convertXyzToOklab(xyz);
+      [lB, aB, bB, aaB] = convertXyzToOklab(xyz, true);
     } else {
       const xyz = parseColorValue(colorB);
-      [lB, aB, bB, aaB] = convertXyzToOklab(xyz);
+      [lB, aB, bB, aaB] = convertXyzToOklab(xyz, true);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       [lA,,, aaA] =
@@ -2413,7 +2474,7 @@ export const resolveColorMix = (value, opt = {}) => {
     [
       [lA, aA, bA, aaA],
       [lB, aB, bB, aaB]
-    ] = normalizeColorComponents([lA, aA, bA, aaA], [lB, aB, bB, aaB]);
+    ] = normalizeColorComponents([lA, aA, bA, aaA], [lB, aB, bB, aaB], true);
     const factorA = aaA * pA;
     const factorB = aaB * pB;
     a = (factorA + factorB);
@@ -2433,17 +2494,17 @@ export const resolveColorMix = (value, opt = {}) => {
     let lchA, lchB;
     if (colorA.startsWith('color(')) {
       const xyz = parseColorFunc(colorA);
-      lchA = convertXyzToOklch(xyz);
+      lchA = convertXyzToOklch(xyz, true);
     } else {
       const xyz = parseColorValue(colorA);
-      lchA = convertXyzToOklch(xyz);
+      lchA = convertXyzToOklch(xyz, true);
     }
     if (colorB.startsWith('color(')) {
       const xyz = parseColorFunc(colorB);
-      lchB = convertXyzToOklch(xyz);
+      lchB = convertXyzToOklch(xyz, true);
     } else {
       const xyz = parseColorValue(colorB);
-      lchB = convertXyzToOklch(xyz);
+      lchB = convertXyzToOklch(xyz, true);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       lchA = reInsertMissingColorComponents(CC_LCH, lchA);
@@ -2464,7 +2525,7 @@ export const resolveColorMix = (value, opt = {}) => {
     const [
       [lA, cA, hA, aaA],
       [lB, cB, hB, aaB]
-    ] = normalizeColorComponents(lchA, lchB);
+    ] = normalizeColorComponents(lchA, lchB, true);
     const factorA = aaA * pA;
     const factorB = aaB * pB;
     a = (factorA + factorB);
