@@ -251,15 +251,14 @@ export const parse = (value, opt = {}) => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  const { d50 } = opt;
   let xyz;
   if (/calc/i.test(value)) {
     value = calc(value);
   }
   if (value.startsWith('color(')) {
-    xyz = parseColorFunc(value, d50);
+    xyz = parseColorFunc(value, opt);
   } else {
-    xyz = parseColorValue(value, d50);
+    xyz = parseColorValue(value, opt);
   }
   cachedResults.set(cacheKey, xyz);
   return xyz;

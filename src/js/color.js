@@ -1497,10 +1497,11 @@ export const parseOklch = value => {
 /**
  * parse color()
  * @param {string} value - color value
- * @param {boolean} d50 - xyz in d50 white point
+ * @param {object} [opt] - options
+ * @param {boolean} [opt.d50] - xyz in d50 white point
  * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
  */
-export const parseColorFunc = (value, d50 = false) => {
+export const parseColorFunc = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1510,6 +1511,7 @@ export const parseColorFunc = (value, d50 = false) => {
   if (!reg.test(value)) {
     throw new Error(`Invalid property value: ${value}`);
   }
+  const { d50 } = opt;
   const [, val] = value.match(reg);
   const [cs, v1, v2, v3, v4] = val.replace('/', ' ').split(/\s+/);
   let r, g, b;
@@ -1633,15 +1635,17 @@ export const parseColorFunc = (value, d50 = false) => {
 /**
  * parse color value
  * @param {string} value - color value
- * @param {boolean} [d50] - xyz in d50 white point
+ * @param {object} [opt] - options
+ * @param {boolean} [opt.d50] - xyz in d50 white point
  * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
  */
-export const parseColorValue = (value, d50 = false) => {
+export const parseColorValue = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
+  const { d50 } = opt;
   let x, y, z, a;
   // complement currentcolor as a missing color
   if (REG_CURRENT_COLOR.test(value)) {
@@ -2047,14 +2051,22 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (colorSpace === 'xyz-d50') {
     let xyzA, xyzB;
     if (colorA.startsWith('color(')) {
-      xyzA = parseColorFunc(colorA, true);
+      xyzA = parseColorFunc(colorA, {
+        d50: true
+      });
     } else {
-      xyzA = parseColorValue(colorA, true);
+      xyzA = parseColorValue(colorA, {
+        d50: true
+      });
     }
     if (colorB.startsWith('color(')) {
-      xyzB = parseColorFunc(colorB, true);
+      xyzB = parseColorFunc(colorB, {
+        d50: true
+      });
     } else {
-      xyzB = parseColorValue(colorB, true);
+      xyzB = parseColorValue(colorB, {
+        d50: true
+      });
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
       xyzA = reInsertMissingColorComponents(CC_RGB, xyzA);
@@ -2187,18 +2199,26 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (colorSpace === 'lab') {
     let lA, aA, bA, aaA;
     if (colorA.startsWith('color(')) {
-      const xyz = parseColorFunc(colorA, true);
+      const xyz = parseColorFunc(colorA, {
+        d50: true
+      });
       [lA, aA, bA, aaA] = convertXyzD50ToLab(xyz);
     } else {
-      const xyz = parseColorValue(colorA, true);
+      const xyz = parseColorValue(colorA, {
+        d50: true
+      });
       [lA, aA, bA, aaA] = convertXyzD50ToLab(xyz);
     }
     let lB, aB, bB, aaB;
     if (colorB.startsWith('color(')) {
-      const xyz = parseColorFunc(colorB, true);
+      const xyz = parseColorFunc(colorB, {
+        d50: true
+      });
       [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz);
     } else {
-      const xyz = parseColorValue(colorB, true);
+      const xyz = parseColorValue(colorB, {
+        d50: true
+      });
       [lB, aB, bB, aaB] = convertXyzD50ToLab(xyz);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
@@ -2237,17 +2257,25 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (colorSpace === 'lch') {
     let lchA, lchB;
     if (colorA.startsWith('color(')) {
-      const xyz = parseColorFunc(colorA, true);
+      const xyz = parseColorFunc(colorA, {
+        d50: true
+      });
       lchA = convertXyzD50ToLch(xyz);
     } else {
-      const xyz = parseColorValue(colorA, true);
+      const xyz = parseColorValue(colorA, {
+        d50: true
+      });
       lchA = convertXyzD50ToLch(xyz);
     }
     if (colorB.startsWith('color(')) {
-      const xyz = parseColorFunc(colorB, true);
+      const xyz = parseColorFunc(colorB, {
+        d50: true
+      });
       lchB = convertXyzD50ToLch(xyz);
     } else {
-      const xyz = parseColorValue(colorB, true);
+      const xyz = parseColorValue(colorB, {
+        d50: true
+      });
       lchB = convertXyzD50ToLch(xyz);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
@@ -2332,17 +2360,17 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (colorSpace === 'oklch') {
     let lchA, lchB;
     if (colorA.startsWith('color(')) {
-      const xyz = parseColorFunc(colorA, true);
+      const xyz = parseColorFunc(colorA);
       lchA = convertXyzToOklch(xyz);
     } else {
-      const xyz = parseColorValue(colorA, true);
+      const xyz = parseColorValue(colorA);
       lchA = convertXyzToOklch(xyz);
     }
     if (colorB.startsWith('color(')) {
-      const xyz = parseColorFunc(colorB, true);
+      const xyz = parseColorFunc(colorB);
       lchB = convertXyzToOklch(xyz);
     } else {
-      const xyz = parseColorValue(colorB, true);
+      const xyz = parseColorValue(colorB);
       lchB = convertXyzToOklch(xyz);
     }
     if (REG_CURRENT_COLOR.test(colorA)) {
