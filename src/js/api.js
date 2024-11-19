@@ -54,11 +54,10 @@ export const resolve = (color, opt = {}) => {
     return cachedResults.get(cacheKey);
   }
   const { currentColor, format = 'spec', key } = opt;
-  let r, g, b, a;
+  let cs, r, g, b, a, res;
   if (/calc/i.test(color)) {
     color = calc(color);
   }
-  let res;
   if (/^currentcolor$/i.test(color)) {
     if (currentColor) {
       if (currentColor.startsWith('color-mix')) {
@@ -72,14 +71,18 @@ export const resolve = (color, opt = {}) => {
         */
         [r, g, b, a] = resolveColorMix(currentColor);
       } else if (currentColor.startsWith('color(')) {
-        // TODO: color(space r g b / a) | color(space x y z / a)
-        /*
         if (format === 'spec') {
-          // res =
-          // cachedResults.set(cacheKey, res);
-          // return res;
+          [cs, r, g, b, a] = parseColorFunc(currentColor, {
+            format
+          });
+          if (a === 1) {
+            res = `color(${cs} ${r} ${g} ${b})`;
+          } else {
+            res = `color(${cs} ${r} ${g} ${b} / ${a})`;
+          }
+          cachedResults.set(cacheKey, res);
+          return res;
         }
-        */
         [r, g, b, a] = resolveColorFunc(currentColor);
       } else {
         // TODO: lab(), lch(), oklab(), oklch()
@@ -143,14 +146,18 @@ export const resolve = (color, opt = {}) => {
     */
     [r, g, b, a] = resolveColorMix(color);
   } else if (color.startsWith('color(')) {
-    // TODO: color(space r g b / a) | color(space x y z / a)
-    /*
     if (format === 'spec') {
-      // res =
-      // cachedResults.set(cacheKey, res);
-      // return res;
+      [cs, r, g, b, a] = parseColorFunc(color, {
+        format
+      });
+      if (a === 1) {
+        res = `color(${cs} ${r} ${g} ${b})`;
+      } else {
+        res = `color(${cs} ${r} ${g} ${b} / ${a})`;
+      }
+      cachedResults.set(cacheKey, res);
+      return res;
     }
-    */
     [r, g, b, a] = resolveColorFunc(color);
   } else {
     // TODO: lab(), lch(), oklab(), oklch()

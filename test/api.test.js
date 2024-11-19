@@ -56,16 +56,26 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgb(128, 0, 128)', 'result');
   });
 
-  // FIXME
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
-      currentColor: 'color(srgb 0 0.5 0 / 0.5)'
+      currentColor: 'color(srgb 0 .5 1.0 / 0.5)'
     });
-    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    assert.strictEqual(res, 'color(srgb 0 0.5 1 / 0.5)', 'result');
     const res2 = func('currentColor', {
-      currentColor: 'color(srgb 0 0.5 0 / 0.5)'
+      currentColor: 'color(srgb 0 .5 1.0 / 0.5)'
     });
-    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+    assert.strictEqual(res2, 'color(srgb 0 0.5 1 / 0.5)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('currentColor', {
+      currentColor: 'color(srgb 0 .5 1.0 / 1)'
+    });
+    assert.strictEqual(res, 'color(srgb 0 0.5 1)', 'result');
+    const res2 = func('currentColor', {
+      currentColor: 'color(srgb 0 .5 1.0)'
+    });
+    assert.strictEqual(res2, 'color(srgb 0 0.5 1)', 'result');
   });
 
   it('should get value', () => {
@@ -191,9 +201,27 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
-    const res = func('color(srgb 0 0.5 0)');
+    const res = func('color(srgb 0.0 .5 1.0 / 1)');
+    assert.strictEqual(res, 'color(srgb 0 0.5 1)', 'result');
+    const res2 = func('color(srgb 0.0 .5 1.0 / 1)');
+    assert.strictEqual(res2, 'color(srgb 0 0.5 1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0.0 .5 1.0 / none)');
+    assert.strictEqual(res, 'color(srgb 0 0.5 1 / none)', 'result');
+    const res2 = func('color(srgb 0.0 .5 1.0 / none)');
+    assert.strictEqual(res2, 'color(srgb 0 0.5 1 / none)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)', {
+      format: 'rgb'
+    });
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
-    const res2 = func('color(srgb 0 0.5 0)');
+    const res2 = func('color(srgb 0 0.5 0)', {
+      format: 'rgb'
+    });
     assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 

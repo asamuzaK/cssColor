@@ -1499,7 +1499,9 @@ export const parseOklch = value => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
- * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
+ * @param {string} [opt.format] - format
+ * @returns {Array.<string|number>} - [x, y, z, a] x|y|z|a: 0..1
+ *                                    [cs, r, g, b, a]
  */
 export const parseColorFunc = (value, opt = {}) => {
   if (isString(value)) {
@@ -1511,44 +1513,57 @@ export const parseColorFunc = (value, opt = {}) => {
   if (!reg.test(value)) {
     throw new Error(`Invalid property value: ${value}`);
   }
-  const { d50 } = opt;
+  const { d50, format } = opt;
   const [, val] = value.match(reg);
-  const [cs, v1, v2, v3, v4] = val.replace('/', ' ').split(/\s+/);
-  let r, g, b;
+  let [cs, v1, v2, v3, v4] = val.replace('/', ' ').split(/\s+/);
+  let r, g, b, a;
   if (v1 === NONE) {
-    r = 0;
-  } else {
-    let rr;
-    if (v1.startsWith('.')) {
-      rr = `0${v1}`;
+    if (format === 'spec') {
+      r = v1;
     } else {
-      rr = v1;
+      r = 0;
     }
-    r = rr.endsWith('%') ? parseFloat(rr) / MAX_PCT : parseFloat(rr);
+  } else {
+    if (v1.startsWith('.')) {
+      v1 = `0${v1}`;
+    }
+    r = v1.endsWith('%') ? parseFloat(v1) / MAX_PCT : parseFloat(v1);
   }
   if (v2 === NONE) {
-    g = 0;
-  } else {
-    let gg;
-    if (v2.startsWith('.')) {
-      gg = `0${v2}`;
+    if (format === 'spec') {
+      g = v2;
     } else {
-      gg = v2;
+      g = 0;
     }
-    g = gg.endsWith('%') ? parseFloat(gg) / MAX_PCT : parseFloat(gg);
+  } else {
+    if (v2.startsWith('.')) {
+      v2 = `0${v2}`;
+    }
+    g = v2.endsWith('%') ? parseFloat(v2) / MAX_PCT : parseFloat(v2);
   }
   if (v3 === NONE) {
-    b = 0;
-  } else {
-    let bb;
-    if (v3.startsWith('.')) {
-      bb = `0${v3}`;
+    if (format === 'spec') {
+      b = v3;
     } else {
-      bb = v3;
+      b = 0;
     }
-    b = bb.endsWith('%') ? parseFloat(bb) / MAX_PCT : parseFloat(bb);
+  } else {
+    if (v3.startsWith('.')) {
+      v3 = `0${v3}`;
+    }
+    b = v3.endsWith('%') ? parseFloat(v3) / MAX_PCT : parseFloat(v3);
   }
-  const a = parseAlpha(v4);
+  if (v4 === NONE && format === 'spec') {
+    a = v4;
+  } else {
+    a = parseAlpha(v4);
+  }
+  if (format === 'spec') {
+    if (cs === 'xyz') {
+      cs = 'xyz-d65';
+    }
+    return [cs, r, g, b, a];
+  }
   let x, y, z;
   // srgb
   if (cs === 'srgb') {

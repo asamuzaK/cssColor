@@ -4089,6 +4089,48 @@ describe('parse color func', () => {
     });
     assert.deepEqual(res, val, 'result');
   });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 1)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.5, 1, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb none 0.5 1)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['srgb', 'none', 0.5, 1, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 none 1)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['srgb', 0, 'none', 1, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 none)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.5, 'none', 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 1 / none)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.5, 1, 'none'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(xyz 0.07719 0.15438 0.02573)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['xyz-d65', 0.07719, 0.15438, 0.02573, 1], 'result');
+  });
 });
 
 describe('parse color value', () => {
