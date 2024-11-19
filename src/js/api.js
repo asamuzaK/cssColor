@@ -44,21 +44,20 @@ export const cachedResults = new LRUCache({
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
-    color = color.trim();
+    color = color.toLowerCase().trim();
   } else {
     throw new TypeError(`Expected String but got ${getType(color)}.`);
   }
-  const cacheKey =
-    `{resolve:${color.toLowerCase()},opt:${JSON.stringify(opt)}}`;
+  const cacheKey = `{resolve:${color},opt:${JSON.stringify(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
   const { currentColor, format = 'spec', key } = opt;
   let cs, r, g, b, a, res;
-  if (/calc/i.test(color)) {
+  if (/calc/.test(color)) {
     color = calc(color);
   }
-  if (/^currentcolor$/i.test(color)) {
+  if (color === 'currentcolor') {
     if (currentColor) {
       if (currentColor.startsWith('color-mix')) {
         // TODO: color(space x y z / a)
@@ -113,9 +112,9 @@ export const resolve = (color, opt = {}) => {
       b = 0;
       a = 0;
     }
-  } else if (/currentcolor/i.test(color)) {
-    if (/transparent/i.test(color)) {
-      color = color.replace(/transparent/gi, 'rgba(0, 0, 0, 0)');
+  } else if (/currentcolor/.test(color)) {
+    if (/transparent/.test(color)) {
+      color = color.replace(/transparent/g, 'rgba(0, 0, 0, 0)');
     }
     if (currentColor && color.startsWith('color-mix')) {
       color = color.replace(/currentcolor/gi, currentColor);
@@ -129,13 +128,13 @@ export const resolve = (color, opt = {}) => {
       */
       [r, g, b, a] = resolveColorMix(color);
     }
-  } else if (/^transparent$/i.test(color)) {
+  } else if (color === 'transparent') {
     r = 0;
     g = 0;
     b = 0;
     a = 0;
-  } else if (/transparent/i.test(color)) {
-    color = color.replace(/transparent/gi, 'rgba(0, 0, 0, 0)');
+  } else if (/transparent/.test(color)) {
+    color = color.replace(/transparent/g, 'rgba(0, 0, 0, 0)');
     if (color.startsWith('color-mix')) {
       // TODO: color(space r g b / a) | color(space x y z / a)
       /*
@@ -205,7 +204,7 @@ export const resolve = (color, opt = {}) => {
     }
     case 'hex': {
       let hex;
-      if (/^transparent$/i.test(color) || isNaN(r) || isNaN(g) || isNaN(b)) {
+      if (color === 'transparent' || isNaN(r) || isNaN(g) || isNaN(b)) {
         hex = null;
       } else {
         hex = convertRgbToHex([r, g, b]);
@@ -219,7 +218,7 @@ export const resolve = (color, opt = {}) => {
     }
     case 'hexAlpha': {
       let hex;
-      if (/^transparent$/i.test(color)) {
+      if (color === 'transparent') {
         hex = '#00000000';
       } else if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
         hex = null;
@@ -271,19 +270,19 @@ export const resolve = (color, opt = {}) => {
  */
 export const parse = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.trim();
+    value = value.toLowerCase().trim();
     if (value.startsWith('color-mix(')) {
       throw new Error('color-mix() is not supported.');
     }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{parse:${value.toLowerCase()},opt:${JSON.stringify(opt)}}`;
+  const cacheKey = `{parse:${value},opt:${JSON.stringify(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
   let xyz;
-  if (/calc/i.test(value)) {
+  if (/calc/.test(value)) {
     value = calc(value);
   }
   if (value.startsWith('color(')) {

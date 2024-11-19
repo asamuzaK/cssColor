@@ -1887,7 +1887,7 @@ export const resolveColorValue = value => {
     b = 0;
     a = 0;
   // named-color
-  } else if (/^[a-z]+$/i.test(value)) {
+  } else if (/^[a-z]+$/.test(value)) {
     if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
       [r, g, b] = NAMED_COLORS[value];
       a = 1;
