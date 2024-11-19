@@ -1499,7 +1499,7 @@ export const parseOklch = value => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
- * @param {string} [opt.format] - format
+ * @param {string} [opt.format] - output format
  * @returns {Array.<string|number>} - [x, y, z, a] x|y|z|a: 0..1
  *                                    [cs, r, g, b, a]
  */
@@ -1652,6 +1652,7 @@ export const parseColorFunc = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
  */
 export const parseColorValue = (value, opt = {}) => {

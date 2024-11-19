@@ -22,8 +22,8 @@ export const cachedResults = new LRUCache({
  *   - system colors are not supported
  * @param {object} [opt] - options
  * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
- * @param {string} [opt.format] - `spec`, `rgb`, `array`, `hex` or `hexAlpha`
- *   - defaults to `spec` if omitted
+ * @param {string} [opt.format]
+ *   - output format, one of `spec` (default), `rgb`, `array`, `hex`, `hexAlpha`
  *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array}
