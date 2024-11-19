@@ -3049,6 +3049,20 @@ describe('parse lab()', () => {
     const res = func('lab(none none none / none)');
     assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
+
+  it('should get value', () => {
+    const res = func('lab(46.28% -47.57 48.58)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['lab', 46.28, -47.57, 48.58, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(110% none -10% / .5)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['lab', 100, 'none', -12.5, 0.5], 'result');
+  });
 });
 
 describe('parse lch()', () => {
@@ -3311,6 +3325,20 @@ describe('parse lch()', () => {
     const res = func('lch(none none none / none)');
     assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
+
+  it('should get value', () => {
+    const res = func('lch(46.278% 68.0 134.4)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['lch', 46.278, 68, 134.4, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lch(-10% none -90deg / .5)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['lch', 0, 'none', 270, 0.5], 'result');
+  });
 });
 
 describe('parse oklab()', () => {
@@ -3523,6 +3551,20 @@ describe('parse oklab()', () => {
   it('should get value', () => {
     const res = func('oklab(none none none / none)');
     assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('oklab(51.975% -0.1403 0.10768)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['oklab', 0.51975, -0.1403, 0.10768, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('oklab(-10% none 30% / .5)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['oklab', 0, 'none', 0.12, 0.5], 'result');
   });
 });
 
@@ -3757,6 +3799,20 @@ describe('parse oklch()', () => {
   it('should get value', () => {
     const res = func('oklch(none none none / none)');
     assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('oklch(51.975% 0.17686 142.495)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['oklch', 0.51975, 0.17686, 142.495, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('oklch(-10% none -90deg / .5)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['oklch', 0, 'none', 270, 0.5], 'result');
   });
 });
 
@@ -4142,10 +4198,6 @@ describe('parse color value', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func('foo'), Error, 'Invalid property value: foo');
-  });
-
-  it('should throw', () => {
     assert.throws(() => func('#12345'), Error,
       'Invalid property value: #12345');
   });
@@ -4161,8 +4213,22 @@ describe('parse color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('currentColor', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('transparent');
     assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('transparent', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -4181,6 +4247,25 @@ describe('parse color value', () => {
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
     assert.deepEqual(res, [0.08314, 0.15475, 0.02096, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -4230,6 +4315,13 @@ describe('parse color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('#008000', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)');
     res[0] = parseFloat(res[0].toFixed(4));
     res[1] = parseFloat(res[1].toFixed(4));
@@ -4245,6 +4337,13 @@ describe('parse color value', () => {
     res[1] = parseFloat(res[1].toFixed(4));
     res[2] = parseFloat(res[2].toFixed(4));
     assert.deepEqual(res, [0.0831, 0.1548, 0.021, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(46.28% -47.57 48.58)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['lab', 46.28, -47.57, 48.58, 1], 'result');
   });
 
   it('should get value', () => {
@@ -4320,6 +4419,13 @@ describe('parse color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('rgb(0 128 0)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('hsl(120 100% 25%)');
     res[0] = parseFloat(res[0].toFixed(3));
     res[1] = parseFloat(res[1].toFixed(2));
@@ -4338,6 +4444,13 @@ describe('parse color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('hsl(120 100% 25%)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('hwb(120 0% 49.8039%)');
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -4353,6 +4466,13 @@ describe('parse color value', () => {
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
     assert.deepEqual(res, [0.08314, 0.15475, 0.02096, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('hwb(120 0% 50%)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
 });
 
