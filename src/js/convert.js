@@ -35,7 +35,7 @@ export const colorToXyz = (value, opt = {}) => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  let cs, x, y, z, a;
+  let x, y, z, a;
   if (/calc/.test(value)) {
     value = calc(value);
   }
@@ -45,9 +45,9 @@ export const colorToXyz = (value, opt = {}) => {
     });
   }
   if (value.startsWith('color(')) {
-    [cs, x, y, z, a] = parseColorFunc(value, opt);
+    [, x, y, z, a] = parseColorFunc(value, opt);
   } else {
-    [cs, x, y, z, a] = parseColorValue(value, opt);
+    [, x, y, z, a] = parseColorValue(value, opt);
   }
   cachedResults.set(cacheKey, [x, y, z, a]);
   return [x, y, z, a];

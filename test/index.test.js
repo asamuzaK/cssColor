@@ -34,7 +34,7 @@ describe('resolve CSS color', () => {
 });
 
 describe('convert', () => {
-  const { convert, parse } = api;
+  const { convert } = api;
 
   it('should get value', () => {
     const xyz = convert.colorToXyz('lab(46.2775% -47.5621 48.5837)');

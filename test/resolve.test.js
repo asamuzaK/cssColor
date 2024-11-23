@@ -678,13 +678,12 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, ['foo', '#00800080'], 'result');
   });
 
-  /* calc() */
   // FIXME:
   it.skip('should get value', () => {
     const res = func('currentcolor', {
       currentColor: 'color-mix(in lab, rgb(255 0 0), rgb(0 0 255))'
     });
-    const res2 = util.parseColorValue(res, {
+    const res2 = api.parseColorValue(res, {
       format: 'spec'
     });
     res2[1] = parseFloat(res2[1].toFixed(4));
@@ -698,7 +697,7 @@ describe('resolve CSS color', () => {
     const res = func('currentcolor', {
       currentColor: 'color-mix(in lab, rgb(255 0 0 / .5), rgb(0 0 255 / .5))'
     });
-    const res2 = util.parseColorValue(res, {
+    const res2 = api.parseColorValue(res, {
       format: 'spec'
     });
     res2[1] = parseFloat(res2[1].toFixed(4));
