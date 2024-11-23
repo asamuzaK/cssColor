@@ -5,4 +5,5 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
-export { convert, parse, resolve } from './js/api.js';
+export { convert } from './js/convert.js';
+export { resolve } from './js/resolve.js';
