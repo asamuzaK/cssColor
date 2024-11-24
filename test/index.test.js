@@ -18,6 +18,12 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res =
+      func('color-mix(in oklab, rgb(255 0 0), color(srgb 0 0.5 0 / 0.5))');
+    assert.strictEqual(res, 'oklab(0.5914 0.103273 0.119688 / 0.75)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
