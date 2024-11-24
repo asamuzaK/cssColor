@@ -9,6 +9,83 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 /* test */
 import * as convert from '../src/js/convert.js';
 
+describe('convert color to xyz', () => {
+  const func = convert.colorToXyz;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in srgb, red, blue)');
+    assert.deepEqual(res, [0.126899, 0.0609656, 0.207591, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(3));
+    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[0] = parseFloat(res2[0].toFixed(3));
+    res2[1] = parseFloat(res2[1].toFixed(2));
+    res2[2] = parseFloat(res2[2].toFixed(3));
+    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green');
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(3));
+    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+
+    const res2 = func('green');
+    res2[0] = parseFloat(res2[0].toFixed(3));
+    res2[1] = parseFloat(res2[1].toFixed(2));
+    res2[2] = parseFloat(res2[2].toFixed(3));
+    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(46.28% -47.57 48.58)', {
+      d50: true
+    });
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
+
+    const res2 = func('lab(46.28% -47.57 48.58)', {
+      d50: true
+    });
+    res2[0] = parseFloat(res2[0].toFixed(2));
+    res2[1] = parseFloat(res2[1].toFixed(2));
+    res2[2] = parseFloat(res2[2].toFixed(2));
+    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(calc(46.28%) calc(47.57 * -1) calc(48.58))', {
+      d50: true
+    });
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
+  });
+});
+
 describe('convert hex color to rgb', () => {
   const func = convert.hexToRgb;
 

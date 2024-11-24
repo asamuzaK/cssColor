@@ -2,19 +2,56 @@
  * convert.js
  */
 
+import { calc } from '@csstools/css-calc';
 import { LRUCache } from 'lru-cache';
 import {
   convertHexToRgb, convertRgbToHex, convertXyzD50ToHex, convertXyzD50ToLab,
   convertXyzD50ToLch, convertXyzToHex, convertXyzToHsl, convertXyzToHwb,
   convertXyzToOklab, convertXyzToOklch, convertXyzToRgb, convertXyzToXyzD50,
-  numberToHexString
+  numberToHexString, parseColorFunc, parseColorValue
 } from './color.js';
-import { isString } from './common.js';
+import { getType, isString } from './common.js';
+import { resolve } from './resolve.js';
 
 /* cached results */
 export const cachedResults = new LRUCache({
   max: 4096
 });
+
+/**
+ * convert color to xyz
+ * @param {string} value - color value
+ * @param {object} [opt] - options
+ * @param {boolean} [opt.d50] - xyz in d50 white point
+ * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: around 0..1
+ */
+export const colorToXyz = (value, opt = {}) => {
+  if (isString(value)) {
+    value = value.toLowerCase().trim();
+  } else {
+    throw new TypeError(`Expected String but got ${getType(value)}.`);
+  }
+  const cacheKey = `{parse:${value},opt:${JSON.stringify(opt)}}`;
+  if (cachedResults.has(cacheKey)) {
+    return cachedResults.get(cacheKey);
+  }
+  let x, y, z, a;
+  if (/calc/.test(value)) {
+    value = calc(value);
+  }
+  if (value.startsWith('color-mix')) {
+    value = resolve(value, {
+      format: 'spec'
+    });
+  }
+  if (value.startsWith('color(')) {
+    [, x, y, z, a] = parseColorFunc(value, opt);
+  } else {
+    [, x, y, z, a] = parseColorValue(value, opt);
+  }
+  cachedResults.set(cacheKey, [x, y, z, a]);
+  return [x, y, z, a];
+};
 
 /**
  * convert hex color to rgb
@@ -197,8 +234,9 @@ export const xyzToRgb = xyz => convertXyz(xyz, 'xyzToRgb');
  */
 export const xyzToXyzD50 = xyz => convertXyz(xyz, 'xyzToXyzD50');
 
-/* wrap converters */
+/* convert */
 export const convert = {
+  colorToXyz,
   hexToRgb,
   numberToHex,
   rgbToHex,
