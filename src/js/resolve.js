@@ -21,24 +21,20 @@ export const cachedResults = new LRUCache({
  * @param {object} [opt] - options
  * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
  * @param {string} [opt.format]
- *   - output format, one of `spec` (default), `rgb`, `array`, `hex`, `hexAlpha`
+ *   - output format, one of `spec` (default), `rgb`, `hex`, `hexAlpha`
  *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array}
  *   - returns one of rgba?(), color(space r g b / a), color(space x y z / a),
  *     lab(l a b / A), lch(l c h / a), oklab(l a b / A), oklch(l c h / a),
- *     [r, g, b, a], #rrggbb(aa)?, null
- *     and [key, rgba?()] etc. if `key` is specified
- *   - in `spec`, each value is a floating point number, except for rgba?()
- *   - in `rgb`, `r`, `g`, `b` values are rounded to integers,
- *     and returns `rgba(0, 0, 0, 0)` for unknown colors
- *   - in `array`, values are an rgb array and each value are rounded,
- *     and if any of `r`, `g`, `b`, `a` is not a number then they stay as is,
- *     e.g. [undefined, undefined, undefined, undefined]
- *   - in `hex`, `transparent` resolves as `null`,
- *     also returns `null` if any of `r`, `g`, `b`, `a` is not a number
- *   - in `hexAlpha`, `transparent` resolves as `#00000000`,
- *     and returns `null` if any of `r`, `g`, `b`, `a` is not a number
+ *     #rrggbb(aa)?, null, and, if `key` is specified, [key, rgba?()] etc.
+ *   - in `spec`, returned values are numbers, however rgb() values are integers
+ *   - in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)`
+ *     for unknown colors
+ *   - in `hex`, `transparent` value is resolved as `null`, also returns `null`
+ *     if any of `r`, `g`, `b`, `a` is not a number
+ *   - in `hexAlpha`, `transparent` resolves as `#00000000`, and returns `null`
+ *     if any of `r`, `g`, `b`, `a` is not a number
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
@@ -125,14 +121,6 @@ export const resolve = (color, opt = {}) => {
   }
   let res;
   switch (format) {
-    case 'array': {
-      if (key) {
-        res = [key, [r, g, b, a]];
-      } else {
-        res = [r, g, b, a];
-      }
-      break;
-    }
     case 'hex': {
       let hex;
       if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a) || a === 0) {
