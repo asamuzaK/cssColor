@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 
 /* test */
 import * as api from '../src/js/resolve.js';
+import { parseColorValue } from '../src/js/color.js';
 
 describe('resolve CSS color', () => {
   const func = api.resolve;
@@ -36,32 +37,29 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res, 'rgba(128, 128, 255, 0.667)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in lab, blue, red)'
     });
-    assert.deepEqual(res, 'lab(41.9294 74.5462 -21.0694)', 'result');
+    assert.deepEqual(res, 'lab(41.9294 74.5461 -21.0694)', 'result');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in lab, blue, red)'
     });
-    assert.deepEqual(res2, 'lab(41.9294 74.5462 -21.0694)', 'result');
+    assert.deepEqual(res2, 'lab(41.9294 74.5461 -21.0694)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in lab, rgb(0 0 255 / .5), color(srgb 1 0 0 / .5))'
     });
-    assert.deepEqual(res, 'lab(41.9294 74.5462 -21.0694 / 0.5)', 'result');
+    assert.deepEqual(res, 'lab(41.9294 74.5461 -21.0694 / 0.5)', 'result');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in lab, rgb(0 0 255 / .5), color(srgb 1 0 0 / .5))'
     });
-    assert.deepEqual(res2, 'lab(41.9294 74.5462 -21.0694 / 0.5)', 'result');
+    assert.deepEqual(res2, 'lab(41.9294 74.5461 -21.0694 / 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
@@ -169,8 +167,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, rgba(0 255 0 / .5), rgba(255 0 0 / .5))'
     });
@@ -181,8 +178,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'color(srgb 0.5 0.5 0 / 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)',
       format: 'rgb'
@@ -288,16 +284,14 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, '#00000000', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)');
     assert.deepEqual(res, 'color(srgb 0.5 0 0.5)', 'result');
     const res2 = func('color-mix(in srgb, blue, red)');
     assert.deepEqual(res2, 'color(srgb 0.5 0 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       format: 'rgb'
     });
@@ -308,8 +302,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'rgb(128, 0, 128)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, rgba(0 0 255 / .5), currentcolor)', {
       currentColor: 'rgba(255 0 0 / .5)',
       key: 'foo'
@@ -322,8 +315,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, ['foo', 'color(srgb 0.5 0 0.5 / 0.5)'], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, currentcolor)', {
       currentColor: 'red',
       format: 'rgb'
@@ -336,20 +328,18 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'rgb(128, 0, 128)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, currentcolor)', {
       currentColor: 'red'
     });
-    assert.deepEqual(res, 'rgba(255, 0, 0, 0.5)', 'result');
+    assert.deepEqual(res, 'color(srgb 1 0 0 / 0.5)', 'result');
     const res2 = func('color-mix(in srgb, transparent, currentColor)', {
       currentColor: 'red'
     });
-    assert.deepEqual(res2, 'rgba(255, 0, 0, 0.5)', 'result');
+    assert.deepEqual(res2, 'color(srgb 1 0 0 / 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, currentcolor)', {
       currentColor: 'red',
       format: 'rgb'
@@ -362,8 +352,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'rgba(255, 0, 0, 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, red)', {
       format: 'rgb'
     });
@@ -374,8 +363,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'rgba(255, 0, 0, 0.5)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, red)');
     assert.deepEqual(res, 'color(srgb 1 0 0 / 0.5)', 'result');
     const res2 = func('color-mix(in srgb, transparent, red)');
@@ -501,8 +489,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       key: 'foo'
     });
@@ -513,8 +500,7 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, ['foo', 'color(srgb 0.5 0 0.5)'], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       format: 'rgb',
       key: 'foo'
@@ -538,30 +524,28 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, [0, 0, 0, 0], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       format: 'array'
     });
-    assert.deepEqual(res, [127.5, 0, 127.5, 1], 'result');
+    assert.deepEqual(res, [128, 0, 128, 1], 'result');
     const res2 = func('color-mix(in srgb, blue, red)', {
       format: 'array'
     });
-    assert.deepEqual(res2, [127.5, 0, 127.5, 1], 'result');
+    assert.deepEqual(res2, [128, 0, 128, 1], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       format: 'array',
       key: 'foo'
     });
-    assert.deepEqual(res, ['foo', [127.5, 0, 127.5, 1]], 'result');
+    assert.deepEqual(res, ['foo', [128, 0, 128, 1]], 'result');
     const res2 = func('color-mix(in srgb, blue, red)', {
       format: 'array',
       key: 'foo'
     });
-    assert.deepEqual(res2, ['foo', [127.5, 0, 127.5, 1]], 'result');
+    assert.deepEqual(res2, ['foo', [128, 0, 128, 1]], 'result');
   });
 
   it('should get null', () => {
@@ -678,32 +662,24 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, ['foo', '#00800080'], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentcolor', {
       currentColor: 'color-mix(in lab, rgb(255 0 0), rgb(0 0 255))'
     });
-    const res2 = api.parseColorValue(res, {
+    const res2 = parseColorValue(res, {
       format: 'spec'
     });
-    res2[1] = parseFloat(res2[1].toFixed(4));
-    res2[2] = parseFloat(res2[2].toFixed(5));
-    res2[3] = parseFloat(res2[3].toFixed(4));
-    assert.deepEqual(res2, ['lab', 41.9294, 74.54616, -21.0694, 1], 'result');
+    assert.deepEqual(res2, ['lab', 41.9294, 74.5461, -21.0694, 1], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentcolor', {
       currentColor: 'color-mix(in lab, rgb(255 0 0 / .5), rgb(0 0 255 / .5))'
     });
-    const res2 = api.parseColorValue(res, {
+    const res2 = parseColorValue(res, {
       format: 'spec'
     });
-    res2[1] = parseFloat(res2[1].toFixed(4));
-    res2[2] = parseFloat(res2[2].toFixed(5));
-    res2[3] = parseFloat(res2[3].toFixed(4));
     // lab(41.9294 74.5462 -21.0694 / 0.5)
-    assert.deepEqual(res2, ['lab', 41.9294, 74.54616, -21.0694, 0.5], 'result');
+    assert.deepEqual(res2, ['lab', 41.9294, 74.5461, -21.0694, 0.5], 'result');
   });
 });

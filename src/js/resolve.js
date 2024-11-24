@@ -163,14 +163,10 @@ export const resolve = (color, opt = {}) => {
     }
     case 'rgb': {
       let rgb;
-      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
-        rgb = '';
+      if (a === 1) {
+        rgb = `rgb(${r}, ${g}, ${b})`;
       } else {
-        if (a === 1) {
-          rgb = `rgb(${r}, ${g}, ${b})`;
-        } else {
-          rgb = `rgba(${r}, ${g}, ${b}, ${a})`;
-        }
+        rgb = `rgba(${r}, ${g}, ${b}, ${a})`;
       }
       if (key) {
         res = [key, rgb];
