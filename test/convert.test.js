@@ -24,10 +24,9 @@ describe('convert color to xyz', () => {
       'Expected String but got Undefined.');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in srgb, red, blue)');
-    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+    assert.deepEqual(res, [0.126899, 0.0609656, 0.207591, 1], 'result');
   });
 
   it('should get value', () => {
