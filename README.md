@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/asamuzaK/cssColor/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/asamuzaK/cssColor/actions/workflows/github-code-scanning/codeql)
 [![npm (scoped)](https://img.shields.io/npm/v/@asamuzakjp/css-color)](https://www.npmjs.com/package/@asamuzakjp/css-color)
 
-Resolve, parse, convert CSS color.
+Resolve and convert CSS colors.
 
 
 ## Install
@@ -17,13 +17,13 @@ npm i @asamuzakjp/css-color
 ## Usage
 
 ```javascript
-import { convert, parse, resolve } from '@asamuzakjp/css-color';
+import { convert, resolve } from '@asamuzakjp/css-color';
 
-const rgb = resolve('color-mix(in srgb, red, blue)');
-// 'rgb(128, 0, 128)'
+const resolvedValue =
+  resolve('color-mix(in oklab, rgb(255 0 0), color(srgb 0 0.5 0 / 0.5))');
+// 'oklab(0.5914 0.103273 0.119688 / 0.75)'
 
-const xyz = parse('lab(46.2775% -47.5621 48.5837)');
-const hex = convert.xyzToHex(xyz);
+const convertedValue = covert.colorToHex('lab(46.2775% -47.5621 48.5837)');
 // '#008000'
 ```
 
@@ -31,190 +31,155 @@ const hex = convert.xyzToHex(xyz);
 
 ### resolve(color, opt)
 
-Resolve CSS color.
+resolves CSS color
 
 #### Parameters
 
-* `color` **[string][93]** color value
-  * [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported
-* `opt` **[object][94]?** options
-  * `opt.currentColor` **[string][93]?** color to use for `currentcolor` keyword
-  * `opt.format` **[string][93]?** output format, one of `rgb`(default), `array`, `hex` or `hexAlpha`
-    * `hexAlpha` gets hex color with alpha channel, i.e. `#rrggbbaa`
-  * `opt.key` **any?** key e.g. CSS property `background-color`
+*   `color` **[string][133]** color value
+    *   system colors are not supported
 
-Returns **([string][93]? | [Array][96])** `rgba?()`, `[r, g, b, a]`, `#rrggbb(aa)?`, `null`, or if `key` is specified, `[key, rgba?()|[r, g, b, a]|#rrggbb(aa)?|null]`
-* In `rgb`:
-  * `r`, `g`, `b` values are rounded.
-  * Returns empty string for unknown / unsupported color name.
-* In `array`:
-  * Values are floats.
-  * Returns array filled with `undefined` for unknown / unsupported color name, i.e. `[undefined, undefined, undefined, undefined]`.
-* In `hex`:
-  * `transparent` returns `null`.
-  * Also returns `null` for unknown / unsupported color name.
-  * `currentcolor` resolves as `#000000` if `opt.currentColor` is not specified.
-* In `hexAlpha`:
-  * `transparent` resolves as `#00000000`.
-  * `currentcolor` resolves as `#00000000` if `opt.currentColor` is not specified.
-  * Returns `null` for unknown / unsupported color name.
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
+    *   `opt.format` **[string][133]?** output format, one of `spec` (default), `rgb`, `hex`, `hexAlpha`
+        *   `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
+    *   `opt.key` **any?** key e.g. CSS property `background-color`
 
+Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(space r g b / a)`, `color(space x y z / a)`, `lab(l a b / A)`, `lch(l c h / a)`, `oklab(l a b / A)`, `oklch(l c h / a)`, `\#rrggbb(aa)?`, `null`, and, if `key` is specified, `[key, rgba?()]` etc.
 
-### parse(color, opt)
-
-Parse CSS color.
-
-#### Parameters
-
-* `color` **[string][93]** color value
-  * `color-mix()` and [&lt;system-color&gt;](https://developer.mozilla.org/en-US/docs/Web/CSS/system-color)s are not supported. It throws.
-* `opt` **[object][94]?** options
-  * `opt.d50` **[boolean][95]?** get xyz values in d50 white point
-
-Returns **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
-
+*   in `spec`, values are numbers, however rgb() values are integers
+*   in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown colors
+*   in `hex`, `transparent` value is resolved as `null`, also returns `null` if any of `r`, `g`, `b`, `a` is not a number
+*   in `hexAlpha`, `transparent` resolves as `#00000000`, and returns `null` if any of `r`, `g`, `b`, `a` is not a number
 
 ### convert
 
 Contains various conversion functions as properties.
 
+### numberToHex(value)
 
-### convert.numberToHex(n)
-
-Convert number to hex string.
-
-#### Parameters
-
-* `n` **[number][97]** 0..255
-
-Returns **[string][93]** hex string `00`..`ff`
-
-
-### convert.hexToRgb(hex)
-
-Convert hex color to rgb color array.
+convert number to hex string
 
 #### Parameters
 
-* `hex` **[string][93]** `#rrggbbaa`
+*   `value` **[number][134]** color value
 
-Returns **[Array][96]<[number][97]>** `[r, g, b, a]` r|g|b: 0..255 a: 0..1
+Returns **[string][133]** hex string: 00..ff
 
+### colorToHex(value, opt)
 
-### convert.rgbToHex(rgb)
-
-Convert rgb to hex color notation.
-
-#### Parameters
-
-* `rgb` **[Array][96]<[number][97]>** `[r, g, b, a]` r|g|b: 0..255 a: 0..1
-
-Returns **[string][93]** `#rrggbbaa`
-
-
-### convert.xyzToHex(xyz)
-
-Convert xyz to hex color notation.
+convert color to hex
 
 #### Parameters
 
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
+*   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
 
-Returns **[string][93]** `#rrggbbaa`
+Returns **[string][133]** #rrggbb|#rrggbbaa
 
+### colorToHsl(value)
 
-### convert.xyzToHsl(xyz)
-
-Convert xyz to hsl color array.
-
-#### Parameters
-
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
-
-Returns **[Array][96]<[number][97]>** `[h, s, l, a]` h: 0..360 s|l: 0..100 a: 0..1
-
-
-### convert.xyzToHwb(xyz)
-
-Convert xyz to hwb color array.
+convert color to hsl
 
 #### Parameters
 
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
+*   `value` **[string][133]** color value
 
-Returns **[Array][96]<[number][97]>** `[h, w, b, a]` h: 0..360 w|b: 0..100 a: 0..1
+Returns **[Array][137]<[number][134]>** \[h, s, l, a]
 
+### colorToHwb(value)
 
-### convert.xyzToOklab(xyz)
-
-Convert xyz to oklab color array.
-
-#### Parameters
-
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
-
-Returns **[Array][96]<[number][97]>** `[l, a, b, A]` l|A: 0..1 a|b: -0.4..0.4
-
-
-### convert.xyzToOklch(xyz)
-
-Convert xyz to oklch color array.
+convert color to hwb
 
 #### Parameters
 
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
+*   `value` **[string][133]** color value
 
-Returns **[Array][96]<[number][97]>** `[l, c, h, a]` l|a: 0..1 c: 0..0.4 h: 0..360
+Returns **[Array][137]<[number][134]>** \[h, w, b, a]
 
+### colorToLab(value)
 
-### convert.xyzToRgb(xyz)
-
-Convert xyz to rgb color array.
-
-#### Parameters
-
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
-
-Returns **[Array][96]<[number][97]>** `[r, g, b, a]` r|g|b: 0..255 a: 0..1
-
-
-### convert.xyzToXyzD50(xyz)
-
-Convert xyz to xyz-d50 color array.
+convert color to lab
 
 #### Parameters
 
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
+*   `value` **[string][133]** color value
 
-Returns **[Array][96]<[number][97]>** xyz - `[x, y, z, a]` x|y|z|a: 0..1
+Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
 
+### colorToLch(value)
 
-### convert.xyzD50ToLab(xyz)
-
-Convert xyz-d50 to lab color array.
-
-#### Parameters
-
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
-
-Returns **[Array][96]<[number][97]>** `[l, a, b, A]` l: 0..100 a|b: -125..125 A: 0..1
-
-
-### convert.xyzD50ToLch(xyz)
-
-Convert xyz-d50 to lch color array.
+convert color to lch
 
 #### Parameters
 
-* `xyz` **[Array][96]<[number][97]>** `[x, y, z, a]` x|y|z|a: 0..1
+*   `value` **[string][133]** color value
 
-Returns **[Array][96]<[number][97]>** `[l, c, h, a]` l: 0..100 c: 0..150 h: 0..360 a: 0..1
+Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
+
+### colorToOklab(value)
+
+convert color to oklab
+
+#### Parameters
+
+*   `value` **[string][133]** color value
+
+Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
+
+### colorToOklch(value)
+
+convert color to oklch
+
+#### Parameters
+
+*   `value` **[string][133]** color value
+
+Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
+
+### colorToRgb(value)
+
+convert color to rgb
+
+#### Parameters
+
+*   `value` **[string][133]** color value
+
+Returns **[Array][137]<[number][134]>** \[r, g, b, a]
+
+### colorToXyz(value, opt)
+
+convert color to xyz
+
+#### Parameters
+
+*   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.d50` **[boolean][136]?** xyz in d50 white point
+
+Returns **[Array][137]<[number][134]>** \[x, y, z, a]
+
+### colorToXyzD50(value)
+
+convert color to xyz-d50
+
+#### Parameters
+
+*   `value` **[string][133]** color value
+
+Returns **[Array][137]<[number][134]>** \[x, y, z, a]
 
 ---
 Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
 
-[93]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
-[94]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
-[95]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
-[96]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
-[97]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[133]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[134]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[135]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[136]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+
+[137]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[138]: https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
