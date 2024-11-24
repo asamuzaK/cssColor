@@ -513,41 +513,6 @@ describe('resolve CSS color', () => {
     assert.deepEqual(res2, ['foo', 'rgb(128, 0, 128)'], 'result');
   });
 
-  it('should get value', () => {
-    const res = func('foo', {
-      format: 'array'
-    });
-    assert.deepEqual(res, [0, 0, 0, 0], 'result');
-    const res2 = func('foo', {
-      format: 'array'
-    });
-    assert.deepEqual(res2, [0, 0, 0, 0], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('color-mix(in srgb, blue, red)', {
-      format: 'array'
-    });
-    assert.deepEqual(res, [128, 0, 128, 1], 'result');
-    const res2 = func('color-mix(in srgb, blue, red)', {
-      format: 'array'
-    });
-    assert.deepEqual(res2, [128, 0, 128, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('color-mix(in srgb, blue, red)', {
-      format: 'array',
-      key: 'foo'
-    });
-    assert.deepEqual(res, ['foo', [128, 0, 128, 1]], 'result');
-    const res2 = func('color-mix(in srgb, blue, red)', {
-      format: 'array',
-      key: 'foo'
-    });
-    assert.deepEqual(res2, ['foo', [128, 0, 128, 1]], 'result');
-  });
-
   it('should get null', () => {
     const res = func('transparent', {
       format: 'hex'

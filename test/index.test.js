@@ -17,8 +17,7 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
@@ -37,8 +36,7 @@ describe('convert', () => {
   const { convert } = api;
 
   it('should get value', () => {
-    const xyz = convert.colorToXyz('lab(46.2775% -47.5621 48.5837)');
-    const hex = convert.xyzToHex(xyz);
+    const hex = convert.colorToHex('lab(46.2775% -47.5621 48.5837)');
     assert.strictEqual(hex, '#008000', 'result');
   });
 });
