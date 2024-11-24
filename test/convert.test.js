@@ -9,6 +9,353 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 /* test */
 import * as convert from '../src/js/convert.js';
 
+describe('pre process', () => {
+  const func = convert.preProcess;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should get value as is', () => {
+    const res = func();
+    assert.deepEqual(typeof res, 'undefined', 'result');
+  });
+
+  it('should get value as is', () => {
+    const res = func('foo');
+    assert.strictEqual(res, 'foo', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(1 / 2)');
+    assert.strictEqual(res, '0.5', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklab, red, green)');
+    assert.strictEqual(res, 'oklab(0.573854 0.0422802 0.116761)', 'result');
+  });
+});
+
+describe('convert number to hex string', () => {
+  const func = convert.numberToHex;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func(0);
+    assert.strictEqual(res, '00', 'result');
+
+    const res2 = func(0);
+    assert.strictEqual(res2, '00', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(2.55);
+    assert.strictEqual(res, '03', 'result');
+
+    const res2 = func(2.55);
+    assert.strictEqual(res2, '03', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(9);
+    assert.strictEqual(res, '09', 'result');
+
+    const res2 = func(9);
+    assert.strictEqual(res2, '09', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(10);
+    assert.strictEqual(res, '0a', 'result');
+
+    const res2 = func(10);
+    assert.strictEqual(res2, '0a', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(15);
+    assert.strictEqual(res, '0f', 'result');
+
+    const res2 = func(15);
+    assert.strictEqual(res2, '0f', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(16);
+    assert.strictEqual(res, '10', 'result');
+
+    const res2 = func(16);
+    assert.strictEqual(res2, '10', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(255);
+    assert.strictEqual(res, 'ff', 'result');
+
+    const res2 = func(255);
+    assert.strictEqual(res2, 'ff', 'result');
+  });
+});
+
+describe('convert color to hex', () => {
+  const func = convert.colorToHex;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    assert.strictEqual(res, '#008000', 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    assert.strictEqual(res2, '#008000', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0 / 0.5)', {
+      alpha: true
+    });
+    assert.strictEqual(res, '#00800080', 'result');
+
+    const res2 = func('color(srgb 0 0.5 0 / 0.5)', {
+      alpha: true
+    });
+    assert.strictEqual(res2, '#00800080', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)', {
+      alpha: true
+    });
+    assert.strictEqual(res, '#008000', 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)', {
+      alpha: true
+    });
+    assert.strictEqual(res2, '#008000', 'result');
+  });
+});
+
+describe('convert color to hsl', () => {
+  const func = convert.colorToHsl;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[2] = Math.round(res[2]);
+    assert.deepEqual(res, [120, 100, 25, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[2] = Math.round(res2[2]);
+    assert.deepEqual(res2, [120, 100, 25, 1], 'result');
+  });
+});
+
+describe('convert color to hwb', () => {
+  const func = convert.colorToHwb;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[2] = Math.round(res[2]);
+    assert.deepEqual(res, [120, 0, 50, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[2] = Math.round(res2[2]);
+    assert.deepEqual(res2, [120, 0, 50, 1], 'result');
+  });
+});
+
+describe('convert color to lab', () => {
+  const func = convert.colorToLab;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [46.1022, -47.41821, 48.44932, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [46.1022, -47.41821, 48.44932, 1], 'result');
+  });
+});
+
+describe('convert color to lch', () => {
+  const func = convert.colorToLch;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [46.1022, 67.7925, 134.38377, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [46.1022, 67.7925, 134.38377, 1], 'result');
+  });
+});
+
+describe('convert color to oklab', () => {
+  const func = convert.colorToOklab;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [0.51829, -0.13991, 0.10737, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [0.51829, -0.13991, 0.10737, 1], 'result');
+  });
+});
+
+describe('convert color to oklch', () => {
+  const func = convert.colorToOklch;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [0.51829, 0.17636, 142.49541, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [0.51829, 0.17636, 142.49541, 1], 'result');
+  });
+});
+
+describe('convert color to rgb', () => {
+  const func = convert.colorToRgb;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError,
+      'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)');
+    assert.deepEqual(res, [0, 127.5, 0, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    assert.deepEqual(res2, [0, 127.5, 0, 1], 'result');
+  });
+});
+
 describe('convert color to xyz', () => {
   const func = convert.colorToXyz;
 
@@ -25,430 +372,58 @@ describe('convert color to xyz', () => {
   });
 
   it('should get value', () => {
-    const res = func('color-mix(in srgb, red, blue)');
-    assert.deepEqual(res, [0.126899, 0.0609656, 0.207591, 1], 'result');
+    const res = func('color(srgb 0 0.5 0)');
+    assert.deepEqual(res, [0.0765378, 0.153076, 0.0255126, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)');
+    assert.deepEqual(res2, [0.0765378, 0.153076, 0.0255126, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.5 0)', {
+      d50: true
+    });
+    assert.deepEqual(res, [0.0824383, 0.153443, 0.0207794, 1], 'result');
+
+    const res2 = func('color(srgb 0 0.5 0)', {
+      d50: true
+    });
+    assert.deepEqual(res2, [0.0824383, 0.153443, 0.0207794, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklab, red, green)');
+    assert.deepEqual(res, [0.208269, 0.182606, 0.0243385, 1], 'result');
+
+    const res2 = func('color-mix(in oklab, red, green)');
+    assert.deepEqual(res2, [0.208269, 0.182606, 0.0243385, 1], 'result');
+  });
+});
+
+describe('convert color to xyz-d50', () => {
+  const func = convert.colorToXyzD50;
+
+  beforeEach(() => {
+    convert.cachedResults.clear();
+  });
+  afterEach(() => {
+    convert.cachedResults.clear();
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
-    res[0] = parseFloat(res[0].toFixed(3));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(3));
-    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
+    assert.deepEqual(res, [0.0824383, 0.153443, 0.0207794, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
-    res2[0] = parseFloat(res2[0].toFixed(3));
-    res2[1] = parseFloat(res2[1].toFixed(2));
-    res2[2] = parseFloat(res2[2].toFixed(3));
-    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('green');
-    res[0] = parseFloat(res[0].toFixed(3));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(3));
-    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
-
-    const res2 = func('green');
-    res2[0] = parseFloat(res2[0].toFixed(3));
-    res2[1] = parseFloat(res2[1].toFixed(2));
-    res2[2] = parseFloat(res2[2].toFixed(3));
-    assert.deepEqual(res, [0.077, 0.15, 0.026, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('lab(46.28% -47.57 48.58)', {
-      d50: true
-    });
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(2));
-    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
-
-    const res2 = func('lab(46.28% -47.57 48.58)', {
-      d50: true
-    });
-    res2[0] = parseFloat(res2[0].toFixed(2));
-    res2[1] = parseFloat(res2[1].toFixed(2));
-    res2[2] = parseFloat(res2[2].toFixed(2));
-    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('lab(calc(46.28%) calc(47.57 * -1) calc(48.58))', {
-      d50: true
-    });
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(2));
-    assert.deepEqual(res, [0.08, 0.15, 0.02, 1], 'result');
+    assert.deepEqual(res2, [0.0824383, 0.153443, 0.0207794, 1], 'result');
   });
 });
 
-describe('convert hex color to rgb', () => {
-  const func = convert.hexToRgb;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func('#ff0000');
-    assert.deepEqual(res, [255, 0, 0, 1], 'result');
-
-    const res2 = func('#FF0000');
-    assert.deepEqual(res2, [255, 0, 0, 1], 'result');
-  });
-});
-
-describe('convert number to hex string', () => {
-  const func = convert.numberToHex;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func(0);
-    assert.strictEqual(res, '00', 'result');
-
-    const res2 = func(0);
-    assert.strictEqual(res2, '00', 'result');
-  });
-});
-
-describe('convert rgb to hex color', () => {
-  const func = convert.rgbToHex;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([255, 0, 128]);
-    assert.deepEqual(res, '#ff0080', 'result');
-
-    const res2 = func([255, 0, 128]);
-    assert.deepEqual(res2, '#ff0080', 'result');
-  });
-});
-
-describe('convert xyz', () => {
-  const func = convert.convertXyz;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([0, 0.5, 0, 1], 'foo'), Error,
-      'Invalid converter name: foo');
-  });
-
-  it('should get value', () => {
-    const res = func([0.08312, 0.15475, 0.02096, 1], 'xyzD50ToHex');
-    assert.deepEqual(res, '#008000', 'result');
-
-    const res2 = func([0.08312, 0.15475, 0.02096, 1], 'xyzD50ToHex');
-    assert.deepEqual(res2, '#008000', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.08312, 0.15475, 0.02096, 1], 'xyzD50ToLab');
-    res[0] = parseFloat(res[0].toFixed(3));
-    res[1] = parseFloat(res[1].toFixed(1));
-    res[2] = parseFloat(res[2].toFixed(1));
-    assert.deepEqual(res, [46.278, -47.6, 48.6, 1], 'result');
-
-    const res2 = func([0.08312, 0.15475, 0.02096, 1], 'xyzD50ToLab');
-    res2[0] = parseFloat(res2[0].toFixed(3));
-    res2[1] = parseFloat(res2[1].toFixed(1));
-    res2[2] = parseFloat(res2[2].toFixed(1));
-    assert.deepEqual(res2, [46.278, -47.6, 48.6, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.08312, 0.15475, 0.02096, 1], 'xyzD50ToLch');
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [46.27803, 67.99473, 134.39669, 1], 'result');
-
-    const res2 = func([0.08312, 0.15475, 0.02096, 1], 'xyzD50ToLch');
-    res2[0] = parseFloat(res2[0].toFixed(5));
-    res2[1] = parseFloat(res2[1].toFixed(5));
-    res2[2] = parseFloat(res2[2].toFixed(5));
-    assert.deepEqual(res, [46.27803, 67.99473, 134.39669, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToHex');
-    assert.deepEqual(res, '#008000', 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToHex');
-    assert.deepEqual(res2, '#008000', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToHsl');
-    res[1] = Math.round(res[1]);
-    res[2] = Math.round(res[2]);
-    assert.deepEqual(res, [120, 100, 25, 1], 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToHsl');
-    res2[1] = Math.round(res2[1]);
-    res2[2] = Math.round(res2[2]);
-    assert.deepEqual(res2, [120, 100, 25, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToHwb');
-    res[2] = Math.round(res[2]);
-    assert.deepEqual(res, [120, 0, 50, 1], 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToHwb');
-    res2[2] = Math.round(res2[2]);
-    assert.deepEqual(res2, [120, 0, 50, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToOklab');
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.51976, -0.1403, 0.10768, 1], 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToOklab');
-    res2[0] = parseFloat(res2[0].toFixed(5));
-    res2[1] = parseFloat(res2[1].toFixed(5));
-    res2[2] = parseFloat(res2[2].toFixed(5));
-    assert.deepEqual(res, [0.51976, -0.1403, 0.10768, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToOklch');
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(4));
-    assert.deepEqual(res, [0.52, 0.18, 142.4953, 1], 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToOklch');
-    res2[0] = parseFloat(res2[0].toFixed(2));
-    res2[1] = parseFloat(res2[1].toFixed(2));
-    res2[2] = parseFloat(res2[2].toFixed(4));
-    assert.deepEqual(res, [0.52, 0.18, 142.4953, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToRgb');
-    assert.deepEqual(res, [0, 128, 0, 1], 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToRgb');
-    assert.deepEqual(res2, [0, 128, 0, 1], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1], 'xyzToXyzD50');
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.08314, 0.15475, 0.02096, 1], 'result');
-
-    const res2 = func([0.07719, 0.15438, 0.02573, 1], 'xyzToXyzD50');
-    res2[0] = parseFloat(res2[0].toFixed(5));
-    res2[1] = parseFloat(res2[1].toFixed(5));
-    res2[2] = parseFloat(res2[2].toFixed(5));
-    assert.deepEqual(res2, [0.08314, 0.15475, 0.02096, 1], 'result');
-  });
-});
-
-describe('convert xyz D50 to hex color', () => {
-  const func = convert.xyzD50ToHex;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.08312, 0.15475, 0.02096, 1]);
-    assert.deepEqual(res, '#008000', 'result');
-  });
-});
-
-describe('convert xyz-d50 to lab', () => {
-  const func = convert.xyzD50ToLab;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.08312, 0.15475, 0.02096, 1]);
-    res[0] = parseFloat(res[0].toFixed(3));
-    res[1] = parseFloat(res[1].toFixed(1));
-    res[2] = parseFloat(res[2].toFixed(1));
-    assert.deepEqual(res, [46.278, -47.6, 48.6, 1], 'result');
-  });
-});
-
-describe('convert xyz-d50 to lch', () => {
-  const func = convert.xyzD50ToLch;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.08312, 0.15475, 0.02096, 1]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [46.27803, 67.99473, 134.39669, 1], 'result');
-  });
-});
-
-describe('convert xyz to hex color', () => {
-  const func = convert.xyzToHex;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    assert.deepEqual(res, '#008000', 'result');
-  });
-});
-
-describe('convert xyz to hsl', () => {
-  const func = convert.xyzToHsl;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    res[1] = Math.round(res[1]);
-    res[2] = Math.round(res[2]);
-    assert.deepEqual(res, [120, 100, 25, 1], 'result');
-  });
-});
-
-describe('convert xyz to hwb', () => {
-  const func = convert.xyzToHwb;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    res[2] = Math.round(res[2]);
-    assert.deepEqual(res, [120, 0, 50, 1], 'result');
-  });
-});
-
-describe('convert xyz to oklab', () => {
-  const func = convert.xyzToOklab;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.51976, -0.1403, 0.10768, 1], 'result');
-  });
-});
-
-describe('convert xyz to oklch', () => {
-  const func = convert.xyzToOklch;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(4));
-    assert.deepEqual(res, [0.52, 0.18, 142.4953, 1], 'result');
-  });
-});
-
-describe('convert xyz to rgb', () => {
-  const func = convert.xyzToRgb;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    assert.deepEqual(res, [0, 128, 0, 1], 'result');
-  });
-});
-
-describe('convert xyz to xyz-d50', () => {
-  const func = convert.xyzToXyzD50;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
-  it('should get value', () => {
-    const res = func([0.07719, 0.15438, 0.02573, 1]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.08314, 0.15475, 0.02096, 1], 'result');
+describe('convert', () => {
+  it('should get functions', () => {
+    const keys = Object.keys(convert.convert);
+    for (const key of keys) {
+      assert.strictEqual(typeof convert.convert[key], 'function');
+    }
   });
 });
