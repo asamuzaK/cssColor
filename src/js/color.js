@@ -1722,7 +1722,7 @@ export const parseColorFunc = (value, opt = {}) => {
   let [cs, v1, v2, v3, v4] = val.replace('/', ' ').split(/\s+/);
   let r, g, b, a;
   if (v1 === NONE) {
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       r = v1;
     } else {
       r = 0;
@@ -1734,7 +1734,7 @@ export const parseColorFunc = (value, opt = {}) => {
     r = v1.endsWith('%') ? parseFloat(v1) / MAX_PCT : parseFloat(v1);
   }
   if (v2 === NONE) {
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       g = v2;
     } else {
       g = 0;
@@ -1746,7 +1746,7 @@ export const parseColorFunc = (value, opt = {}) => {
     g = v2.endsWith('%') ? parseFloat(v2) / MAX_PCT : parseFloat(v2);
   }
   if (v3 === NONE) {
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       b = v3;
     } else {
       b = 0;
@@ -1757,12 +1757,12 @@ export const parseColorFunc = (value, opt = {}) => {
     }
     b = v3.endsWith('%') ? parseFloat(v3) / MAX_PCT : parseFloat(v3);
   }
-  if (v4 === NONE && format === 'spec') {
+  if (v4 === NONE && REG_SPEC.test(format)) {
     a = v4;
   } else {
     a = parseAlpha(v4);
   }
-  if (format === 'spec') {
+  if (REG_SPEC.test(format)) {
     if (cs === 'xyz') {
       cs = 'xyz-d65';
     }
@@ -2104,13 +2104,16 @@ export const resolveColorFunc = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const reg = new RegExp(`^color\\(\\s*${SYN_COLOR_FUNC}\\s*\\)$`);
-  if (!reg.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_COLOR_FUNC.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const [cs, x, y, z, a] = parseColorFunc(value, opt);
-  if (format === 'spec') {
+  if (REG_SPEC.test(format)) {
     return [cs, x, y, z, a];
   }
   const [r, g, b] = convertXyzToRgb([x, y, z], true);

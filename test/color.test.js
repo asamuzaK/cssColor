@@ -3730,6 +3730,13 @@ describe('parse color func', () => {
   });
 
   it('should get value', () => {
+    const res = func('color(srgb 0 0.5 1)', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.5, 1, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb none 0.5 1)', {
       format: 'spec'
     });
@@ -3760,6 +3767,13 @@ describe('parse color func', () => {
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
       format: 'spec'
+    });
+    assert.deepEqual(res, ['xyz-d65', 0.07719, 0.15438, 0.02573, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(xyz 0.07719 0.15438 0.02573)', {
+      format: 'specifiedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.07719, 0.15438, 0.02573, 1], 'result');
   });
@@ -4328,24 +4342,28 @@ describe('resolve color()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(in foo, 1 1 1)'), SyntaxError,
-      'Invalid property value: color(in foo, 1 1 1)');
+  it('should get value', () => {
+    const res = func('color(in foo, 1 1 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0,0 ], 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb foo bar baz)'), SyntaxError,
-      'Invalid property value: color(srgb foo bar baz)');
+  it('should get empty string', () => {
+    const res = func('color(in foo, 1 1 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1 bar baz)'), SyntaxError,
-      'Invalid property value: color(srgb 1 bar baz)');
+  it('should get value', () => {
+    const res = func('color(srgb foo bar baz)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0,0 ], 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1 1 baz)'), SyntaxError,
-      'Invalid property value: color(srgb 1 1 baz)');
+  it('should get empty string', () => {
+    const res = func('color(srgb foo bar baz)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -4887,6 +4905,13 @@ describe('resolve color()', () => {
   it('should get value', () => {
     const res = func('color(xyz-d50 30% 50% none)');
     assert.deepEqual(res, ['rgb', 102, 213, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(xyz none none none / none)', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, ['xyz-d65', 'none', 'none', 'none', 'none'], 'result');
   });
 });
 
