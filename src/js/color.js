@@ -121,6 +121,7 @@ const SYN_COLOR_MIX_PART = `(?:${SYN_COLOR_TYPE})(?:\\s+${SYN_PCT})?`;
 const SYN_COLOR_MIX = `color-mix\\(\\s*in\\s+(${SYN_COLOR_SPACE_COLOR_MIX})\\s*,\\s*(${SYN_COLOR_MIX_PART})\\s*,\\s*(${SYN_COLOR_MIX_PART})\\s*\\)`;
 
 /* regexp */
+const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_COLOR_FUNC = new RegExp(`^color\\(\\s*(${SYN_COLOR_FUNC})\\s*\\)$`);
 const REG_CURRENT_COLOR = /^currentColor$/i;
 const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
@@ -129,6 +130,7 @@ const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
+const REG_SPEC = /^spec(?:ifiedValue)?$/;
 
 /* named colors */
 const NAMED_COLORS = {
@@ -1367,7 +1369,7 @@ export const parseLab = (value, opt = {}) => {
   const [, val] = value.match(REG_LAB);
   let [l, a, b, aa] = val.replace('/', ' ').split(/\s+/);
   if (l === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       l = 0;
     }
   } else {
@@ -1387,7 +1389,7 @@ export const parseLab = (value, opt = {}) => {
     }
   }
   if (a === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       a = 0;
     }
   } else {
@@ -1401,7 +1403,7 @@ export const parseLab = (value, opt = {}) => {
     }
   }
   if (b === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       b = 0;
     }
   } else {
@@ -1411,10 +1413,10 @@ export const parseLab = (value, opt = {}) => {
       b = parseFloat(b);
     }
   }
-  if (aa !== NONE || format !== 'spec') {
+  if (aa !== NONE || !REG_SPEC.test(format)) {
     aa = parseAlpha(aa);
   }
-  if (format === 'spec') {
+  if (REG_SPEC.test(format)) {
     return [
       'lab',
       l === NONE ? l : parseFloat(l.toPrecision(6)),
@@ -1465,7 +1467,7 @@ export const parseLch = (value, opt = {}) => {
   const [, val] = value.match(REG_LCH);
   let [l, c, h, aa] = val.replace('/', ' ').split(/\s+/);
   if (l === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       l = 0;
     }
   } else {
@@ -1478,7 +1480,7 @@ export const parseLch = (value, opt = {}) => {
     }
   }
   if (c === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       c = 0;
     }
   } else {
@@ -1492,16 +1494,16 @@ export const parseLch = (value, opt = {}) => {
     }
   }
   if (h === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       h = 0;
     }
   } else {
     h = angleToDeg(h);
   }
-  if (aa !== NONE || format !== 'spec') {
+  if (aa !== NONE || !REG_SPEC.test(format)) {
     aa = parseAlpha(aa);
   }
-  if (format === 'spec') {
+  if (REG_SPEC.test(format)) {
     return [
       'lch',
       l === NONE ? l : parseFloat(l.toPrecision(6)),
@@ -1544,7 +1546,7 @@ export const parseOklab = (value, opt = {}) => {
   const [, val] = value.match(REG_OKLAB);
   let [l, a, b, aa] = val.replace('/', ' ').split(/\s+/);
   if (l === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       l = 0;
     }
   } else {
@@ -1561,7 +1563,7 @@ export const parseOklab = (value, opt = {}) => {
     }
   }
   if (a === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       a = 0;
     }
   } else {
@@ -1575,7 +1577,7 @@ export const parseOklab = (value, opt = {}) => {
     }
   }
   if (b === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       b = 0;
     }
   } else {
@@ -1585,10 +1587,10 @@ export const parseOklab = (value, opt = {}) => {
       b = parseFloat(b);
     }
   }
-  if (aa !== NONE || format !== 'spec') {
+  if (aa !== NONE || !REG_SPEC.test(format)) {
     aa = parseAlpha(aa);
   }
-  if (format === 'spec') {
+  if (REG_SPEC.test(format)) {
     return [
       'oklab',
       l === NONE ? l : parseFloat(l.toPrecision(6)),
@@ -1631,7 +1633,7 @@ export const parseOklch = (value, opt = {}) => {
   const [, val] = value.match(REG_OKLCH);
   let [l, c, h, aa] = val.replace('/', ' ').split(/\s+/);
   if (l === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       l = 0;
     }
   } else {
@@ -1648,7 +1650,7 @@ export const parseOklch = (value, opt = {}) => {
     }
   }
   if (c === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       c = 0;
     }
   } else {
@@ -1665,16 +1667,16 @@ export const parseOklch = (value, opt = {}) => {
     }
   }
   if (h === NONE) {
-    if (format !== 'spec') {
+    if (!REG_SPEC.test(format)) {
       h = 0;
     }
   } else {
     h = angleToDeg(h);
   }
-  if (aa !== NONE || format !== 'spec') {
+  if (aa !== NONE || !REG_SPEC.test(format)) {
     aa = parseAlpha(aa);
   }
-  if (format === 'spec') {
+  if (REG_SPEC.test(format)) {
     return [
       'oklch',
       l === NONE ? l : parseFloat(l.toPrecision(6)),
@@ -1998,19 +2000,38 @@ export const resolveColorValue = (value, opt = {}) => {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
   const { format } = opt;
+  if (!REG_COLOR.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   let cs, r, g, b, a;
   // complement currentcolor as a missing color
   if (REG_CURRENT_COLOR.test(value)) {
+    if (format === 'specifiedValue') {
+      return value;
+    }
     r = 0;
     g = 0;
     b = 0;
     a = 0;
   // named-color
   } else if (/^[a-z]+$/.test(value)) {
+    if (value === 'transparent' && format === 'specifiedValue') {
+      return value;
+    }
     if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
+      if (format === 'specifiedValue') {
+        return value;
+      }
       [r, g, b] = NAMED_COLORS[value];
       a = 1;
     } else {
+      if (format === 'specifiedValue') {
+        return '';
+      }
       r = 0;
       g = 0;
       b = 0;
@@ -2031,7 +2052,7 @@ export const resolveColorValue = (value, opt = {}) => {
         format
       });
     }
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       return [cs, x, y, z, a];
     }
     [r, g, b, a] = convertXyzD50ToRgb([x, y, z, a]);
@@ -2047,7 +2068,7 @@ export const resolveColorValue = (value, opt = {}) => {
         format
       });
     }
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       return [cs, x, y, z, a];
     }
     [r, g, b, a] = convertXyzToRgb([x, y, z, a]);
