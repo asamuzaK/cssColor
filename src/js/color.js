@@ -15,12 +15,13 @@ const DUO = 2;
 const TRIA = 3;
 const QUAT = 4;
 const DEC = 10;
+const DOZ = 12;
 const HEX = 16;
+const SEXA = 60;
 const DEG = 360;
-const DEG_INTERVAL = 60;
 const MAX_PCT = 100;
 const MAX_RGB = 255;
-const POW_SQUARE = 2;
+const POW_SQR = 2;
 const POW_CUBE = 3;
 const POW_LINEAR = 2.4;
 const LINEAR_COEF = 12.92;
@@ -32,16 +33,16 @@ const LAB_EPSILON = 216 / 24389;
 const LAB_KAPPA = 24389 / 27;
 
 /* white point */
-const D50 = [0.3457 / 0.3585, 1, (1 - 0.3457 - 0.3585) / 0.3585];
+const D50 = [0.3457 / 0.3585, 1.00000, (1.0 - 0.3457 - 0.3585) / 0.3585];
 const MATRIX_D50_TO_D65 = [
-  [0.9554734527042182, -0.023098536874261423, 0.0632593086610217],
-  [-0.028369706963208136, 1.0099954580058226, 0.021041398966943008],
-  [0.012314001688319899, -0.020507696433477912, 1.3303659366080753]
+  [0.955473421488075, -0.02309845494876471, 0.06325924320057072],
+  [-0.0283697093338637, 1.0099953980813041, 0.021041441191917323],
+  [0.012314014864481998, -0.020507649298898964, 1.330365926242124]
 ];
 const MATRIX_D65_TO_D50 = [
-  [1.0479298208405488, 0.022946793341019088, -0.05019222954313557],
-  [0.029627815688159344, 0.990434484573249, -0.01707382502938514],
-  [-0.009243058152591178, 0.015055144896577895, 0.7518742899580008]
+  [1.0479297925449969, 0.022946870601609652, -0.05019226628920524],
+  [0.02962780877005599, 0.9904344267538799, -0.017073799063418826],
+  [-0.009243040646204504, 0.015055191490298152, 0.7518742814281371]
 ];
 
 /* color space */
@@ -56,34 +57,34 @@ const MATRIX_XYZ_TO_L_RGB = [
   [705 / 12673, -2585 / 12673, 705 / 667]
 ];
 const MATRIX_XYZ_TO_LMS = [
-  [0.8190224432164319, 0.3619062562801221, -0.12887378261216414],
-  [0.0329836671980271, 0.9292868468965546, 0.03614466816999844],
-  [0.048177199566046255, 0.26423952494422764, 0.6335478258136937]
+  [0.8190224379967030, 0.3619062600528904, -0.1288737815209879],
+  [0.0329836539323885, 0.9292868615863434, 0.0361446663506424],
+  [0.0481771893596242, 0.2642395317527308, 0.6335478284694309]
 ];
 const MATRIX_LMS_TO_XYZ = [
-  [1.2268798733741557, -0.5578149965554813, 0.28139105017721583],
-  [-0.04057576262431372, 1.1122868293970594, -0.07171106666151701],
-  [-0.07637294974672142, -0.4214933239627914, 1.5869240244272418]
+  [1.2268798758459243, -0.5578149944602171, 0.2813910456659647],
+  [-0.0405757452148008, 1.1122868032803170, -0.0717110580655164],
+  [-0.0763729366746601, -0.4214933324022432, 1.5869240198367816]
 ];
 const MATRIX_OKLAB_TO_LMS = [
-  [0.9999999984505196, 0.39633779217376774, 0.2158037580607588],
-  [1.0000000088817607, -0.10556134232365633, -0.0638541747717059],
-  [1.0000000546724108, -0.08948418209496574, -1.2914855378640917]
+  [1.0000000000000000, 0.3963377773761749, 0.2158037573099136],
+  [1.0000000000000000, -0.1055613458156586, -0.0638541728258133],
+  [1.0000000000000000, -0.0894841775298119, -1.2914855480194092]
 ];
 const MATRIX_LMS_TO_OKLAB = [
-  [0.2104542553, 0.7936177850, -0.0040720468],
-  [1.9779984951, -2.4285922050, 0.4505937099],
-  [0.0259040371, 0.7827717662, -0.8086757660]
+  [0.2104542683093140, 0.7936177747023054, -0.0040720430116193],
+  [1.9779985324311684, -2.4285922420485799, 0.4505937096174110],
+  [0.0259040424655478, 0.7827717124575296, -0.8086757549230774]
 ];
 const MATRIX_P3_TO_XYZ = [
   [608311 / 1250200, 189793 / 714400, 198249 / 1000160],
   [35783 / 156275, 247089 / 357200, 198249 / 2500400],
-  [0, 32229 / 714400, 5220557 / 5000800]
+  [0 / 1, 32229 / 714400, 5220557 / 5000800]
 ];
 const MATRIX_REC2020_TO_XYZ = [
   [63426534 / 99577255, 20160776 / 139408157, 47086771 / 278816314],
   [26158966 / 99577255, 472592308 / 697040785, 8267143 / 139408157],
-  [0, 19567812 / 697040785, 295819943 / 278816314]
+  [0 / 1, 19567812 / 697040785, 295819943 / 278816314]
 ];
 const MATRIX_A98_TO_XYZ = [
   [573536 / 994567, 263643 / 1420810, 187206 / 994567],
@@ -91,9 +92,9 @@ const MATRIX_A98_TO_XYZ = [
   [53769 / 1989134, 351524 / 4972835, 4929758 / 4972835]
 ];
 const MATRIX_PROPHOTO_TO_XYZ_D50 = [
-  [0.7977604896723027, 0.13518583717574031, 0.0313493495815248],
-  [0.2880711282292934, 0.7118432178101014, 0.00008565396060525902],
-  [0, 0, 0.8251046025104601]
+  [0.79776664490064230, 0.13518129740053308, 0.03134773412839220],
+  [0.28807482881940130, 0.71183523424187300, 0.00008993693872564],
+  [0.00000000000000000, 0.00000000000000000, 0.82510460251046020]
 ];
 
 /* syntax */
@@ -108,7 +109,7 @@ const SYN_COLOR_SPACE_RGB =
 const SYN_NUM =
   '[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?';
 const SYN_PCT = `${SYN_NUM}%`;
-const SYN_HSL = `(?:${SYN_NUM}(?:${SYN_ANGLE})?|${NONE})(?:\\s+(?:${SYN_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
+const SYN_HSL = `(?:${SYN_NUM}(?:${SYN_ANGLE})?|${NONE})(?:\\s+(?:${SYN_PCT}|${SYN_NUM}|${NONE})){2}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
 const SYN_HSL_LV3 = `${SYN_NUM}(?:${SYN_ANGLE})?(?:\\s*,\\s*${SYN_PCT}){2}(?:\\s*,\\s*(?:${SYN_NUM}|${SYN_PCT}))?`;
 const SYN_RGB = `(?:${SYN_NUM}|${SYN_PCT}|${NONE})(?:\\s+(?:${SYN_NUM}|${SYN_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
 const SYN_RGB_LV3 = `(?:${SYN_NUM}(?:\\s*,\\s*${SYN_NUM}){2}|${SYN_PCT}(?:\\s*,\\s*${SYN_PCT}){2})(?:\\s*,\\s*(?:${SYN_NUM}|${SYN_PCT}))?`;
@@ -895,7 +896,7 @@ export const convertXyzToHsl = (xyz, skip = false) => {
           h = (r - g) / d + QUAT;
           break;
       }
-      h = h * DEG_INTERVAL % DEG;
+      h = h * SEXA % DEG;
       if (h < 0) {
         h += DEG;
       }
@@ -970,7 +971,7 @@ export const convertXyzToOklch = (xyz, skip = false) => {
     h = NONE;
   } else {
     c =
-      Math.max(Math.sqrt(Math.pow(a, POW_SQUARE) + Math.pow(b, POW_SQUARE)), 0);
+      Math.max(Math.sqrt(Math.pow(a, POW_SQR) + Math.pow(b, POW_SQR)), 0);
     if (parseFloat(c.toFixed(QUAT)) === 0) {
       h = NONE;
     } else {
@@ -1050,7 +1051,7 @@ export const convertXyzD50ToLch = (xyz, skip = false) => {
     h = NONE;
   } else {
     c =
-      Math.max(Math.sqrt(Math.pow(a, POW_SQUARE) + Math.pow(b, POW_SQUARE)), 0);
+      Math.max(Math.sqrt(Math.pow(a, POW_SQR) + Math.pow(b, POW_SQR)), 0);
     h = Math.atan2(b, a) * DEG * HALF / Math.PI;
     if (h < 0) {
       h += DEG;
@@ -1247,52 +1248,22 @@ export const parseHsl = (value, opt = {}) => {
   if (format === 'hsl') {
     return [format, h, s, l, a];
   }
-  let max, min;
-  if (l < MAX_PCT * HALF) {
-    max = (l + l * (s / MAX_PCT)) * MAX_RGB / MAX_PCT;
-    min = (l - l * (s / MAX_PCT)) * MAX_RGB / MAX_PCT;
-  } else {
-    max = (l + (MAX_PCT - l) * (s / MAX_PCT)) * MAX_RGB / MAX_PCT;
-    min = (l - (MAX_PCT - l) * (s / MAX_PCT)) * MAX_RGB / MAX_PCT;
-  }
-  const factor = (max - min) / DEG_INTERVAL;
-  let r, g, b;
-  // < 60
-  if (h >= 0 && h < DEG_INTERVAL) {
-    r = max;
-    g = h * factor + min;
-    b = min;
-  // < 120
-  } else if (h < DEG_INTERVAL * DUO) {
-    r = (DEG_INTERVAL * DUO - h) * factor + min;
-    g = max;
-    b = min;
-  // < 180
-  } else if (h < DEG * HALF) {
-    r = min;
-    g = max;
-    b = (h - DEG_INTERVAL * DUO) * factor + min;
-  // < 240
-  } else if (h < DEG_INTERVAL * QUAT) {
-    r = min;
-    g = (DEG_INTERVAL * QUAT - h) * factor + min;
-    b = max;
-  // < 300
-  } else if (h < DEG - DEG_INTERVAL) {
-    r = (h - (DEG_INTERVAL * QUAT)) * factor + min;
-    g = min;
-    b = max;
-  // < 360
-  } else if (h < DEG) {
-    r = max;
-    g = min;
-    b = (DEG - h) * factor + min;
-  }
+  const ll = l / MAX_PCT;
+  const sa = s / MAX_PCT * Math.min(ll, 1 - ll);
+  const rk = (h / DEG * DOZ) % DOZ;
+  const gk = (8 + h / DEG * DOZ) % DOZ;
+  const bk = (4 + h / DEG * DOZ) % DOZ;
+  const r =
+    ll - sa * Math.max(-1, Math.min(rk - TRIA, TRIA ** POW_SQR - rk, 1));
+  const g =
+    ll - sa * Math.max(-1, Math.min(gk - TRIA, TRIA ** POW_SQR - gk, 1));
+  const b =
+    ll - sa * Math.max(-1, Math.min(bk - TRIA, TRIA ** POW_SQR - bk, 1));
   return [
     'rgb',
-    Math.min(Math.max(parseFloat(r.toPrecision(6)), 0), MAX_RGB),
-    Math.min(Math.max(parseFloat(g.toPrecision(6)), 0), MAX_RGB),
-    Math.min(Math.max(parseFloat(b.toPrecision(6)), 0), MAX_RGB),
+    Math.min(Math.max(parseFloat((r * MAX_RGB).toPrecision(6)), 0), MAX_RGB),
+    Math.min(Math.max(parseFloat((g * MAX_RGB).toPrecision(6)), 0), MAX_RGB),
+    Math.min(Math.max(parseFloat((b * MAX_RGB).toPrecision(6)), 0), MAX_RGB),
     a
   ];
 };
@@ -1360,7 +1331,7 @@ export const parseHwb = (value, opt = {}) => {
     return ['rgb', v, v, v, a];
   }
   const factor = (1 - w - b) / MAX_RGB;
-  let [, rr, gg, bb] = parseHsl(`hsl(${h} 100% 50%)`);
+  let [, rr, gg, bb] = parseHsl(`hsl(${h} 100 50)`);
   rr = parseFloat(((rr * factor + w) * MAX_RGB).toPrecision(6));
   gg = parseFloat(((gg * factor + w) * MAX_RGB).toPrecision(6));
   bb = parseFloat(((bb * factor + w) * MAX_RGB).toPrecision(6));

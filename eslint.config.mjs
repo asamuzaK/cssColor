@@ -42,6 +42,7 @@ export default [
         }
       }],
       'no-await-in-loop': 'error',
+      'no-loss-of-precision': 'off',
       'no-use-before-define': ['error', {
         allowNamedExports: false,
         classes: true,

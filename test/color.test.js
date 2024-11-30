@@ -2514,6 +2514,16 @@ describe('parse hsl()', () => {
   });
 
   it('should get value', () => {
+    const res = func('hsla(120 100% 25%)');
+    assert.deepEqual(res, ['rgb', 0, 127.5, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('hsla(120 100 25)');
+    assert.deepEqual(res, ['rgb', 0, 127.5, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('hsl(0 100% 50% / 40%)');
     assert.deepEqual(res, ['rgb', 255, 0, 0, 0.4], 'result');
   });
@@ -3110,7 +3120,7 @@ describe('parse oklab()', () => {
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)');
-    assert.deepEqual(res, ['xyz-d65', 0.0771884, 0.154375, 0.0257249, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.0771884, 0.154375, 0.0257248, 1],
       'result');
   });
 
@@ -3283,13 +3293,13 @@ describe('parse oklch()', () => {
 
   it('should get value', () => {
     const res = func('oklch(80% 0.15 160)');
-    assert.deepEqual(res, ['xyz-d65', 0.347224, 0.547341, 0.401546, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.347224, 0.547341, 0.401545, 1],
       'result');
   });
 
   it('should get value', () => {
     const res = func('oklch(55% 0.15 345)');
-    assert.deepEqual(res, ['xyz-d65', 0.234241, 0.14918, 0.239505, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.234241, 0.14918, 0.239504, 1],
       'result');
   });
 
@@ -3331,14 +3341,14 @@ describe('parse oklch()', () => {
 
   it('should get value', () => {
     const res = func('oklch(.5 20% 30)');
-    assert.deepEqual(res, ['xyz-d65', 0.147667, 0.118516, 0.0757683, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.147667, 0.118516, 0.0757682, 1],
       'result');
   });
 
   it('should get value', () => {
     const res = func('oklch(-10% 20% 30)');
     assert.deepEqual(res,
-      ['xyz-d65', 0.00000371007, 0.0000109137, -0.000310562, 1], 'result');
+      ['xyz-d65', 0.00000371006, 0.0000109137, -0.000310562, 1], 'result');
   });
 
   it('should get value', () => {
@@ -3349,7 +3359,7 @@ describe('parse oklch()', () => {
 
   it('should get value', () => {
     const res = func('oklch(10% .5 30)');
-    assert.deepEqual(res, ['xyz-d65', 0.0372685, -0.0000535234, -0.0310754, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.0372685, -0.0000535228, -0.0310754, 1],
       'result');
   });
 
@@ -3569,7 +3579,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(prophoto-rgb 0.2861 0.49131 0.16133)');
-    assert.deepEqual(res, ['xyz-d65', 0.113881, 0.227815, 0.037977, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.11388, 0.227813, 0.0379771, 1],
       'result');
   });
 
@@ -3577,13 +3587,13 @@ describe('parse color func', () => {
     const res = func('color(prophoto-rgb 0.2861 0.49131 0.16133)', {
       d50: true
     });
-    assert.deepEqual(res, ['xyz-d50', 0.122661, 0.228361, 0.0309312, 1],
+    assert.deepEqual(res, ['xyz-d50', 0.12266, 0.228359, 0.0309312, 1],
       'result');
   });
 
   it('should get value', () => {
     const res = func('color(prophoto-rgb 0 1 0)');
-    assert.deepEqual(res, ['xyz-d65', 0.112724, 0.715123, -0.0129336, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.11272, 0.715115, -0.0129334, 1],
       'result');
   });
 
@@ -3591,7 +3601,7 @@ describe('parse color func', () => {
     const res = func('color(prophoto-rgb 0 1 0)', {
       d50: true
     });
-    assert.deepEqual(res, ['xyz-d50', 0.135186, 0.711843, 0, 1], 'result');
+    assert.deepEqual(res, ['xyz-d50', 0.135181, 0.711835, 0, 1], 'result');
   });
 
   it('should get value', () => {
@@ -3851,7 +3861,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('lch(46.2775% 67.9892 134.3912)');
-    assert.deepEqual(res, ['xyz-d65', 0.077177, 0.154375, 0.0257325, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.0771771, 0.154375, 0.0257325, 1],
       'result');
   });
 
@@ -3865,7 +3875,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)');
-    assert.deepEqual(res, ['xyz-d65', 0.0771884, 0.154375, 0.0257249, 1],
+    assert.deepEqual(res, ['xyz-d65', 0.0771884, 0.154375, 0.0257248, 1],
       'result');
   });
 
@@ -3873,7 +3883,7 @@ describe('parse color value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)', {
       d50: true
     });
-    assert.deepEqual(res, ['xyz-d50', 0.0831392, 0.154746, 0.0209526, 1],
+    assert.deepEqual(res, ['xyz-d50', 0.0831393, 0.154746, 0.0209525, 1],
       'result');
   });
 
@@ -4847,7 +4857,7 @@ describe('convert color value to xyz', () => {
     const res = func('color(display-p3 0 1 0)', {
       d50: true
     });
-    assert.deepEqual(res, [0.29201, 0.692223, 0.0418782, 1], 'result');
+    assert.deepEqual(res, [0.29201, 0.692223, 0.0418783, 1], 'result');
   });
 
   it('should get value', () => {
@@ -5018,7 +5028,7 @@ describe('convert color value to oklch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.51976, 0.17686, 142.49534, 1], 'result');
+    assert.deepEqual(res, [0.51976, 0.17686, 142.49535, 1], 'result');
   });
 
   it('should get value', () => {
@@ -5026,7 +5036,7 @@ describe('convert color value to oklch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.51975, 0.17686, 142.4954, 1], 'result');
+    assert.deepEqual(res, [0.51975, 0.17686, 142.49541, 1], 'result');
   });
 });
 

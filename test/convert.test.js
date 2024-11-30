@@ -322,13 +322,13 @@ describe('convert color to oklch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    assert.deepEqual(res, [0.51829, 0.17636, 142.49541, 1], 'result');
+    assert.deepEqual(res, [0.51829, 0.17636, 142.49542, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    assert.deepEqual(res2, [0.51829, 0.17636, 142.49541, 1], 'result');
+    assert.deepEqual(res2, [0.51829, 0.17636, 142.49542, 1], 'result');
   });
 });
 
@@ -393,10 +393,10 @@ describe('convert color to xyz', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)');
-    assert.deepEqual(res, [0.208269, 0.182606, 0.0243385, 1], 'result');
+    assert.deepEqual(res, [0.208269, 0.182606, 0.0243384, 1], 'result');
 
     const res2 = func('color-mix(in oklab, red, green)');
-    assert.deepEqual(res2, [0.208269, 0.182606, 0.0243385, 1], 'result');
+    assert.deepEqual(res2, [0.208269, 0.182606, 0.0243384, 1], 'result');
   });
 });
 
