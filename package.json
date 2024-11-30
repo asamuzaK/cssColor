@@ -30,7 +30,7 @@
   "devDependencies": {
     "c8": "^10.1.2",
     "esbuild": "^0.24.0",
-    "eslint": "^9.15.0",
+    "eslint": "^9.16.0",
     "eslint-plugin-import-x": "^4.4.3",
     "eslint-plugin-jsdoc": "^50.6.0",
     "eslint-plugin-regexp": "^2.7.0",
@@ -53,5 +53,5 @@
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
     "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
   },
-  "version": "2.0.0"
+  "version": "2.0.1"
 }
