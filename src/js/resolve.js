@@ -21,7 +21,8 @@ export const cachedResults = new LRUCache({
  * @param {object} [opt] - options
  * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
  * @param {string} [opt.format]
- *   - output format, one of `spec` (default), `rgb`, `hex`, `hexAlpha`
+ *   - output format, one of `computedValue` (default), `specifiedValue`,
+ *     `rgb`, `hex`, `hexAlpha`
  *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array}
@@ -46,14 +47,14 @@ export const resolve = (color, opt = {}) => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  const { currentColor, format = 'spec', key } = opt;
+  const { currentColor, format = 'computedValue', key } = opt;
   let cs, r, g, b, a;
   if (/calc/.test(color)) {
     color = calc(color);
   }
   if (color === 'transparent') {
     switch (format) {
-      case 'spec': {
+      case 'computedValue': {
         return 'rgba(0, 0, 0, 0)';
       }
       case 'hex': {
@@ -84,7 +85,7 @@ export const resolve = (color, opt = {}) => {
           format
         });
       }
-    } else if (format === 'spec') {
+    } else if (format === 'computedValue') {
       return 'rgba(0, 0, 0, 0)';
     }
   } else if (/currentcolor/.test(color)) {
@@ -163,7 +164,7 @@ export const resolve = (color, opt = {}) => {
       }
       break;
     }
-    case 'spec':
+    case 'computedValue':
     default: {
       let value;
       switch (cs) {

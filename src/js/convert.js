@@ -29,7 +29,7 @@ export const preProcess = value => {
     }
     if (value.startsWith('color-mix')) {
       value = resolve(value, {
-        format: 'spec'
+        format: 'computedValue'
       });
     }
   }

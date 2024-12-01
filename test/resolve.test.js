@@ -106,7 +106,7 @@ describe('resolve CSS color', () => {
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'purple',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'rgb(128, 0, 128)', 'result');
     const res2 = func('currentColor', {
@@ -118,12 +118,12 @@ describe('resolve CSS color', () => {
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'rgb(0 50% 0 / .5)',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
     const res2 = func('currentColor', {
       currentColor: 'rgb(0 50% 0 / .5)',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
   });
@@ -131,12 +131,12 @@ describe('resolve CSS color', () => {
   it('should get value', () => {
     const res = func('currentcolor', {
       currentColor: 'lab(46.28% -47.57 48.58)',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'lab(46.28 -47.57 48.58)', 'result');
     const res2 = func('currentcolor', {
       currentColor: 'lab(46.28% -47.57 48.58)',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
   });
@@ -144,12 +144,12 @@ describe('resolve CSS color', () => {
   it('should get value', () => {
     const res = func('currentcolor', {
       currentColor: 'lab(46.28% -47.57 48.58 / .5)',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
     const res2 = func('currentcolor', {
       currentColor: 'lab(46.28% -47.57 48.58 / .5)',
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
   });
@@ -433,44 +433,44 @@ describe('resolve CSS color', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'rgb(0, 128, 0)', 'result');
     const res2 = func('hwb(120 0% 50%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50% / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
     const res2 = func('hwb(120 0% 50% / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'lab(46.28 -47.57 48.58)', 'result');
     const res2 = func('lab(46.28% -47.57 48.58)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58 / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
     const res2 = func('lab(46.28% -47.57 48.58 / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
   });
@@ -632,7 +632,7 @@ describe('resolve CSS color', () => {
       currentColor: 'color-mix(in lab, rgb(255 0 0), rgb(0 0 255))'
     });
     const res2 = parseColorValue(res, {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res2, ['lab', 41.9294, 74.5461, -21.0694, 1], 'result');
   });
@@ -642,7 +642,7 @@ describe('resolve CSS color', () => {
       currentColor: 'color-mix(in lab, rgb(255 0 0 / .5), rgb(0 0 255 / .5))'
     });
     const res2 = parseColorValue(res, {
-      format: 'spec'
+      format: 'computedValue'
     });
     // lab(41.9294 74.5462 -21.0694 / 0.5)
     assert.deepEqual(res2, ['lab', 41.9294, 74.5461, -21.0694, 0.5], 'result');
