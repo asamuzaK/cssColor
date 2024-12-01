@@ -40,16 +40,19 @@ resolves CSS color
 
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
-    *   `opt.format` **[string][133]?** output format, one of `spec` (default), `rgb`, `hex`, `hexAlpha`
-        *   `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
+    *   `opt.format` **[string][133]?** output format, one of `computedValue` (default), `specifiedValue`, `rgb`, `hex`, `hexAlpha`
+        *   `computedValue` is a [computed value][139] of the color
+        *   `specifiedValue` is a [specified value][140] of the color
+        *   `hexAlpha` is a hex color notation with alpha channel, i.e. `#rrggbbaa`
     *   `opt.key` **any?** key e.g. CSS property `background-color`
 
-Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(space r g b / a)`, `color(space x y z / a)`, `lab(l a b / A)`, `lch(l c h / a)`, `oklab(l a b / A)`, `oklch(l c h / a)`, `\#rrggbb(aa)?`, `null`, and, if `key` is specified, `[key, rgba?()]` etc.
+Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(space r g b / a)`, `color(space x y z / a)`, `lab(l a b / A)`, `lch(l c h / a)`, `oklab(l a b / A)`, `oklch(l c h / a)`, `\#rrggbb(aa)?`, `color-name?`, `null`, and, if `key` is specified, `[key, rgba?()]` etc.
 
-*   in `spec`, values are numbers, however rgb() values are integers
+*   in `computedValue`, values are numbers, however `rgb()` values are integers
+*   in `specifiedValue`, returns `empty string` for unknown and/or invalid color
 *   in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown colors
-*   in `hex`, `transparent` value is resolved as `null`, also returns `null` if any of `r`, `g`, `b`, `a` is not a number
-*   in `hexAlpha`, `transparent` resolves as `#00000000`, and returns `null` if any of `r`, `g`, `b`, `a` is not a number
+*   in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `a` is not a number
+*   in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `a` is not a number
 
 ### convert
 
@@ -183,3 +186,7 @@ Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
 [137]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
 [138]: https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
+
+[139]: https://developer.mozilla.org/en-US/docs/Web/CSS/computed_value
+
+[140]: https://developer.mozilla.org/en-US/docs/Web/CSS/specified_value
