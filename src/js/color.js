@@ -131,8 +131,7 @@ const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
-// TODO: rename spec to computedValue
-const REG_SPEC = /^spec(?:ifiedValue)?$/;
+const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
 /* named colors */
 const NAMED_COLORS = {
@@ -1930,7 +1929,7 @@ export const parseColorValue = (value, opt = {}) => {
   let x, y, z, a;
   // complement currentcolor as a missing color
   if (REG_CURRENT_COLOR.test(value)) {
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return ['rgb', 0, 0, 0, 0];
     }
     if (format === 'specifiedValue') {
@@ -1948,7 +1947,7 @@ export const parseColorValue = (value, opt = {}) => {
       }
       const [r, g, b] = NAMED_COLORS[value];
       a = 1;
-      if (format === 'spec') {
+      if (format === 'computedValue') {
         return ['rgb', r, g, b, a];
       }
       [x, y, z] = convertRgbToXyz([r, g, b], true);
@@ -1956,7 +1955,7 @@ export const parseColorValue = (value, opt = {}) => {
         [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
       }
     } else {
-      if (format === 'spec') {
+      if (format === 'computedValue') {
         return ['rgb', 0, 0, 0, 0];
       }
       if (format === 'specifiedValue') {
@@ -2213,7 +2212,7 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb-linear') {
       [, r, g, b, a] = resolveColorFunc(value, {
-        format: 'spec'
+        format: 'computedValue'
       });
     } else {
       [, x, y, z, a] = parseColorFunc(value);
@@ -2249,7 +2248,7 @@ export const convertColorToRgb = (value, opt = {}) => {
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb') {
       [, r, g, b, a] = resolveColorFunc(value, {
-        format: 'spec'
+        format: 'computedValue'
       });
       r *= MAX_RGB;
       g *= MAX_RGB;
@@ -2262,7 +2261,7 @@ export const convertColorToRgb = (value, opt = {}) => {
     [r, g, b] = convertLinearRgbToRgb([r, g, b]);
   } else {
     [, r, g, b, a] = resolveColorValue(value, {
-      format: 'spec'
+      format: 'computedValue'
     });
   }
   return [r, g, b, a];
@@ -2289,7 +2288,7 @@ export const convertColorToXyz = (value, opt = {}) => {
     if (d50) {
       if (cs === 'xyz-d50') {
         [, x, y, z, a] = resolveColorFunc(value, {
-          format: 'spec'
+          format: 'computedValue'
         });
       } else {
         [, x, y, z, a] = parseColorFunc(value, {
@@ -2298,7 +2297,7 @@ export const convertColorToXyz = (value, opt = {}) => {
       }
     } else if (/^xyz(?:-d65)?$/.test(cs)) {
       [, x, y, z, a] = resolveColorFunc(value, {
-        format: 'spec'
+        format: 'computedValue'
       });
     } else {
       [, x, y, z, a] = parseColorFunc(value);
@@ -2380,7 +2379,7 @@ export const convertColorToLab = (value, opt = {}) => {
   let l, a, b, aa, x, y, z;
   if (REG_LAB.test(value)) {
     [, l, a, b, aa] = parseLab(value, {
-      format: 'spec'
+      format: 'computedValue'
     });
     return [l, a, b, aa];
   } else if (value.startsWith('color(')) {
@@ -2411,7 +2410,7 @@ export const convertColorToLch = (value, opt = {}) => {
   let l, c, h, aa, x, y, z;
   if (REG_LCH.test(value)) {
     [, l, c, h, aa] = parseLch(value, {
-      format: 'spec'
+      format: 'computedValue'
     });
     return [l, c, h, aa];
   } else if (value.startsWith('color(')) {
@@ -2442,7 +2441,7 @@ export const convertColorToOklab = (value, opt = {}) => {
   let l, a, b, aa, x, y, z;
   if (REG_OKLAB.test(value)) {
     [, l, a, b, aa] = parseOklab(value, {
-      format: 'spec'
+      format: 'computedValue'
     });
     return [l, a, b, aa];
   } else if (value.startsWith('color(')) {
@@ -2469,7 +2468,7 @@ export const convertColorToOklch = (value, opt = {}) => {
   let l, c, h, aa, x, y, z;
   if (REG_OKLCH.test(value)) {
     [, l, c, h, aa] = parseOklch(value, {
-      format: 'spec'
+      format: 'computedValue'
     });
     return [l, c, h, aa];
   } else if (value.startsWith('color(')) {
@@ -2671,7 +2670,7 @@ export const resolveColorMix = (value, opt = {}) => {
       b = (bA * factorA + bB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat((r / MAX_RGB).toPrecision(6)),
@@ -2711,7 +2710,7 @@ export const resolveColorMix = (value, opt = {}) => {
       b = (bA * factorA + bB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat(r.toPrecision(6)),
@@ -2755,7 +2754,7 @@ export const resolveColorMix = (value, opt = {}) => {
       z = (zA * factorA + zB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         'xyz-d65',
         parseFloat(x.toPrecision(6)),
@@ -2801,7 +2800,7 @@ export const resolveColorMix = (value, opt = {}) => {
       z = (zA * factorA + zB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat(x.toPrecision(6)),
@@ -2847,7 +2846,7 @@ export const resolveColorMix = (value, opt = {}) => {
       a = parseFloat(a.toFixed(3));
     }
     [r, g, b] = convertColorToRgb(`hsl(${h} ${s}% ${l}%)`);
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         'srgb',
         parseFloat((r / MAX_RGB).toPrecision(6)),
@@ -2892,7 +2891,7 @@ export const resolveColorMix = (value, opt = {}) => {
       a = parseFloat(a.toFixed(3));
     }
     [r, g, b] = convertColorToRgb(`hwb(${h} ${w}% ${bk}%)`);
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         'srgb',
         parseFloat((r / MAX_RGB).toPrecision(6)),
@@ -2937,7 +2936,7 @@ export const resolveColorMix = (value, opt = {}) => {
       bY = (bA * factorA + bB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat(l.toPrecision(6)),
@@ -2979,7 +2978,7 @@ export const resolveColorMix = (value, opt = {}) => {
       h = (hA * factorA + hB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat(l.toPrecision(6)),
@@ -3025,7 +3024,7 @@ export const resolveColorMix = (value, opt = {}) => {
       bY = (bA * factorA + bB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat(l.toPrecision(6)),
@@ -3073,7 +3072,7 @@ export const resolveColorMix = (value, opt = {}) => {
       h = (hA * factorA + hB * factorB) / a;
       a = parseFloat(a.toFixed(3));
     }
-    if (format === 'spec') {
+    if (format === 'computedValue') {
       return [
         colorSpace,
         parseFloat(l.toPrecision(6)),

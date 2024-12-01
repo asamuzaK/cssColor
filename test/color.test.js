@@ -2918,7 +2918,7 @@ describe('parse lab()', () => {
 
   it('should get value', () => {
     const res = func('lab(62.2345% -34.9638 47.7721)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 62.2345, -34.9638, 47.7721, 1], 'result');
   });
@@ -2932,14 +2932,14 @@ describe('parse lab()', () => {
 
   it('should get value', () => {
     const res = func('lab(110% none -10% / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 100, 'none', -12.5, 0.5], 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(none none none / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 'none', 'none', 'none', 'none'], 'result');
   });
@@ -3089,7 +3089,7 @@ describe('parse lch()', () => {
 
   it('should get value', () => {
     const res = func('lch(62.2345% 59.2 126.2)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 62.2345, 59.2, 126.2, 1], 'result');
   });
@@ -3103,14 +3103,14 @@ describe('parse lch()', () => {
 
   it('should get value', () => {
     const res = func('lch(-10% none -90deg / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 0, 'none', 270, 0.5], 'result');
   });
 
   it('should get value', () => {
     const res = func('lch(none none none / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 'none', 'none', 'none', 'none'], 'result');
   });
@@ -3255,7 +3255,7 @@ describe('parse oklab()', () => {
 
   it('should get value', () => {
     const res = func('oklab(66.016% -0.1084 0.1114)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.66016, -0.1084, 0.1114, 1], 'result');
   });
@@ -3269,14 +3269,14 @@ describe('parse oklab()', () => {
 
   it('should get value', () => {
     const res = func('oklab(-10% none 30% / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0, 'none', 0.12, 0.5], 'result');
   });
 
   it('should get value', () => {
     const res = func('oklab(none none none / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 'none', 'none', 'none', 'none'], 'result');
   });
@@ -3427,7 +3427,7 @@ describe('parse oklch()', () => {
 
   it('should get value', () => {
     const res = func('oklch(59.686% 0.15619 49.7694)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.59686, 0.15619, 49.7694, 1], 'result');
   });
@@ -3441,14 +3441,14 @@ describe('parse oklch()', () => {
 
   it('should get value', () => {
     const res = func('oklch(-10% none -90deg / .5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0, 'none', 270, 0.5], 'result');
   });
 
   it('should get value', () => {
     const res = func('oklch(none none none / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 'none', 'none', 'none', 'none'], 'result');
   });
@@ -3712,7 +3712,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 1)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.5, 1, 1], 'result');
   });
@@ -3726,35 +3726,35 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(srgb none 0.5 1)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 'none', 0.5, 1, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 none 1)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 'none', 1, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.5, 'none', 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 1 / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.5, 1, 'none'], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.07719, 0.15438, 0.02573, 1], 'result');
   });
@@ -3782,7 +3782,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('currentColor', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -3801,7 +3801,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('transparent', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -3829,7 +3829,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
@@ -3848,7 +3848,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('foo', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -3874,7 +3874,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('foo(1 1 1 / 1)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -3902,7 +3902,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('#008000', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
@@ -3923,7 +3923,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('#00800080', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 128, 0, 0.5], 'result');
   });
@@ -3956,7 +3956,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 46.28, -47.57, 48.58, 1], 'result');
   });
@@ -3984,7 +3984,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('lch(46.2775% 67.9892 134.3912)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 46.2775, 67.9892, 134.391, 1], 'result');
   });
@@ -4012,7 +4012,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.51975, -0.1403, 0.10768, 1], 'result');
   });
@@ -4040,7 +4040,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('oklch(51.975% 0.17686 142.495)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.51975, 0.17686, 142.495, 1], 'result');
   });
@@ -4068,7 +4068,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('rgb(0 128 0)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
@@ -4089,7 +4089,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('hsl(120 100% 25%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
@@ -4110,7 +4110,7 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
@@ -4328,7 +4328,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('lab(44.36 36.05 -59 / 0.5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 44.36, 36.05, -59, 0.5], 'result');
   });
@@ -4347,7 +4347,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('lch(44.36% 69.13 301.43 / 1)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 44.36, 69.13, 301.43, 1], 'result');
   });
@@ -4371,7 +4371,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('oklab(0.54432 0.06817 -0.16567 / 0.5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.54432, 0.06817, -0.16567, 0.5], 'result');
   });
@@ -4395,7 +4395,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('oklch(54.4% 0.179 292.365 / 0.5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.544, 0.179, 292.365, 0.5], 'result');
   });
@@ -4409,7 +4409,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('rgb(none none none / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -4469,7 +4469,7 @@ describe('resolve color()', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.6 0 / 0.5)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.6, 0, 0.5], 'result');
   });
@@ -4526,7 +4526,7 @@ describe('resolve color()', () => {
 
   it('should get value', () => {
     const res = func('color(srgb none none none / none)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 'none', 'none', 'none', 'none'], 'result');
   });
@@ -5500,7 +5500,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, color(srgb 0 0 1), red)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0.5, 0, 0.5, 1], 'result');
   });
@@ -5578,14 +5578,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, red, rgba(0, 0, 255, 0.5) 100%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0, 1, 0.5], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, rgb(100% 0% 0% / 0.7) 25%, rgb(0% 100% 0% / 0.2))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0.538462, 0.461538, 0, 0.325], 'result');
   });
@@ -5609,14 +5609,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, color(srgb none 0.5 none), blue)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.25, 1, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, blue, color(srgb none 0.5 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.25, 1, 1], 'result');
   });
@@ -5624,7 +5624,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in srgb, color(srgb 0 0.5 0 / 0), rgba(0 0 255 / 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['srgb', 0, 0.25, 0.5, 0], 'result');
   });
@@ -5653,7 +5653,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, rgb(0 0 255), rgb(0 128 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     res[1] = parseFloat(res[1].toFixed(5));
     assert.deepEqual(res, ['srgb-linear', 0, 0.107931, 0.5, 1], 'result');
@@ -5676,7 +5676,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, green 50%, purple)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb-linear', 0.107931, 0.107931, 0.10793, 1],
       'result');
@@ -5695,7 +5695,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in srgb-linear, red, rgba(0, 0, 255, 0.5) 100%)', {
-        format: 'spec'
+        format: 'computedValue'
       });
     res[1] = parseFloat(res[1].toFixed(5));
     assert.deepEqual(res, ['srgb-linear', 0, 0, 1, 0.5], 'result');
@@ -5703,7 +5703,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, rgb(100% 0% 50% / 0.7) 25%, rgb(0% 100% 30% / 0.2))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb-linear', 0.538462, 0.461538, 0.149056, 0.325],
       'result');
@@ -5721,7 +5721,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, blue, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     res[1] = parseFloat(res[1].toFixed(3));
     assert.deepEqual(res, ['srgb-linear', 0, 0.107931, 1, 1], 'result');
@@ -5729,7 +5729,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, rgb(none 128 none), blue)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     res[1] = parseFloat(res[1].toFixed(3));
     assert.deepEqual(res, ['srgb-linear', 0, 0.107931, 1, 1], 'result');
@@ -5738,7 +5738,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in srgb-linear, rgb(0 128 0 / 0), rgb(0 0 255 / 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     res[1] = parseFloat(res[1].toFixed(3));
     assert.deepEqual(res, ['srgb-linear', 0, 0.107931, 0.5, 0], 'result');
@@ -5751,7 +5751,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, red, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.24479, 0.183508, 0.0225301, 1],
       'result');
@@ -5775,7 +5775,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0 / 0.5))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.244464, 0.182858, 0.0224217, 0.5],
       'result');
@@ -5808,7 +5808,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, blue, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.180481, 0.113285, 0.950532, 1],
       'result');
@@ -5816,7 +5816,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, rgb(none 128 none), blue)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.180481, 0.113285, 0.950532, 1],
       'result');
@@ -5824,7 +5824,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, rgb(0 0 255 / 0), rgb(0 128 0 / 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d65', 0.128835, 0.113285, 0.488131, 0],
       'result');
@@ -5837,7 +5837,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz-d50, red, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d50', 0.259603, 0.18862, 0.0174399, 1],
       'result');
@@ -5860,7 +5860,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz-d50, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0 / 0.5))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d50', 0.259252, 0.187968, 0.0173516, 0.5],
       'result');
@@ -5878,7 +5878,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz-d50, red, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d50', 0.436066, 0.18862, 0.0139239, 1],
       'result');
@@ -5886,7 +5886,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz-d50, rgb(none 128 none), red)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['xyz-d50', 0.436066, 0.18862, 0.0139239, 1],
       'result');
@@ -5895,7 +5895,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in xyz-d50, rgb(0 128 0 / 0), rgb(255 0 0 / 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['xyz-d50', 0.259603, 0.18862, 0.0174399, 0],
       'result');
@@ -5908,7 +5908,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in hsl, blue, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.752941, 0.752941, 1], 'result');
   });
@@ -5982,21 +5982,21 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in hsl, rgb(none 128 none), red)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 1, 0, 0, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in hsl, red, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 1, 0, 0, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in hsl, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0.752941, 0.752941, 0, 0], 'result');
   });
@@ -6004,7 +6004,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in hsl, hsl(120 10% 20%) 25%, hsl(30 30% 40% / .8))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['srgb', 0.423529, 0.403922, 0.258824, 0.85],
       'result');
@@ -6042,7 +6042,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in hwb, blue, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.752941, 0.752941, 1], 'result');
   });
@@ -6153,21 +6153,21 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in hwb, red, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0.752941, 0, 0, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in hwb, rgb(none 128 none), red)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0.752941, 0, 0, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in hwb, rgb(0 128 0 / 0), rgb(255 0 0 / 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0.752941, 0.752941, 0, 0], 'result');
   });
@@ -6179,7 +6179,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lab, red, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 50.2841, 16.6262, 59.2387, 1], 'result');
   });
@@ -6193,7 +6193,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in lab, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['lab', 48.8316, -4.67711, 55.5965, 0.75], 'result');
   });
@@ -6210,35 +6210,35 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lab, currentcolor, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 46.2778, -47.5526, 48.5864, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, green, currentcolor)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 46.2778, -47.5526, 48.5864, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, green, rgb(255 none none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 50.2841, 16.6262, 59.2387, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, rgb(255 none none), green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 50.2841, 16.6262, 59.2387, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 50.2841, 16.6262, 59.2387, 0], 'result');
   });
@@ -6250,7 +6250,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lch, red, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 50.2841, 87.4109, 87.6208, 1], 'result');
   });
@@ -6273,35 +6273,35 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lch, currentcolor, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 46.2778, 67.9845, 134.384, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lch, green, currentcolor)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 46.2778, 67.9845, 134.384, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lch, green, rgb(255 none none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 50.2841, 67.9845, 134.384, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lch, rgb(255 none none), green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 50.2841, 67.9845, 134.384, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lch, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 50.2841, 87.4109, 87.6208, 0], 'result');
   });
@@ -6313,7 +6313,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.573854, 0.0422802, 0.116761, 1],
       'result');
@@ -6322,7 +6322,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in oklab, color(srgb 1 0 0 / 0.5), rgb(0 0.5 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['oklab', 0.240129, 0.0666374, 0.0483318, 0.75],
       'result');
@@ -6330,7 +6330,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green 90%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.530572, -0.103786, 0.109493, 1],
       'result');
@@ -6338,14 +6338,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red 90%, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.617135, 0.188347, 0.124029, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, currentcolor, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.519752, -0.140303, 0.107676, 1],
       'result');
@@ -6353,14 +6353,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, currentcolor)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0, 0.224863, 0.125846, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.627955, 0.0422802, 0.116761, 1],
       'result');
@@ -6368,7 +6368,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, rgb(255 none none), rgb(0 128 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.573854, 0.0422802, 0.116761, 1],
       'result');
@@ -6377,7 +6377,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in oklab, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['oklab', 0.573854, 0.0422802, 0.116761, 0],
       'result');
@@ -6390,7 +6390,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.573854, 0.217271, 85.8646, 1], 'result');
   });
@@ -6398,7 +6398,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in oklch, color(srgb 1 0 0 / 0.5), rgb(0 0.5 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['oklch', 0.240129, 0.0963786, 104.741, 0.75],
       'result');
@@ -6406,14 +6406,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, green 90%)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.530572, 0.184941, 131.169, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red 90%, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.617135, 0.249601, 40.56, 1],
       'result');
@@ -6421,7 +6421,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, currentcolor, green)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.519752, 0.176859, 142.495, 1],
       'result');
@@ -6429,7 +6429,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, currentcolor)', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.627955, 0.257683, 29.2339, 1],
       'result');
@@ -6437,7 +6437,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, rgb(none 128 none))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.627955, 0.217271, 29.2339, 1],
       'result');
@@ -6445,7 +6445,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, rgb(255 none none), rgb(0 128 0))', {
-      format: 'spec'
+      format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.573854, 0.176859, 142.495, 1],
       'result');
@@ -6454,7 +6454,7 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res =
       func('color-mix(in oklch, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
-        format: 'spec'
+        format: 'computedValue'
       });
     assert.deepEqual(res, ['oklch', 0.573854, 0.217271, 85.8646, 0],
       'result');
