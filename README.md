@@ -56,9 +56,9 @@ Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(spa
 
 ### convert
 
-Contains various conversion functions as properties.
+Contains various color conversion functions.
 
-### numberToHex(value)
+### convert.numberToHex(value)
 
 convert number to hex string
 
@@ -68,7 +68,7 @@ convert number to hex string
 
 Returns **[string][133]** hex string: 00..ff
 
-### colorToHex(value, opt)
+### convert.colorToHex(value, opt)
 
 convert color to hex
 
@@ -80,7 +80,7 @@ convert color to hex
 
 Returns **[string][133]** #rrggbb|#rrggbbaa
 
-### colorToHsl(value)
+### convert.colorToHsl(value)
 
 convert color to hsl
 
@@ -90,7 +90,7 @@ convert color to hsl
 
 Returns **[Array][137]<[number][134]>** \[h, s, l, a]
 
-### colorToHwb(value)
+### convert.colorToHwb(value)
 
 convert color to hwb
 
@@ -100,7 +100,7 @@ convert color to hwb
 
 Returns **[Array][137]<[number][134]>** \[h, w, b, a]
 
-### colorToLab(value)
+### convert.colorToLab(value)
 
 convert color to lab
 
@@ -110,7 +110,7 @@ convert color to lab
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
 
-### colorToLch(value)
+### convert.colorToLch(value)
 
 convert color to lch
 
@@ -120,7 +120,7 @@ convert color to lch
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
 
-### colorToOklab(value)
+### convert.colorToOklab(value)
 
 convert color to oklab
 
@@ -130,7 +130,7 @@ convert color to oklab
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
 
-### colorToOklch(value)
+### convert.colorToOklch(value)
 
 convert color to oklch
 
@@ -140,7 +140,7 @@ convert color to oklch
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
 
-### colorToRgb(value)
+### convert.colorToRgb(value)
 
 convert color to rgb
 
@@ -150,7 +150,7 @@ convert color to rgb
 
 Returns **[Array][137]<[number][134]>** \[r, g, b, a]
 
-### colorToXyz(value, opt)
+### convert.colorToXyz(value, opt)
 
 convert color to xyz
 
@@ -162,7 +162,7 @@ convert color to xyz
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, a]
 
-### colorToXyzD50(value)
+### convert.colorToXyzD50(value)
 
 convert color to xyz-d50
 
@@ -171,6 +171,7 @@ convert color to xyz-d50
 *   `value` **[string][133]** color value
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, a]
+
 
 ---
 Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
