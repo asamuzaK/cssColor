@@ -2354,34 +2354,16 @@ describe('parse rgb()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('rgb(1, 2, 3 / 1)'), SyntaxError,
-      'Invalid property value: rgb(1, 2, 3 / 1)');
+  it('should get value', () => {
+    const res = func('rgb(1, 2, 3 / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('rgb(none, 2, 3)'), SyntaxError,
-      'Invalid property value: rgb(none, 2, 3)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('rgb(1, none, 3)'), SyntaxError,
-      'Invalid property value: rgb(1, none, 3)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('rgb(1, 2, none)'), SyntaxError,
-      'Invalid property value: rgb(1, 2, none)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('rgba(1, 2, 3, none)'), SyntaxError,
-      'Invalid property value: rgba(1, 2, 3, none)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('rgba(1, 20%, 3)'), SyntaxError,
-      'Invalid property value: rgba(1, 20%, 3)');
+  it('should get empty string', () => {
+    const res = func('rgb(1, 2, 3 / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -2488,29 +2470,16 @@ describe('parse hsl()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('hsl(1, 2%, 3% / 1)'), SyntaxError,
-      'Invalid property value: hsl(1, 2%, 3% / 1)');
+  it('should get value', () => {
+    const res = func('hsl(1, 2%, 3% / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('hsl(none, 2%, 3%)'), SyntaxError,
-      'Invalid property value: hsl(none, 2%, 3%)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('hsl(1, none, 3%)'), SyntaxError,
-      'Invalid property value: hsl(1, none, 3%)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('hsl(1, 2%, none)'), SyntaxError,
-      'Invalid property value: hsl(1, 2%, none)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('hsla(1, 2%, 3%, none)'), SyntaxError,
-      'Invalid property value: hsla(1, 2%, 3%, none)');
+  it('should get empty string', () => {
+    const res = func('hsl(1, 2%, 3% / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -2646,9 +2615,16 @@ describe('parse hwb()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('hsw(1, 20%, 30% / 1)'), SyntaxError,
-      'Invalid property value: hsw(1, 20%, 30% / 1)');
+  it('should get value', () => {
+    const res = func('hsw(1, 20%, 30% / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('hsw(1, 20%, 30% / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -2809,9 +2785,16 @@ describe('parse lab()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('lab(100%, 20%, 30% / 1)'), SyntaxError,
-      'Invalid property value: lab(100%, 20%, 30% / 1)');
+  it('should get value', () => {
+    const res = func('lab(100%, 20%, 30% / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('lab(100%, 20%, 30% / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -2977,9 +2960,16 @@ describe('parse lch()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('lch(100%, 20%, 30% / 1)'), SyntaxError,
-      'Invalid property value: lch(100%, 20%, 30% / 1)');
+  it('should get value', () => {
+    const res = func('lch(100%, 20%, 30% / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('lch(100%, 20%, 30% / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -3141,9 +3131,16 @@ describe('parse oklab()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('oklab(100%, 20%, 30% / 1)'), SyntaxError,
-      'Invalid property value: oklab(100%, 20%, 30% / 1)');
+  it('should get value', () => {
+    const res = func('oklab(100%, 20%, 30% / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('oklab(100%, 20%, 30% / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -3300,9 +3297,16 @@ describe('parse oklch()', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('oklch(100%, 20%, 30% / 1)'), SyntaxError,
-      'Invalid property value: oklch(100%, 20%, 30% / 1)');
+  it('should get value', () => {
+    const res = func('oklch(100%, 20%, 30% / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('oklch(100%, 20%, 30% / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -3465,44 +3469,28 @@ describe('parse color func', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(in foo, 1 1 1)'), SyntaxError,
-      'Invalid property value: color(in foo, 1 1 1)');
+  it('should get value', () => {
+    const res = func('color(in foo, 1 1 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb)'), SyntaxError,
-      'Invalid property value: color(srgb)');
+  it('should get empty string', () => {
+    const res = func('color(in foo, 1 1 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1)'), SyntaxError,
-      'Invalid property value: color(srgb 1)');
+  it('should get value', () => {
+    const res = func('color(srgb foo bar baz)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1 1)'), SyntaxError,
-      'Invalid property value: color(srgb 1 1)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb foo bar baz)'), SyntaxError,
-      'Invalid property value: color(srgb foo bar baz)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1 bar baz)'), SyntaxError,
-      'Invalid property value: color(srgb 1 bar baz)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1 1 baz)'), SyntaxError,
-      'Invalid property value: color(srgb 1 1 baz)');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('color(srgb 1 1 1 qux)'), SyntaxError,
-      'Invalid property value: color(srgb 1 1 1 qux)');
+  it('should get empty string', () => {
+    const res = func('color(srgb foo bar baz)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -3787,16 +3775,6 @@ describe('parse color value', () => {
       'Expected String but got Undefined.');
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('#12345'), SyntaxError,
-      'Invalid property value: #12345');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func('foo(1 1 1)'), SyntaxError,
-      'Invalid property value: foo(1 1 1)');
-  });
-
   it('should get value', () => {
     const res = func('currentColor');
     assert.deepEqual(res, ['xyz-d65', 0, 0, 0, 0], 'result');
@@ -3810,6 +3788,13 @@ describe('parse color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('currentColor', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, 'currentcolor', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('transparent');
     assert.deepEqual(res, ['xyz-d65', 0, 0, 0, 0], 'result');
   });
@@ -3819,6 +3804,13 @@ describe('parse color value', () => {
       format: 'spec'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('transparent', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, 'transparent', 'result');
   });
 
   it('should get value', () => {
@@ -3843,6 +3835,13 @@ describe('parse color value', () => {
   });
 
   it('should get value', () => {
+    const res = func('green', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, 'green', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('foo');
     assert.deepEqual(res, ['xyz-d65', 0, 0, 0, 0], 'result');
   });
@@ -3852,6 +3851,39 @@ describe('parse color value', () => {
       format: 'spec'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('foo', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo(1 1 1 / 1)');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo(1 1 1 / 1)', {
+      d50: true
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo(1 1 1 / 1)', {
+      format: 'spec'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('foo(1 1 1 / 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -4072,11 +4104,11 @@ describe('resolve color value', () => {
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should get value', () => {
+  it('should get empty string', () => {
     const res = func('foo', {
       format: 'specifiedValue'
     });
-    assert.deepEqual(res, '', 'result');
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {

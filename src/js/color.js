@@ -130,6 +130,7 @@ const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
+// TODO: rename spec to computedValue
 const REG_SPEC = /^spec(?:ifiedValue)?$/;
 
 /* named colors */
@@ -1141,17 +1142,24 @@ export const convertHexToXyz = value => {
 /**
  * parse rgb()
  * @param {string} value - color value
+ * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<string|number>} - ['rgb', r, g, b, a] r|g|b: 0..255 a: 0..1
  */
-export const parseRgb = value => {
+export const parseRgb = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
+  const { format } = opt;
   const reg = new RegExp(`^rgba?\\(\\s*(${SYN_RGB}|${SYN_RGB_LV3})\\s*\\)$`);
   if (!reg.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
   }
   const [, val] = value.match(reg);
   let [r, g, b, a] = val.replace(/[,/]/g, ' ').split(/\s+/);
@@ -1211,10 +1219,14 @@ export const parseHsl = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_HSL.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_HSL.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const [, val] = value.match(REG_HSL);
   let [h, s, l, a] = val.replace(/[,/]/g, ' ').split(/\s+/);
   if (h === NONE) {
@@ -1283,10 +1295,14 @@ export const parseHwb = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_HWB.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_HWB.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const [, val] = value.match(REG_HWB);
   let [h, w, b, a] = val.replace('/', ' ').split(/\s+/);
   if (h === NONE) {
@@ -1360,10 +1376,14 @@ export const parseLab = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_LAB.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_LAB.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const COEF_PCT = 1.25;
   const COND_POW = 8;
   const [, val] = value.match(REG_LAB);
@@ -1459,10 +1479,14 @@ export const parseLch = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_LCH.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_LCH.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const COEF_PCT = 1.5;
   const [, val] = value.match(REG_LCH);
   let [l, c, h, aa] = val.replace('/', ' ').split(/\s+/);
@@ -1538,10 +1562,14 @@ export const parseOklab = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_OKLAB.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_OKLAB.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const COEF_PCT = 0.4;
   const [, val] = value.match(REG_OKLAB);
   let [l, a, b, aa] = val.replace('/', ' ').split(/\s+/);
@@ -1625,10 +1653,14 @@ export const parseOklch = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_OKLCH.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { format } = opt;
+  if (!REG_OKLCH.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const COEF_PCT = 0.4;
   const [, val] = value.match(REG_OKLCH);
   let [l, c, h, aa] = val.replace('/', ' ').split(/\s+/);
@@ -1714,10 +1746,14 @@ export const parseColorFunc = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  if (!REG_COLOR_FUNC.test(value)) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
-  }
   const { d50, format } = opt;
+  if (!REG_COLOR_FUNC.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   const [, val] = value.match(REG_COLOR_FUNC);
   let [cs, v1, v2, v3, v4] = val.replace('/', ' ').split(/\s+/);
   let r, g, b, a;
@@ -1879,11 +1915,22 @@ export const parseColorValue = (value, opt = {}) => {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
   const { d50, format } = opt;
+  // unknown color and/or invalid color
+  if (!REG_COLOR.test(value)) {
+    if (format === 'specifiedValue') {
+      return '';
+    } else {
+      return ['rgb', 0, 0, 0, 0];
+    }
+  }
   let x, y, z, a;
   // complement currentcolor as a missing color
   if (REG_CURRENT_COLOR.test(value)) {
     if (format === 'spec') {
       return ['rgb', 0, 0, 0, 0];
+    }
+    if (format === 'specifiedValue') {
+      return value;
     }
     x = 0;
     y = 0;
@@ -1892,6 +1939,9 @@ export const parseColorValue = (value, opt = {}) => {
   // named-color
   } else if (/^[a-z]+$/.test(value)) {
     if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
+      if (format === 'specifiedValue') {
+        return value;
+      }
       const [r, g, b] = NAMED_COLORS[value];
       a = 1;
       if (format === 'spec') {
@@ -1905,6 +1955,12 @@ export const parseColorValue = (value, opt = {}) => {
       if (format === 'spec') {
         return ['rgb', 0, 0, 0, 0];
       }
+      if (format === 'specifiedValue') {
+        if (value === 'transparent') {
+          return value;
+        }
+        return '';
+      }
       x = 0;
       y = 0;
       z = 0;
@@ -1912,7 +1968,7 @@ export const parseColorValue = (value, opt = {}) => {
     }
   // hex-color
   } else if (value.startsWith('#')) {
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       const [r, g, b, aa] = convertHexToRgb(value);
       return ['rgb', r, g, b, aa];
     }
@@ -1922,7 +1978,7 @@ export const parseColorValue = (value, opt = {}) => {
     }
   // lab()
   } else if (value.startsWith('lab')) {
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       return parseLab(value, {
         format
       });
@@ -1951,19 +2007,17 @@ export const parseColorValue = (value, opt = {}) => {
     }
   } else {
     let r, g, b;
-    // rgb()
-    if (value.startsWith('rgb')) {
-      [, r, g, b, a] = parseRgb(value);
     // hsl()
-    } else if (value.startsWith('hsl')) {
+    if (value.startsWith('hsl')) {
       [, r, g, b, a] = parseHsl(value);
     // hwb()
     } else if (value.startsWith('hwb')) {
       [, r, g, b, a] = parseHwb(value);
+    // rgb()
     } else {
-      throw new SyntaxError(`Invalid property value: ${value}`);
+      [, r, g, b, a] = parseRgb(value);
     }
-    if (format === 'spec') {
+    if (REG_SPEC.test(format)) {
       return [
         'rgb',
         Math.round(r),
@@ -2000,6 +2054,7 @@ export const resolveColorValue = (value, opt = {}) => {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
   const { format } = opt;
+  // unknown color and/or invalid color
   if (!REG_COLOR.test(value)) {
     if (format === 'specifiedValue') {
       return '';
@@ -2019,9 +2074,6 @@ export const resolveColorValue = (value, opt = {}) => {
     a = 0;
   // named-color
   } else if (/^[a-z]+$/.test(value)) {
-    if (value === 'transparent' && format === 'specifiedValue') {
-      return value;
-    }
     if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
       if (format === 'specifiedValue') {
         return value;
@@ -2030,6 +2082,9 @@ export const resolveColorValue = (value, opt = {}) => {
       a = 1;
     } else {
       if (format === 'specifiedValue') {
+        if (value === 'transparent') {
+          return value;
+        }
         return '';
       }
       r = 0;
@@ -2124,6 +2179,7 @@ export const resolveColorFunc = (value, opt = {}) => {
  * convert color value to linear rgb
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [r, g, b, a] r|g|b|a: 0..1
  */
 export const convertColorToLinearRgb = (value, opt = {}) => {
@@ -2160,6 +2216,7 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
  * convert color value to rgb
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [r, g, b, a] r|g|b: 0..255 a: 0..1
  */
 export const convertColorToRgb = (value, opt = {}) => {
@@ -2198,6 +2255,7 @@ export const convertColorToRgb = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
  */
 export const convertColorToXyz = (value, opt = {}) => {
@@ -2240,6 +2298,7 @@ export const convertColorToXyz = (value, opt = {}) => {
  * convert color value to hsl
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [h, s, l, a]
  */
 export const convertColorToHsl = (value, opt = {}) => {
@@ -2267,6 +2326,7 @@ export const convertColorToHsl = (value, opt = {}) => {
  * convert color value to hwb
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [h, w, b, a]
  */
 export const convertColorToHwb = (value, opt = {}) => {
@@ -2294,6 +2354,7 @@ export const convertColorToHwb = (value, opt = {}) => {
  * convert color value to lab
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [l, a, b, aa]
  */
 export const convertColorToLab = (value, opt = {}) => {
@@ -2325,6 +2386,7 @@ export const convertColorToLab = (value, opt = {}) => {
  * convert color value to lch
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [l, c, h, aa]
  */
 export const convertColorToLch = (value, opt = {}) => {
@@ -2356,6 +2418,7 @@ export const convertColorToLch = (value, opt = {}) => {
  * convert color value to oklab
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [l, a, b, aa]
  */
 export const convertColorToOklab = (value, opt = {}) => {
@@ -2383,6 +2446,7 @@ export const convertColorToOklab = (value, opt = {}) => {
  * convert color value to oklch
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [l, c, h, aa]
  */
 export const convertColorToOklch = (value, opt = {}) => {
