@@ -296,7 +296,7 @@ const NAMED_COLORS = {
  * @param {number} [opt.minRange] - min range
  * @param {number} [opt.maxRange] - max range
  * @param {boolean} [opt.validateRange] - validate range
- * @returns {Array} - arr;
+ * @returns {Array} - arr
  */
 export const validateColorComponents = (arr, opt = {}) => {
   if (!Array.isArray(arr)) {
@@ -601,7 +601,7 @@ export const parseAlpha = a => {
 /**
  * parse hex alpha
  * @param {string} value - alpha value in hex string
- * @returns {number} - alpha
+ * @returns {number} - a: 0..1
  */
 export const parseHexAlpha = value => {
   if (isString(value)) {
@@ -704,7 +704,7 @@ export const convertRgbToXyzD50 = rgb => {
 /**
  * convert rgb to hex color
  * @param {Array.<number>} rgb - [r, g, b, a] r|g|b: 0..255 a: 0..1
- * @returns {string} - hex color;
+ * @returns {string} - hex color
  */
 export const convertRgbToHex = rgb => {
   const [r, g, b, a] = validateColorComponents(rgb, {
@@ -854,7 +854,7 @@ export const convertXyzToRgb = (xyz, skip = false) => {
 /**
  * convert xyz to xyz-d50
  * @param {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
- * @returns {Array.<number>} xyz - [x, y, z, a] x|y|z|a: 0..1
+ * @returns {Array.<number>} - [x, y, z, a] x|y|z|a: 0..1
  */
 export const convertXyzToXyzD50 = xyz => {
   const [xx, yy, zz, a] = validateColorComponents(xyz, {
@@ -1140,13 +1140,13 @@ export const convertHexToXyz = value => {
   return [x, y, z, a];
 };
 
-// FIXME: update jsdoc @returns type
 /**
  * parse rgb()
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<string|number>} - ['rgb', r, g, b, a] r|g|b: 0..255 a: 0..1
+ * @returns {Array.<string|number>|string}
+ *   - ['rgb', r, g, b, a] | '<empty string>'
  */
 export const parseRgb = (value, opt = {}) => {
   if (isString(value)) {
@@ -1213,7 +1213,8 @@ export const parseRgb = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<string|number>} - ['rgb', r, g, b, a] r|g|b: 0..255 a: 0..1
+ * @returns {Array.<string|number>|string}
+ *   - ['rgb', r, g, b, a] | '<empty string>'
  */
 export const parseHsl = (value, opt = {}) => {
   if (isString(value)) {
@@ -1289,7 +1290,8 @@ export const parseHsl = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<string|number>} - ['rgb', r, g, b, a] r|g|b: 0..255 a: 0..1
+ * @returns {Array.<string|number>|string}
+ *   - ['rgb', r, g, b, a] | '<empty string>'
  */
 export const parseHwb = (value, opt = {}) => {
   if (isString(value)) {
@@ -1369,8 +1371,8 @@ export const parseHwb = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<string|number>} - [xyz-d50, x, y, z, aa]
- *                                    ['lab', l, a, b, aa]
+ * @returns {Array.<string|number>|string}
+ *   - [xyz-d50, x, y, z, aa] | ['lab', l, a, b, aa] | '<empty string>'
  */
 export const parseLab = (value, opt = {}) => {
   if (isString(value)) {
@@ -1472,8 +1474,8 @@ export const parseLab = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<number>} - ['xyz-d50', x, y, z, aa]
- *                             ['lch', l, c, h, aa]
+ * @returns {Array.<string|number>|string}
+ *   - ['xyz-d50', x, y, z, aa] | ['lch', l, c, h, aa] | '<empty string>'
  */
 export const parseLch = (value, opt = {}) => {
   if (isString(value)) {
@@ -1555,8 +1557,8 @@ export const parseLch = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<number>} - ['xyz-d65', x, y, z, aa]
- *                             ['oklab', l, a, b, aa]
+ * @returns {Array.<string|number>|string}
+ *   - ['xyz-d65', x, y, z, aa] | ['oklab', l, a, b, aa] | '<empty string>'
  */
 export const parseOklab = (value, opt = {}) => {
   if (isString(value)) {
@@ -1646,8 +1648,8 @@ export const parseOklab = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<number>} - ['xyz-d65', x, y, z, aa]
- *                             ['oklch', l, c, h, aa]
+ * @returns {Array.<string|number>|string}
+ *   - ['xyz-d65', x, y, z, aa] | ['oklch', l, c, h, aa] | <empty-string>
  */
 export const parseOklch = (value, opt = {}) => {
   if (isString(value)) {
@@ -1739,8 +1741,8 @@ export const parseOklch = (value, opt = {}) => {
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
  * @param {string} [opt.format] - output format
- * @returns {Array.<string|number>} - ['xyz-d50'|'xyz-d65', x, y, z, a]
- *                                    [cs, r, g, b, a]
+ * @returns {Array.<string|number>|string}
+ *   - ['xyz-d50'|'xyz-d65', x, y, z, a] | [cs, r, g, b, a] | '<empty string>'
  */
 export const parseColorFunc = (value, opt = {}) => {
   if (isString(value)) {
@@ -1907,8 +1909,8 @@ export const parseColorFunc = (value, opt = {}) => {
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
  * @param {string} [opt.format] - output format
- * @returns {Array.<number>} - ['xyz-d50'|'xyz-d65', x, y, z, a]
- *                             ['rgb', r, g, b, a]
+ * @returns {Array.<string|number>|string}
+ *   - ['xyz-d50'|'xyz-d65', x, y, z, a] | ['rgb', r, g, b, a] | 'value?'
  */
 export const parseColorValue = (value, opt = {}) => {
   if (isString(value)) {
@@ -2062,7 +2064,7 @@ export const parseColorValue = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<string|number>} - [cs, v1, v2, v3, a]
+ * @returns {Array.<string|number>|string} - [cs, v1, v2, v3, a] | 'value?'
  */
 export const resolveColorValue = (value, opt = {}) => {
   if (isString(value)) {
@@ -2168,7 +2170,8 @@ export const resolveColorValue = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
- * @returns {Array.<number>} - ['rgb', r, g, b, a], [cs, x, y, z, a]
+ * @returns {Array.<string|number>|string}
+ *   - [cs, v1, v2, v3, a] | '<empty string>'
  */
 export const resolveColorFunc = (value, opt = {}) => {
   if (isString(value)) {
@@ -2483,7 +2486,7 @@ export const convertColorToOklch = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] format - output format
- * @returns {Array.<number>} - [r, g, b, a] r|g|b: 0..255 a: 0..1
+ * @returns {Array.<string|number>|string} - [cs, v1, v2, v3, a] | 'value?'
  */
 export const resolveColorMix = (value, opt = {}) => {
   if (isString(value)) {
