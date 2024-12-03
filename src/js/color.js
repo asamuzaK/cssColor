@@ -2799,21 +2799,18 @@ export const resolveColorMix = (value, opt = {}) => {
       new RegExp(`^color-mix\\(\\s*in\\s+(${SYN_COLOR_SPACE_COLOR_MIX})\\s*,`);
     [, colorSpace] = value.match(regColorSpace);
     if (nestedItems.length === 2) {
-      const itemA =
-        nestedItems[0].replace(/\x28/g, '\\(').replace(/\x29/g, '\\)');
+      const itemA = nestedItems[0].replace(/(?=[()])/g, '\\');
       const regA = new RegExp(`(${itemA})(?:\\s+(${SYN_PCT}))?`);
       if (regA.test(value)) {
         [, colorA, pctA] = value.match(regA);
       }
-      const itemB =
-        nestedItems[1].replace(/\x28/g, '\\(').replace(/\x29/g, '\\)');
+      const itemB = nestedItems[1].replace(/(?=[()])/g, '\\');
       const reg2 = new RegExp(`(${itemB})(?:\\s+(${SYN_PCT}))?`);
       if (reg2.test(value)) {
         [, colorB, pctB] = value.match(reg2);
       }
     } else {
-      const item =
-        nestedItems[0].replace(/\x28/g, '\\(').replace(/\x29/g, '\\)');
+      const item = nestedItems[0].replace(/(?=[()])/g, '\\');
       const itemPart = `(${item})(?:\\s+(${SYN_PCT}))?`;
       const regItemPart = new RegExp(`^${itemPart}$`);
       const regPosition = new RegExp(`${itemPart}\\s*\\)$`);
