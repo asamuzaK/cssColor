@@ -57,6 +57,9 @@ export const resolve = (color, opt = {}) => {
       case 'computedValue': {
         return 'rgba(0, 0, 0, 0)';
       }
+      case 'specifiedValue': {
+        return color;
+      }
       case 'hex': {
         return null;
       }
@@ -71,6 +74,9 @@ export const resolve = (color, opt = {}) => {
       }
     }
   } else if (color === 'currentcolor') {
+    if (format === 'specifiedValue') {
+      return color;
+    }
     if (currentColor) {
       if (currentColor.startsWith('color-mix')) {
         [cs, r, g, b, a] = resolveColorMix(currentColor, {
@@ -87,6 +93,24 @@ export const resolve = (color, opt = {}) => {
       }
     } else if (format === 'computedValue') {
       return 'rgba(0, 0, 0, 0)';
+    }
+  } else if (format === 'specifiedValue') {
+    if (color.startsWith('color-mix')) {
+      return resolveColorMix(color, {
+        format
+      });
+    } else if (color.startsWith('color(')) {
+      [cs, r, g, b, a] = resolveColorFunc(color, {
+        format
+      });
+      if (a === 1) {
+        return `color(${cs} ${r} ${g} ${b})`;
+      }
+      return `color(${cs} ${r} ${g} ${b} / ${a})`;
+    } else {
+      return resolveColorValue(color, {
+        format
+      });
     }
   } else if (/currentcolor/.test(color)) {
     if (currentColor) {
