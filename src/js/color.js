@@ -2484,7 +2484,7 @@ export const convertColorToHsl = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, a] = xyz;
-  } else  if (value.startsWith('color(')) {
+  } else if (value.startsWith('color(')) {
     [, x, y, z, a] = parseColorFunc(value);
   } else {
     [, x, y, z, a] = parseColorValue(value);
