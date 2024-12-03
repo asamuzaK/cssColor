@@ -68,17 +68,34 @@ export function resolveColorValue(value: string, opt?: {
 export function resolveColorFunc(value: string, opt?: {
     format?: string;
 }): Array<string | number> | string;
-export function convertColorToLinearRgb(value: string, opt?: object): Array<number>;
-export function convertColorToRgb(value: string, opt?: object): Array<number>;
+export function convertColorToLinearRgb(value: string, opt?: {
+    format?: string;
+}): Array<number>;
+export function convertColorToRgb(value: string, opt?: {
+    format?: string;
+}): Array<number>;
 export function convertColorToXyz(value: string, opt?: {
     d50?: boolean;
+    format?: string;
 }): Array<number>;
-export function convertColorToHsl(value: string, opt?: object): Array<number>;
-export function convertColorToHwb(value: string, opt?: object): Array<number>;
-export function convertColorToLab(value: string, opt?: object): Array<number>;
-export function convertColorToLch(value: string, opt?: object): Array<number>;
-export function convertColorToOklab(value: string, opt?: object): Array<number>;
-export function convertColorToOklch(value: string, opt?: object): Array<number>;
+export function convertColorToHsl(value: string, opt?: {
+    format?: string;
+}): Array<number>;
+export function convertColorToHwb(value: string, opt?: {
+    format?: string;
+}): Array<number>;
+export function convertColorToLab(value: string, opt?: {
+    format?: string;
+}): Array<number>;
+export function convertColorToLch(value: string, opt?: {
+    format?: string;
+}): Array<number>;
+export function convertColorToOklab(value: string, opt?: {
+    format?: string;
+}): Array<number>;
+export function convertColorToOklch(value: string, opt?: {
+    format?: string;
+}): Array<number>;
 export function resolveColorMix(value: string, opt?: {
     format?: string;
 }): Array<string | number> | string;
