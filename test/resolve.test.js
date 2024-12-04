@@ -455,6 +455,28 @@ describe('resolve CSS color', () => {
 
   it('should get value', () => {
     const res = func('rgb(0 127.5 0)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('rgb(0 127.5 0)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(0 127.5 0 / .5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    const res2 = func('rgb(0 127.5 0 / .5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(0 127.5 0)', {
       format: 'rgb'
     });
     assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
@@ -505,6 +527,17 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('hwb(120 0% 50%)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('hwb(120 0% 50%)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
       format: 'computedValue'
     });
@@ -513,6 +546,28 @@ describe('resolve CSS color', () => {
       format: 'computedValue'
     });
     assert.strictEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(46.28% -47.57 48.58)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'lab(46.28 -47.57 48.58)', 'result');
+    const res2 = func('lab(46.28% -47.57 48.58)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(46.28% -47.57 48.58 / .5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    const res2 = func('lab(46.28% -47.57 48.58 / .5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
   });
 
   it('should get value', () => {

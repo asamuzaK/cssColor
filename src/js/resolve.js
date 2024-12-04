@@ -108,9 +108,23 @@ export const resolve = (color, opt = {}) => {
       }
       return `color(${cs} ${r} ${g} ${b} / ${a})`;
     } else {
-      return resolveColorValue(color, {
+      const rgb = resolveColorValue(color, {
         format
       });
+      if (!rgb) {
+        return '';
+      }
+      [cs, r, g, b, a] = rgb;
+      if (cs === 'rgb') {
+        if (a === 1) {
+          return `${cs}(${r}, ${g}, ${b})`;
+        }
+        return `${cs}a(${r}, ${g}, ${b}, ${a})`;
+      }
+      if (a === 1) {
+        return `${cs}(${r} ${g} ${b})`;
+      }
+      return `${cs}(${r} ${g} ${b} / ${a})`;
     }
   } else if (/currentcolor/.test(color)) {
     if (currentColor) {
