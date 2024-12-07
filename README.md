@@ -47,11 +47,11 @@ resolves CSS color
         *   `hexAlpha` is a hex color notation with alpha channel, i.e. `#rrggbbaa`
     *   `opt.key` **any?** key e.g. CSS property `background-color`
 
-Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(space r g b / a)`, `color(space x y z / a)`, `lab(l a b / A)`, `lch(l c h / a)`, `oklab(l a b / A)`, `oklch(l c h / a)`, `\#rrggbb(aa)?`, `color-name?`, `null`, and, if `key` is specified, `[key, rgba?()]` etc.
+Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(space r g b / a)`, `color(space x y z / a)`, `lab(l a b / A)`, `lch(l c h / a)`, `oklab(l a b / A)`, `oklch(l c h / a)`, `#rrggbb(aa)?`, `color-name?`, `null`, and, if `key` is specified, `[key, rgba?()]` etc.
 
 *   in `computedValue`, values are numbers, however `rgb()` values are integers
 *   in `specifiedValue`, returns `empty string` for unknown and/or invalid color
-*   in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown colors
+*   in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
 *   in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `a` is not a number
 *   in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `a` is not a number
 
