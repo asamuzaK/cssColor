@@ -9,6 +9,14 @@
 import { getType, isString } from './common.js';
 
 /* constants */
+import {
+  NONE, SYN_ANGLE, SYN_COLOR_FUNC, SYN_COLOR_MIX, SYN_COLOR_MIX_CAPT,
+  SYN_COLOR_SPACE_COLOR_MIX, SYN_COLOR_SPACE_RGB, SYN_COLOR_SPACE_XYZ,
+  SYN_COLOR_TYPE, SYN_HSL, SYN_HSL_LV3, SYN_LAB, SYN_LCH, SYN_NUM, SYN_PCT,
+  SYN_RGB, SYN_RGB_LV3
+} from './constant.js';
+const NONE_LCH = 'lch(none none none / none)';
+const NONE_RGB = 'rgb(none none none / none)';
 const PPTH = 0.001;
 const HALF = 0.5;
 const DUO = 2;
@@ -97,32 +105,6 @@ const MATRIX_PROPHOTO_TO_XYZ_D50 = [
   [0.00000000000000000, 0.00000000000000000, 0.82510460251046020]
 ];
 
-/* syntax */
-const NONE = 'none';
-const NONE_LCH = 'lch(none none none / none)';
-const NONE_RGB = 'rgb(none none none / none)';
-const SYN_ANGLE = 'deg|g?rad|turn';
-const SYN_SRGB = 'srgb(?:-linear)?';
-const SYN_COLOR_SPACE_XYZ = 'xyz(?:-d(?:50|65))?';
-const SYN_COLOR_SPACE_COLOR_MIX =
-  `(?:ok)?l(?:ab|ch)|h(?:sl|wb)|${SYN_SRGB}|${SYN_COLOR_SPACE_XYZ}`;
-const SYN_COLOR_SPACE_RGB =
-  `(?:a98|prophoto)-rgb|display-p3|rec2020|${SYN_SRGB}`;
-const SYN_NUM =
-  '[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?';
-const SYN_PCT = `${SYN_NUM}%`;
-const SYN_HSL = `(?:${SYN_NUM}(?:${SYN_ANGLE})?|${NONE})(?:\\s+(?:${SYN_PCT}|${SYN_NUM}|${NONE})){2}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
-const SYN_HSL_LV3 = `${SYN_NUM}(?:${SYN_ANGLE})?(?:\\s*,\\s*${SYN_PCT}){2}(?:\\s*,\\s*(?:${SYN_NUM}|${SYN_PCT}))?`;
-const SYN_RGB = `(?:${SYN_NUM}|${SYN_PCT}|${NONE})(?:\\s+(?:${SYN_NUM}|${SYN_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
-const SYN_RGB_LV3 = `(?:${SYN_NUM}(?:\\s*,\\s*${SYN_NUM}){2}|${SYN_PCT}(?:\\s*,\\s*${SYN_PCT}){2})(?:\\s*,\\s*(?:${SYN_NUM}|${SYN_PCT}))?`;
-const SYN_LAB = `(?:${SYN_NUM}|${SYN_PCT}|${NONE})(?:\\s+(?:${SYN_NUM}|${SYN_PCT}|${NONE})){2}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
-const SYN_LCH = `(?:(?:${SYN_NUM}|${SYN_PCT}|${NONE})\\s+){2}(?:${SYN_NUM}(?:${SYN_ANGLE})?|${NONE})(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
-const SYN_COLOR_FUNC = `(?:${SYN_COLOR_SPACE_RGB}|${SYN_COLOR_SPACE_XYZ})(?:\\s+(?:${SYN_NUM}|${SYN_PCT}|${NONE})){3}(?:\\s*\\/\\s*(?:${SYN_NUM}|${SYN_PCT}|${NONE}))?`;
-const SYN_COLOR_TYPE = `[a-z]+|#(?:[\\da-f]{3}|[\\da-f]{4}|[\\da-f]{6}|[\\da-f]{8})|hsla?\\(\\s*(?:${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)|hwb\\(\\s*${SYN_HSL}\\s*\\)|rgba?\\(\\s*(?:${SYN_RGB}|${SYN_RGB_LV3})\\s*\\)|(?:ok)?lab\\(\\s*${SYN_LAB}\\s*\\)|(?:ok)?lch\\(\\s*${SYN_LCH}\\s*\\)|color\\(\\s*${SYN_COLOR_FUNC}\\s*\\)`;
-const SYN_COLOR_MIX_PART = `(?:${SYN_COLOR_TYPE})(?:\\s+${SYN_PCT})?`;
-const SYN_COLOR_MIX = `color-mix\\(\\s*in\\s+(?:${SYN_COLOR_SPACE_COLOR_MIX})\\s*,\\s*${SYN_COLOR_MIX_PART}\\s*,\\s*${SYN_COLOR_MIX_PART}\\s*\\)`;
-const SYN_COLOR_MIX_CAPT = `color-mix\\(\\s*in\\s+(${SYN_COLOR_SPACE_COLOR_MIX})\\s*,\\s*(${SYN_COLOR_MIX_PART})\\s*,\\s*(${SYN_COLOR_MIX_PART})\\s*\\)`;
-
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_COLOR_MIX = new RegExp(`^${SYN_COLOR_MIX}$`);
@@ -139,7 +121,7 @@ const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
 /* named colors */
-const NAMED_COLORS = {
+export const NAMED_COLORS = {
   aliceblue: [0xF0, 0xF8, 0xFF],
   antiquewhite: [0xFA, 0xEB, 0xD7],
   aqua: [0x00, 0xFF, 0xFF],
