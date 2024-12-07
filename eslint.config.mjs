@@ -46,7 +46,7 @@ export default [
       'no-use-before-define': ['error', {
         allowNamedExports: false,
         classes: true,
-        functions: true,
+        functions: false,
         variables: true
       }]
     }
