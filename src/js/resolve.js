@@ -8,6 +8,10 @@ import {
   convertRgbToHex, resolveColorFunc, resolveColorMix, resolveColorValue
 } from './color.js';
 import { getType, isString } from './common.js';
+import { cssVar } from './css-var.js';
+
+/* constants */
+import { FUNC_CALC, FUNC_VAR } from './constant.js';
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -39,7 +43,7 @@ export const cachedResults = new LRUCache({
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
-    color = color.toLowerCase().trim();
+    color = color.trim();
   } else {
     throw new TypeError(`Expected String but got ${getType(color)}.`);
   }
@@ -49,8 +53,26 @@ export const resolve = (color, opt = {}) => {
   }
   const { currentColor, format = 'computedValue', key } = opt;
   let cs, r, g, b, a;
-  if (/calc/.test(color)) {
-    color = calc(color);
+  if (color.includes(FUNC_VAR)) {
+    if (format === 'specifiedValue') {
+      return color;
+    }
+    color = cssVar(color, opt);
+    if (!color) {
+      switch (format) {
+        case 'hex':
+        case 'hexAlpha': {
+          return null;
+        }
+        default: {
+          return 'rgba(0, 0, 0, 0)';
+        }
+      }
+    }
+  }
+  color = color.toLowerCase();
+  if (color.includes(FUNC_CALC)) {
+    color = calc(color, opt);
   }
   if (color === 'transparent') {
     switch (format) {
@@ -153,7 +175,7 @@ export const resolve = (color, opt = {}) => {
     [cs, r, g, b, a] = resolveColorFunc(color, {
       format
     });
-  } else {
+  } else if (color) {
     [cs, r, g, b, a] = resolveColorValue(color, {
       format
     });

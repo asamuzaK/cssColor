@@ -10,7 +10,11 @@ import {
   numberToHexString, parseColorFunc, parseColorValue
 } from './color.js';
 import { getType, isString } from './common.js';
+import { cssVar } from './css-var.js';
 import { resolve } from './resolve.js';
+
+/* constants */
+import { FUNC_CALC, FUNC_VAR } from './constant.js';
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -20,18 +24,38 @@ export const cachedResults = new LRUCache({
 /**
  * pre process
  * @param {string} value - color value
- * @returns {string} - value
+ * @param {object} [opt] - options
+ * @returns {?string} - value
  */
-export const preProcess = value => {
-  if (value && isString(value)) {
-    if (/calc/.test(value)) {
-      value = calc(value);
+export const preProcess = (value, opt = {}) => {
+  if (isString(value)) {
+    value = value.trim();
+    if (!value) {
+      return null;
     }
-    if (value.startsWith('color-mix')) {
-      value = resolve(value, {
-        format: 'computedValue'
-      });
+  } else {
+    return null;
+  }
+  const cacheKey = `{preProcess:${value}}`;
+  if (cachedResults.has(cacheKey)) {
+    return cachedResults.get(cacheKey);
+  }
+  if (value.includes(FUNC_VAR)) {
+    value = cssVar(value, opt);
+    if (!value) {
+      return null;
     }
+  }
+  if (value.includes(FUNC_CALC)) {
+    value = calc(value, opt);
+  }
+  if (value.startsWith('color-mix')) {
+    value = resolve(value, {
+      format: 'computedValue'
+    });
+  }
+  if (cacheKey) {
+    cachedResults.set(cacheKey, value);
   }
   return value;
 };
@@ -58,11 +82,16 @@ export const numberToHex = value => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.alpha] - return in #rrggbbaa notation
- * @returns {string} - #rrggbb|#rrggbbaa
+ * @returns {?string} - #rrggbb | #rrggbbaa | null
  */
 export const colorToHex = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return null;
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -70,7 +99,6 @@ export const colorToHex = (value, opt = {}) => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const { alpha } = opt;
   let hex;
   if (alpha) {
@@ -91,11 +119,17 @@ export const colorToHex = (value, opt = {}) => {
 /**
  * convert color to hsl
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [h, s, l, a]
  */
-export const colorToHsl = value => {
+export const colorToHsl = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -103,7 +137,6 @@ export const colorToHsl = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const hsl = convertColorToHsl(value, {
     format: 'hsl'
   });
@@ -114,11 +147,17 @@ export const colorToHsl = value => {
 /**
  * convert color to hwb
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [h, w, b, a]
  */
-export const colorToHwb = value => {
+export const colorToHwb = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -126,7 +165,6 @@ export const colorToHwb = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const hwb = convertColorToHwb(value, {
     format: 'hwb'
   });
@@ -137,11 +175,17 @@ export const colorToHwb = value => {
 /**
  * convert color to lab
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [l, a, b, aa]
  */
-export const colorToLab = value => {
+export const colorToLab = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -149,7 +193,6 @@ export const colorToLab = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const lab = convertColorToLab(value);
   cachedResults.set(cacheKey, lab);
   return lab;
@@ -158,11 +201,17 @@ export const colorToLab = value => {
 /**
  * convert color to lch
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [l, c, h, aa]
  */
-export const colorToLch = value => {
+export const colorToLch = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -170,7 +219,6 @@ export const colorToLch = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const lch = convertColorToLch(value);
   cachedResults.set(cacheKey, lch);
   return lch;
@@ -179,11 +227,17 @@ export const colorToLch = value => {
 /**
  * convert color to oklab
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [l, a, b, aa]
  */
-export const colorToOklab = value => {
+export const colorToOklab = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -191,7 +245,6 @@ export const colorToOklab = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const lab = convertColorToOklab(value);
   cachedResults.set(cacheKey, lab);
   return lab;
@@ -200,11 +253,17 @@ export const colorToOklab = value => {
 /**
  * convert color to oklch
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [l, c, h, aa]
  */
-export const colorToOklch = value => {
+export const colorToOklch = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -212,7 +271,6 @@ export const colorToOklch = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const lch = convertColorToOklch(value);
   cachedResults.set(cacheKey, lch);
   return lch;
@@ -221,11 +279,17 @@ export const colorToOklch = value => {
 /**
  * convert color to rgb
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [r, g, b, a]
  */
-export const colorToRgb = value => {
+export const colorToRgb = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -233,7 +297,6 @@ export const colorToRgb = value => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   const rgb = convertColorToRgb(value);
   cachedResults.set(cacheKey, rgb);
   return rgb;
@@ -248,7 +311,12 @@ export const colorToRgb = value => {
  */
 export const colorToXyz = (value, opt = {}) => {
   if (isString(value)) {
-    value = value.toLowerCase().trim();
+    value = preProcess(value, opt);
+    if (value) {
+      value = value.toLowerCase();
+    } else {
+      return [0, 0, 0, 0];
+    }
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
@@ -256,7 +324,6 @@ export const colorToXyz = (value, opt = {}) => {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  value = preProcess(value);
   let xyz;
   if (value.startsWith('color(')) {
     [, ...xyz] = parseColorFunc(value, opt);
@@ -270,9 +337,13 @@ export const colorToXyz = (value, opt = {}) => {
 /**
  * convert color to xyz-d50
  * @param {string} value - color value
+ * @param {object} [opt] - options
  * @returns {Array.<number>} - [x, y, z, a]
  */
-export const colorToXyzD50 = value => colorToXyz(value, { d50: true });
+export const colorToXyzD50 = (value, opt = {}) => {
+  opt.d50 = true;
+  return colorToXyz(value, opt);
+};
 
 /* convert */
 export const convert = {

@@ -19,14 +19,33 @@ describe('pre process', () => {
     convert.cachedResults.clear();
   });
 
-  it('should get value as is', () => {
+  it('should get null', () => {
     const res = func();
-    assert.deepEqual(typeof res, 'undefined', 'result');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func(' ');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value as is', () => {
     const res = func('foo');
     assert.strictEqual(res, 'foo', 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('var(--foo)', {
+      customProperty: {
+        '--foo': 'red'
+      }
+    });
+    assert.strictEqual(res, 'red', 'result');
   });
 
   it('should get value', () => {
@@ -37,6 +56,12 @@ describe('pre process', () => {
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)');
     assert.strictEqual(res, 'oklab(0.573854 0.0422802 0.116761)', 'result');
+
+    const res2 = func('color-mix(in oklab, red, green)');
+    assert.strictEqual(res2, 'oklab(0.573854 0.0422802 0.116761)', 'result');
+
+    const res3 = func('color-mix(in oklab, red, green)');
+    assert.strictEqual(res3, 'oklab(0.573854 0.0422802 0.116761)', 'result');
   });
 });
 
@@ -127,6 +152,11 @@ describe('convert color to hex', () => {
       'Expected String but got Undefined.');
   });
 
+  it('should get null', () => {
+    const res = func(' ');
+    assert.strictEqual(res, null, 'result');
+  });
+
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     assert.strictEqual(res, '#008000', 'result');
@@ -176,6 +206,11 @@ describe('convert color to hsl', () => {
   });
 
   it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     res[2] = Math.round(res[2]);
     assert.deepEqual(res, [120, 100, 25, 1], 'result');
@@ -202,6 +237,11 @@ describe('convert color to hwb', () => {
   });
 
   it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     res[2] = Math.round(res[2]);
     assert.deepEqual(res, [120, 0, 50, 1], 'result');
@@ -225,6 +265,11 @@ describe('convert color to lab', () => {
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
       'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -258,6 +303,11 @@ describe('convert color to lch', () => {
   });
 
   it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -285,6 +335,11 @@ describe('convert color to oklab', () => {
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
       'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -318,6 +373,11 @@ describe('convert color to oklch', () => {
   });
 
   it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -348,6 +408,11 @@ describe('convert color to rgb', () => {
   });
 
   it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     assert.deepEqual(res, [0, 127.5, 0, 1], 'result');
 
@@ -369,6 +434,11 @@ describe('convert color to xyz', () => {
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
       'Expected String but got Undefined.');
+  });
+
+  it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -408,6 +478,11 @@ describe('convert color to xyz-d50', () => {
   });
   afterEach(() => {
     convert.cachedResults.clear();
+  });
+
+  it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {

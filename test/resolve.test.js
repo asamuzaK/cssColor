@@ -33,7 +33,43 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
-    const res = func('rgb(calc(64 * 2) calc(100% / 2) calc(128 + 127.5) / calc(2 / 3))');
+    const res = func('var(--foo)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'var(--foo)', 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('var(--foo)', {
+      format: 'hex'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('var(--foo)', {
+      format: 'hexAlpha'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      customProperty: {
+        '--foo': 'red'
+      }
+    });
+    assert.strictEqual(res, 'rgb(255, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res =
+      func('rgb(calc(64 * 2) calc(100% / 2) calc(128 + 127.5) / calc(2 / 3))');
     assert.strictEqual(res, 'rgba(128, 128, 255, 0.667)', 'result');
   });
 
@@ -99,11 +135,11 @@ describe('resolve CSS color', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.deepEqual(res, null, 'result');
+    assert.strictEqual(res, null, 'result');
     const res2 = func('foo', {
       format: 'hex'
     });
-    assert.deepEqual(res2, null, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -287,11 +323,11 @@ describe('resolve CSS color', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.deepEqual(res, null, 'result');
+    assert.strictEqual(res, null, 'result');
     const res2 = func('transparent', {
       format: 'hex'
     });
-    assert.deepEqual(res2, null, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -623,22 +659,22 @@ describe('resolve CSS color', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.deepEqual(res, null, 'result');
+    assert.strictEqual(res, null, 'result');
     const res2 = func('transparent', {
       format: 'hex'
     });
-    assert.deepEqual(res2, null, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.deepEqual(res, null, 'result');
+    assert.strictEqual(res, null, 'result');
     const res2 = func('foo', {
       format: 'hex'
     });
-    assert.deepEqual(res2, null, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -656,11 +692,11 @@ describe('resolve CSS color', () => {
     const res = func('currentColor', {
       format: 'hex'
     });
-    assert.deepEqual(res, null, 'result');
+    assert.strictEqual(res, null, 'result');
     const res2 = func('currentColor', {
       format: 'hex'
     });
-    assert.deepEqual(res2, null, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -713,11 +749,11 @@ describe('resolve CSS color', () => {
     const res = func('currentColor', {
       format: 'hexAlpha'
     });
-    assert.deepEqual(res, null, 'result');
+    assert.strictEqual(res, null, 'result');
     const res2 = func('currentColor', {
       format: 'hexAlpha'
     });
-    assert.deepEqual(res2, null, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
