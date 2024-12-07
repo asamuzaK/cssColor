@@ -40,6 +40,7 @@ resolves CSS color
 
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
     *   `opt.format` **[string][133]?** output format, one of `computedValue` (default), `specifiedValue`, `rgb`, `hex`, `hexAlpha`
         *   `computedValue` is a [computed value][139] of the color
         *   `specifiedValue` is a [specified value][140] of the color
@@ -77,76 +78,91 @@ convert color to hex
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[string][133]** #rrggbb|#rrggbbaa
 
-### convert.colorToHsl(value)
+### convert.colorToHsl(value, opt)
 
 convert color to hsl
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[h, s, l, a]
 
-### convert.colorToHwb(value)
+### convert.colorToHwb(value, opt)
 
 convert color to hwb
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[h, w, b, a]
 
-### convert.colorToLab(value)
+### convert.colorToLab(value, opt)
 
 convert color to lab
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
 
-### convert.colorToLch(value)
+### convert.colorToLch(value, opt)
 
 convert color to lch
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
 
-### convert.colorToOklab(value)
+### convert.colorToOklab(value, opt)
 
 convert color to oklab
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
 
-### convert.colorToOklch(value)
+### convert.colorToOklch(value, opt)
 
 convert color to oklch
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
 
-### convert.colorToRgb(value)
+### convert.colorToRgb(value, opt)
 
 convert color to rgb
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[r, g, b, a]
 
@@ -158,17 +174,20 @@ convert color to xyz
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
     *   `opt.d50` **[boolean][136]?** xyz in d50 white point
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, a]
 
-### convert.colorToXyzD50(value)
+### convert.colorToXyzD50(value, opt)
 
 convert color to xyz-d50
 
 #### Parameters
 
 *   `value` **[string][133]** color value
+*   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, a]
 
