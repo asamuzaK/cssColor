@@ -40,6 +40,7 @@ resolves CSS color
 
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
     *   `opt.format` **[string][133]?** output format, one of `computedValue` (default), `specifiedValue`, `rgb`, `hex`, `hexAlpha`
         *   `computedValue` is a [computed value][139] of the color
@@ -47,13 +48,12 @@ resolves CSS color
         *   `hexAlpha` is a hex color notation with alpha channel, i.e. `#rrggbbaa`
     *   `opt.key` **any?** key e.g. CSS property `background-color`
 
-Returns **([string][133]? | [Array][137])** returns one of `rgba?()`, `color(space r g b / a)`, `color(space x y z / a)`, `lab(l a b / A)`, `lch(l c h / a)`, `oklab(l a b / A)`, `oklch(l c h / a)`, `#rrggbb(aa)?`, `color-name?`, `null`, and, if `key` is specified, `[key, rgba?()]` etc.
-
+Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `'(empty-string)'`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `lab(l a b / alpha)`, `lch(l c h / alpha)`, `oklab(l a b / alpha)`, `oklch(l c h / alpha)`, `null`, or `[key, rgba?()]` etc. if `key` is specified
 *   in `computedValue`, values are numbers, however `rgb()` values are integers
 *   in `specifiedValue`, returns `empty string` for unknown and/or invalid color
 *   in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
-*   in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `a` is not a number
-*   in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `a` is not a number
+*   in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
+*   in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
 
 ### convert
 
@@ -78,9 +78,10 @@ convert color to hex
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[string][133]** #rrggbb|#rrggbbaa
+Returns **[string][133]** #rrggbb(aa)?
 
 ### convert.colorToHsl(value, opt)
 
@@ -90,9 +91,10 @@ convert color to hsl
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[h, s, l, a]
+Returns **[Array][137]<[number][134]>** \[h, s, l, alpha]
 
 ### convert.colorToHwb(value, opt)
 
@@ -102,9 +104,10 @@ convert color to hwb
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[h, w, b, a]
+Returns **[Array][137]<[number][134]>** \[h, w, b, alpha]
 
 ### convert.colorToLab(value, opt)
 
@@ -114,9 +117,10 @@ convert color to lab
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
+Returns **[Array][137]<[number][134]>** \[l, a, b, alpha]
 
 ### convert.colorToLch(value, opt)
 
@@ -126,9 +130,10 @@ convert color to lch
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
+Returns **[Array][137]<[number][134]>** \[l, c, h, alpha]
 
 ### convert.colorToOklab(value, opt)
 
@@ -138,9 +143,10 @@ convert color to oklab
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[l, a, b, aa]
+Returns **[Array][137]<[number][134]>** \[l, a, b, alpha]
 
 ### convert.colorToOklch(value, opt)
 
@@ -150,9 +156,10 @@ convert color to oklch
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[l, c, h, aa]
+Returns **[Array][137]<[number][134]>** \[l, c, h, alpha]
 
 ### convert.colorToRgb(value, opt)
 
@@ -162,9 +169,10 @@ convert color to rgb
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[r, g, b, a]
+Returns **[Array][137]<[number][134]>** \[r, g, b, alpha]
 
 ### convert.colorToXyz(value, opt)
 
@@ -174,10 +182,11 @@ convert color to xyz
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
     *   `opt.d50` **[boolean][136]?** xyz in d50 white point
 
-Returns **[Array][137]<[number][134]>** \[x, y, z, a]
+Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
 
 ### convert.colorToXyzD50(value, opt)
 
@@ -187,9 +196,10 @@ convert color to xyz-d50
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
 
-Returns **[Array][137]<[number][134]>** \[x, y, z, a]
+Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
 
 
 ---

@@ -31,7 +31,7 @@ export const cachedResults = new LRUCache({
  *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array}
- *   - returns one of rgba?(), #rrggbb(aa)?, color-name, '(empty-string)',
+ *   - one of rgba?(), #rrggbb(aa)?, color-name, '(empty-string)',
  *     color(color-space r g b / alpha), color(color-space x y z / alpha),
  *     lab(l a b / alpha), lch(l c h / alpha), oklab(l a b / alpha),
  *     oklch(l c h / alpha), null or [key, rgba?()] etc. if `key` is specified
