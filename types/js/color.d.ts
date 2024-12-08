@@ -161,7 +161,7 @@ export function reInsertMissingColorComponents(value: string, color?: any[]): Ar
 export function normalizeColorComponents(colorA: any[], colorB: any[], skip?: boolean): Array<Array<number>>;
 export function numberToHexString(value: number): string;
 export function angleToDeg(angle: string): number;
-export function parseAlpha(a?: string | null): number;
+export function parseAlpha(alpha?: string | null): number;
 export function parseHexAlpha(value: string): number;
 export function convertRgbToLinearRgb(rgb: Array<number>, skip?: boolean): Array<number>;
 export function convertRgbToXyz(rgb: Array<number>, skip?: boolean): Array<number>;
@@ -188,36 +188,36 @@ export function parseRgb(value: string, opt?: {
 }): Array<string | number> | string;
 export function parseHsl(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseHwb(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseLab(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseLch(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseOklab(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseOklch(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseColorFunc(value: string, opt?: {
     d50?: boolean;
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function parseColorValue(value: string, opt?: {
     d50?: boolean;
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function resolveColorValue(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function resolveColorFunc(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
 export function convertColorToLinearRgb(value: string, opt?: {
     format?: string;
 }): Array<number>;
@@ -248,4 +248,4 @@ export function convertColorToOklch(value: string, opt?: {
 }): Array<number>;
 export function resolveColorMix(value: string, opt?: {
     format?: string;
-}): Array<string | number> | string;
+}): Array<string | number> | (string | null);
