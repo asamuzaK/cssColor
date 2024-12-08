@@ -9,9 +9,10 @@ import {
 } from './color.js';
 import { getType, isString } from './common.js';
 import { cssVar } from './css-var.js';
+import { stringifyOptions } from './util.js';
 
 /* constants */
-import { FUNC_CALC, FUNC_VAR } from './constant.js';
+import { FUNC_CALC, FUNC_VAR, VAL_COMP, VAL_SPEC } from './constant.js';
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -47,14 +48,14 @@ export const resolve = (color, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(color)}.`);
   }
-  const cacheKey = `{resolve:${color},opt:${JSON.stringify(opt)}}`;
+  const cacheKey = `{resolve:${color},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
-  const { currentColor, format = 'computedValue', key } = opt;
+  const { currentColor, format = VAL_COMP, key } = opt;
   let cs, r, g, b, a;
   if (color.includes(FUNC_VAR)) {
-    if (format === 'specifiedValue') {
+    if (format === VAL_SPEC) {
       return color;
     }
     color = cssVar(color, opt);
@@ -76,10 +77,10 @@ export const resolve = (color, opt = {}) => {
   }
   if (color === 'transparent') {
     switch (format) {
-      case 'computedValue': {
+      case VAL_COMP: {
         return 'rgba(0, 0, 0, 0)';
       }
-      case 'specifiedValue': {
+      case VAL_SPEC: {
         return color;
       }
       case 'hex': {
@@ -96,7 +97,7 @@ export const resolve = (color, opt = {}) => {
       }
     }
   } else if (color === 'currentcolor') {
-    if (format === 'specifiedValue') {
+    if (format === VAL_SPEC) {
       return color;
     }
     if (currentColor) {
@@ -113,10 +114,10 @@ export const resolve = (color, opt = {}) => {
           format
         });
       }
-    } else if (format === 'computedValue') {
+    } else if (format === VAL_COMP) {
       return 'rgba(0, 0, 0, 0)';
     }
-  } else if (format === 'specifiedValue') {
+  } else if (format === VAL_SPEC) {
     if (color.startsWith('color-mix')) {
       return resolveColorMix(color, {
         format
@@ -224,7 +225,7 @@ export const resolve = (color, opt = {}) => {
       }
       break;
     }
-    case 'computedValue':
+    case VAL_COMP:
     default: {
       let value;
       switch (cs) {

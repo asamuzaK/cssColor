@@ -12,9 +12,10 @@ import {
 import { getType, isString } from './common.js';
 import { cssVar } from './css-var.js';
 import { resolve } from './resolve.js';
+import { stringifyOptions } from './util.js';
 
 /* constants */
-import { FUNC_CALC, FUNC_VAR } from './constant.js';
+import { FUNC_CALC, FUNC_VAR, VAL_COMP } from './constant.js';
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -36,7 +37,7 @@ export const preProcess = (value, opt = {}) => {
   } else {
     return null;
   }
-  const cacheKey = `{preProcess:${value}}`;
+  const cacheKey = `{preProcess:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -51,7 +52,7 @@ export const preProcess = (value, opt = {}) => {
   }
   if (value.startsWith('color-mix')) {
     value = resolve(value, {
-      format: 'computedValue'
+      format: VAL_COMP
     });
   }
   if (cacheKey) {
@@ -95,7 +96,7 @@ export const colorToHex = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToHex:${value},opt:${JSON.stringify(opt)}}`;
+  const cacheKey = `{colorToHex:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -133,7 +134,7 @@ export const colorToHsl = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToHsl:${value}}`;
+  const cacheKey = `{colorToHsl:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -161,7 +162,7 @@ export const colorToHwb = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToHwb:${value}}`;
+  const cacheKey = `{colorToHwb:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -189,7 +190,7 @@ export const colorToLab = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToLab:${value}}`;
+  const cacheKey = `{colorToLab:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -215,7 +216,7 @@ export const colorToLch = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToLch:${value}}`;
+  const cacheKey = `{colorToLch:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -241,7 +242,7 @@ export const colorToOklab = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToOklab:${value}}`;
+  const cacheKey = `{colorToOklab:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -267,7 +268,7 @@ export const colorToOklch = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToOklch:${value}}`;
+  const cacheKey = `{colorToOklch:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -293,7 +294,7 @@ export const colorToRgb = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToRgb:${value}}`;
+  const cacheKey = `{colorToRgb:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
@@ -320,7 +321,7 @@ export const colorToXyz = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToXyz:${value},opt:${JSON.stringify(opt)}}`;
+  const cacheKey = `{colorToXyz:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }

@@ -6,6 +6,7 @@ import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { getType, isString } from './common.js';
+import { stringifyOptions } from './util.js';
 
 /* constants */
 import { NAMED_COLORS } from './color.js';
@@ -188,7 +189,7 @@ export function cssVar(value, opt = {}) {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{cssVar:${value},opt:${JSON.stringify(opt)}}`;
+  const cacheKey = `{cssVar:${value},opt:${stringifyOptions(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
   }
