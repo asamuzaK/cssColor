@@ -31,16 +31,17 @@ export const cachedResults = new LRUCache({
  *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array}
- *   - returns one of rgba?(), color(space r g b / a), color(space x y z / a),
- *     lab(l a b / A), lch(l c h / a), oklab(l a b / A), oklch(l c h / a),
- *     #rrggbb(aa)?, null, and, if `key` is specified, [key, rgba?()] etc.
+ *   - returns one of rgba?(), #rrggbb(aa)?, color-name, '(empty-string)',
+ *     color(color-space r g b / alpha), color(color-space x y z / alpha),
+ *     lab(l a b / alpha), lch(l c h / alpha), oklab(l a b / alpha),
+ *     oklch(l c h / alpha), null or [key, rgba?()] etc. if `key` is specified
  *   - in `spec`, returned values are numbers, however rgb() values are integers
  *   - in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)`
  *     for unknown colors
  *   - in `hex`, `transparent` value is resolved as `null`, also returns `null`
- *     if any of `r`, `g`, `b`, `a` is not a number
+ *     if any of `r`, `g`, `b`, `alpha` is not a number
  *   - in `hexAlpha`, `transparent` resolves as `#00000000`, and returns `null`
- *     if any of `r`, `g`, `b`, `a` is not a number
+ *     if any of `r`, `g`, `b`, `alpha` is not a number
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
@@ -53,7 +54,7 @@ export const resolve = (color, opt = {}) => {
     return cachedResults.get(cacheKey);
   }
   const { currentColor, format = VAL_COMP, key } = opt;
-  let cs, r, g, b, a;
+  let cs, r, g, b, alpha;
   if (color.includes(FUNC_VAR)) {
     if (format === VAL_SPEC) {
       return color;
@@ -93,7 +94,7 @@ export const resolve = (color, opt = {}) => {
         r = 0;
         g = 0;
         b = 0;
-        a = 0;
+        alpha = 0;
       }
     }
   } else if (color === 'currentcolor') {
@@ -102,15 +103,15 @@ export const resolve = (color, opt = {}) => {
     }
     if (currentColor) {
       if (currentColor.startsWith('color-mix')) {
-        [cs, r, g, b, a] = resolveColorMix(currentColor, {
+        [cs, r, g, b, alpha] = resolveColorMix(currentColor, {
           format
         });
       } else if (currentColor.startsWith('color(')) {
-        [cs, r, g, b, a] = resolveColorFunc(currentColor, {
+        [cs, r, g, b, alpha] = resolveColorFunc(currentColor, {
           format
         });
       } else {
-        [cs, r, g, b, a] = resolveColorValue(currentColor, {
+        [cs, r, g, b, alpha] = resolveColorValue(currentColor, {
           format
         });
       }
@@ -123,13 +124,13 @@ export const resolve = (color, opt = {}) => {
         format
       });
     } else if (color.startsWith('color(')) {
-      [cs, r, g, b, a] = resolveColorFunc(color, {
+      [cs, r, g, b, alpha] = resolveColorFunc(color, {
         format
       });
-      if (a === 1) {
+      if (alpha === 1) {
         return `color(${cs} ${r} ${g} ${b})`;
       }
-      return `color(${cs} ${r} ${g} ${b} / ${a})`;
+      return `color(${cs} ${r} ${g} ${b} / ${alpha})`;
     } else {
       const rgb = resolveColorValue(color, {
         format
@@ -137,17 +138,17 @@ export const resolve = (color, opt = {}) => {
       if (!rgb) {
         return '';
       }
-      [cs, r, g, b, a] = rgb;
+      [cs, r, g, b, alpha] = rgb;
       if (cs === 'rgb') {
-        if (a === 1) {
+        if (alpha === 1) {
           return `${cs}(${r}, ${g}, ${b})`;
         }
-        return `${cs}a(${r}, ${g}, ${b}, ${a})`;
+        return `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
       }
-      if (a === 1) {
+      if (alpha === 1) {
         return `${cs}(${r} ${g} ${b})`;
       }
-      return `${cs}(${r} ${g} ${b} / ${a})`;
+      return `${cs}(${r} ${g} ${b} / ${alpha})`;
     }
   } else if (/currentcolor/.test(color)) {
     if (currentColor) {
@@ -157,27 +158,27 @@ export const resolve = (color, opt = {}) => {
       color = color.replace(/transparent/g, 'rgba(0, 0, 0, 0)');
     }
     if (color.startsWith('color-mix')) {
-      [cs, r, g, b, a] = resolveColorMix(color, {
+      [cs, r, g, b, alpha] = resolveColorMix(color, {
         format
       });
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, 'rgba(0, 0, 0, 0)');
     if (color.startsWith('color-mix')) {
-      [cs, r, g, b, a] = resolveColorMix(color, {
+      [cs, r, g, b, alpha] = resolveColorMix(color, {
         format
       });
     }
   } else if (color.startsWith('color-mix')) {
-    [cs, r, g, b, a] = resolveColorMix(color, {
+    [cs, r, g, b, alpha] = resolveColorMix(color, {
       format
     });
   } else if (color.startsWith('color(')) {
-    [cs, r, g, b, a] = resolveColorFunc(color, {
+    [cs, r, g, b, alpha] = resolveColorFunc(color, {
       format
     });
   } else if (color) {
-    [cs, r, g, b, a] = resolveColorValue(color, {
+    [cs, r, g, b, alpha] = resolveColorValue(color, {
       format
     });
   }
@@ -185,7 +186,7 @@ export const resolve = (color, opt = {}) => {
   switch (format) {
     case 'hex': {
       let hex;
-      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a) || a === 0) {
+      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha) || alpha === 0) {
         hex = null;
       } else {
         hex = convertRgbToHex([r, g, b]);
@@ -199,10 +200,10 @@ export const resolve = (color, opt = {}) => {
     }
     case 'hexAlpha': {
       let hex;
-      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(a)) {
+      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha)) {
         hex = null;
       } else {
-        hex = convertRgbToHex([r, g, b, a]);
+        hex = convertRgbToHex([r, g, b, alpha]);
       }
       if (key) {
         res = [key, hex];
@@ -213,10 +214,10 @@ export const resolve = (color, opt = {}) => {
     }
     case 'rgb': {
       let rgb;
-      if (a === 1) {
+      if (alpha === 1) {
         rgb = `rgb(${r}, ${g}, ${b})`;
       } else {
-        rgb = `rgba(${r}, ${g}, ${b}, ${a})`;
+        rgb = `rgba(${r}, ${g}, ${b}, ${alpha})`;
       }
       if (key) {
         res = [key, rgb];
@@ -230,10 +231,10 @@ export const resolve = (color, opt = {}) => {
       let value;
       switch (cs) {
         case 'rgb': {
-          if (a === 1) {
+          if (alpha === 1) {
             value = `${cs}(${r}, ${g}, ${b})`;
           } else {
-            value = `${cs}a(${r}, ${g}, ${b}, ${a})`;
+            value = `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
           }
           break;
         }
@@ -241,19 +242,19 @@ export const resolve = (color, opt = {}) => {
         case 'lch':
         case 'oklab':
         case 'oklch': {
-          if (a === 1) {
+          if (alpha === 1) {
             value = `${cs}(${r} ${g} ${b})`;
           } else {
-            value = `${cs}(${r} ${g} ${b} / ${a})`;
+            value = `${cs}(${r} ${g} ${b} / ${alpha})`;
           }
           break;
         }
         // color()
         default: {
-          if (a === 1) {
+          if (alpha === 1) {
             value = `color(${cs} ${r} ${g} ${b})`;
           } else {
-            value = `color(${cs} ${r} ${g} ${b} / ${a})`;
+            value = `color(${cs} ${r} ${g} ${b} / ${alpha})`;
           }
         }
       }

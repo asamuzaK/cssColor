@@ -121,7 +121,7 @@ export const colorToHex = (value, opt = {}) => {
  * convert color to hsl
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [h, s, l, a]
+ * @returns {Array.<number>} - [h, s, l, alpha]
  */
 export const colorToHsl = (value, opt = {}) => {
   if (isString(value)) {
@@ -149,7 +149,7 @@ export const colorToHsl = (value, opt = {}) => {
  * convert color to hwb
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [h, w, b, a]
+ * @returns {Array.<number>} - [h, w, b, alpha]
  */
 export const colorToHwb = (value, opt = {}) => {
   if (isString(value)) {
@@ -177,7 +177,7 @@ export const colorToHwb = (value, opt = {}) => {
  * convert color to lab
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [l, a, b, aa]
+ * @returns {Array.<number>} - [l, a, b, alpha]
  */
 export const colorToLab = (value, opt = {}) => {
   if (isString(value)) {
@@ -203,7 +203,7 @@ export const colorToLab = (value, opt = {}) => {
  * convert color to lch
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [l, c, h, aa]
+ * @returns {Array.<number>} - [l, c, h, alpha]
  */
 export const colorToLch = (value, opt = {}) => {
   if (isString(value)) {
@@ -229,7 +229,7 @@ export const colorToLch = (value, opt = {}) => {
  * convert color to oklab
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [l, a, b, aa]
+ * @returns {Array.<number>} - [l, a, b, alpha]
  */
 export const colorToOklab = (value, opt = {}) => {
   if (isString(value)) {
@@ -255,7 +255,7 @@ export const colorToOklab = (value, opt = {}) => {
  * convert color to oklch
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [l, c, h, aa]
+ * @returns {Array.<number>} - [l, c, h, alpha]
  */
 export const colorToOklch = (value, opt = {}) => {
   if (isString(value)) {
@@ -281,7 +281,7 @@ export const colorToOklch = (value, opt = {}) => {
  * convert color to rgb
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [r, g, b, a]
+ * @returns {Array.<number>} - [r, g, b, alpha]
  */
 export const colorToRgb = (value, opt = {}) => {
   if (isString(value)) {
@@ -308,7 +308,7 @@ export const colorToRgb = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.d50] - xyz in d50 white point
- * @returns {Array.<number>} - [x, y, z, a]
+ * @returns {Array.<number>} - [x, y, z, alpha]
  */
 export const colorToXyz = (value, opt = {}) => {
   if (isString(value)) {
@@ -339,7 +339,7 @@ export const colorToXyz = (value, opt = {}) => {
  * convert color to xyz-d50
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @returns {Array.<number>} - [x, y, z, a]
+ * @returns {Array.<number>} - [x, y, z, alpha]
  */
 export const colorToXyzD50 = (value, opt = {}) => {
   opt.d50 = true;
