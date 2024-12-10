@@ -30,6 +30,59 @@ describe('stringify options', () => {
   });
 
   it('should get result', () => {
+    const res = func({
+      foo: 'bar',
+      map: new Map([['key1', 1], ['key2', true], ['key1', 3]]),
+      set: new Set([1, 'baz', 3, 2, 3, 'baz']),
+    });
+    assert.strictEqual(res,
+      '{"foo":"bar","map":[["key1",3],["key2",true]],"set":[1,"baz",3,2]}',
+      'result');
+  });
+
+  it('should get result', () => {
+    const res = func({
+      foo: 'bar',
+      func: () => {}
+    });
+    assert.strictEqual(res, '{"foo":"bar","func":"func"}', 'result');
+  });
+
+  it('should get result', () => {
+    const res = func({
+      foo: 'bar',
+      func: () => {}
+    }, true);
+    assert.strictEqual(res, '{"foo":"bar","func":"() => {}"}', 'result');
+  });
+
+  it('should get result', () => {
+    const myCallback = () => {};
+    const res = func({
+      foo: 'bar',
+      func: myCallback
+    });
+    assert.strictEqual(res, '{"foo":"bar","func":"myCallback"}', 'result');
+  });
+
+  it('should get result', () => {
+    const myCallback = () => {};
+    const res = func({
+      foo: 'bar',
+      func: myCallback
+    }, true);
+    assert.strictEqual(res, '{"foo":"bar","func":"() => {}"}', 'result');
+  });
+
+  it('should get result', () => {
+    const res = func({
+      foo: 'bar',
+      big: 1n
+    });
+    assert.strictEqual(res, '{"foo":"bar","big":"1"}', 'result');
+  });
+
+  it('should get result', () => {
     const opt = {
       foo: 'bar',
       cssCalc: {
