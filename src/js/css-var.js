@@ -75,9 +75,13 @@ export function resolveCssVariable(tokens, opt = {}) {
       }
     } else if (type === IDENT) {
       if (value.startsWith('--')) {
-        const item = customProperty[value];
-        if (item) {
-          items.push(item);
+        if (Object.hasOwnProperty.call(customProperty, value)) {
+          items.push(customProperty[value]);
+        } else if (typeof customProperty.callback === 'function') {
+          const item = customProperty.callback(value);
+          if (item) {
+            items.push(item);
+          }
         }
       } else if (value) {
         items.push(value);

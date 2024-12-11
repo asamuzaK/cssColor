@@ -135,6 +135,80 @@ describe('resolve CSS variable', () => {
   });
 
   it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func([
+      ['ident-token', '--foo'],
+      ['comma-token', ','],
+      ['whitespace-token', ' '],
+      ['ident-token', 'red'],
+      [')-token', ')'],
+      [')-token', ')']
+    ], {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.deepEqual(res, [
+      [
+        [
+          ')-token',
+          ')'
+        ]
+      ],
+      'blue'
+    ], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func([
+      ['ident-token', '--foo'],
+      ['comma-token', ','],
+      ['whitespace-token', ' '],
+      ['ident-token', 'red'],
+      [')-token', ')'],
+      [')-token', ')']
+    ], {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.deepEqual(res, [
+      [
+        [
+          ')-token',
+          ')'
+        ]
+      ],
+      'red'
+    ], 'result');
+  });
+
+  it('should get value', () => {
     const res = func([
       ['ident-token', '--FOO'],
       ['comma-token', ','],
