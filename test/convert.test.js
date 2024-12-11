@@ -39,13 +39,38 @@ describe('pre process', () => {
     assert.strictEqual(res, null, 'result');
   });
 
-  it('should get null', () => {
+  it('should get value', () => {
     const res = func('var(--foo)', {
       customProperty: {
         '--foo': 'red'
       }
     });
     assert.strictEqual(res, 'red', 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--foo)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, 'blue', 'result');
   });
 
   it('should get value', () => {
@@ -188,6 +213,38 @@ describe('convert color to hex', () => {
     });
     assert.strictEqual(res2, '#008000', 'result');
   });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, '#008000', 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res2, '#008000', 'result');
+  });
 });
 
 describe('convert color to hsl', () => {
@@ -216,6 +273,40 @@ describe('convert color to hsl', () => {
     assert.deepEqual(res, [120, 100, 25, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
+    res2[2] = Math.round(res2[2]);
+    assert.deepEqual(res2, [120, 100, 25, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[2] = Math.round(res[2]);
+    assert.deepEqual(res, [120, 100, 25, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
     res2[2] = Math.round(res2[2]);
     assert.deepEqual(res2, [120, 100, 25, 1], 'result');
   });
@@ -250,6 +341,40 @@ describe('convert color to hwb', () => {
     res2[2] = Math.round(res2[2]);
     assert.deepEqual(res2, [120, 0, 50, 1], 'result');
   });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[2] = Math.round(res[2]);
+    assert.deepEqual(res, [120, 0, 50, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res2[2] = Math.round(res2[2]);
+    assert.deepEqual(res2, [120, 0, 50, 1], 'result');
+  });
 });
 
 describe('convert color to lab', () => {
@@ -280,6 +405,82 @@ describe('convert color to lab', () => {
     assert.deepEqual(res, [46.1022, -47.41821, 48.44932, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [46.1022, -47.41821, 48.44932, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [46.27776, -47.55263, 48.5864, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [46.27776, -47.55263, 48.5864, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'color(srgb 0 0.5 0)';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [46.1022, -47.41821, 48.44932, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
@@ -320,6 +521,44 @@ describe('convert color to lch', () => {
     res2[2] = parseFloat(res2[2].toFixed(5));
     assert.deepEqual(res2, [46.1022, 67.7925, 134.38377, 1], 'result');
   });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [46.27776, 67.98449, 134.38393, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [46.27776, 67.98449, 134.38393, 1], 'result');
+  });
 });
 
 describe('convert color to oklab', () => {
@@ -354,6 +593,44 @@ describe('convert color to oklab', () => {
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
     assert.deepEqual(res2, [0.51829, -0.13991, 0.10737, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [0.51975, -0.1403, 0.10768, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [0.51975, -0.1403, 0.10768, 1], 'result');
   });
 });
 
@@ -390,6 +667,44 @@ describe('convert color to oklch', () => {
     res2[2] = parseFloat(res2[2].toFixed(5));
     assert.deepEqual(res2, [0.51829, 0.17636, 142.49542, 1], 'result');
   });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res[0] = parseFloat(res[0].toFixed(5));
+    res[1] = parseFloat(res[1].toFixed(5));
+    res[2] = parseFloat(res[2].toFixed(5));
+    assert.deepEqual(res, [0.51975, 0.17686, 142.49541, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    res2[0] = parseFloat(res2[0].toFixed(5));
+    res2[1] = parseFloat(res2[1].toFixed(5));
+    res2[2] = parseFloat(res2[2].toFixed(5));
+    assert.deepEqual(res2, [0.51975, 0.17686, 142.49541, 1], 'result');
+  });
 });
 
 describe('convert color to rgb', () => {
@@ -418,6 +733,38 @@ describe('convert color to rgb', () => {
 
     const res2 = func('color(srgb 0 0.5 0)');
     assert.deepEqual(res2, [0, 127.5, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.deepEqual(res, [0, 128, 0, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.deepEqual(res2, [0, 128, 0, 1], 'result');
   });
 });
 
@@ -459,6 +806,38 @@ describe('convert color to xyz', () => {
       d50: true
     });
     assert.deepEqual(res2, [0.0824383, 0.153443, 0.0207794, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.deepEqual(res, [0.0771883, 0.154377, 0.0257294, 1], 'result');
+
+    const res2 = func('var(--bar)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.deepEqual(res2, [0.0771883, 0.154377, 0.0257294, 1], 'result');
   });
 
   it('should get value', () => {

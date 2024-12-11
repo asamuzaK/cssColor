@@ -13,6 +13,7 @@ import { stringifyOptions } from './util.js';
 
 /* constants */
 import { FUNC_CALC, FUNC_VAR, VAL_COMP, VAL_SPEC } from './constant.js';
+const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -25,6 +26,12 @@ export const cachedResults = new LRUCache({
  *   - system colors are not supported
  * @param {object} [opt] - options
  * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
+ * @param {object} [opt.customProperty]
+ *   - custom properties
+ *   - pair of `--` prefixed property name and value,
+ *     e.g. `customProperty: { '--some-color': '#0000ff' }`
+ *   - and/or callback function to get the value of custom property,
+ *     e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
  * @param {string} [opt.format]
  *   - output format, one of `computedValue` (default), `specifiedValue`,
  *     `rgb`, `hex`, `hexAlpha`
@@ -49,14 +56,21 @@ export const resolve = (color, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(color)}.`);
   }
-  const cacheKey = `{resolve:${color},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { currentColor, customProperty, format = VAL_COMP, key } = opt;
+  let cacheKey;
+  if (!color.includes(FUNC_VAR) ||
+      typeof customProperty?.callback !== 'function') {
+    cacheKey = `{resolve:${color},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
-  const { currentColor, format = VAL_COMP, key } = opt;
-  let cs, r, g, b, alpha;
+  let res, cs, r, g, b, alpha;
   if (color.includes(FUNC_VAR)) {
     if (format === VAL_SPEC) {
+      if (cacheKey) {
+        cachedResults.set(cacheKey, color);
+      }
       return color;
     }
     color = cssVar(color, opt);
@@ -64,10 +78,17 @@ export const resolve = (color, opt = {}) => {
       switch (format) {
         case 'hex':
         case 'hexAlpha': {
+          if (cacheKey) {
+            cachedResults.set(cacheKey, null);
+          }
           return null;
         }
         default: {
-          return 'rgba(0, 0, 0, 0)';
+          res = RGB_TRANSPARENT;
+          if (cacheKey) {
+            cachedResults.set(cacheKey, res);
+          }
+          return res;
         }
       }
     }
@@ -79,16 +100,30 @@ export const resolve = (color, opt = {}) => {
   if (color === 'transparent') {
     switch (format) {
       case VAL_COMP: {
-        return 'rgba(0, 0, 0, 0)';
+        res = RGB_TRANSPARENT;
+        if (cacheKey) {
+          cachedResults.set(cacheKey, res);
+        }
+        return res;
       }
       case VAL_SPEC: {
+        if (cacheKey) {
+          cachedResults.set(cacheKey, color);
+        }
         return color;
       }
       case 'hex': {
+        if (cacheKey) {
+          cachedResults.set(cacheKey, null);
+        }
         return null;
       }
       case 'hexAlpha': {
-        return '#00000000';
+        res = '#00000000';
+        if (cacheKey) {
+          cachedResults.set(cacheKey, res);
+        }
+        return res;
       }
       default: {
         r = 0;
@@ -99,6 +134,9 @@ export const resolve = (color, opt = {}) => {
     }
   } else if (color === 'currentcolor') {
     if (format === VAL_SPEC) {
+      if (cacheKey) {
+        cachedResults.set(cacheKey, color);
+      }
       return color;
     }
     if (currentColor) {
@@ -116,46 +154,73 @@ export const resolve = (color, opt = {}) => {
         });
       }
     } else if (format === VAL_COMP) {
-      return 'rgba(0, 0, 0, 0)';
+      res = RGB_TRANSPARENT;
+      if (cacheKey) {
+        cachedResults.set(cacheKey, res);
+      }
+      return res;
     }
   } else if (format === VAL_SPEC) {
     if (color.startsWith('color-mix')) {
-      return resolveColorMix(color, {
+      res = resolveColorMix(color, {
         format
       });
+      if (cacheKey) {
+        cachedResults.set(cacheKey, res);
+      }
+      return res;
     } else if (color.startsWith('color(')) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, {
         format
       });
       if (alpha === 1) {
-        return `color(${cs} ${r} ${g} ${b})`;
+        res = `color(${cs} ${r} ${g} ${b})`;
+      } else {
+        res = `color(${cs} ${r} ${g} ${b} / ${alpha})`;
       }
-      return `color(${cs} ${r} ${g} ${b} / ${alpha})`;
+      if (cacheKey) {
+        cachedResults.set(cacheKey, res);
+      }
+      return res;
     } else {
       const rgb = resolveColorValue(color, {
         format
       });
       if (!rgb) {
-        return '';
+        res = '';
+        if (cacheKey) {
+          cachedResults.set(cacheKey, res);
+        }
+        return res;
       }
       [cs, r, g, b, alpha] = rgb;
       if (cs === 'rgb') {
         if (alpha === 1) {
-          return `${cs}(${r}, ${g}, ${b})`;
+          res = `${cs}(${r}, ${g}, ${b})`;
+        } else {
+          res = `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
         }
-        return `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
+        if (cacheKey) {
+          cachedResults.set(cacheKey, res);
+        }
+        return res;
       }
       if (alpha === 1) {
-        return `${cs}(${r} ${g} ${b})`;
+        res = `${cs}(${r} ${g} ${b})`;
+      } else {
+        res = `${cs}(${r} ${g} ${b} / ${alpha})`;
       }
-      return `${cs}(${r} ${g} ${b} / ${alpha})`;
+      if (cacheKey) {
+        cachedResults.set(cacheKey, res);
+      }
+      return res;
     }
   } else if (/currentcolor/.test(color)) {
     if (currentColor) {
       color = color.replace(/currentcolor/g, currentColor);
     }
     if (/transparent/.test(color)) {
-      color = color.replace(/transparent/g, 'rgba(0, 0, 0, 0)');
+      color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
     if (color.startsWith('color-mix')) {
       [cs, r, g, b, alpha] = resolveColorMix(color, {
@@ -163,7 +228,7 @@ export const resolve = (color, opt = {}) => {
       });
     }
   } else if (/transparent/.test(color)) {
-    color = color.replace(/transparent/g, 'rgba(0, 0, 0, 0)');
+    color = color.replace(/transparent/g, RGB_TRANSPARENT);
     if (color.startsWith('color-mix')) {
       [cs, r, g, b, alpha] = resolveColorMix(color, {
         format
@@ -182,7 +247,6 @@ export const resolve = (color, opt = {}) => {
       format
     });
   }
-  let res;
   switch (format) {
     case 'hex': {
       let hex;
@@ -265,6 +329,8 @@ export const resolve = (color, opt = {}) => {
       }
     }
   }
-  cachedResults.set(cacheKey, res);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, res);
+  }
   return res;
 };

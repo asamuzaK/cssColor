@@ -75,9 +75,13 @@ export function resolveCssVariable(tokens, opt = {}) {
       }
     } else if (type === IDENT) {
       if (value.startsWith('--')) {
-        const item = customProperty[value];
-        if (item) {
-          items.push(item);
+        if (Object.hasOwnProperty.call(customProperty, value)) {
+          items.push(customProperty[value]);
+        } else if (typeof customProperty.callback === 'function') {
+          const item = customProperty.callback(value);
+          if (item) {
+            items.push(item);
+          }
         }
       } else if (value) {
         items.push(value);
@@ -178,6 +182,7 @@ export function parseTokens(tokens, opt = {}) {
  * resolve CSS var()
  * @param {string} value - color value including var()
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {?string} - value
  */
 export function cssVar(value, opt = {}) {
@@ -189,9 +194,13 @@ export function cssVar(value, opt = {}) {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{cssVar:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{cssVar:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
@@ -200,10 +209,14 @@ export function cssVar(value, opt = {}) {
     if (color.includes(FUNC_CALC)) {
       color = calc(color, opt);
     }
-    cachedResults.set(cacheKey, color);
+    if (cacheKey) {
+      cachedResults.set(cacheKey, color);
+    }
     return color;
   } else {
-    cachedResults.set(cacheKey, null);
+    if (cacheKey) {
+      cachedResults.set(cacheKey, null);
+    }
     return null;
   }
 }

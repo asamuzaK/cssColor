@@ -39,6 +39,38 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res, 'var(--foo)', 'result');
   });
 
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--foo)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, 'rgb(0, 0, 255)', 'result');
+
+    const res2 = func('var(--foo)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res2, 'rgb(0, 0, 255)', 'result');
+  });
+
   it('should get null', () => {
     const res = func('var(--foo)', {
       format: 'hex'
