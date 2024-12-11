@@ -684,20 +684,13 @@ describe('resolve CSS var()', () => {
   });
 
   it('should get value', () => {
+    const colorMap = {
+      '--foo': 'blue',
+      '--bar': 'green',
+      '--baz': 'yellow'
+    };
     const getPropertyValue = v => {
-      let res;
-      switch (v) {
-        case '--foo':
-          res = 'blue';
-          break;
-        case '--bar':
-          res = 'green';
-          break;
-        case '--baz':
-          res = 'yellow';
-          break;
-        default:
-      }
+      const res = colorMap[v];
       return res;
     };
     const res = func('var(--qux, red)', {
@@ -707,12 +700,21 @@ describe('resolve CSS var()', () => {
     });
     assert.strictEqual(res, 'red', 'result');
 
+    colorMap['--qux'] = 'cyan';
     const res2 = func('var(--qux, red)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res2, 'red', 'result');
+    assert.strictEqual(res2, 'cyan', 'result');
+
+    colorMap['--qux'] = 'teal';
+    const res3 = func('var(--qux, red)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res3, 'teal', 'result');
   });
 
   it('should get value', () => {
