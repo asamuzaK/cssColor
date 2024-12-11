@@ -304,7 +304,6 @@ describe('resolve CSS variable', () => {
     ], 'result');
   });
 
-  // skip later
   it('should get value', () => {
     const res = func([
       ['ident-token', '--foo'],
@@ -647,6 +646,70 @@ describe('resolve CSS var()', () => {
     const res2 = func('var(--foo)', {
       customProperty: {
         '--foo': 'red'
+      }
+    });
+    assert.strictEqual(res2, 'red', 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--foo)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, 'blue', 'result');
+
+    const res2 = func('var(--foo)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res2, 'blue', 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--qux, red)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, 'red', 'result');
+
+    const res2 = func('var(--qux, red)', {
+      customProperty: {
+        callback: getPropertyValue
       }
     });
     assert.strictEqual(res2, 'red', 'result');

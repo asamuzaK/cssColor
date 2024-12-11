@@ -26,6 +26,7 @@ export const cachedResults = new LRUCache({
  * pre process
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {?string} - value
  */
 export const preProcess = (value, opt = {}) => {
@@ -37,13 +38,20 @@ export const preProcess = (value, opt = {}) => {
   } else {
     return null;
   }
-  const cacheKey = `{preProcess:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{preProcess:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   if (value.includes(FUNC_VAR)) {
     value = cssVar(value, opt);
     if (!value) {
+      if (cacheKey) {
+        cachedResults.set(cacheKey, null);
+      }
       return null;
     }
   }
@@ -83,6 +91,7 @@ export const numberToHex = value => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {boolean} [opt.alpha] - return in #rrggbbaa notation
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {?string} - #rrggbb | #rrggbbaa | null
  */
 export const colorToHex = (value, opt = {}) => {
@@ -96,11 +105,14 @@ export const colorToHex = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToHex:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { alpha, customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToHex:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
-  const { alpha } = opt;
   let hex;
   if (alpha) {
     hex = resolve(value, {
@@ -121,6 +133,7 @@ export const colorToHex = (value, opt = {}) => {
  * convert color to hsl
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [h, s, l, alpha]
  */
 export const colorToHsl = (value, opt = {}) => {
@@ -134,14 +147,20 @@ export const colorToHsl = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToHsl:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToHsl:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const hsl = convertColorToHsl(value, {
     format: 'hsl'
   });
-  cachedResults.set(cacheKey, hsl);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, hsl);
+  }
   return hsl;
 };
 
@@ -149,6 +168,7 @@ export const colorToHsl = (value, opt = {}) => {
  * convert color to hwb
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [h, w, b, alpha]
  */
 export const colorToHwb = (value, opt = {}) => {
@@ -162,9 +182,13 @@ export const colorToHwb = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToHwb:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToHwb:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const hwb = convertColorToHwb(value, {
     format: 'hwb'
@@ -177,6 +201,7 @@ export const colorToHwb = (value, opt = {}) => {
  * convert color to lab
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [l, a, b, alpha]
  */
 export const colorToLab = (value, opt = {}) => {
@@ -190,12 +215,18 @@ export const colorToLab = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToLab:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToLab:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const lab = convertColorToLab(value);
-  cachedResults.set(cacheKey, lab);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, lab);
+  }
   return lab;
 };
 
@@ -203,6 +234,7 @@ export const colorToLab = (value, opt = {}) => {
  * convert color to lch
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [l, c, h, alpha]
  */
 export const colorToLch = (value, opt = {}) => {
@@ -216,12 +248,18 @@ export const colorToLch = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToLch:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToLch:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const lch = convertColorToLch(value);
-  cachedResults.set(cacheKey, lch);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, lch);
+  }
   return lch;
 };
 
@@ -229,6 +267,7 @@ export const colorToLch = (value, opt = {}) => {
  * convert color to oklab
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [l, a, b, alpha]
  */
 export const colorToOklab = (value, opt = {}) => {
@@ -242,12 +281,18 @@ export const colorToOklab = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToOklab:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToOklab:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const lab = convertColorToOklab(value);
-  cachedResults.set(cacheKey, lab);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, lab);
+  }
   return lab;
 };
 
@@ -255,6 +300,7 @@ export const colorToOklab = (value, opt = {}) => {
  * convert color to oklch
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [l, c, h, alpha]
  */
 export const colorToOklch = (value, opt = {}) => {
@@ -268,12 +314,18 @@ export const colorToOklch = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToOklch:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToOklch:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const lch = convertColorToOklch(value);
-  cachedResults.set(cacheKey, lch);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, lch);
+  }
   return lch;
 };
 
@@ -281,6 +333,7 @@ export const colorToOklch = (value, opt = {}) => {
  * convert color to rgb
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [r, g, b, alpha]
  */
 export const colorToRgb = (value, opt = {}) => {
@@ -294,12 +347,18 @@ export const colorToRgb = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToRgb:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToRgb:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   const rgb = convertColorToRgb(value);
-  cachedResults.set(cacheKey, rgb);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, rgb);
+  }
   return rgb;
 };
 
@@ -307,7 +366,7 @@ export const colorToRgb = (value, opt = {}) => {
  * convert color to xyz
  * @param {string} value - color value
  * @param {object} [opt] - options
- * @param {boolean} [opt.d50] - xyz in d50 white point
+ * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<number>} - [x, y, z, alpha]
  */
 export const colorToXyz = (value, opt = {}) => {
@@ -321,9 +380,13 @@ export const colorToXyz = (value, opt = {}) => {
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const cacheKey = `{colorToXyz:${value},opt:${stringifyOptions(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+  const { customProperty } = opt;
+  let cacheKey;
+  if (typeof customProperty?.callback !== 'function') {
+    cacheKey = `{colorToXyz:${value},opt:${stringifyOptions(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey);
+    }
   }
   let xyz;
   if (value.startsWith('color(')) {
@@ -331,7 +394,9 @@ export const colorToXyz = (value, opt = {}) => {
   } else {
     [, ...xyz] = parseColorValue(value, opt);
   }
-  cachedResults.set(cacheKey, xyz);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, xyz);
+  }
   return xyz;
 };
 
