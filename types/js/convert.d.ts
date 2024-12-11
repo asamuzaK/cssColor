@@ -1,18 +1,35 @@
 export const cachedResults: LRUCache<{}, {}, unknown>;
-export function preProcess(value: string, opt?: object): string | null;
+export function preProcess(value: string, opt?: {
+    customProperty?: object;
+}): string | null;
 export function numberToHex(value: number): string;
 export function colorToHex(value: string, opt?: {
     alpha?: boolean;
+    customProperty?: object;
 }): string | null;
-export function colorToHsl(value: string, opt?: object): Array<number>;
-export function colorToHwb(value: string, opt?: object): Array<number>;
-export function colorToLab(value: string, opt?: object): Array<number>;
-export function colorToLch(value: string, opt?: object): Array<number>;
-export function colorToOklab(value: string, opt?: object): Array<number>;
-export function colorToOklch(value: string, opt?: object): Array<number>;
-export function colorToRgb(value: string, opt?: object): Array<number>;
+export function colorToHsl(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
+export function colorToHwb(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
+export function colorToLab(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
+export function colorToLch(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
+export function colorToOklab(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
+export function colorToOklch(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
+export function colorToRgb(value: string, opt?: {
+    customProperty?: object;
+}): Array<number>;
 export function colorToXyz(value: string, opt?: {
-    d50?: boolean;
+    customProperty?: object;
 }): Array<number>;
 export function colorToXyzD50(value: string, opt?: object): Array<number>;
 export namespace convert {
