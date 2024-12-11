@@ -41,7 +41,9 @@ resolves CSS color
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
     *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties, pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
+    *   `opt.customProperty` **[object][135]?** custom properties
+        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
+        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
     *   `opt.format` **[string][133]?** output format, one of `computedValue` (default), `specifiedValue`, `rgb`, `hex`, `hexAlpha`
         *   `computedValue` is a [computed value][139] of the color
         *   `specifiedValue` is a [specified value][140] of the color
