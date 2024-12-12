@@ -1724,6 +1724,7 @@ export const parseOklch = (value, opt = {}) => {
  * parse color()
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.colorSpace] - color space
  * @param {boolean} [opt.d50] - xyz in d50 white point
  * @param {string} [opt.format] - output format
  * @returns {Array.<string|number>|?string}
@@ -2043,6 +2044,7 @@ export const parseColorValue = (value, opt = {}) => {
  * resolve color value
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.colorSpace] - color space
  * @param {string} [opt.format] - output format
  * @returns {Array.<string|number>|?string}
  *   - [cs, v1, v2, v3, alpha], value, '(empty)', null
@@ -2163,6 +2165,7 @@ export const resolveColorValue = (value, opt = {}) => {
  * resolve color()
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.colorSpace] - color space
  * @param {string} [opt.format] - output format
  * @returns {Array.<string|number>|?string}
  *   - [cs, v1, v2, v3, alpha], '(empty)', null
@@ -2213,6 +2216,7 @@ export const resolveColorFunc = (value, opt = {}) => {
  * convert color value to linear rgb
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {string} [opt.colorSpace] - color space
  * @param {string} [opt.format] - output format
  * @returns {Array.<number>} - [r, g, b, alpha] r|g|b|alpha: 0..1
  */
