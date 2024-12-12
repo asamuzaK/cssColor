@@ -815,12 +815,12 @@ describe('resolve CSS color', () => {
     const res = func('color-mix(in srgb, color-mix(in srgb, currentColor, blue), color-mix(in srgb, transparent, #008000))', {
       currentColor: 'rgb(255 0 0)'
     });
-    assert.strictEqual(res, 'color(srgb 0.334641 0.16732 0.334641 / 0.75)',
+    assert.strictEqual(res, 'color(srgb 0.333333 0.16732 0.333333 / 0.75)',
       'result');
     const res2 = func('color-mix(in srgb, color-mix(in srgb, currentColor, blue), color-mix(in srgb, transparent, #008000))', {
       currentColor: 'rgb(255 0 0)'
     });
-    assert.strictEqual(res2, 'color(srgb 0.334641 0.16732 0.334641 / 0.75)',
+    assert.strictEqual(res2, 'color(srgb 0.333333 0.16732 0.333333 / 0.75)',
       'result');
   });
 
