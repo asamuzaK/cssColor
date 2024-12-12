@@ -157,7 +157,6 @@ export function validateColorComponents(arr: any[], opt?: {
     validateRange?: boolean;
 }): any[];
 export function transformMatrix(mtx: Array<Array<number>>, vct: Array<number>, skip?: boolean): Array<number>;
-export function reInsertMissingColorComponents(value: string, color?: any[]): Array<number | string>;
 export function normalizeColorComponents(colorA: any[], colorB: any[], skip?: boolean): Array<Array<number>>;
 export function numberToHexString(value: number): string;
 export function angleToDeg(angle: string): number;
@@ -205,6 +204,7 @@ export function parseOklch(value: string, opt?: {
     format?: string;
 }): Array<string | number> | (string | null);
 export function parseColorFunc(value: string, opt?: {
+    colorSpace?: string;
     d50?: boolean;
     format?: string;
 }): Array<string | number> | (string | null);
@@ -213,12 +213,15 @@ export function parseColorValue(value: string, opt?: {
     format?: string;
 }): Array<string | number> | (string | null);
 export function resolveColorValue(value: string, opt?: {
+    colorSpace?: string;
     format?: string;
 }): Array<string | number> | (string | null);
 export function resolveColorFunc(value: string, opt?: {
+    colorSpace?: string;
     format?: string;
 }): Array<string | number> | (string | null);
 export function convertColorToLinearRgb(value: string, opt?: {
+    colorSpace?: string;
     format?: string;
 }): Array<number>;
 export function convertColorToRgb(value: string, opt?: {
