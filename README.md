@@ -20,8 +20,8 @@ npm i @asamuzakjp/css-color
 import { convert, resolve } from '@asamuzakjp/css-color';
 
 const resolvedValue =
-  resolve('color-mix(in oklab, rgb(255 0 0), color(srgb 0 0.5 0 / 0.5))');
-// 'oklab(0.5914 0.103273 0.119688 / 0.75)'
+  resolve('color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))');
+// 'oklab(0.620754 -0.0931934 -0.00374881)'
 
 const convertedValue = covert.colorToHex('lab(46.2775% -47.5621 48.5837)');
 // '#008000'
@@ -40,7 +40,7 @@ resolves CSS color
 
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -80,7 +80,7 @@ convert color to hex
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
     *   `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -95,7 +95,7 @@ convert color to hsl
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -110,7 +110,7 @@ convert color to hwb
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -125,7 +125,7 @@ convert color to lab
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -140,7 +140,7 @@ convert color to lch
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -155,7 +155,7 @@ convert color to oklab
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -170,7 +170,7 @@ convert color to oklch
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -185,7 +185,7 @@ convert color to rgb
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -200,7 +200,7 @@ convert color to xyz
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -216,7 +216,7 @@ convert color to xyz-d50
 
 *   `value` **[string][133]** color value
 *   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc](https://www.npmjs.com/package/@csstools/css-calc), e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
     *   `opt.customProperty` **[object][135]?** custom properties
         *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
         *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
@@ -242,3 +242,5 @@ Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
 [139]: https://developer.mozilla.org/en-US/docs/Web/CSS/computed_value
 
 [140]: https://developer.mozilla.org/en-US/docs/Web/CSS/specified_value
+
+[141]: https://www.npmjs.com/package/@csstools/css-calc
