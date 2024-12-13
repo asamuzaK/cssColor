@@ -1,1 +1,1 @@
-export function stringifyOptions(opt?: object, func?: boolean): string;
+export function valueToJsonString(value: any, func?: boolean): string;
