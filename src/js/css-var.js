@@ -6,7 +6,7 @@ import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { getType, isString } from './common.js';
-import { stringifyOptions } from './util.js';
+import { valueToJsonString } from './util.js';
 
 /* constants */
 import { NAMED_COLORS } from './color.js';
@@ -195,7 +195,7 @@ export function cssVar(value, opt = {}) {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{cssVar:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }

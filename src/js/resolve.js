@@ -9,7 +9,7 @@ import {
 } from './color.js';
 import { getType, isString } from './common.js';
 import { cssVar } from './css-var.js';
-import { stringifyOptions } from './util.js';
+import { valueToJsonString } from './util.js';
 
 /* constants */
 import {
@@ -62,7 +62,7 @@ export const resolve = (color, opt = {}) => {
   let cacheKey;
   if (!color.includes(FUNC_VAR) ||
       typeof customProperty?.callback !== 'function') {
-    cacheKey = `{resolve:${color},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }

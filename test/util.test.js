@@ -9,12 +9,17 @@ import { describe, it } from 'mocha';
 /* test */
 import * as util from '../src/js/util.js';
 
-describe('stringify options', () => {
-  const func = util.stringifyOptions;
+describe('value to JSON string', () => {
+  const func = util.valueToJsonString;
 
   it('should get result', () => {
     const res = func();
-    assert.strictEqual(res, '{}', 'result');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get result', () => {
+    const res = func(null);
+    assert.strictEqual(res, 'null', 'result');
   });
 
   it('should get result', () => {
@@ -24,9 +29,10 @@ describe('stringify options', () => {
 
   it('should get result', () => {
     const res = func({
-      foo: 'bar'
+      foo: 'bar',
+      baz: undefined
     });
-    assert.strictEqual(res, '{"foo":"bar"}', 'result');
+    assert.strictEqual(res, '{"foo":"bar","baz":null}', 'result');
   });
 
   it('should get result', () => {

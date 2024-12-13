@@ -3,26 +3,31 @@
  */
 
 /**
- * stringify options
- * @param {object} opt - options
+ * value to JSON string
+ * @param {*} value - value
  * @param {boolean} func - stringify function
- * @returns {string} - stringified options
+ * @returns {string} - stringified value in JSON notation
  */
-export const stringifyOptions = (opt = {}, func = false) => {
-  const res = JSON.stringify(opt, (key, value) => {
+export const valueToJsonString = (value, func = false) => {
+  if (typeof value === 'undefined') {
+    return '';
+  }
+  const res = JSON.stringify(value, (key, val) => {
     let replacedValue;
-    if (typeof value === 'function') {
+    if (typeof val === 'undefined') {
+      replacedValue = null;
+    } else if (typeof val === 'function') {
       if (func) {
-        replacedValue = value.toString();
+        replacedValue = val.toString();
       } else {
-        replacedValue = value.name;
+        replacedValue = val.name;
       }
-    } else if (value instanceof Map || value instanceof Set) {
-      replacedValue = [...value];
-    } else if (typeof value === 'bigint') {
-      replacedValue = value.toString();
+    } else if (val instanceof Map || val instanceof Set) {
+      replacedValue = [...val];
+    } else if (typeof val === 'bigint') {
+      replacedValue = val.toString();
     } else {
-      replacedValue = value;
+      replacedValue = val;
     }
     return replacedValue;
   });

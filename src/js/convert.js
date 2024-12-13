@@ -12,7 +12,7 @@ import {
 import { getType, isString } from './common.js';
 import { cssVar } from './css-var.js';
 import { resolve } from './resolve.js';
-import { stringifyOptions } from './util.js';
+import { valueToJsonString } from './util.js';
 
 /* constants */
 import { FUNC_CALC, FUNC_VAR, VAL_COMP } from './constant.js';
@@ -41,7 +41,7 @@ export const preProcess = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{preProcess:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -108,7 +108,7 @@ export const colorToHex = (value, opt = {}) => {
   const { alpha, customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToHex:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -150,7 +150,7 @@ export const colorToHsl = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToHsl:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToHsl:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -185,7 +185,7 @@ export const colorToHwb = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToHwb:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToHwb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -218,7 +218,7 @@ export const colorToLab = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToLab:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToLab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -251,7 +251,7 @@ export const colorToLch = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToLch:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToLch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -284,7 +284,7 @@ export const colorToOklab = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToOklab:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToOklab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -317,7 +317,7 @@ export const colorToOklch = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToOklch:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToOklch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -350,7 +350,7 @@ export const colorToRgb = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToRgb:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToRgb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
@@ -383,7 +383,7 @@ export const colorToXyz = (value, opt = {}) => {
   const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
-    cacheKey = `{colorToXyz:${value},opt:${stringifyOptions(opt)}}`;
+    cacheKey = `{colorToXyz:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
     }
