@@ -838,4 +838,10 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'color-mix(in srgb, color-mix(in srgb, currentcolor, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))',
       'result');
   });
+
+  it('should get value', () => {
+    const res =
+      func('color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))');
+    assert.strictEqual(res, 'oklab(0.620754 -0.0931934 -0.00374881)', 'result');
+  });
 });
