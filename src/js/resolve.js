@@ -12,7 +12,9 @@ import { cssVar } from './css-var.js';
 import { stringifyOptions } from './util.js';
 
 /* constants */
-import { FUNC_CALC, FUNC_VAR, VAL_COMP, VAL_SPEC } from './constant.js';
+import {
+  FUNC_CALC, FUNC_COLOR, FUNC_MIX, FUNC_VAR, VAL_COMP, VAL_SPEC
+} from './constant.js';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* cached results */
@@ -140,11 +142,11 @@ export const resolve = (color, opt = {}) => {
       return color;
     }
     if (currentColor) {
-      if (currentColor.startsWith('color-mix')) {
+      if (currentColor.startsWith(FUNC_MIX)) {
         [cs, r, g, b, alpha] = resolveColorMix(currentColor, {
           format
         });
-      } else if (currentColor.startsWith('color(')) {
+      } else if (currentColor.startsWith(FUNC_COLOR)) {
         [cs, r, g, b, alpha] = resolveColorFunc(currentColor, {
           format
         });
@@ -161,7 +163,7 @@ export const resolve = (color, opt = {}) => {
       return res;
     }
   } else if (format === VAL_SPEC) {
-    if (color.startsWith('color-mix')) {
+    if (color.startsWith(FUNC_MIX)) {
       res = resolveColorMix(color, {
         format
       });
@@ -169,7 +171,7 @@ export const resolve = (color, opt = {}) => {
         cachedResults.set(cacheKey, res);
       }
       return res;
-    } else if (color.startsWith('color(')) {
+    } else if (color.startsWith(FUNC_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, {
         format
       });
@@ -222,23 +224,23 @@ export const resolve = (color, opt = {}) => {
     if (/transparent/.test(color)) {
       color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
-    if (color.startsWith('color-mix')) {
+    if (color.startsWith(FUNC_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, {
         format
       });
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
-    if (color.startsWith('color-mix')) {
+    if (color.startsWith(FUNC_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, {
         format
       });
     }
-  } else if (color.startsWith('color-mix')) {
+  } else if (color.startsWith(FUNC_MIX)) {
     [cs, r, g, b, alpha] = resolveColorMix(color, {
       format
     });
-  } else if (color.startsWith('color(')) {
+  } else if (color.startsWith(FUNC_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(color, {
       format
     });

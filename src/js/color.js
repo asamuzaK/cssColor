@@ -2,7 +2,7 @@
  * color.js
  *
  * Ref: CSS Color Module Level 4
- *      §17. Sample code for Color Conversions
+ *      Sample code for Color Conversions
  *      https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
  */
 
@@ -10,9 +10,9 @@ import { getType, isString } from './common.js';
 
 /* constants */
 import {
-  ANGLE, CS_COLOR_MIX, CS_RGB, CS_XYZ, NONE, NUM, PCT, SYN_COLOR_FUNC,
-  SYN_COLOR_MIX, SYN_COLOR_MIX_CAPT, SYN_COLOR_TYPE, SYN_HSL, SYN_HSL_LV3,
-  SYN_LAB, SYN_LCH, SYN_RGB, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
+  ANGLE, CS_MIX, CS_RGB, CS_XYZ, FUNC_COLOR, FUNC_MIX, NONE, NUM, PCT,
+  SYN_COLOR_TYPE, SYN_FUNC_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LAB, SYN_LCH,
+  SYN_MIX, SYN_MIX_CAPT, SYN_RGB, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const VAL_MIX = 'mixValue';
 
@@ -107,15 +107,15 @@ const MATRIX_PROPHOTO_TO_XYZ_D50 = [
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_COLOR_MIX = new RegExp(`^${SYN_COLOR_MIX}$`);
-const REG_COLOR_MIX_CAPT = new RegExp(`^${SYN_COLOR_MIX_CAPT}$`);
-const REG_COLOR_MIX_NEST = new RegExp(`${SYN_COLOR_MIX}`, 'g');
-const REG_COLOR_FUNC = new RegExp(`^color\\(\\s*(${SYN_COLOR_FUNC})\\s*\\)$`);
-const REG_CURRENT_COLOR = /^currentColor$/i;
+const REG_CURRENT = /^currentColor$/i;
+const REG_FUNC_COLOR = new RegExp(`^color\\(\\s*(${SYN_FUNC_COLOR})\\s*\\)$`);
 const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
 const REG_HWB = new RegExp(`^hwb\\(\\s*(${SYN_HSL})\\s*\\)$`);
 const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
+const REG_MIX = new RegExp(`^${SYN_MIX}$`);
+const REG_MIX_CAPT = new RegExp(`^${SYN_MIX_CAPT}$`);
+const REG_MIX_NEST = new RegExp(`${SYN_MIX}`, 'g');
 const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_LAB})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
@@ -989,8 +989,7 @@ export const convertXyzD50ToLch = (xyz, skip = false) => {
     c = NONE;
     h = NONE;
   } else {
-    c =
-      Math.max(Math.sqrt(Math.pow(a, POW_SQR) + Math.pow(b, POW_SQR)), 0);
+    c = Math.max(Math.sqrt(Math.pow(a, POW_SQR) + Math.pow(b, POW_SQR)), 0);
     h = Math.atan2(b, a) * DEG * HALF / Math.PI;
     if (h < 0) {
       h += DEG;
@@ -1737,7 +1736,7 @@ export const parseColorFunc = (value, opt = {}) => {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
   const { colorSpace, d50, format } = opt;
-  if (!REG_COLOR_FUNC.test(value)) {
+  if (!REG_FUNC_COLOR.test(value)) {
     switch (format) {
       case VAL_MIX: {
         return null;
@@ -1750,7 +1749,7 @@ export const parseColorFunc = (value, opt = {}) => {
       }
     }
   }
-  const [, val] = value.match(REG_COLOR_FUNC);
+  const [, val] = value.match(REG_FUNC_COLOR);
   let [cs, v1, v2, v3, v4] = val.replace('/', ' ').split(/\s+/);
   let r, g, b;
   if (cs === 'xyz') {
@@ -1912,7 +1911,7 @@ export const parseColorValue = (value, opt = {}) => {
   }
   let x, y, z, alpha;
   // complement currentcolor as a missing color
-  if (REG_CURRENT_COLOR.test(value)) {
+  if (REG_CURRENT.test(value)) {
     if (format === VAL_COMP) {
       return ['rgb', 0, 0, 0, 0];
     }
@@ -2072,7 +2071,7 @@ export const resolveColorValue = (value, opt = {}) => {
   }
   let cs, r, g, b, alpha;
   // complement currentcolor as a missing color
-  if (REG_CURRENT_COLOR.test(value)) {
+  if (REG_CURRENT.test(value)) {
     if (format === VAL_SPEC) {
       return value;
     }
@@ -2177,7 +2176,7 @@ export const resolveColorFunc = (value, opt = {}) => {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
   const { colorSpace, format } = opt;
-  if (!REG_COLOR_FUNC.test(value)) {
+  if (!REG_FUNC_COLOR.test(value)) {
     switch (format) {
       case VAL_MIX: {
         return null;
@@ -2230,7 +2229,7 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
   let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2243,8 +2242,8 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
       return [x, y, z, alpha];
     }
     [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
-  } else if (value.startsWith('color(')) {
-    const [, val] = value.match(REG_COLOR_FUNC);
+  } else if (value.startsWith(FUNC_COLOR)) {
+    const [, val] = value.match(REG_FUNC_COLOR);
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb-linear') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
@@ -2283,7 +2282,7 @@ export const convertColorToRgb = (value, opt = {}) => {
   let r, g, b, alpha;
   if (format === VAL_MIX) {
     let rgb;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       rgb = resolveColorFunc(value, opt);
     } else {
       rgb = resolveColorValue(value, opt);
@@ -2292,8 +2291,8 @@ export const convertColorToRgb = (value, opt = {}) => {
       return rgb;
     }
     [, r, g, b, alpha] = rgb;
-  } else if (value.startsWith('color(')) {
-    const [, val] = value.match(REG_COLOR_FUNC);
+  } else if (value.startsWith(FUNC_COLOR)) {
+    const [, val] = value.match(REG_FUNC_COLOR);
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
@@ -2334,7 +2333,7 @@ export const convertColorToXyz = (value, opt = {}) => {
   let x, y, z, alpha;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2343,8 +2342,8 @@ export const convertColorToXyz = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
-    const [, val] = value.match(REG_COLOR_FUNC);
+  } else if (value.startsWith(FUNC_COLOR)) {
+    const [, val] = value.match(REG_FUNC_COLOR);
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (d50) {
       if (cs === 'xyz-d50') {
@@ -2390,7 +2389,7 @@ export const convertColorToHsl = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2399,7 +2398,7 @@ export const convertColorToHsl = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
+  } else if (value.startsWith(FUNC_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2431,7 +2430,7 @@ export const convertColorToHwb = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2440,7 +2439,7 @@ export const convertColorToHwb = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
+  } else if (value.startsWith(FUNC_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2473,7 +2472,7 @@ export const convertColorToLab = (value, opt = {}) => {
   if (format === VAL_MIX) {
     let xyz;
     opt.d50 = true;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2482,7 +2481,7 @@ export const convertColorToLab = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
+  } else if (value.startsWith(FUNC_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
     });
@@ -2519,7 +2518,7 @@ export const convertColorToLch = (value, opt = {}) => {
   if (format === VAL_MIX) {
     let xyz;
     opt.d50 = true;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2528,7 +2527,7 @@ export const convertColorToLch = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
+  } else if (value.startsWith(FUNC_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
     });
@@ -2564,7 +2563,7 @@ export const convertColorToOklab = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2573,7 +2572,7 @@ export const convertColorToOklab = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
+  } else if (value.startsWith(FUNC_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2605,7 +2604,7 @@ export const convertColorToOklch = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith('color(')) {
+    if (value.startsWith(FUNC_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2614,7 +2613,7 @@ export const convertColorToOklch = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith('color(')) {
+  } else if (value.startsWith(FUNC_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2639,11 +2638,10 @@ export const resolveColorMix = (value, opt = {}) => {
   }
   const { format } = opt;
   const nestedItems = [];
-  if (!REG_COLOR_MIX.test(value)) {
-    if (value.startsWith('color-mix') && REG_COLOR_MIX_NEST.test(value)) {
-      const regColorSpaceRgb = new RegExp(`^(?:${CS_RGB})$`);
-      const regColorSpaceXyz = new RegExp(`^${CS_XYZ}$`);
-      const items = value.match(REG_COLOR_MIX_NEST);
+  if (!REG_MIX.test(value)) {
+    if (value.startsWith(FUNC_MIX) && REG_MIX_NEST.test(value)) {
+      const regColorSpace = new RegExp(`^(?:${CS_RGB}|${CS_XYZ})$`);
+      const items = value.match(REG_MIX_NEST);
       for (const item of items) {
         let val = resolveColorMix(item, {
           format: format === VAL_SPEC ? format : VAL_COMP
@@ -2655,20 +2653,18 @@ export const resolveColorMix = (value, opt = {}) => {
             value = '';
             break;
           }
-          if (regColorSpaceRgb.test(v1) || regColorSpaceXyz.test(v1)) {
+          if (regColorSpace.test(v1)) {
             if (v5 === 1) {
               val = `color(${v1} ${v2} ${v3} ${v4})`;
             } else {
               val = `color(${v1} ${v2} ${v3} ${v4} / ${v5})`;
             }
+          } else if (v5 === 1) {
+            val = `${v1}(${v2} ${v3} ${v4})`;
           } else {
-            if (v5 === 1) {
-              val = `${v1}(${v2} ${v3} ${v4})`;
-            } else {
-              val = `${v1}(${v2} ${v3} ${v4} / ${v5})`;
-            }
+            val = `${v1}(${v2} ${v3} ${v4} / ${v5})`;
           }
-        } else if (!REG_COLOR_MIX.test(val)) {
+        } else if (!REG_MIX.test(val)) {
           value = '';
           break;
         }
@@ -2689,8 +2685,7 @@ export const resolveColorMix = (value, opt = {}) => {
   }
   let colorSpace, colorA, pctA, colorB, pctB;
   if (nestedItems.length && format === VAL_SPEC) {
-    const regColorSpace =
-      new RegExp(`^color-mix\\(\\s*in\\s+(${CS_COLOR_MIX})\\s*,`);
+    const regColorSpace = new RegExp(`^color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,`);
     [, colorSpace] = value.match(regColorSpace);
     if (nestedItems.length === 2) {
       const itemA = nestedItems[0].replace(/(?=[()])/g, '\\');
@@ -2704,26 +2699,28 @@ export const resolveColorMix = (value, opt = {}) => {
         [, colorB, pctB] = value.match(regB);
       }
     } else {
+      const colorPart = `(?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?`;
       const item = nestedItems[0].replace(/(?=[()])/g, '\\');
-      const itemPart = `(${item})(?:\\s+(${PCT}))?`;
-      const regItemPart = new RegExp(`^${itemPart}$`);
-      const regPosition = new RegExp(`${itemPart}\\s*\\)$`);
-      const regPart = new RegExp(`^(${SYN_COLOR_TYPE})(?:\\s+(${PCT}))?$`);
+      const itemPart = `${item}(?:\\s+${PCT})?`;
+      const itemPartCapt = `(${item})(?:\\s+(${PCT}))?`;
+      const regColorPart = new RegExp(`^(${SYN_COLOR_TYPE})(?:\\s+(${PCT}))?$`);
+      const regItemPart = new RegExp(`^${itemPartCapt}$`);
+      const regPosition = new RegExp(`${itemPartCapt}\\s*\\)$`);
       // item is at the end
       if (regPosition.test(value)) {
-        const reg = new RegExp(`((?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?)\\s*,\\s*(${item}(?:\\s+(${PCT}))?)\\s*\\)$`);
+        const reg = new RegExp(`(${colorPart})\\s*,\\s*(${itemPart})\\s*\\)$`);
         const [, colorPartA, colorPartB] = value.match(reg);
-        [, colorA, pctA] = colorPartA.match(regPart);
+        [, colorA, pctA] = colorPartA.match(regColorPart);
         [, colorB, pctB] = colorPartB.match(regItemPart);
       } else {
-        const reg = new RegExp(`(${item}(?:\\s+${PCT})?)\\s*,\\s*((?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?)\\s*\\)$`);
+        const reg = new RegExp(`(${itemPart})\\s*,\\s*(${colorPart})\\s*\\)$`);
         const [, colorPartA, colorPartB] = value.match(reg);
         [, colorA, pctA] = colorPartA.match(regItemPart);
-        [, colorB, pctB] = colorPartB.match(regPart);
+        [, colorB, pctB] = colorPartB.match(regColorPart);
       }
     }
   } else {
-    const [, cs, colorPartA, colorPartB] = value.match(REG_COLOR_MIX_CAPT);
+    const [, cs, colorPartA, colorPartB] = value.match(REG_MIX_CAPT);
     const reg = new RegExp(`^(${SYN_COLOR_TYPE})(?:\\s+(${PCT}))?$`);
     [, colorA, pctA] = colorPartA.match(reg);
     [, colorB, pctB] = colorPartB.match(reg);
@@ -2781,9 +2778,9 @@ export const resolveColorMix = (value, opt = {}) => {
   // specified value
   if (format === VAL_SPEC) {
     let valueA, valueB;
-    if (colorA.startsWith('color-mix')) {
+    if (colorA.startsWith(FUNC_MIX)) {
       valueA = colorA;
-    } else if (colorA.startsWith('color(')) {
+    } else if (colorA.startsWith(FUNC_COLOR)) {
       valueA = parseColorFunc(colorA, opt);
       if (Array.isArray(valueA)) {
         const [v1, v2, v3, v4, v5] = [...valueA];
@@ -2813,9 +2810,9 @@ export const resolveColorMix = (value, opt = {}) => {
         }
       }
     }
-    if (colorB.startsWith('color-mix')) {
+    if (colorB.startsWith(FUNC_MIX)) {
       valueB = colorB;
-    } else if (colorB.startsWith('color(')) {
+    } else if (colorB.startsWith(FUNC_COLOR)) {
       valueB = parseColorFunc(colorB, opt);
       if (Array.isArray(valueB)) {
         const [v1, v2, v3, v4, v5] = [...valueB];
@@ -2866,7 +2863,7 @@ export const resolveColorMix = (value, opt = {}) => {
   if (/^srgb(?:-linear)?$/.test(colorSpace)) {
     let rgbA, rgbB;
     if (colorSpace === 'srgb') {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         rgbA = [NONE, NONE, NONE, NONE];
       } else {
         rgbA = convertColorToRgb(colorA, {
@@ -2874,7 +2871,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         rgbB = [NONE, NONE, NONE, NONE];
       } else {
         rgbB = convertColorToRgb(colorB, {
@@ -2883,7 +2880,7 @@ export const resolveColorMix = (value, opt = {}) => {
         });
       }
     } else {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         rgbA = [NONE, NONE, NONE, NONE];
       } else {
         rgbA = convertColorToLinearRgb(colorA, {
@@ -2891,7 +2888,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         rgbB = [NONE, NONE, NONE, NONE];
       } else {
         rgbB = convertColorToLinearRgb(colorB, {
@@ -2938,9 +2935,9 @@ export const resolveColorMix = (value, opt = {}) => {
     g *= MAX_RGB;
     b *= MAX_RGB;
   // in xyz, xyz-d65, xyz-d50
-  } else if (/^xyz(?:-d65|-d50)?$/.test(colorSpace)) {
+  } else if (/^xyz(?:-d(?:50|65))?$/.test(colorSpace)) {
     let xyzA, xyzB;
-    if (REG_CURRENT_COLOR.test(colorA)) {
+    if (REG_CURRENT.test(colorA)) {
       xyzA = [NONE, NONE, NONE, NONE];
     } else {
       xyzA = convertColorToXyz(colorA, {
@@ -2949,7 +2946,7 @@ export const resolveColorMix = (value, opt = {}) => {
         format: VAL_MIX
       });
     }
-    if (REG_CURRENT_COLOR.test(colorB)) {
+    if (REG_CURRENT.test(colorB)) {
       xyzB = [NONE, NONE, NONE, NONE];
     } else {
       xyzB = convertColorToXyz(colorB, {
@@ -3002,7 +2999,7 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (/^h(?:sl|wb)$/.test(colorSpace)) {
     let hslA, hslB;
     if (colorSpace === 'hsl') {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         hslA = [NONE, NONE, NONE, NONE];
       } else {
         hslA = convertColorToHsl(colorA, {
@@ -3010,7 +3007,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         hslB = [NONE, NONE, NONE, NONE];
       } else {
         hslB = convertColorToHsl(colorB, {
@@ -3019,7 +3016,7 @@ export const resolveColorMix = (value, opt = {}) => {
         });
       }
     } else {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         hslA = [NONE, NONE, NONE, NONE];
       } else {
         hslA = convertColorToHwb(colorA, {
@@ -3027,7 +3024,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         hslB = [NONE, NONE, NONE, NONE];
       } else {
         hslB = convertColorToHwb(colorB, {
@@ -3072,7 +3069,7 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (/^(?:ok)?lab$/.test(colorSpace)) {
     let labA, labB;
     if (colorSpace === 'lab') {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         labA = [NONE, NONE, NONE, NONE];
       } else {
         labA = convertColorToLab(colorA, {
@@ -3080,7 +3077,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         labB = [NONE, NONE, NONE, NONE];
       } else {
         labB = convertColorToLab(colorB, {
@@ -3089,7 +3086,7 @@ export const resolveColorMix = (value, opt = {}) => {
         });
       }
     } else {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         labA = [NONE, NONE, NONE, NONE];
       } else {
         labA = convertColorToOklab(colorA, {
@@ -3097,7 +3094,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         labB = [NONE, NONE, NONE, NONE];
       } else {
         labB = convertColorToOklab(colorB, {
@@ -3146,7 +3143,7 @@ export const resolveColorMix = (value, opt = {}) => {
   } else if (/^(?:ok)?lch$/.test(colorSpace)) {
     let lchA, lchB;
     if (colorSpace === 'lch') {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         lchA = [NONE, NONE, NONE, NONE];
       } else {
         lchA = convertColorToLch(colorA, {
@@ -3154,7 +3151,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         lchB = [NONE, NONE, NONE, NONE];
       } else {
         lchB = convertColorToLch(colorB, {
@@ -3163,7 +3160,7 @@ export const resolveColorMix = (value, opt = {}) => {
         });
       }
     } else {
-      if (REG_CURRENT_COLOR.test(colorA)) {
+      if (REG_CURRENT.test(colorA)) {
         lchA = [NONE, NONE, NONE, NONE];
       } else {
         lchA = convertColorToOklch(colorA, {
@@ -3171,7 +3168,7 @@ export const resolveColorMix = (value, opt = {}) => {
           format: VAL_MIX
         });
       }
-      if (REG_CURRENT_COLOR.test(colorB)) {
+      if (REG_CURRENT.test(colorB)) {
         lchB = [NONE, NONE, NONE, NONE];
       } else {
         lchB = convertColorToOklch(colorB, {

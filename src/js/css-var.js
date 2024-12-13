@@ -10,16 +10,14 @@ import { stringifyOptions } from './util.js';
 
 /* constants */
 import { NAMED_COLORS } from './color.js';
-import {
-  FUNC_CALC, FUNC_VAR, SYN_COLOR_MIX, SYN_COLOR_TYPE
-} from './constant.js';
+import { FUNC_CALC, FUNC_VAR, SYN_COLOR_TYPE, SYN_MIX } from './constant.js';
 const {
   CloseParen: CLOSE_PAREN, Comment: COMMENT, Ident: IDENT, Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_COLOR_MIX = new RegExp(`${SYN_COLOR_MIX}`);
+const REG_MIX = new RegExp(`${SYN_MIX}`);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -40,7 +38,7 @@ export const isColor = value => {
           Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
         bool = true;
       }
-    } else if (REG_COLOR.test(value) || REG_COLOR_MIX.test(value)) {
+    } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
       bool = true;
     }
   }
