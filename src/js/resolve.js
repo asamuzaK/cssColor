@@ -13,9 +13,13 @@ import { valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FUNC_CALC, FUNC_COLOR, FUNC_MIX, FUNC_VAR, VAL_COMP, VAL_SPEC
+  FUNC_CALC_ESC, FUNC_COLOR, FUNC_MIX, FUNC_VAR_ESC, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
+
+/* regexp */
+const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -60,7 +64,7 @@ export const resolve = (color, opt = {}) => {
   }
   const { currentColor, customProperty, format = VAL_COMP, key } = opt;
   let cacheKey;
-  if (!color.includes(FUNC_VAR) ||
+  if (!REG_FUNC_VAR.test(color) ||
       typeof customProperty?.callback !== 'function') {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
@@ -68,7 +72,7 @@ export const resolve = (color, opt = {}) => {
     }
   }
   let res, cs, r, g, b, alpha;
-  if (color.includes(FUNC_VAR)) {
+  if (REG_FUNC_VAR.test(color)) {
     if (format === VAL_SPEC) {
       if (cacheKey) {
         cachedResults.set(cacheKey, color);
@@ -95,8 +99,11 @@ export const resolve = (color, opt = {}) => {
       }
     }
   }
+  if (opt.format !== format) {
+    opt.format = format;
+  }
   color = color.toLowerCase();
-  if (color.includes(FUNC_CALC)) {
+  if (REG_FUNC_CALC.test(color)) {
     color = calc(color, opt);
   }
   if (color === 'transparent') {
@@ -143,17 +150,11 @@ export const resolve = (color, opt = {}) => {
     }
     if (currentColor) {
       if (currentColor.startsWith(FUNC_MIX)) {
-        [cs, r, g, b, alpha] = resolveColorMix(currentColor, {
-          format
-        });
+        [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt);
       } else if (currentColor.startsWith(FUNC_COLOR)) {
-        [cs, r, g, b, alpha] = resolveColorFunc(currentColor, {
-          format
-        });
+        [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt);
       } else {
-        [cs, r, g, b, alpha] = resolveColorValue(currentColor, {
-          format
-        });
+        [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt);
       }
     } else if (format === VAL_COMP) {
       res = RGB_TRANSPARENT;
@@ -164,17 +165,13 @@ export const resolve = (color, opt = {}) => {
     }
   } else if (format === VAL_SPEC) {
     if (color.startsWith(FUNC_MIX)) {
-      res = resolveColorMix(color, {
-        format
-      });
+      res = resolveColorMix(color, opt);
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
     } else if (color.startsWith(FUNC_COLOR)) {
-      [cs, r, g, b, alpha] = resolveColorFunc(color, {
-        format
-      });
+      [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
       } else {
@@ -185,9 +182,7 @@ export const resolve = (color, opt = {}) => {
       }
       return res;
     } else {
-      const rgb = resolveColorValue(color, {
-        format
-      });
+      const rgb = resolveColorValue(color, opt);
       if (!rgb) {
         res = '';
         if (cacheKey) {
@@ -225,29 +220,19 @@ export const resolve = (color, opt = {}) => {
       color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
     if (color.startsWith(FUNC_MIX)) {
-      [cs, r, g, b, alpha] = resolveColorMix(color, {
-        format
-      });
+      [cs, r, g, b, alpha] = resolveColorMix(color, opt);
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
     if (color.startsWith(FUNC_MIX)) {
-      [cs, r, g, b, alpha] = resolveColorMix(color, {
-        format
-      });
+      [cs, r, g, b, alpha] = resolveColorMix(color, opt);
     }
   } else if (color.startsWith(FUNC_MIX)) {
-    [cs, r, g, b, alpha] = resolveColorMix(color, {
-      format
-    });
+    [cs, r, g, b, alpha] = resolveColorMix(color, opt);
   } else if (color.startsWith(FUNC_COLOR)) {
-    [cs, r, g, b, alpha] = resolveColorFunc(color, {
-      format
-    });
+    [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
   } else if (color) {
-    [cs, r, g, b, alpha] = resolveColorValue(color, {
-      format
-    });
+    [cs, r, g, b, alpha] = resolveColorValue(color, opt);
   }
   switch (format) {
     case 'hex': {

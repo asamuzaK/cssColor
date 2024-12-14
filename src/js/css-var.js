@@ -9,10 +9,14 @@ import { getType, isString } from './common.js';
 import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_CALC, FUNC_VAR } from './constant.js';
+import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC } from './constant.js';
 const {
   CloseParen: CLOSE_PAREN, Comment: COMMENT, Ident: IDENT, Whitespace: W_SPACE
 } = TokenType;
+
+/* regexp */
+const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -38,9 +42,7 @@ export function resolveCssVariable(tokens, opt = {}) {
     }
     // nested var()
     if (value === FUNC_VAR) {
-      const [remainedTokens, item] = resolveCssVariable(tokens, {
-        customProperty
-      });
+      const [remainedTokens, item] = resolveCssVariable(tokens, opt);
       tokens = remainedTokens;
       if (item) {
         items.push(item);
@@ -68,10 +70,8 @@ export function resolveCssVariable(tokens, opt = {}) {
   let resolvedValue;
   for (let item of items) {
     item = item.trim();
-    if (item.includes(FUNC_VAR)) {
-      item = cssVar(item, {
-        customProperty
-      });
+    if (REG_FUNC_VAR.test(item)) {
+      item = cssVar(item, opt);
       if (item) {
         if (resolveAsColor) {
           if (isColor(item)) {
@@ -81,7 +81,7 @@ export function resolveCssVariable(tokens, opt = {}) {
           resolvedValue = item;
         }
       }
-    } else if (item.includes(FUNC_CALC)) {
+    } else if (REG_FUNC_CALC.test(item)) {
       item = calc(item, opt);
       if (resolveAsColor) {
         if (isColor(item)) {
@@ -159,7 +159,7 @@ export function parseTokens(tokens, opt = {}) {
  */
 export function cssVar(value, opt = {}) {
   if (value && isString(value)) {
-    if (!value.includes(FUNC_VAR)) {
+    if (!REG_FUNC_VAR.test(value)) {
       return value;
     }
     value = value.trim();
@@ -178,7 +178,7 @@ export function cssVar(value, opt = {}) {
   const values = parseTokens(tokens, opt);
   if (Array.isArray(values)) {
     let color = values.join('');
-    if (color.includes(FUNC_CALC)) {
+    if (REG_FUNC_CALC.test(color)) {
       color = calc(color, opt);
     }
     if (cacheKey) {

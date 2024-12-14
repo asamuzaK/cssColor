@@ -15,7 +15,11 @@ import { resolve } from './resolve.js';
 import { valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_CALC, FUNC_VAR, VAL_COMP } from './constant.js';
+import { FUNC_CALC_ESC, FUNC_VAR_ESC, VAL_COMP } from './constant.js';
+
+/* regexp */
+const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -46,7 +50,7 @@ export const preProcess = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  if (value.includes(FUNC_VAR)) {
+  if (REG_FUNC_VAR.test(value)) {
     value = cssVar(value, opt);
     if (!value) {
       if (cacheKey) {
@@ -55,7 +59,7 @@ export const preProcess = (value, opt = {}) => {
       return null;
     }
   }
-  if (value.includes(FUNC_CALC)) {
+  if (REG_FUNC_CALC.test(value)) {
     value = calc(value, opt);
   }
   if (value.startsWith('color-mix')) {
@@ -115,13 +119,11 @@ export const colorToHex = (value, opt = {}) => {
   }
   let hex;
   if (alpha) {
-    hex = resolve(value, {
-      format: 'hexAlpha'
-    });
+    opt.format = 'hexAlpha';
+    hex = resolve(value, opt);
   } else {
-    hex = resolve(value, {
-      format: 'hex'
-    });
+    opt.format = 'hex';
+    hex = resolve(value, opt);
   }
   if (cacheKey) {
     cachedResults.set(cacheKey, hex);
@@ -155,9 +157,8 @@ export const colorToHsl = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const hsl = convertColorToHsl(value, {
-    format: 'hsl'
-  });
+  opt.format = 'hsl';
+  const hsl = convertColorToHsl(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, hsl);
   }
@@ -190,9 +191,8 @@ export const colorToHwb = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const hwb = convertColorToHwb(value, {
-    format: 'hwb'
-  });
+  opt.format = 'hwb';
+  const hwb = convertColorToHwb(value, opt);
   cachedResults.set(cacheKey, hwb);
   return hwb;
 };
@@ -223,7 +223,7 @@ export const colorToLab = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const lab = convertColorToLab(value);
+  const lab = convertColorToLab(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, lab);
   }
@@ -256,7 +256,7 @@ export const colorToLch = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const lch = convertColorToLch(value);
+  const lch = convertColorToLch(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, lch);
   }
@@ -289,7 +289,7 @@ export const colorToOklab = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const lab = convertColorToOklab(value);
+  const lab = convertColorToOklab(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, lab);
   }
@@ -322,7 +322,7 @@ export const colorToOklch = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const lch = convertColorToOklch(value);
+  const lch = convertColorToOklch(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, lch);
   }
@@ -355,7 +355,7 @@ export const colorToRgb = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const rgb = convertColorToRgb(value);
+  const rgb = convertColorToRgb(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, rgb);
   }
