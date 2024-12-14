@@ -46,3 +46,22 @@ describe('convert', () => {
     assert.strictEqual(hex, '#008000', 'result');
   });
 });
+
+describe('isColor', () => {
+  const { isColor } = api;
+
+  it('should get value', () => {
+    const res = isColor('foo');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get value', () => {
+    const res = isColor('green');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get value', () => {
+    const res = isColor('lab(46.2775% -47.5621 48.5837)');
+    assert.strictEqual(res, true, 'result');
+  });
+});

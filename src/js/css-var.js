@@ -6,44 +6,18 @@ import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { getType, isString } from './common.js';
-import { valueToJsonString } from './util.js';
+import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
-import { NAMED_COLORS } from './color.js';
-import { FUNC_CALC, FUNC_VAR, SYN_COLOR_TYPE, SYN_MIX } from './constant.js';
+import { FUNC_CALC, FUNC_VAR } from './constant.js';
 const {
   CloseParen: CLOSE_PAREN, Comment: COMMENT, Ident: IDENT, Whitespace: W_SPACE
 } = TokenType;
-
-/* regexp */
-const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_MIX = new RegExp(`${SYN_MIX}`);
 
 /* cached results */
 export const cachedResults = new LRUCache({
   max: 4096
 });
-
-/**
- * is color
- * @param {string} value - value
- * @returns {boolean} - result
- */
-export const isColor = value => {
-  let bool;
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-    if (/^[a-z]+$/.test(value)) {
-      if (/^(?:currentcolor|transparent)$/.test(value) ||
-          Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
-        bool = true;
-      }
-    } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
-      bool = true;
-    }
-  }
-  return !!bool;
-};
 
 /**
  * resolve CSS variable
