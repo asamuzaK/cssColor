@@ -584,6 +584,28 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('hwb(calc(360deg / 3) 0% 50%)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('hwb(calc(360deg / 3) 0% 50%)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('hwb(calc(360deg / 3) 0% 50%)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    const res2 = func('hwb(calc(360deg / 3) 0% 50%)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('hwb(120 0% 50% / .5)', {
       format: 'computedValue'
     });
