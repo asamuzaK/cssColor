@@ -6,5 +6,4 @@ export function cssVar(value: string, opt?: {
     customProperty?: object;
 }): string | null;
 export const cachedResults: LRUCache<{}, {}, unknown>;
-export function isColor(value: string): boolean;
 import { LRUCache } from 'lru-cache';
