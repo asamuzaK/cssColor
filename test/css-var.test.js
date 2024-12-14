@@ -9,52 +9,6 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 /* test */
 import * as custom from '../src/js/css-var.js';
 
-describe('resolve custom variable', () => {
-  const func = custom.isColor;
-
-  beforeEach(() => {
-    custom.cachedResults.clear();
-  });
-  afterEach(() => {
-    custom.cachedResults.clear();
-  });
-
-  it('should get result', () => {
-    const res = func();
-    assert.strictEqual(res, false, 'result');
-  });
-
-  it('should get result', () => {
-    const res = func('foo');
-    assert.strictEqual(res, false, 'result');
-  });
-
-  it('should get result', () => {
-    const res = func('red');
-    assert.strictEqual(res, true, 'result');
-  });
-
-  it('should get result', () => {
-    const res = func('currentcolor');
-    assert.strictEqual(res, true, 'result');
-  });
-
-  it('should get result', () => {
-    const res = func('transparent');
-    assert.strictEqual(res, true, 'result');
-  });
-
-  it('should get result', () => {
-    const res = func('color(srgb 0 127.5 0)');
-    assert.strictEqual(res, true, 'result');
-  });
-
-  it('should get result', () => {
-    const res = func('color-mix(in oklab, red, blue)');
-    assert.strictEqual(res, true, 'result');
-  });
-});
-
 describe('resolve CSS variable', () => {
   const func = custom.resolveCssVariable;
 

@@ -9,6 +9,45 @@ import { describe, it } from 'mocha';
 /* test */
 import * as util from '../src/js/util.js';
 
+describe('is color', () => {
+  const func = util.isColor;
+
+  it('should get result', () => {
+    const res = func();
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('foo');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('red');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('currentcolor');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('transparent');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('color(srgb 0 127.5 0)');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('color-mix(in oklab, red, blue)');
+    assert.strictEqual(res, true, 'result');
+  });
+});
+
 describe('value to JSON string', () => {
   const func = util.valueToJsonString;
 
