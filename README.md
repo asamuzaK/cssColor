@@ -38,27 +38,38 @@ resolves CSS color
 
 #### Parameters
 
-*   `color` **[string][133]** color value
-    *   system colors are not supported
+* `color` **[string][133]** color value
+  * system colors are not supported
 
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.currentColor` **[string][133]?** color to use for `currentcolor` keyword
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
-    *   `opt.format` **[string][133]?** output format, one of `computedValue` (default), `specifiedValue`, `rgb`, `hex`, `hexAlpha`
-        *   `computedValue` is a [computed value][139] of the color
-        *   `specifiedValue` is a [specified value][140] of the color
-        *   `hexAlpha` is a hex color notation with alpha channel, i.e. `#rrggbbaa`
-    *   `opt.key` **any?** key e.g. CSS property `background-color`
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.currentColor` **[string][133]?**
+    * color to use for `currentcolor` keyword
+    * if omitted, it will be treated as a missing color,
+      i.e. `rgb(none none none / none)`
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#008000' }`
+    * and/or `callback` function to get the value of the custom property,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+  * `opt.format` **[string][133]?**
+    * output format, one of below
+      * `computedValue` (default), [computed value][139] of the color
+      * `specifiedValue`, [specified value][140] of the color
+      * `hex`, hex color notation, i.e. `rrggbb`
+      * `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
+  * `opt.key` **any?**
+    *  key to return with the value, e.g. CSS property `background-color`
 
 Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `'(empty-string)'`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `lab(l a b / alpha)`, `lch(l c h / alpha)`, `oklab(l a b / alpha)`, `oklch(l c h / alpha)`, `null`, or `[key, rgba?()]` etc. if `key` is specified
-*   in `computedValue`, values are numbers, however `rgb()` values are integers
-*   in `specifiedValue`, returns `empty string` for unknown and/or invalid color
-*   in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
-*   in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
-*   in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
+* in `computedValue`, values are numbers, however `rgb()` values are integers
+* in `specifiedValue`, returns `empty string` for unknown and/or invalid color
+* in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
+* in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
+* in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
 
 ### convert
 
@@ -70,7 +81,7 @@ convert number to hex string
 
 #### Parameters
 
-*   `value` **[number][134]** color value
+* `value` **[number][134]** color value
 
 Returns **[string][133]** hex string: 00..ff
 
@@ -80,13 +91,18 @@ convert color to hex
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[string][133]** #rrggbb(aa)?
 
@@ -96,12 +112,17 @@ convert color to hsl
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[h, s, l, alpha]
 
@@ -111,12 +132,17 @@ convert color to hwb
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[h, w, b, alpha]
 
@@ -126,12 +152,17 @@ convert color to lab
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, alpha]
 
@@ -141,12 +172,17 @@ convert color to lch
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, alpha]
 
@@ -156,12 +192,17 @@ convert color to oklab
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, alpha]
 
@@ -171,12 +212,17 @@ convert color to oklch
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, alpha]
 
@@ -186,12 +232,17 @@ convert color to rgb
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[r, g, b, alpha]
 
@@ -201,13 +252,18 @@ convert color to xyz
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
-    *   `opt.d50` **[boolean][136]?** xyz in d50 white point
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+  * `opt.d50` **[boolean][136]?** xyz in d50 white point
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
 
@@ -217,12 +273,17 @@ convert color to xyz-d50
 
 #### Parameters
 
-*   `value` **[string][133]** color value
-*   `opt` **[object][135]?** options (optional, default `{}`)
-    *   `opt.cssCalc` **[object][135]?** options for [@csstools/css-calc][141], e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
-    *   `opt.customProperty` **[object][135]?** custom properties
-        *   pair of `--` prefixed property name and value, e.g. `customProperty: { '--some-color': '#0000ff' }`
-        *   and/or callback function to get the value, e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+* `value` **[string][133]** color value
+* `opt` **[object][135]?** options (optional, default `{}`)
+  * `opt.cssCalc` **[object][135]?**
+    * options for [@csstools/css-calc][141],
+      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
+  * `opt.customProperty` **[object][135]?**
+    * custom properties
+    * pair of `--` prefixed property name as a key and it's value,
+      e.g. `customProperty: { '--some-color': '#0000ff' }`
+    * and/or `callback` function to get the value,
+      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
 
@@ -233,8 +294,8 @@ is valid color type
 
 #### Parameters
 
-*   `color` **[string][133]** color value
-    *   system colors are not supported
+* `color` **[string][133]** color value
+  * system colors are not supported
 
 Returns **[boolean][136]**
 

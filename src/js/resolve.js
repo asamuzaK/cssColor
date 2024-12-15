@@ -31,30 +31,38 @@ export const cachedResults = new LRUCache({
  * @param {string} color - color value
  *   - system colors are not supported
  * @param {object} [opt] - options
- * @param {string} [opt.currentColor] - color to use for `currentcolor` keyword
+ * @param {string} [opt.currentColor]
+ *   - color to use for `currentcolor` keyword
+ *   - if omitted, it will be treated as a missing color
+ *     i.e. `rgb(none none none / none)`
  * @param {object} [opt.customProperty]
  *   - custom properties
  *   - pair of `--` prefixed property name and value,
  *     e.g. `customProperty: { '--some-color': '#0000ff' }`
- *   - and/or callback function to get the value of custom property,
+ *   - and/or `callback` function to get the value of the custom property,
  *     e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
  * @param {string} [opt.format]
- *   - output format, one of `computedValue` (default), `specifiedValue`,
- *     `rgb`, `hex`, `hexAlpha`
- *   - `hexAlpha` is a hex color notation with alpha channel, i.e. #rrggbbaa
+ *   - output format, one of below
+ *   - `computedValue` (default), [computed value][139] of the color
+ *   - `specifiedValue`, [specified value][140] of the color
+ *   - `hex`, hex color notation, i.e. `rrggbb`
+ *   - `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
  * @param {*} [opt.key] - key e.g. CSS property `background-color`
  * @returns {?string|Array}
  *   - one of rgba?(), #rrggbb(aa)?, color-name, '(empty-string)',
  *     color(color-space r g b / alpha), color(color-space x y z / alpha),
  *     lab(l a b / alpha), lch(l c h / alpha), oklab(l a b / alpha),
  *     oklch(l c h / alpha), null or [key, rgba?()] etc. if `key` is specified
- *   - in `spec`, returned values are numbers, however rgb() values are integers
- *   - in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)`
- *     for unknown colors
- *   - in `hex`, `transparent` value is resolved as `null`, also returns `null`
- *     if any of `r`, `g`, `b`, `alpha` is not a number
- *   - in `hexAlpha`, `transparent` resolves as `#00000000`, and returns `null`
- *     if any of `r`, `g`, `b`, `alpha` is not a number
+ *   - in `computedValue`, values are numbers, however `rgb()` values are
+ *     integers
+ *   - in `specifiedValue`, returns `empty string` for unknown and/or invalid
+ *     color
+ *   - in `rgb`, values are rounded to integers,
+ *     and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
+ *   - in `hex`, returns `null` for `transparent`, and also returns `null` if
+ *     any of `r`, `g`, `b`, `alpha` is not a number
+ *   - in `hexAlpha`, returns `#00000000` for `transparent`,
+ *     however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
  */
 export const resolve = (color, opt = {}) => {
   if (isString(color)) {
