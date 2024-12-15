@@ -46,9 +46,6 @@ resolves CSS color
     * color to use for `currentcolor` keyword
     * if omitted, it will be treated as a missing color,
       i.e. `rgb(none none none / none)`
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -94,9 +91,6 @@ convert color to hex
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -114,9 +108,6 @@ convert color to hsl
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -134,9 +125,6 @@ convert color to hwb
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -154,9 +142,6 @@ convert color to lab
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -174,9 +159,6 @@ convert color to lch
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -194,9 +176,6 @@ convert color to oklab
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -214,9 +193,6 @@ convert color to oklch
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -234,9 +210,6 @@ convert color to rgb
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -254,9 +227,6 @@ convert color to xyz
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
@@ -275,9 +245,6 @@ convert color to xyz-d50
 
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
-  * `opt.cssCalc` **[object][135]?**
-    * options for [@csstools/css-calc][141],
-      e.g. `cssCalc: { globals: new Map([['foo', 'bar'], ['baz', 1]]) }`
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
