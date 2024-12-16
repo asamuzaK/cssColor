@@ -24,17 +24,23 @@ export const cachedResults = new LRUCache({
 });
 
 /**
- * resolve CSS variable
+ * resolve custom property
  * @param {Array.<Array>} tokens - tokens
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<string|Array|undefined>} - [tokens, resolvedValue]
  */
-export function resolveCssVariable(tokens, opt = {}) {
+export function resolveCustomProperty(tokens, opt = {}) {
+  if (!Array.isArray(tokens)) {
+    throw new TypeError(`Expected Array but got ${getType(tokens)}.`);
+  }
   const { customProperty = {} } = opt;
   const items = [];
   while (tokens.length) {
     const token = tokens.shift();
+    if (!Array.isArray(token)) {
+      throw new TypeError(`Expected Array but got ${getType(token)}.`);
+    }
     const [type, value] = token;
     // end of var()
     if (type === CLOSE_PAREN) {
@@ -42,8 +48,8 @@ export function resolveCssVariable(tokens, opt = {}) {
     }
     // nested var()
     if (value === FUNC_VAR) {
-      const [remainedTokens, item] = resolveCssVariable(tokens, opt);
-      tokens = remainedTokens;
+      const [restTokens, item] = resolveCustomProperty(tokens, opt);
+      tokens = restTokens;
       if (item) {
         items.push(item);
       }
@@ -71,6 +77,7 @@ export function resolveCssVariable(tokens, opt = {}) {
   for (let item of items) {
     item = item.trim();
     if (REG_FUNC_VAR.test(item)) {
+      // recurse cssVar()
       item = cssVar(item, opt);
       if (item) {
         if (resolveAsColor) {
@@ -114,40 +121,40 @@ export function resolveCssVariable(tokens, opt = {}) {
  * @returns {?Array.<Array>} - parsed tokens
  */
 export function parseTokens(tokens, opt = {}) {
-  const result = [];
+  const res = [];
   while (tokens.length) {
     const token = tokens.shift();
     const [type, value] = token;
     if (value === FUNC_VAR) {
-      const [remainedTokens, resolvedValue] = resolveCssVariable(tokens, opt);
+      const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
         return null;
       }
-      tokens = remainedTokens;
-      result.push(resolvedValue);
+      tokens = restTokens;
+      res.push(resolvedValue);
     } else if (type === W_SPACE) {
-      if (result.length) {
-        const lastValue = result[result.length - 1];
+      if (res.length) {
+        const lastValue = res[res.length - 1];
         if (!lastValue.endsWith('(') && lastValue !== ' ') {
-          result.push(value);
+          res.push(value);
         }
       }
     } else if (type === CLOSE_PAREN) {
-      if (result.length) {
-        const lastValue = result[result.length - 1];
+      if (res.length) {
+        const lastValue = res[res.length - 1];
         if (lastValue === ' ') {
-          result.splice(-1, 1, value);
+          res.splice(-1, 1, value);
         } else {
-          result.push(value);
+          res.push(value);
         }
       } else {
-        result.push(value);
+        res.push(value);
       }
     } else if (type !== COMMENT) {
-      result.push(value);
+      res.push(value);
     }
   }
-  return result;
+  return res;
 }
 
 /**
