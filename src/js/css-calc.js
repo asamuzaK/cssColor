@@ -126,7 +126,7 @@ export const parseTokens = (tokens, opt) => {
  */
 export const cssCalc = (value, opt = {}) => {
   const { format, dimension } = opt;
-  if (value && isString(value)) {
+  if (isString(value)) {
     if (REG_FUNC_VAR.test(value)) {
       if (format === VAL_SPEC) {
         return value;

@@ -587,6 +587,11 @@ describe('resolve CSS var()', () => {
   });
 
   it('should get value', () => {
+    const res = func('');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('foo');
     assert.strictEqual(res, 'foo', 'result');
   });

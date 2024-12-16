@@ -167,7 +167,7 @@ export function parseTokens(tokens, opt = {}) {
  */
 export function cssVar(value, opt = {}) {
   const { customProperty, format } = opt;
-  if (value && isString(value)) {
+  if (isString(value)) {
     if (!REG_FUNC_VAR.test(value) || format === VAL_SPEC) {
       return value;
     }
