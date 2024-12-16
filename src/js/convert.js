@@ -60,7 +60,7 @@ export const preProcess = (value, opt = {}) => {
     }
   }
   if (REG_FUNC_CALC.test(value)) {
-    value = calc(value, opt);
+    value = calc(value);
   }
   if (value.startsWith('color-mix')) {
     value = resolve(value, {

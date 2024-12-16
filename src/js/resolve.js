@@ -112,7 +112,7 @@ export const resolve = (color, opt = {}) => {
   }
   color = color.toLowerCase();
   if (REG_FUNC_CALC.test(color)) {
-    color = calc(color, opt);
+    color = calc(color);
   }
   if (color === 'transparent') {
     switch (format) {

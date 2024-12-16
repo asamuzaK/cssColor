@@ -82,7 +82,7 @@ export function resolveCssVariable(tokens, opt = {}) {
         }
       }
     } else if (REG_FUNC_CALC.test(item)) {
-      item = calc(item, opt);
+      item = calc(item);
       if (resolveAsColor) {
         if (isColor(item)) {
           resolvedValue = item;
@@ -179,7 +179,7 @@ export function cssVar(value, opt = {}) {
   if (Array.isArray(values)) {
     let color = values.join('');
     if (REG_FUNC_CALC.test(color)) {
-      color = calc(color, opt);
+      color = calc(color);
     }
     if (cacheKey) {
       cachedResults.set(cacheKey, color);
