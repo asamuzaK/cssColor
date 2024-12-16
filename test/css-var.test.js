@@ -591,6 +591,13 @@ describe('resolve CSS var()', () => {
     assert.strictEqual(res, 'foo', 'result');
   });
 
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'var(--foo)', 'result');
+  });
+
   it('should get null', () => {
     const res = func('var(--foo)');
     assert.deepEqual(res, null, 'result');

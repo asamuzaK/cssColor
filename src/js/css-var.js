@@ -9,7 +9,7 @@ import { cssCalc } from './css-calc.js';
 import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC } from './constant.js';
+import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC, VAL_SPEC } from './constant.js';
 const {
   CloseParen: CLOSE_PAREN, Comment: COMMENT, EOF, Ident: IDENT,
   Whitespace: W_SPACE
@@ -166,15 +166,15 @@ export function parseTokens(tokens, opt = {}) {
  * @returns {?string} - value
  */
 export function cssVar(value, opt = {}) {
+  const { customProperty, format } = opt;
   if (value && isString(value)) {
-    if (!REG_FUNC_VAR.test(value)) {
+    if (!REG_FUNC_VAR.test(value) || format === VAL_SPEC) {
       return value;
     }
     value = value.trim();
   } else {
     throw new TypeError(`Expected String but got ${getType(value)}.`);
   }
-  const { customProperty } = opt;
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
