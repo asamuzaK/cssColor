@@ -31,6 +31,7 @@ export const cachedResults = new LRUCache({
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {?string} - value
  */
 export const preProcess = (value, opt = {}) => {
@@ -96,6 +97,7 @@ export const numberToHex = value => {
  * @param {object} [opt] - options
  * @param {boolean} [opt.alpha] - return in #rrggbbaa notation
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {?string} - #rrggbb | #rrggbbaa | null
  */
 export const colorToHex = (value, opt = {}) => {
@@ -136,6 +138,7 @@ export const colorToHex = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [h, s, l, alpha]
  */
 export const colorToHsl = (value, opt = {}) => {
@@ -170,6 +173,7 @@ export const colorToHsl = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [h, w, b, alpha]
  */
 export const colorToHwb = (value, opt = {}) => {
@@ -202,6 +206,7 @@ export const colorToHwb = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, a, b, alpha]
  */
 export const colorToLab = (value, opt = {}) => {
@@ -235,6 +240,7 @@ export const colorToLab = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, c, h, alpha]
  */
 export const colorToLch = (value, opt = {}) => {
@@ -268,6 +274,7 @@ export const colorToLch = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, a, b, alpha]
  */
 export const colorToOklab = (value, opt = {}) => {
@@ -301,6 +308,7 @@ export const colorToOklab = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, c, h, alpha]
  */
 export const colorToOklch = (value, opt = {}) => {
@@ -334,6 +342,7 @@ export const colorToOklch = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [r, g, b, alpha]
  */
 export const colorToRgb = (value, opt = {}) => {
@@ -367,6 +376,8 @@ export const colorToRgb = (value, opt = {}) => {
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.d50] - white poin in d50
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [x, y, z, alpha]
  */
 export const colorToXyz = (value, opt = {}) => {
@@ -404,6 +415,8 @@ export const colorToXyz = (value, opt = {}) => {
  * convert color to xyz-d50
  * @param {string} value - color value
  * @param {object} [opt] - options
+ * @param {object} [opt.customProperty] - custom properties
+ * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [x, y, z, alpha]
  */
 export const colorToXyzD50 = (value, opt = {}) => {
