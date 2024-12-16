@@ -868,6 +868,11 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in srgb, red calc(50% + (sign(100em - 1px) * 10%)), blue)');
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color-mix(in srgb, red calc(50% + (sign(100em - 1px) * 10%)), blue)', {
       dimension: {
         em: 20
