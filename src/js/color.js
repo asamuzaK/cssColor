@@ -298,22 +298,22 @@ export const validateColorComponents = (arr, opt = {}) => {
   } = opt;
   if (typeof minLength !== 'number') {
     throw new TypeError(`Expected Number but got ${getType(minLength)}.`);
-  } else if (Number.isNaN(minLength)) {
+  } else if (!Number.isFinite(minLength)) {
     throw new TypeError(`${minLength} is not a number.`);
   }
   if (typeof maxLength !== 'number') {
     throw new TypeError(`Expected Number but got ${getType(maxLength)}.`);
-  } else if (Number.isNaN(maxLength)) {
+  } else if (!Number.isFinite(maxLength)) {
     throw new TypeError(`${maxLength} is not a number.`);
   }
   if (typeof minRange !== 'number') {
     throw new TypeError(`Expected Number but got ${getType(minRange)}.`);
-  } else if (Number.isNaN(minRange)) {
+  } else if (!Number.isFinite(minRange)) {
     throw new TypeError(`${minRange} is not a number.`);
   }
   if (typeof maxRange !== 'number') {
     throw new TypeError(`Expected Number but got ${getType(maxRange)}.`);
-  } else if (Number.isNaN(maxRange)) {
+  } else if (!Number.isFinite(maxRange)) {
     throw new TypeError(`${maxRange} is not a number.`);
   }
   const l = arr.length;
@@ -332,7 +332,7 @@ export const validateColorComponents = (arr, opt = {}) => {
     const v = arr[i];
     if (typeof v !== 'number') {
       throw new TypeError(`Expected Number but got ${getType(v)}.`);
-    } else if (Number.isNaN(v)) {
+    } else if (!Number.isFinite(v)) {
       throw new TypeError(`${v} is not a number.`);
     } else if (i < TRIA && validateRange && (v < minRange || v > maxRange)) {
       throw new RangeError(`${v} is not between ${minRange} and ${maxRange}.`);
@@ -438,7 +438,7 @@ export const normalizeColorComponents = (colorA, colorB, skip = false) => {
 export const numberToHexString = value => {
   if (typeof value !== 'number') {
     throw new TypeError(`Expected Number but got ${getType(value)}.`);
-  } else if (Number.isNaN(value)) {
+  } else if (!Number.isFinite(value)) {
     throw new TypeError(`${value} is not a number.`);
   } else {
     value = Math.round(value);
@@ -516,7 +516,7 @@ export const parseAlpha = alpha => {
       } else {
         alpha = parseFloat(alpha);
       }
-      if (Number.isNaN(alpha)) {
+      if (!Number.isFinite(alpha)) {
         throw new TypeError(`${alpha} is not a number.`);
       }
       if (alpha < PPTH) {

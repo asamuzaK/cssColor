@@ -866,4 +866,13 @@ describe('resolve CSS color', () => {
       func('color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))');
     assert.strictEqual(res, 'oklab(0.620754 -0.0931934 -0.00374881)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('color-mix(in srgb, red calc(50% + (sign(100em - 1px) * 10%)), blue)', {
+      dimension: {
+        em: 20
+      }
+    });
+    assert.strictEqual(res, 'color(srgb 0.6 0 0.4)', 'result');
+  });
 });

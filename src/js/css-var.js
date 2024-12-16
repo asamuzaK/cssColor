@@ -2,16 +2,17 @@
  * css-var.js
  */
 
-import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { getType, isString } from './common.js';
+import { cssCalc } from './css-calc.js';
 import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
 import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC } from './constant.js';
 const {
-  CloseParen: CLOSE_PAREN, Comment: COMMENT, Ident: IDENT, Whitespace: W_SPACE
+  CloseParen: CLOSE_PAREN, Comment: COMMENT, EOF, Ident: IDENT,
+  Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
@@ -24,17 +25,23 @@ export const cachedResults = new LRUCache({
 });
 
 /**
- * resolve CSS variable
+ * resolve custom property
  * @param {Array.<Array>} tokens - tokens
  * @param {object} [opt] - options
  * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<string|Array|undefined>} - [tokens, resolvedValue]
  */
-export function resolveCssVariable(tokens, opt = {}) {
+export function resolveCustomProperty(tokens, opt = {}) {
+  if (!Array.isArray(tokens)) {
+    throw new TypeError(`Expected Array but got ${getType(tokens)}.`);
+  }
   const { customProperty = {} } = opt;
   const items = [];
   while (tokens.length) {
     const token = tokens.shift();
+    if (!Array.isArray(token)) {
+      throw new TypeError(`Expected Array but got ${getType(token)}.`);
+    }
     const [type, value] = token;
     // end of var()
     if (type === CLOSE_PAREN) {
@@ -42,8 +49,8 @@ export function resolveCssVariable(tokens, opt = {}) {
     }
     // nested var()
     if (value === FUNC_VAR) {
-      const [remainedTokens, item] = resolveCssVariable(tokens, opt);
-      tokens = remainedTokens;
+      const [restTokens, item] = resolveCustomProperty(tokens, opt);
+      tokens = restTokens;
       if (item) {
         items.push(item);
       }
@@ -71,6 +78,7 @@ export function resolveCssVariable(tokens, opt = {}) {
   for (let item of items) {
     item = item.trim();
     if (REG_FUNC_VAR.test(item)) {
+      // recurse cssVar()
       item = cssVar(item, opt);
       if (item) {
         if (resolveAsColor) {
@@ -82,7 +90,7 @@ export function resolveCssVariable(tokens, opt = {}) {
         }
       }
     } else if (REG_FUNC_CALC.test(item)) {
-      item = calc(item, opt);
+      item = cssCalc(item, opt);
       if (resolveAsColor) {
         if (isColor(item)) {
           resolvedValue = item;
@@ -114,40 +122,40 @@ export function resolveCssVariable(tokens, opt = {}) {
  * @returns {?Array.<Array>} - parsed tokens
  */
 export function parseTokens(tokens, opt = {}) {
-  const result = [];
+  const res = [];
   while (tokens.length) {
     const token = tokens.shift();
     const [type, value] = token;
     if (value === FUNC_VAR) {
-      const [remainedTokens, resolvedValue] = resolveCssVariable(tokens, opt);
+      const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
         return null;
       }
-      tokens = remainedTokens;
-      result.push(resolvedValue);
+      tokens = restTokens;
+      res.push(resolvedValue);
     } else if (type === W_SPACE) {
-      if (result.length) {
-        const lastValue = result[result.length - 1];
+      if (res.length) {
+        const lastValue = res[res.length - 1];
         if (!lastValue.endsWith('(') && lastValue !== ' ') {
-          result.push(value);
+          res.push(value);
         }
       }
     } else if (type === CLOSE_PAREN) {
-      if (result.length) {
-        const lastValue = result[result.length - 1];
+      if (res.length) {
+        const lastValue = res[res.length - 1];
         if (lastValue === ' ') {
-          result.splice(-1, 1, value);
+          res.splice(-1, 1, value);
         } else {
-          result.push(value);
+          res.push(value);
         }
       } else {
-        result.push(value);
+        res.push(value);
       }
-    } else if (type !== COMMENT) {
-      result.push(value);
+    } else if (type !== COMMENT && type !== EOF) {
+      res.push(value);
     }
   }
-  return result;
+  return res;
 }
 
 /**
@@ -179,7 +187,7 @@ export function cssVar(value, opt = {}) {
   if (Array.isArray(values)) {
     let color = values.join('');
     if (REG_FUNC_CALC.test(color)) {
-      color = calc(color, opt);
+      color = cssCalc(color, opt);
     }
     if (cacheKey) {
       cachedResults.set(cacheKey, color);

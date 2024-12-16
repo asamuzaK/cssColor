@@ -10,13 +10,23 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 import * as custom from '../src/js/css-var.js';
 
 describe('resolve CSS variable', () => {
-  const func = custom.resolveCssVariable;
+  const func = custom.resolveCustomProperty;
 
   beforeEach(() => {
     custom.cachedResults.clear();
   });
   afterEach(() => {
     custom.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.',
+      'result');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(['foo']), TypeError,
+      'Expected Array but got String.', 'result');
   });
 
   it('should get value', () => {
