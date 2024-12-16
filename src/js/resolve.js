@@ -41,6 +41,12 @@ export const cachedResults = new LRUCache({
  *     e.g. `customProperty: { '--some-color': '#0000ff' }`
  *   - and/or `callback` function to get the value of the custom property,
  *     e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+ * @param {object} [opt.dimension]
+ *   - dimension, convert relative length to pixels
+ *   - pair of unit and it's value as a number in pixels,
+ *     e.g. `dimension: { em: 12, rem: 16, vw: 10.26 }`
+ *   - and/or `callback` function to get the value as a number in pixels,
+ *     e.g. `dimension: { callback: convertUnitToPixel }`
  * @param {string} [opt.format]
  *   - output format, one of below
  *   - `computedValue` (default), [computed value][139] of the color
