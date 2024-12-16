@@ -2,12 +2,12 @@
  * resolve.js
  */
 
-import { calc } from '@csstools/css-calc';
 import { LRUCache } from 'lru-cache';
 import {
   convertRgbToHex, resolveColorFunc, resolveColorMix, resolveColorValue
 } from './color.js';
 import { getType, isString } from './common.js';
+import { cssCalc } from './css-calc.js';
 import { cssVar } from './css-var.js';
 import { valueToJsonString } from './util.js';
 
@@ -112,7 +112,7 @@ export const resolve = (color, opt = {}) => {
   }
   color = color.toLowerCase();
   if (REG_FUNC_CALC.test(color)) {
-    color = calc(color);
+    color = cssCalc(color, opt);
   }
   if (color === 'transparent') {
     switch (format) {

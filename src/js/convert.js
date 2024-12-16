@@ -2,7 +2,6 @@
  * convert.js
  */
 
-import { calc } from '@csstools/css-calc';
 import { LRUCache } from 'lru-cache';
 import {
   convertColorToHsl, convertColorToHwb, convertColorToLab, convertColorToLch,
@@ -10,6 +9,7 @@ import {
   numberToHexString, parseColorFunc, parseColorValue
 } from './color.js';
 import { getType, isString } from './common.js';
+import { cssCalc } from './css-calc.js';
 import { cssVar } from './css-var.js';
 import { resolve } from './resolve.js';
 import { valueToJsonString } from './util.js';
@@ -60,7 +60,7 @@ export const preProcess = (value, opt = {}) => {
     }
   }
   if (REG_FUNC_CALC.test(value)) {
-    value = calc(value);
+    value = cssCalc(value, opt);
   }
   if (value.startsWith('color-mix')) {
     value = resolve(value, {

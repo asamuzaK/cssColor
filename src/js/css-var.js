@@ -2,10 +2,10 @@
  * css-var.js
  */
 
-import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { getType, isString } from './common.js';
+import { cssCalc } from './css-calc.js';
 import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
@@ -90,7 +90,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
         }
       }
     } else if (REG_FUNC_CALC.test(item)) {
-      item = calc(item);
+      item = cssCalc(item, opt);
       if (resolveAsColor) {
         if (isColor(item)) {
           resolvedValue = item;
@@ -187,7 +187,7 @@ export function cssVar(value, opt = {}) {
   if (Array.isArray(values)) {
     let color = values.join('');
     if (REG_FUNC_CALC.test(color)) {
-      color = calc(color);
+      color = cssCalc(color, opt);
     }
     if (cacheKey) {
       cachedResults.set(cacheKey, color);
