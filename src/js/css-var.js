@@ -11,7 +11,8 @@ import { isColor, valueToJsonString } from './util.js';
 /* constants */
 import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC } from './constant.js';
 const {
-  CloseParen: CLOSE_PAREN, Comment: COMMENT, Ident: IDENT, Whitespace: W_SPACE
+  CloseParen: CLOSE_PAREN, Comment: COMMENT, EOF, Ident: IDENT,
+  Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
@@ -150,7 +151,7 @@ export function parseTokens(tokens, opt = {}) {
       } else {
         res.push(value);
       }
-    } else if (type !== COMMENT) {
+    } else if (type !== COMMENT && type !== EOF) {
       res.push(value);
     }
   }
