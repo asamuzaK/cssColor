@@ -67,7 +67,7 @@ resolves CSS color
           callback: node.style.getPropertyValue
         }
       };
-    ```
+      ```
   * `opt.dimension` **[object][135]?**
     * dimension, e.g. for converting relative length to pixels
     * pair of unit as a key and number in pixels as it's value,
