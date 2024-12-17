@@ -18,10 +18,11 @@ const {
 } = TokenType;
 
 /* regexp */
+const REG_CALC_START = new RegExp(`^${FUNC_CALC}`);
 const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
 const REG_FUNC_SIGN = /^(?:abs|sign)\($/;
 const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
-const REG_UNIT = new RegExp(`^(${NUM})([a-z]+|%)$`);
+const REG_LENGTH = new RegExp(`^(${NUM})([a-z]+|%)$`);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -174,9 +175,9 @@ export const cssCalc = (value, opt = {}) => {
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
   let resolvedValue = calc(values.join(''));
-  if (value.startsWith(FUNC_CALC)) {
-    if (REG_UNIT.test(resolvedValue)) {
-      const [, val, unit] = REG_UNIT.exec(resolvedValue);
+  if (REG_CALC_START.test(value)) {
+    if (REG_LENGTH.test(resolvedValue)) {
+      const [, val, unit] = REG_LENGTH.exec(resolvedValue);
       resolvedValue = `${parseFloat(Number(val).toPrecision(6))}${unit}`;
     }
     // wrap with `calc()`

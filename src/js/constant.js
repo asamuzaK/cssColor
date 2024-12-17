@@ -9,12 +9,13 @@ export const CS_SRGB = 'srgb(?:-linear)?';
 export const CS_RGB = `(?:a98|prophoto)-rgb|display-p3|rec2020|${CS_SRGB}`;
 export const CS_XYZ = 'xyz(?:-d(?:50|65))?';
 export const CS_MIX = `(?:ok)?l(?:ab|ch)|h(?:sl|wb)|${CS_SRGB}|${CS_XYZ}`;
-export const FUNC_CALC = 'calc(';
-export const FUNC_CALC_ESC = '^calc\\(|(?<=[\\s*\\/\\(])calc\\(';
+export const FUNC_CALC = '(?:abs|calc|sign)\\(';
+export const FUNC_CALC_ESC =
+  '^(?:abs|calc|sign)\\(|(?<=[*\\/\\s\\(])(?:abs|calc|sign)\\(';
 export const FUNC_COLOR = 'color(';
 export const FUNC_MIX = 'color-mix(';
 export const FUNC_VAR = 'var(';
-export const FUNC_VAR_ESC = '^var\\(|(?<=[\\s*\\/\\(])var\\(';
+export const FUNC_VAR_ESC = '^var\\(|(?<=[*\\/\\s\\(])var\\(';
 export const NONE = 'none';
 export const NUM = `[+-]?(?:${_DIGIT}(?:\\.\\d*)?|\\.\\d+)(?:e-?${_DIGIT})?`;
 export const PCT = `${NUM}%`;
