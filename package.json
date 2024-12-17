@@ -38,7 +38,7 @@
     "globals": "^15.13.0",
     "mocha": "^11.0.1",
     "neostandard": "^0.12.0",
-    "npm-run-all2": "^7.0.1",
+    "npm-run-all2": "^7.0.2",
     "sinon": "^19.0.2",
     "typescript": "^5.7.2"
   },
@@ -51,5 +51,5 @@
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
     "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
   },
-  "version": "2.6.2"
+  "version": "2.6.3"
 }
