@@ -10,16 +10,18 @@ import { valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FUNC_CALC, FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC, VAL_SPEC
+  FUNC_CALC, FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC, NUM, VAL_SPEC
 } from './constant.js';
 const {
-  CloseParen: CLOSE_PAREN, Comment: COMMENT, Dimension: DIM, EOF,
-  Whitespace: W_SPACE
+  CloseParen: PAREN_CLOSE, Comment: COMMENT, Dimension: DIM, EOF,
+  Function: FUNC, OpenParen: PAREN_OPEN, Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
 const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
+const REG_FUNC_SIGN = /^(?:abs|sign)\($/;
 const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
+const REG_UNIT = new RegExp(`^(${NUM})([a-z]+|%)$`);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -64,10 +66,13 @@ export const resolveDimension = (token, opt = {}) => {
  * @param {object} [opt] - options
  * @returns {Array.<string>} - parsed tokens
  */
-export const parseTokens = (tokens, opt) => {
+export const parseTokens = (tokens, opt = {}) => {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`Expected Array but got ${getType(tokens)}.`);
   }
+  const { format } = opt;
+  const signFunc = new Set();
+  let nest = 0;
   const res = [];
   while (tokens.length) {
     const token = tokens.shift();
@@ -77,23 +82,28 @@ export const parseTokens = (tokens, opt) => {
     const [type, value] = token;
     switch (type) {
       case DIM: {
-        let resolvedValue = resolveDimension(token, opt);
+        let resolvedValue;
+        if (format === VAL_SPEC && !signFunc.has(nest)) {
+          resolvedValue = value;
+        } else {
+          resolvedValue = resolveDimension(token, opt);
+        }
         if (!resolvedValue) {
           resolvedValue = value;
         }
         res.push(resolvedValue);
         break;
       }
-      case W_SPACE: {
-        if (res.length) {
-          const lastValue = res[res.length - 1];
-          if (!lastValue.endsWith('(') && lastValue !== ' ') {
-            res.push(value);
-          }
+      case FUNC:
+      case PAREN_OPEN: {
+        res.push(value);
+        nest++;
+        if (REG_FUNC_SIGN.test(value)) {
+          signFunc.add(nest);
         }
         break;
       }
-      case CLOSE_PAREN: {
+      case PAREN_CLOSE: {
         if (res.length) {
           const lastValue = res[res.length - 1];
           if (lastValue === ' ') {
@@ -103,6 +113,19 @@ export const parseTokens = (tokens, opt) => {
           }
         } else {
           res.push(value);
+        }
+        if (signFunc.has(nest)) {
+          signFunc.delete(nest);
+        }
+        nest--;
+        break;
+      }
+      case W_SPACE: {
+        if (res.length) {
+          const lastValue = res[res.length - 1];
+          if (!lastValue.endsWith('(') && lastValue !== ' ') {
+            res.push(value);
+          }
         }
         break;
       }
@@ -150,12 +173,19 @@ export const cssCalc = (value, opt = {}) => {
   }
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
-  let color = calc(values.join(''));
-  if (color && value.startsWith(FUNC_CALC) && format === VAL_SPEC) {
-    color = `calc(${color})`;
+  let resolvedValue = calc(values.join(''));
+  if (value.startsWith(FUNC_CALC)) {
+    if (REG_UNIT.test(resolvedValue)) {
+      const [, val, unit] = REG_UNIT.exec(resolvedValue);
+      resolvedValue = `${parseFloat(Number(val).toPrecision(6))}${unit}`;
+    }
+    // wrap with `calc()`
+    if (resolvedValue && format === VAL_SPEC) {
+      resolvedValue = `calc(${resolvedValue})`;
+    }
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, color);
+    cachedResults.set(cacheKey, resolvedValue);
   }
-  return color;
+  return resolvedValue;
 };

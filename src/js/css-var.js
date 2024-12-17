@@ -11,7 +11,7 @@ import { isColor, valueToJsonString } from './util.js';
 /* constants */
 import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC, VAL_SPEC } from './constant.js';
 const {
-  CloseParen: CLOSE_PAREN, Comment: COMMENT, EOF, Ident: IDENT,
+  CloseParen: PAREN_CLOSE, Comment: COMMENT, EOF, Ident: IDENT,
   Whitespace: W_SPACE
 } = TokenType;
 
@@ -44,7 +44,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
     }
     const [type, value] = token;
     // end of var()
-    if (type === CLOSE_PAREN) {
+    if (type === PAREN_CLOSE) {
       break;
     }
     // nested var()
@@ -133,26 +133,36 @@ export function parseTokens(tokens, opt = {}) {
       }
       tokens = restTokens;
       res.push(resolvedValue);
-    } else if (type === W_SPACE) {
-      if (res.length) {
-        const lastValue = res[res.length - 1];
-        if (!lastValue.endsWith('(') && lastValue !== ' ') {
-          res.push(value);
+    } else {
+      switch (type) {
+        case PAREN_CLOSE: {
+          if (res.length) {
+            const lastValue = res[res.length - 1];
+            if (lastValue === ' ') {
+              res.splice(-1, 1, value);
+            } else {
+              res.push(value);
+            }
+          } else {
+            res.push(value);
+          }
+          break;
+        }
+        case W_SPACE: {
+          if (res.length) {
+            const lastValue = res[res.length - 1];
+            if (!lastValue.endsWith('(') && lastValue !== ' ') {
+              res.push(value);
+            }
+          }
+          break;
+        }
+        default: {
+          if (type !== COMMENT && type !== EOF) {
+            res.push(value);
+          }
         }
       }
-    } else if (type === CLOSE_PAREN) {
-      if (res.length) {
-        const lastValue = res[res.length - 1];
-        if (lastValue === ' ') {
-          res.splice(-1, 1, value);
-        } else {
-          res.push(value);
-        }
-      } else {
-        res.push(value);
-      }
-    } else if (type !== COMMENT && type !== EOF) {
-      res.push(value);
     }
   }
   return res;

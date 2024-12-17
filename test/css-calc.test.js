@@ -327,4 +327,23 @@ describe('resolve CSS calc()', () => {
     });
     assert.strictEqual(res, 'calc(60%)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('calc( /* comment */ 50em * calc(2 / 3))', {
+      dimension: {
+        em: 16
+      }
+    });
+    assert.strictEqual(res, '533.333px', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc( /* comment */ 50em * calc(2 / 3))', {
+      dimension: {
+        em: 16
+      },
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(33.3333em)', 'result');
+  });
 });
