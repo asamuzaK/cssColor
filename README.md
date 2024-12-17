@@ -49,16 +49,58 @@ resolves CSS color
   * `opt.customProperty` **[object][135]?**
     * custom properties
     * pair of `--` prefixed property name as a key and it's value,
-      e.g. `customProperty: { '--some-color': '#008000' }`
+      e.g.
+      ``` javascript
+      const opt = {
+        customProperty: {
+          '--some-color': '#008000',
+          '--some-length': '16px'
+        }
+      };
+      ```
     * and/or `callback` function to get the value of the custom property,
-      e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
+      e.g.
+      ``` javascript;
+      const node = document.getElementById('foo');
+      const opt = {
+        customProperty: {
+          callback: node.style.getPropertyValue
+        }
+      };
+    ```
   * `opt.dimension` **[object][135]?**
     * dimension, e.g. for converting relative length to pixels
-    * pair of unit and it's value as a number in pixels,
-      e.g. if `1em === 12px`, `1rem === 16px` and `100vw === 1024px`,
-      then `dimension: { em: 12, rem: 16, vw: 10.24 }`
+    * pair of unit as a key and number in pixels as it's value,
+      e.g. suppose `1em === 12px`, `1rem === 16px` and `100vw === 1024px`, then
+      ``` javascript
+      const opt = {
+        dimension: {
+          em: 12,
+          rem: 16,
+          vw: 10.24
+        }
+      };
+      ```
     * and/or `callback` function to get the value as a number in pixels,
-      e.g. `dimension: { callback: convertUnitToPixel }`
+      e.g.
+      ``` javascript
+      const opt = {
+        dimension: {
+          callback: (unit) => {
+            switch (unit) {
+              case 'em':
+                return 12;
+              case 'rem':
+                return 16;
+              case 'vw':
+                return 10.24;
+              default:
+                return;
+            }
+          }
+        }
+      };
+      ```
   * `opt.format` **[string][133]?**
     * output format, one of below
       * `computedValue` (default), [computed value][139] of the color
@@ -99,9 +141,9 @@ convert color to hex
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.alpha` **[boolean][136]?** return in #rrggbbaa notation
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[string][133]** #rrggbb(aa)?
 
@@ -114,9 +156,9 @@ convert color to hsl
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[h, s, l, alpha]
 
@@ -129,9 +171,9 @@ convert color to hwb
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[h, w, b, alpha]
 
@@ -144,9 +186,9 @@ convert color to lab
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, alpha]
 
@@ -159,9 +201,9 @@ convert color to lch
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, alpha]
 
@@ -174,9 +216,9 @@ convert color to oklab
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[l, a, b, alpha]
 
@@ -189,9 +231,9 @@ convert color to oklch
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[l, c, h, alpha]
 
@@ -204,9 +246,9 @@ convert color to rgb
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[r, g, b, alpha]
 
@@ -219,9 +261,9 @@ convert color to xyz
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
   * `opt.d50` **[boolean][136]?** xyz in d50 white point
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
@@ -235,9 +277,9 @@ convert color to xyz-d50
 * `value` **[string][133]** color value
 * `opt` **[object][135]?** options (optional, default `{}`)
   * `opt.customProperty` **[object][135]?**
-    * custom properties, see above
+    * custom properties, see `resolve()` function above
   * `opt.dimension` **[object][135]?**
-    * dimension, see above
+    * dimension, see `resolve()` function above
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
 
