@@ -51,5 +51,5 @@
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
     "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
   },
-  "version": "2.6.4"
+  "version": "2.6.5"
 }
