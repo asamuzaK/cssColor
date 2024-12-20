@@ -42,7 +42,7 @@ export const resolveDimension = (token, opt = {}) => {
   }
   const [, value,,, detail = {}] = token;
   const { unit, value: relativeValue } = detail;
-  const { dimension = {}, format } = opt;
+  const { dimension = {} } = opt;
   if (unit === 'px') {
     return value;
   }
@@ -53,7 +53,7 @@ export const resolveDimension = (token, opt = {}) => {
       pixelValue = dimension[unit];
     } else if (typeof dimension.callback === 'function') {
       pixelValue = dimension.callback(unit);
-    } else if (/^(?:ch|ex|lh)$/.test(unit) &&
+    } else if (/^(?:ch|lh)$/.test(unit) &&
                Object.hasOwnProperty.call(dimension, 'em')) {
       const { em } = dimension;
       if (unit === 'lh') {
@@ -61,33 +61,13 @@ export const resolveDimension = (token, opt = {}) => {
       } else {
         pixelValue = em / 2;
       }
-    } else if (/^(?:rch|rex|rlh)$/.test(unit) &&
+    } else if (/^(?:rch|rlh)$/.test(unit) &&
                Object.hasOwnProperty.call(dimension, 'rem')) {
       const { rem } = dimension;
       if (unit === 'rlh') {
         pixelValue = rem * 1.2;
       } else {
         pixelValue = rem / 2;
-      }
-    } else if (format === VAL_SPEC) {
-      const lengthInPx = {
-        ch: 8,
-        cm: 96 / 2.54,
-        em: 16,
-        ex: 8,
-        in: 96,
-        lh: 1.2 * 16,
-        mm: 96 / 2.54 / 10,
-        pc: 16,
-        pt: 16 / 12,
-        q: 96 / 2.54 / 40,
-        rch: 8,
-        rem: 16,
-        rex: 8,
-        rlh: 1.2 * 16
-      };
-      if (Object.hasOwnProperty.call(lengthInPx, unit)) {
-        pixelValue = lengthInPx[unit];
       }
     }
     if (Number.isFinite(pixelValue)) {

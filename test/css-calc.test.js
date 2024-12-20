@@ -168,7 +168,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, '600px', 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '100ex',
@@ -188,7 +188,7 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, '600px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -238,7 +238,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, '80px', 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '10rex',
@@ -258,7 +258,7 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, '80px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -285,7 +285,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, '1920px', 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '100em',
@@ -301,7 +301,7 @@ describe('resolve dimension', () => {
     const res = func(token, {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, '1600px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 });
 
