@@ -471,7 +471,7 @@ export const angleToDeg = angle => {
     throw new SyntaxError(`Invalid property value: ${angle}`);
   }
   const [, val, unit] = angle.match(reg);
-  const value = val.startsWith('.') ? `0${val}` : val;
+  const value = val[0] === '.' ? `0${val}` : val;
   let deg;
   switch (unit) {
     case 'grad':
@@ -508,7 +508,7 @@ export const parseAlpha = alpha => {
     } else if (alpha === NONE) {
       alpha = 0;
     } else {
-      if (alpha.startsWith('.')) {
+      if (alpha[0] === '.') {
         alpha = `0${alpha}`;
       }
       if (alpha.endsWith('%')) {
@@ -1108,7 +1108,7 @@ export const parseRgb = (value, opt = {}) => {
   if (v1 === NONE) {
     r = 0;
   } else {
-    if (v1.startsWith('.')) {
+    if (v1[0] === '.') {
       v1 = `0${v1}`;
     }
     if (v1.endsWith('%')) {
@@ -1121,7 +1121,7 @@ export const parseRgb = (value, opt = {}) => {
   if (v2 === NONE) {
     g = 0;
   } else {
-    if (v2.startsWith('.')) {
+    if (v2[0] === '.') {
       v2 = `0${v2}`;
     }
     if (v2.endsWith('%')) {
@@ -1134,7 +1134,7 @@ export const parseRgb = (value, opt = {}) => {
   if (v3 === NONE) {
     b = 0;
   } else {
-    if (v3.startsWith('.')) {
+    if (v3[0] === '.') {
       v3 = `0${v3}`;
     }
     if (v3.endsWith('%')) {
@@ -1197,7 +1197,7 @@ export const parseHsl = (value, opt = {}) => {
       s = 0;
     }
   } else {
-    if (s.startsWith('.')) {
+    if (s[0] === '.') {
       s = `0${s}`;
     }
     s = Math.min(Math.max(parseFloat(s), 0), MAX_PCT);
@@ -1207,7 +1207,7 @@ export const parseHsl = (value, opt = {}) => {
       l = 0;
     }
   } else {
-    if (l.startsWith('.')) {
+    if (l[0] === '.') {
       l = `0${l}`;
     }
     l = Math.min(Math.max(parseFloat(l), 0), MAX_PCT);
@@ -1281,7 +1281,7 @@ export const parseHwb = (value, opt = {}) => {
       w = 0;
     }
   } else {
-    if (w.startsWith('.')) {
+    if (w[0] === '.') {
       w = `0${w}`;
     }
     w = Math.min(Math.max(parseFloat(w), 0), MAX_PCT) / MAX_PCT;
@@ -1291,7 +1291,7 @@ export const parseHwb = (value, opt = {}) => {
       b = 0;
     }
   } else {
-    if (b.startsWith('.')) {
+    if (b[0] === '.') {
       b = `0${b}`;
     }
     b = Math.min(Math.max(parseFloat(b), 0), MAX_PCT) / MAX_PCT;
@@ -1363,7 +1363,7 @@ export const parseLab = (value, opt = {}) => {
       l = 0;
     }
   } else {
-    if (l.startsWith('.')) {
+    if (l[0] === '.') {
       l = `0${l}`;
     }
     if (l.endsWith('%')) {
@@ -1383,7 +1383,7 @@ export const parseLab = (value, opt = {}) => {
       a = 0;
     }
   } else {
-    if (a.startsWith('.')) {
+    if (a[0] === '.') {
       a = `0${a}`;
     }
     if (a.endsWith('%')) {
@@ -1471,7 +1471,7 @@ export const parseLch = (value, opt = {}) => {
       l = 0;
     }
   } else {
-    if (l.startsWith('.')) {
+    if (l[0] === '.') {
       l = `0${l}`;
     }
     l = parseFloat(l);
@@ -1484,7 +1484,7 @@ export const parseLch = (value, opt = {}) => {
       c = 0;
     }
   } else {
-    if (c.startsWith('.')) {
+    if (c[0] === '.') {
       c = `0${c}`;
     }
     if (c.endsWith('%')) {
@@ -1560,7 +1560,7 @@ export const parseOklab = (value, opt = {}) => {
       l = 0;
     }
   } else {
-    if (l.startsWith('.')) {
+    if (l[0] === '.') {
       l = `0${l}`;
     }
     if (l.endsWith('%')) {
@@ -1577,7 +1577,7 @@ export const parseOklab = (value, opt = {}) => {
       a = 0;
     }
   } else {
-    if (a.startsWith('.')) {
+    if (a[0] === '.') {
       a = `0${a}`;
     }
     if (a.endsWith('%')) {
@@ -1657,7 +1657,7 @@ export const parseOklch = (value, opt = {}) => {
       l = 0;
     }
   } else {
-    if (l.startsWith('.')) {
+    if (l[0] === '.') {
       l = `0${l}`;
     }
     if (l.endsWith('%')) {
@@ -1674,7 +1674,7 @@ export const parseOklch = (value, opt = {}) => {
       c = 0;
     }
   } else {
-    if (c.startsWith('.')) {
+    if (c[0] === '.') {
       c = `0${c}`;
     }
     if (c.endsWith('%')) {
@@ -1758,7 +1758,7 @@ export const parseColorFunc = (value, opt = {}) => {
   if (v1 === NONE) {
     r = 0;
   } else {
-    if (v1.startsWith('.')) {
+    if (v1[0] === '.') {
       v1 = `0${v1}`;
     }
     r = v1.endsWith('%') ? parseFloat(v1) / MAX_PCT : parseFloat(v1);
@@ -1766,7 +1766,7 @@ export const parseColorFunc = (value, opt = {}) => {
   if (v2 === NONE) {
     g = 0;
   } else {
-    if (v2.startsWith('.')) {
+    if (v2[0] === '.') {
       v2 = `0${v2}`;
     }
     g = v2.endsWith('%') ? parseFloat(v2) / MAX_PCT : parseFloat(v2);
@@ -1774,7 +1774,7 @@ export const parseColorFunc = (value, opt = {}) => {
   if (v3 === NONE) {
     b = 0;
   } else {
-    if (v3.startsWith('.')) {
+    if (v3[0] === '.') {
       v3 = `0${v3}`;
     }
     b = v3.endsWith('%') ? parseFloat(v3) / MAX_PCT : parseFloat(v3);
@@ -1959,7 +1959,7 @@ export const parseColorValue = (value, opt = {}) => {
       alpha = 0;
     }
   // hex-color
-  } else if (value.startsWith('#')) {
+  } else if (value[0] === '#') {
     if (REG_SPEC.test(format)) {
       const rgb = convertHexToRgb(value);
       return ['rgb', ...rgb];
@@ -2106,7 +2106,7 @@ export const resolveColorValue = (value, opt = {}) => {
       alpha = 0;
     }
   // hex-color
-  } else if (value.startsWith('#')) {
+  } else if (value[0] === '#') {
     [r, g, b, alpha] = convertHexToRgb(value);
   // rgb()
   } else if (value.startsWith('rgb')) {
