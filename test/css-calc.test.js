@@ -144,6 +144,165 @@ describe('resolve dimension', () => {
     });
     assert.strictEqual(res, '1200px', 'result');
   });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '100ch',
+      40,
+      44,
+      {
+        value: 100,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'ch'
+      }
+    ];
+    const res = func(token, {
+      dimension: {
+        em: 12,
+        rem: 16,
+        vw: 10.26
+      }
+    });
+    assert.strictEqual(res, '600px', 'result');
+  });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '100ex',
+      40,
+      44,
+      {
+        value: 100,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'ex'
+      }
+    ];
+    const res = func(token, {
+      dimension: {
+        em: 12,
+        rem: 16,
+        vw: 10.26
+      }
+    });
+    assert.strictEqual(res, '600px', 'result');
+  });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '100lh',
+      40,
+      44,
+      {
+        value: 100,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'lh'
+      }
+    ];
+    let res = func(token, {
+      dimension: {
+        em: 12,
+        rem: 16,
+        vw: 10.26
+      }
+    });
+    res = `${parseFloat(parseFloat(res).toPrecision(6))}px`;
+    assert.strictEqual(res, '1440px', 'result');
+  });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '10rch',
+      40,
+      44,
+      {
+        value: 10,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'rch'
+      }
+    ];
+    const res = func(token, {
+      dimension: {
+        em: 12,
+        rem: 16,
+        vw: 10.26
+      }
+    });
+    assert.strictEqual(res, '80px', 'result');
+  });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '10rex',
+      40,
+      44,
+      {
+        value: 10,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'rex'
+      }
+    ];
+    const res = func(token, {
+      dimension: {
+        em: 12,
+        rem: 16,
+        vw: 10.26
+      }
+    });
+    assert.strictEqual(res, '80px', 'result');
+  });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '100rlh',
+      40,
+      45,
+      {
+        value: 100,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'rlh'
+      }
+    ];
+    let res = func(token, {
+      dimension: {
+        em: 12,
+        rem: 16,
+        vw: 10.26
+      }
+    });
+    res = `${parseFloat(parseFloat(res).toPrecision(6))}px`;
+    assert.strictEqual(res, '1920px', 'result');
+  });
+
+  it('should get value', () => {
+    const token = [
+      'dimension-token',
+      '100em',
+      40,
+      44,
+      {
+        value: 100,
+        signCharacter: undefined,
+        type: 'integer',
+        unit: 'em'
+      }
+    ];
+    let res = func(token, {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '1600px', 'result');
+  });
 });
 
 describe('parse tokens', () => {
