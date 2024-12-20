@@ -145,7 +145,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, '1200px', 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '100ch',
@@ -165,7 +165,7 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, '600px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
@@ -191,7 +191,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, null, 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '100lh',
@@ -204,18 +204,17 @@ describe('resolve dimension', () => {
         unit: 'lh'
       }
     ];
-    let res = func(token, {
+    const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
         vw: 10.26
       }
     });
-    res = `${parseFloat(parseFloat(res).toPrecision(6))}px`;
-    assert.strictEqual(res, '1440px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '10rch',
@@ -235,7 +234,7 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, '80px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
@@ -261,7 +260,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, null, 'result');
   });
 
-  it('should get value', () => {
+  it('should get null', () => {
     const token = [
       'dimension-token',
       '100rlh',
@@ -274,15 +273,14 @@ describe('resolve dimension', () => {
         unit: 'rlh'
       }
     ];
-    let res = func(token, {
+    const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
         vw: 10.26
       }
     });
-    res = `${parseFloat(parseFloat(res).toPrecision(6))}px`;
-    assert.strictEqual(res, '1920px', 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {

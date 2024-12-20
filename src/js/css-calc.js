@@ -53,22 +53,6 @@ export const resolveDimension = (token, opt = {}) => {
       pixelValue = dimension[unit];
     } else if (typeof dimension.callback === 'function') {
       pixelValue = dimension.callback(unit);
-    } else if (/^(?:ch|lh)$/.test(unit) &&
-               Object.hasOwnProperty.call(dimension, 'em')) {
-      const { em } = dimension;
-      if (unit === 'lh') {
-        pixelValue = em * 1.2;
-      } else {
-        pixelValue = em / 2;
-      }
-    } else if (/^(?:rch|rlh)$/.test(unit) &&
-               Object.hasOwnProperty.call(dimension, 'rem')) {
-      const { rem } = dimension;
-      if (unit === 'rlh') {
-        pixelValue = rem * 1.2;
-      } else {
-        pixelValue = rem / 2;
-      }
     }
     if (Number.isFinite(pixelValue)) {
       res = `${relativeValue * pixelValue}px`;
