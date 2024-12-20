@@ -507,6 +507,13 @@ describe('resolve CSS calc()', () => {
   });
 
   it('should get value', () => {
+    const res = func('calc(100% - 100px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(100% - 100px)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('abs(sign(-0.5) * 2px / 3)');
     assert.strictEqual(res, '0.666667px', 'result');
   });

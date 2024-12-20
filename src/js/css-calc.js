@@ -217,7 +217,8 @@ export const cssCalc = (value, opt = {}) => {
       resolvedValue = `${parseFloat(Number(val).toPrecision(6))}${unit}`;
     }
     // wrap with `calc()`
-    if (resolvedValue && format === VAL_SPEC) {
+    if (resolvedValue && !REG_CALC_START.test(resolvedValue) &&
+        format === VAL_SPEC) {
       resolvedValue = `calc(${resolvedValue})`;
     }
   }
