@@ -298,7 +298,7 @@ describe('resolve dimension', () => {
         unit: 'em'
       }
     ];
-    let res = func(token, {
+    const res = func(token, {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, '1600px', 'result');
