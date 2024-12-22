@@ -13,22 +13,17 @@ describe('validate color components', () => {
   const func = color.validateColorComponents;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([]), Error,
-      'Expected array length of 3 or 4 but got 0.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1, 1], { maxLength: 3 }), Error,
-      'Expected array length of 3 but got 4.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(['foo', 1, 1]), TypeError,
-      'Expected Number but got String.');
+      'Unexpected array length 4.');
   });
 
   it('should throw', () => {
@@ -43,11 +38,6 @@ describe('validate color components', () => {
   it('should throw', () => {
     assert.throws(() => func([1.1, 1, 1]), RangeError,
       '1.1 is not between 0 and 1.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([1, 1, 1, 'foo']), TypeError,
-      'Expected Number but got String.');
   });
 
   it('should throw', () => {
@@ -81,43 +71,23 @@ describe('validate color components', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { minLength: null }),
-      TypeError, 'Expected Number but got Null.');
+    assert.throws(() => func([0, 128, 192, 1], { minLength: 'foo' }), TypeError,
+      'foo is not a number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { minLength: NaN }), TypeError,
-      'NaN is not a number.');
+    assert.throws(() => func([0, 128, 192, 1], { maxLength: 'foo' }), TypeError,
+      'foo is not a number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { maxLength: null }), TypeError,
-      'Expected Number but got Null.');
+    assert.throws(() => func([0, 128, 192, 1], { minRange: 'foo' }), TypeError,
+      'foo is not a number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { maxLength: NaN }), TypeError,
-      'NaN is not a number.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { minRange: null }), TypeError,
-      'Expected Number but got Null.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { minRange: NaN }), TypeError,
-      'NaN is not a number.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { maxRange: null }), TypeError,
-      'Expected Number but got Null.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([0, 128, 192, 1], { maxRange: NaN }), TypeError,
-      'NaN is not a number.');
+    assert.throws(() => func([0, 128, 192, 1], { maxRange: 'foo' }), TypeError,
+      'foo is not a number.');
   });
 
   it('should get value', () => {
@@ -162,27 +132,22 @@ describe('transform matrix', () => {
   const func = color.transformMatrix;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([]), Error,
-      'Expected array length of 3 but got 0.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
     assert.throws(() => func(['foo', [], []]), TypeError,
-      'Expected Array but got String.');
+      'foo is not a number.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([[], [], []]), Error,
-      'Expected array length of 3 but got 0.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([[1, 0, 'foo'], [], []]), TypeError,
-      'Expected Number but got String.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
@@ -192,20 +157,12 @@ describe('transform matrix', () => {
 
   it('should throw', () => {
     assert.throws(() => func([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([[1, 0, 0], [0, 1, 0], [0, 0, 1]], []), Error,
-      'Expected array length of 3 but got 0.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([
-      [1, 0, 0],
-      [0, 1, 0],
-      [0, 0, 1]
-    ], [1, 0, 'foo']), TypeError, 'Expected Number but got String.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
@@ -244,22 +201,22 @@ describe('normalize color components', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([]), Error,
-      'Expected array length of 4 but got 0.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1, 1]), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1, 1], []), Error,
-      'Expected array length of 4 but got 0.');
+      'Unexpected array length 0.');
   });
 
   it('should get values', () => {
@@ -380,7 +337,7 @@ describe('number to hex string', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Number but got Undefined.');
+      'undefined is not a number.');
   });
 
   it('should throw', () => {
@@ -460,7 +417,7 @@ describe('angle to deg', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string.');
   });
 
   it('should throw', () => {
@@ -637,7 +594,7 @@ describe('parse hex alpha', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string.');
   });
 
   it('should throw', () => {
@@ -695,12 +652,12 @@ describe('convert rgb to linear rgb', () => {
   const func = color.convertRgbToLinearRgb;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([255, 255, 255, 1]), Error,
-      'Expected array length of 3 but got 4.');
+      'Unexpected array length 4.');
   });
 
   it('should get value', () => {
@@ -748,17 +705,12 @@ describe('convert rgb to xyz', () => {
   const func = color.convertRgbToXyz;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([]), Error,
-      'Expected array length of 3 or 4 but got 0.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(['foo', 255, 255]), TypeError,
-      'Expected Number but got String.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
@@ -774,11 +726,6 @@ describe('convert rgb to xyz', () => {
   it('should throw', () => {
     assert.throws(() => func([256, 255, 255]), RangeError,
       '256 is not between 0 and 255.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([255, 255, 255, 'foo']), TypeError,
-      'Expected Number but got String.');
   });
 
   it('should throw', () => {
@@ -838,17 +785,12 @@ describe('convert rgb to xyz-d50', () => {
   const func = color.convertRgbToXyzD50;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([]), Error,
-      'Expected array length of 3 or 4 but got 0.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(['foo', 255, 255]), TypeError,
-      'Expected Number but got String.');
+      'Unexpected array length 0.');
   });
 
   it('should throw', () => {
@@ -864,11 +806,6 @@ describe('convert rgb to xyz-d50', () => {
   it('should throw', () => {
     assert.throws(() => func([256, 255, 255]), RangeError,
       '256 is not between 0 and 255.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func([255, 255, 255, 'foo']), TypeError,
-      'Expected Number but got String.');
   });
 
   it('should throw', () => {
@@ -921,7 +858,7 @@ describe('convert rgb to hex color', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
@@ -965,12 +902,12 @@ describe('convert linear rgb to rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1, 1]), Error,
-      'Expected array length of 3 but got 4.');
+      'Unexpected array length 4.');
   });
 
   it('should get value', () => {
@@ -1004,12 +941,12 @@ describe('convert linear rgb to hex color', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1]), Error,
-      'Expected array length of 4 but got 3.');
+      'Unexpected array length 3.');
   });
 
   it('should get value', () => {
@@ -1063,12 +1000,12 @@ describe('convert xyz D50 to hex color', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1]), Error,
-      'Expected array length of 4 but got 3.');
+      'Unexpected array length 3.');
   });
 
   it('should get value', () => {
@@ -1122,12 +1059,12 @@ describe('convert xyz to hex color', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1]), Error,
-      'Expected array length of 4 but got 3.');
+      'Unexpected array length 3.');
   });
 
   it('should get value', () => {
@@ -1191,7 +1128,7 @@ describe('convert xyz to rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1227,7 +1164,7 @@ describe('convert xyz to xyz-d50', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1268,7 +1205,7 @@ describe('xyz to hsl', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1375,7 +1312,7 @@ describe('xyz to hwb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1449,7 +1386,7 @@ describe('xyz to oklab', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1535,7 +1472,7 @@ describe('xyz to oklch', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1620,12 +1557,12 @@ describe('convert xyz D50 to rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should throw', () => {
     assert.throws(() => func([1, 1, 1]), Error,
-      'Expected array length of 4 but got 3.');
+      'Unexpected array length 3.');
   });
 
   it('should get value', () => {
@@ -1688,7 +1625,7 @@ describe('xyz-d50 to lab', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1809,7 +1746,7 @@ describe('xyz-d50 to lch', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected Array but got Undefined.');
+      'undefined is not an array.');
   });
 
   it('should get value', () => {
@@ -1928,7 +1865,7 @@ describe('convert hex to rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should throw', () => {
@@ -2017,7 +1954,7 @@ describe('convert hex to linear rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should throw', () => {
@@ -2088,7 +2025,7 @@ describe('hex to xyz', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should throw', () => {
@@ -2184,7 +2121,7 @@ describe('parse rgb()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -2307,7 +2244,7 @@ describe('parse hsl()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -2466,7 +2403,7 @@ describe('parse hwb()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -2650,7 +2587,7 @@ describe('parse lab()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -2832,7 +2769,7 @@ describe('parse lch()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -3010,7 +2947,7 @@ describe('parse oklab()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -3183,7 +3120,7 @@ describe('parse oklch()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -3362,7 +3299,7 @@ describe('parse color func', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -3675,7 +3612,7 @@ describe('parse color value', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -4045,7 +3982,7 @@ describe('resolve color value', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -4372,7 +4309,7 @@ describe('resolve color()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {
@@ -4967,7 +4904,7 @@ describe('convert color value to linear rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5032,7 +4969,7 @@ describe('convert color value to rgb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5091,7 +5028,7 @@ describe('convert color value to xyz', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5157,7 +5094,7 @@ describe('convert color value to hsl', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5221,7 +5158,7 @@ describe('convert color value to hwb', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5277,7 +5214,7 @@ describe('convert color value to lab', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5341,7 +5278,7 @@ describe('convert color value to lch', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5405,7 +5342,7 @@ describe('convert color value to oklab', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5469,7 +5406,7 @@ describe('convert color value to oklch', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get null', () => {
@@ -5533,7 +5470,7 @@ describe('resolve color-mix()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+      'undefined is not a string');
   });
 
   it('should get value', () => {

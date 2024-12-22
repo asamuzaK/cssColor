@@ -21,8 +21,7 @@ describe('resolve CSS color', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {

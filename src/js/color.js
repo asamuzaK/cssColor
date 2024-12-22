@@ -6,7 +6,7 @@
  *      https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
  */
 
-import { getType, isString } from './common.js';
+import { isString } from './common.js';
 import { interpolateHue } from './util.js';
 
 /* constants */
@@ -288,7 +288,7 @@ export const NAMED_COLORS = {
  */
 export const validateColorComponents = (arr, opt = {}) => {
   if (!Array.isArray(arr)) {
-    throw new TypeError(`Expected Array but got ${getType(arr)}.`);
+    throw new TypeError(`${arr} is not an array.`);
   }
   const {
     alpha = false,
@@ -298,43 +298,26 @@ export const validateColorComponents = (arr, opt = {}) => {
     maxRange = 1,
     validateRange = true
   } = opt;
-  if (typeof minLength !== 'number') {
-    throw new TypeError(`Expected Number but got ${getType(minLength)}.`);
-  } else if (!Number.isFinite(minLength)) {
+  if (!Number.isFinite(minLength)) {
     throw new TypeError(`${minLength} is not a number.`);
   }
-  if (typeof maxLength !== 'number') {
-    throw new TypeError(`Expected Number but got ${getType(maxLength)}.`);
-  } else if (!Number.isFinite(maxLength)) {
+  if (!Number.isFinite(maxLength)) {
     throw new TypeError(`${maxLength} is not a number.`);
   }
-  if (typeof minRange !== 'number') {
-    throw new TypeError(`Expected Number but got ${getType(minRange)}.`);
-  } else if (!Number.isFinite(minRange)) {
+  if (!Number.isFinite(minRange)) {
     throw new TypeError(`${minRange} is not a number.`);
   }
-  if (typeof maxRange !== 'number') {
-    throw new TypeError(`Expected Number but got ${getType(maxRange)}.`);
-  } else if (!Number.isFinite(maxRange)) {
+  if (!Number.isFinite(maxRange)) {
     throw new TypeError(`${maxRange} is not a number.`);
   }
   const l = arr.length;
   if (l < minLength || l > maxLength) {
-    let msg;
-    if (minLength === maxLength) {
-      msg = `Expected array length of ${maxLength} but got ${l}.`;
-    } else {
-      msg =
-        `Expected array length of ${minLength} or ${maxLength} but got ${l}.`;
-    }
-    throw new Error(msg);
+    throw new Error(`Unexpected array length ${l}.`);
   }
   let i = 0;
   while (i < l) {
     const v = arr[i];
-    if (typeof v !== 'number') {
-      throw new TypeError(`Expected Number but got ${getType(v)}.`);
-    } else if (!Number.isFinite(v)) {
+    if (!Number.isFinite(v)) {
       throw new TypeError(`${v} is not a number.`);
     } else if (i < TRIA && validateRange && (v < minRange || v > maxRange)) {
       throw new RangeError(`${v} is not between ${minRange} and ${maxRange}.`);
@@ -358,9 +341,9 @@ export const validateColorComponents = (arr, opt = {}) => {
  */
 export const transformMatrix = (mtx, vct, skip = false) => {
   if (!Array.isArray(mtx)) {
-    throw new TypeError(`Expected Array but got ${getType(mtx)}.`);
+    throw new TypeError(`${mtx} is not an array.`);
   } else if (mtx.length !== TRIA) {
-    throw new Error(`Expected array length of 3 but got ${mtx.length}.`);
+    throw new Error(`Unexpected array length ${mtx.length}.`);
   } else if (!skip) {
     for (let i of mtx) {
       i = validateColorComponents(i, {
@@ -398,14 +381,14 @@ export const transformMatrix = (mtx, vct, skip = false) => {
  */
 export const normalizeColorComponents = (colorA, colorB, skip = false) => {
   if (!Array.isArray(colorA)) {
-    throw new TypeError(`Expected Array but got ${getType(colorA)}.`);
+    throw new TypeError(`${colorA} is not an array.`);
   } else if (colorA.length !== QUAT) {
-    throw new Error(`Expected array length of 4 but got ${colorA.length}.`);
+    throw new Error(`Unexpected array length ${colorA.length}.`);
   }
   if (!Array.isArray(colorB)) {
-    throw new TypeError(`Expected Array but got ${getType(colorB)}.`);
+    throw new TypeError(`${colorB} is not an array.`);
   } else if (colorB.length !== QUAT) {
-    throw new Error(`Expected array length of 4 but got ${colorB.length}.`);
+    throw new Error(`Unexpected array length ${colorB.length}.`);
   }
   let i = 0;
   while (i < QUAT) {
@@ -438,9 +421,7 @@ export const normalizeColorComponents = (colorA, colorB, skip = false) => {
  * @returns {string} - hex string
  */
 export const numberToHexString = value => {
-  if (typeof value !== 'number') {
-    throw new TypeError(`Expected Number but got ${getType(value)}.`);
-  } else if (!Number.isFinite(value)) {
+  if (!Number.isFinite(value)) {
     throw new TypeError(`${value} is not a number.`);
   } else {
     value = Math.round(value);
@@ -464,7 +445,7 @@ export const angleToDeg = angle => {
   if (isString(angle)) {
     angle = angle.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(angle)}.`);
+    throw new TypeError(`${angle} is not a string.`);
   }
   const GRAD = DEG / 400;
   const RAD = DEG / (Math.PI * DUO);
@@ -547,7 +528,7 @@ export const parseHexAlpha = value => {
     }
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   let alpha = parseInt(value, HEX);
   if (alpha <= 0) {
@@ -1009,7 +990,7 @@ export const convertHexToRgb = value => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   if (!(/^#[\da-f]{6}$/.test(value) || /^#[\da-f]{3}$/.test(value) ||
         /^#[\da-f]{8}$/.test(value) || /^#[\da-f]{4}$/.test(value))) {
@@ -1087,7 +1068,7 @@ export const parseRgb = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   const reg = new RegExp(`^rgba?\\(\\s*(${SYN_RGB}|${SYN_RGB_LV3})\\s*\\)$`);
@@ -1168,7 +1149,7 @@ export const parseHsl = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   if (!REG_HSL.test(value)) {
@@ -1252,7 +1233,7 @@ export const parseHwb = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   if (!REG_HWB.test(value)) {
@@ -1340,7 +1321,7 @@ export const parseLab = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   if (!REG_LAB.test(value)) {
@@ -1449,7 +1430,7 @@ export const parseLch = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   if (!REG_LCH.test(value)) {
@@ -1538,7 +1519,7 @@ export const parseOklab = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   if (!REG_OKLAB.test(value)) {
@@ -1635,7 +1616,7 @@ export const parseOklch = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   if (!REG_OKLCH.test(value)) {
@@ -1735,7 +1716,7 @@ export const parseColorFunc = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { colorSpace, d50, format } = opt;
   if (!REG_FUNC_COLOR.test(value)) {
@@ -1894,7 +1875,7 @@ export const parseColorValue = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { d50, format } = opt;
   // unknown color and/or invalid color
@@ -2054,7 +2035,7 @@ export const resolveColorValue = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { colorSpace, format } = opt;
   // unknown color and/or invalid color
@@ -2175,7 +2156,7 @@ export const resolveColorFunc = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { colorSpace, format } = opt;
   if (!REG_FUNC_COLOR.test(value)) {
@@ -2225,7 +2206,7 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { colorSpace, format } = opt;
   let cs, r, g, b, alpha, x, y, z;
@@ -2278,7 +2259,7 @@ export const convertColorToRgb = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let r, g, b, alpha;
@@ -2329,7 +2310,7 @@ export const convertColorToXyz = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { d50, format } = opt;
   let x, y, z, alpha;
@@ -2379,7 +2360,7 @@ export const convertColorToHsl = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let h, s, l, alpha, x, y, z;
@@ -2420,7 +2401,7 @@ export const convertColorToHwb = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let h, w, b, alpha, x, y, z;
@@ -2461,7 +2442,7 @@ export const convertColorToLab = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let l, a, b, alpha, x, y, z;
@@ -2507,7 +2488,7 @@ export const convertColorToLch = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let l, c, h, alpha, x, y, z;
@@ -2553,7 +2534,7 @@ export const convertColorToOklab = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let l, a, b, alpha, x, y, z;
@@ -2594,7 +2575,7 @@ export const convertColorToOklch = (value, opt = {}) => {
   if (isString(value)) {
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   let l, c, h, alpha, x, y, z;
@@ -2636,7 +2617,7 @@ export const resolveColorMix = (value, opt = {}) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
   const nestedItems = [];

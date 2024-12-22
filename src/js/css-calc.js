@@ -5,7 +5,7 @@
 import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { getType, isString } from './common.js';
+import { isString } from './common.js';
 import { valueToJsonString } from './util.js';
 
 /* constants */
@@ -38,7 +38,7 @@ export const cachedResults = new LRUCache({
  */
 export const resolveDimension = (token, opt = {}) => {
   if (!Array.isArray(token)) {
-    throw new TypeError(`Expected Array but got ${getType(token)}.`);
+    throw new TypeError(`${token} is not an array.`);
   }
   const [, value,,, detail = {}] = token;
   const { unit, value: relativeValue } = detail;
@@ -69,7 +69,7 @@ export const resolveDimension = (token, opt = {}) => {
  */
 export const parseTokens = (tokens, opt = {}) => {
   if (!Array.isArray(tokens)) {
-    throw new TypeError(`Expected Array but got ${getType(tokens)}.`);
+    throw new TypeError(`${tokens} is not an array.`);
   }
   const { format } = opt;
   const signFunc = new Set();
@@ -78,7 +78,7 @@ export const parseTokens = (tokens, opt = {}) => {
   while (tokens.length) {
     const token = tokens.shift();
     if (!Array.isArray(token)) {
-      throw new TypeError(`Expected Array but got ${getType(token)}.`);
+      throw new TypeError(`${token} is not an array.`);
     }
     const [type, value] = token;
     switch (type) {
@@ -163,7 +163,7 @@ export const cssCalc = (value, opt = {}) => {
     }
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string`);
   }
   let cacheKey;
   if (typeof dimension?.callback !== 'function') {

@@ -8,7 +8,7 @@ import {
   convertColorToOklab, convertColorToOklch, convertColorToRgb,
   numberToHexString, parseColorFunc, parseColorValue
 } from './color.js';
-import { getType, isString } from './common.js';
+import { isString } from './common.js';
 import { cssCalc } from './css-calc.js';
 import { cssVar } from './css-var.js';
 import { resolve } from './resolve.js';
@@ -109,7 +109,7 @@ export const colorToHex = (value, opt = {}) => {
       return null;
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { alpha, customProperty } = opt;
   let cacheKey;
@@ -150,7 +150,7 @@ export const colorToHsl = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -185,7 +185,7 @@ export const colorToHwb = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -218,7 +218,7 @@ export const colorToLab = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -252,7 +252,7 @@ export const colorToLch = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -286,7 +286,7 @@ export const colorToOklab = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -320,7 +320,7 @@ export const colorToOklch = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -354,7 +354,7 @@ export const colorToRgb = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;
@@ -389,7 +389,7 @@ export const colorToXyz = (value, opt = {}) => {
       return [0, 0, 0, 0];
     }
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty } = opt;
   let cacheKey;

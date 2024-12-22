@@ -101,8 +101,7 @@ describe('convert number to hex string', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -173,8 +172,7 @@ describe('convert color to hex', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get null', () => {
@@ -258,8 +256,7 @@ describe('convert color to hsl', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -323,8 +320,7 @@ describe('convert color to hwb', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -388,8 +384,7 @@ describe('convert color to lab', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -499,8 +494,7 @@ describe('convert color to lch', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -572,8 +566,7 @@ describe('convert color to oklab', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -645,8 +638,7 @@ describe('convert color to oklch', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -718,8 +710,7 @@ describe('convert color to rgb', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
@@ -779,8 +770,7 @@ describe('convert color to xyz', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {

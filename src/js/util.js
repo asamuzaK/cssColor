@@ -77,10 +77,10 @@ export const valueToJsonString = (value, func = false) => {
  */
 export const interpolateHue = (hueA, hueB, arc = 'shorter') => {
   if (!Number.isFinite(hueA)) {
-    throw new TypeError(`${hueA} is not a number.`)
+    throw new TypeError(`${hueA} is not a number.`);
   }
   if (!Number.isFinite(hueB)) {
-    throw new TypeError(`${hueB} is not a number.`)
+    throw new TypeError(`${hueB} is not a number.`);
   }
   switch (arc) {
     case 'decreasing': {

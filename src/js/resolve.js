@@ -6,7 +6,7 @@ import { LRUCache } from 'lru-cache';
 import {
   convertRgbToHex, resolveColorFunc, resolveColorMix, resolveColorValue
 } from './color.js';
-import { getType, isString } from './common.js';
+import { isString } from './common.js';
 import { cssCalc } from './css-calc.js';
 import { cssVar } from './css-var.js';
 import { valueToJsonString } from './util.js';
@@ -74,7 +74,7 @@ export const resolve = (color, opt = {}) => {
   if (isString(color)) {
     color = color.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(color)}.`);
+    throw new TypeError(`${color} is not a string.`);
   }
   const { currentColor, customProperty, format = VAL_COMP, key } = opt;
   let cacheKey;

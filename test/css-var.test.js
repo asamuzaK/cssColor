@@ -20,13 +20,11 @@ describe('resolve CSS variable', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'Expected Array but got Undefined.',
-      'result');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func(['foo']), TypeError,
-      'Expected Array but got String.', 'result');
+    assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
   });
 
   it('should get value', () => {
@@ -582,8 +580,7 @@ describe('resolve CSS var()', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError,
-      'Expected String but got Undefined.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {

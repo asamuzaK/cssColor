@@ -4,7 +4,7 @@
 
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { getType, isString } from './common.js';
+import { isString } from './common.js';
 import { cssCalc } from './css-calc.js';
 import { isColor, valueToJsonString } from './util.js';
 
@@ -33,14 +33,14 @@ export const cachedResults = new LRUCache({
  */
 export function resolveCustomProperty(tokens, opt = {}) {
   if (!Array.isArray(tokens)) {
-    throw new TypeError(`Expected Array but got ${getType(tokens)}.`);
+    throw new TypeError(`${tokens} is not an array.`);
   }
   const { customProperty = {} } = opt;
   const items = [];
   while (tokens.length) {
     const token = tokens.shift();
     if (!Array.isArray(token)) {
-      throw new TypeError(`Expected Array but got ${getType(token)}.`);
+      throw new TypeError(`${token} is not an array.`);
     }
     const [type, value] = token;
     // end of var()
@@ -183,7 +183,7 @@ export function cssVar(value, opt = {}) {
     }
     value = value.trim();
   } else {
-    throw new TypeError(`Expected String but got ${getType(value)}.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   let cacheKey;
   if (typeof customProperty?.callback !== 'function') {
