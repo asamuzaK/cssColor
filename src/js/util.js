@@ -7,6 +7,8 @@ import { isString } from './common.js';
 /* constants */
 import { NAMED_COLORS } from './color.js';
 import { SYN_COLOR_TYPE, SYN_MIX } from './constant.js';
+const DEG = 360;
+const DEG_HALF = 180;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
@@ -64,4 +66,51 @@ export const valueToJsonString = (value, func = false) => {
     return replacedValue;
   });
   return res;
+};
+
+/**
+ * interpolate hue
+ * @param {number} hueA - hue
+ * @param {number} hueB - hue
+ * @param {string} arc - arc
+ * @returns {Array} - [hueA, hueB]
+ */
+export const interpolateHue = (hueA, hueB, arc = 'shorter') => {
+  if (!Number.isFinite(hueA)) {
+    throw new TypeError(`${hueA} is not a number.`)
+  }
+  if (!Number.isFinite(hueB)) {
+    throw new TypeError(`${hueB} is not a number.`)
+  }
+  switch (arc) {
+    case 'decreasing': {
+      if (hueB > hueA) {
+        hueA += DEG;
+      }
+      break;
+    }
+    case 'increasing': {
+      if (hueB < hueA) {
+        hueB += DEG;
+      }
+      break;
+    }
+    case 'longer': {
+      if (hueB > hueA && hueB < hueA + DEG_HALF) {
+        hueA += DEG;
+      } else if (hueB > hueA + DEG_HALF * -1 && hueB <= hueA) {
+        hueB += DEG;
+      }
+      break;
+    }
+    case 'shorter':
+    default: {
+      if (hueB > hueA + DEG_HALF) {
+        hueA += DEG;
+      } else if (hueB < hueA + DEG_HALF * -1) {
+        hueB += DEG;
+      }
+    }
+  }
+  return [hueA, hueB];
 };

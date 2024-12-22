@@ -5,12 +5,18 @@
 /* constants */
 const _DIGIT = '(?:0|[1-9]\\d*)';
 export const ANGLE = 'deg|g?rad|turn';
+export const CS_HUE_ARC = '(?:de|in)creasing|longer|shorter';
+export const CS_HUE_NAME = '(?:ok)?lch|hsl|hwb';
+export const CS_HUE = `(?:${CS_HUE_NAME})(?:\\s(?:${CS_HUE_ARC})\\shue)?`;
+export const CS_HUE_CAPT = `(${CS_HUE_NAME})(?:\\s(${CS_HUE_ARC})\\shue)?`;
+export const CS_LAB = '(?:ok)?lab';
+export const CS_LCH = '(?:ok)?lch';
 export const CS_SRGB = 'srgb(?:-linear)?';
 export const CS_RGB = `(?:a98|prophoto)-rgb|display-p3|rec2020|${CS_SRGB}`;
 export const CS_XYZ = 'xyz(?:-d(?:50|65))?';
-export const CS_MIX = `(?:ok)?l(?:ab|ch)|h(?:sl|wb)|${CS_SRGB}|${CS_XYZ}`;
-export const FUNC_CALC_ESC =
-  '^(?:abs|calc|sign)\\(|(?<=[*\\/\\s\\(])(?:abs|calc|sign)\\(';
+export const CS_MIX = `${CS_HUE}|${CS_LAB}|${CS_SRGB}|${CS_XYZ}`;
+export const FUNC_CALC = '(?:abs|calc|sign)\\(';
+export const FUNC_CALC_ESC = `^${FUNC_CALC}|(?<=[*\\/\\s\\(])${FUNC_CALC}`;
 export const FUNC_CALC_VAR_ESC = '(?:abs|calc|sign|var)\\(';
 export const FUNC_COLOR = 'color(';
 export const FUNC_MIX = 'color-mix(';

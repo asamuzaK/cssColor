@@ -6270,6 +6270,11 @@ describe('resolve color-mix()', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in hsl shorter hue, hsl(120 10% 20% / .4) 0%, hsl(30 30% 40% / .8))');
+    assert.deepEqual(res, ['rgb', 133, 102, 71, 0.8], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color-mix(in hwb, foo, red)');
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -6405,6 +6410,13 @@ describe('resolve color-mix()', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in hwb shorter hue, hwb(120 0% 49.8039% / 0), color(srgb 1 0 0 / 0))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.752941, 0.752941, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color-mix(in lab, foo, red)');
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
@@ -6529,6 +6541,13 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lch, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 50.2841, 87.4109, 87.6208, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch shorter hue, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 50.2841, 87.4109, 87.6208, 0], 'result');
@@ -6681,6 +6700,14 @@ describe('resolve color-mix()', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in oklch shorter hue, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['oklch', 0.573854, 0.217271, 85.8646, 0],
+      'result');
+  });
+
+  it('should get value', () => {
     const res = func('color-mix(in srgb, color-mix(in srgb, red, blue), color-mix(in srgb, transparent, #008000))', {
       format: 'computedValue'
     });
@@ -6762,6 +6789,38 @@ describe('resolve color-mix()', () => {
     });
     assert.deepEqual(res,
       'color-mix(in oklab, color-mix(in lab, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)',
+      'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch, color-mix(in lch, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 32.0257, 85.385, 272.492, 0.875], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch shorter hue, color-mix(in lch, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 32.0257, 85.385, 272.492, 0.875], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch, color-mix(in lch, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res,
+      'color-mix(in lch, color-mix(in lch, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)',
+      'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch shorter hue, color-mix(in lch shorter hue, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res,
+      'color-mix(in lch shorter hue, color-mix(in lch shorter hue, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)',
       'result');
   });
 
@@ -7293,5 +7352,124 @@ describe('resolve color-mix()', () => {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 30, 40, 50, 'none'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hsl shorter hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.74902, 0.666667, 0.25098, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hsl longer hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.25098, 0.333333, 0.74902, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hsl increasing hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.74902, 0.666667, 0.25098, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hsl decreasing hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.25098, 0.333333, 0.74902, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hwb shorter hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.6, 0.54902, 0.301961, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hwb shorter hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.6, 0.54902, 0.301961, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hwb longer hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.301961, 0.34902, 0.6, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hwb increasing hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.6, 0.54902, 0.301961, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in hwb decreasing hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['srgb', 0.301961, 0.34902, 0.6, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch shorter hue, lch(100 0 40deg), lch(100 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 100, 0, 50, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch longer hue, lch(100 0 40deg), lch(100 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 100, 0, 230, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch increasing hue, lch(100 0 40deg), lch(100 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 100, 0, 50, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in lch decreasing hue, lch(100 0 40deg), lch(100 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['lch', 100, 0, 230, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklch shorter hue, oklch(1 0 40deg), oklch(1 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['oklch', 1, 0, 50, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklch longer hue, oklch(1 0 40deg), oklch(1 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['oklch', 1, 0, 230, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklch increasing hue, oklch(1 0 40deg), oklch(1 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['oklch', 1, 0, 50, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklch decreasing hue, oklch(1 0 40deg), oklch(1 0 60deg))', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['oklch', 1, 0, 230, 1], 'result');
   });
 });
