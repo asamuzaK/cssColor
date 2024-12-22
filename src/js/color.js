@@ -7,11 +7,12 @@
  */
 
 import { getType, isString } from './common.js';
+import { interpolateHue } from './util.js';
 
 /* constants */
 import {
-  ANGLE, CS_MIX, CS_RGB, CS_XYZ, FUNC_COLOR, FUNC_MIX, NONE, NUM, PCT,
-  SYN_COLOR_TYPE, SYN_FUNC_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LAB, SYN_LCH,
+  ANGLE, CS_HUE_CAPT, CS_MIX, CS_RGB, CS_XYZ, FUNC_COLOR, FUNC_MIX, NONE, NUM,
+  PCT, SYN_COLOR_TYPE, SYN_FUNC_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LAB, SYN_LCH,
   SYN_MIX, SYN_MIX_CAPT, SYN_RGB, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const VAL_MIX = 'mixValue';
@@ -107,6 +108,7 @@ const MATRIX_PROPHOTO_TO_XYZ_D50 = [
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
+const REG_CS_HUE = new RegExp(`^${CS_HUE_CAPT}$`);
 const REG_CURRENT = /^currentColor$/i;
 const REG_FUNC_COLOR = new RegExp(`^color\\(\\s*(${SYN_FUNC_COLOR})\\s*\\)$`);
 const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
@@ -2683,10 +2685,15 @@ export const resolveColorMix = (value, opt = {}) => {
       return ['rgb', 0, 0, 0, 0];
     }
   }
-  let colorSpace, colorA, pctA, colorB, pctB;
+  let colorSpace, hueArc, colorA, pctA, colorB, pctB;
   if (nestedItems.length && format === VAL_SPEC) {
     const regColorSpace = new RegExp(`^color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,`);
-    [, colorSpace] = value.match(regColorSpace);
+    const [, cs] = value.match(regColorSpace);
+    if (REG_CS_HUE.test(cs)) {
+      [, colorSpace, hueArc] = REG_CS_HUE.exec(cs);
+    } else {
+      colorSpace = cs;
+    }
     if (nestedItems.length === 2) {
       const itemA = nestedItems[0].replace(/(?=[()])/g, '\\');
       const regA = new RegExp(`(${itemA})(?:\\s+(${PCT}))?`);
@@ -2724,7 +2731,11 @@ export const resolveColorMix = (value, opt = {}) => {
     const reg = new RegExp(`^(${SYN_COLOR_TYPE})(?:\\s+(${PCT}))?$`);
     [, colorA, pctA] = colorPartA.match(reg);
     [, colorB, pctB] = colorPartB.match(reg);
-    colorSpace = cs;
+    if (REG_CS_HUE.test(cs)) {
+      [, colorSpace, hueArc] = REG_CS_HUE.exec(cs);
+    } else {
+      colorSpace = cs;
+    }
   }
   // normalize percentages and set multipler
   let pA, pB, m;
@@ -2856,7 +2867,11 @@ export const resolveColorMix = (value, opt = {}) => {
         valueA += ` ${pA}%`;
       }
     }
-    return `color-mix(in ${colorSpace}, ${valueA}, ${valueB})`;
+    if (hueArc) {
+      return `color-mix(in ${colorSpace} ${hueArc} hue, ${valueA}, ${valueB})`;
+    } else {
+      return `color-mix(in ${colorSpace}, ${valueA}, ${valueB})`;
+    }
   }
   let r, g, b, alpha;
   // in srgb, srgb-linear
@@ -3042,6 +3057,9 @@ export const resolveColorMix = (value, opt = {}) => {
     [[hA, sA, lA, alphaA], [hB, sB, lB, alphaB]] =
       normalizeColorComponents([hA, sA, lA, alphaA], [hB, sB, lB, alphaB],
         true);
+    if (hueArc) {
+      [hA, hB] = interpolateHue(hA, hB, hueArc);
+    }
     const factorA = alphaA * pA;
     const factorB = alphaB * pB;
     alpha = (factorA + factorB);
@@ -3189,6 +3207,9 @@ export const resolveColorMix = (value, opt = {}) => {
     [[lA, cA, hA, alphaA], [lB, cB, hB, alphaB]] =
       normalizeColorComponents([lA, cA, hA, alphaA], [lB, cB, hB, alphaB],
         true);
+    if (hueArc) {
+      [hA, hB] = interpolateHue(hA, hB, hueArc);
+    }
     const factorA = alphaA * pA;
     const factorB = alphaB * pB;
     alpha = (factorA + factorB);

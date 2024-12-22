@@ -144,3 +144,115 @@ describe('value to JSON string', () => {
       'result');
   });
 });
+
+describe('value to JSON string', () => {
+  const func = util.interpolateHue;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a number.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(90), TypeError, 'undefined is not a number.');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 60);
+    assert.deepEqual(res, [30, 60], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(60, 30);
+    assert.deepEqual(res, [60, 30], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 240);
+    assert.deepEqual(res, [390, 240], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(240, 30);
+    assert.deepEqual(res, [240, 390], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 60, 'shorter');
+    assert.deepEqual(res, [30, 60], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(60, 30, 'shorter');
+    assert.deepEqual(res, [60, 30], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 240, 'shorter');
+    assert.deepEqual(res, [390, 240], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(240, 30, 'shorter');
+    assert.deepEqual(res, [240, 390], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 60, 'longer');
+    assert.deepEqual(res, [390, 60], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(60, 30, 'longer');
+    assert.deepEqual(res, [60, 390], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 240, 'longer');
+    assert.deepEqual(res, [30, 240], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(240, 30, 'longer');
+    assert.deepEqual(res, [240, 30], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 60, 'increasing');
+    assert.deepEqual(res, [30, 60], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(60, 30, 'increasing');
+    assert.deepEqual(res, [60, 390], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 240, 'increasing');
+    assert.deepEqual(res, [30, 240], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(240, 30, 'increasing');
+    assert.deepEqual(res, [240, 390], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 60, 'decreasing');
+    assert.deepEqual(res, [390, 60], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(60, 30, 'decreasing');
+    assert.deepEqual(res, [60, 30], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(30, 240, 'decreasing');
+    assert.deepEqual(res, [390, 240], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(240, 30, 'decreasing');
+    assert.deepEqual(res, [240, 30], 'result');
+  });
+});
