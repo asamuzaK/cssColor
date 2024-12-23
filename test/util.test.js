@@ -145,7 +145,7 @@ describe('value to JSON string', () => {
   });
 });
 
-describe('value to JSON string', () => {
+describe('interpolate hue', () => {
   const func = util.interpolateHue;
 
   it('should throw', () => {
