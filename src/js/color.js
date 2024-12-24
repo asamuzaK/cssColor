@@ -7,7 +7,7 @@
  */
 
 import { isString } from './common.js';
-import { interpolateHue } from './util.js';
+import { interpolateHue, roundToPrecision } from './util.js';
 
 /* constants */
 import {
@@ -23,6 +23,7 @@ const HALF = 0.5;
 const DUO = 2;
 const TRIA = 3;
 const QUAT = 4;
+const OCT = 8;
 const DEC = 10;
 const DOZ = 12;
 const HEX = 16;
@@ -109,6 +110,7 @@ const MATRIX_PROPHOTO_TO_XYZ_D50 = [
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_CS_HUE = new RegExp(`^${CS_HUE_CAPT}$`);
+const REG_CS_XYZ = /^xyz(?:-d(?:50|65))?$/;
 const REG_CURRENT = /^currentColor$/i;
 const REG_FUNC_COLOR = new RegExp(`^color\\(\\s*(${SYN_FUNC_COLOR})\\s*\\)$`);
 const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
@@ -658,20 +660,23 @@ export const convertLinearRgbToRgb = (rgb, round = false) => {
   } else {
     r *= LINEAR_COEF;
   }
+  r *= MAX_RGB;
   if (g > COND_POW) {
     g = Math.pow(g, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
   } else {
     g *= LINEAR_COEF;
   }
+  g *= MAX_RGB;
   if (b > COND_POW) {
     b = Math.pow(b, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
   } else {
     b *= LINEAR_COEF;
   }
+  b *= MAX_RGB;
   return [
-    round ? Math.round(r * MAX_RGB) : r * MAX_RGB,
-    round ? Math.round(g * MAX_RGB) : g * MAX_RGB,
-    round ? Math.round(b * MAX_RGB) : b * MAX_RGB
+    round ? Math.round(r) : r,
+    round ? Math.round(g) : g,
+    round ? Math.round(b) : b
   ];
 };
 
@@ -1099,7 +1104,7 @@ export const parseRgb = (value, opt = {}) => {
     } else {
       r = parseFloat(v1);
     }
-    r = Math.min(Math.max(parseFloat(r.toPrecision(6)), 0), MAX_RGB);
+    r = Math.min(Math.max(roundToPrecision(r, OCT), 0), MAX_RGB);
   }
   if (v2 === NONE) {
     g = 0;
@@ -1112,7 +1117,7 @@ export const parseRgb = (value, opt = {}) => {
     } else {
       g = parseFloat(v2);
     }
-    g = Math.min(Math.max(parseFloat(g.toPrecision(6)), 0), MAX_RGB);
+    g = Math.min(Math.max(roundToPrecision(g, OCT), 0), MAX_RGB);
   }
   if (v3 === NONE) {
     b = 0;
@@ -1125,7 +1130,7 @@ export const parseRgb = (value, opt = {}) => {
     } else {
       b = parseFloat(v3);
     }
-    b = Math.min(Math.max(parseFloat(b.toPrecision(6)), 0), MAX_RGB);
+    b = Math.min(Math.max(roundToPrecision(b, OCT), 0), MAX_RGB);
   }
   const alpha = parseAlpha(v4);
   return [
@@ -1214,9 +1219,9 @@ export const parseHsl = (value, opt = {}) => {
     ll - sa * Math.max(-1, Math.min(bk - TRIA, TRIA ** POW_SQR - bk, 1));
   return [
     'rgb',
-    Math.min(Math.max(parseFloat((r * MAX_RGB).toPrecision(6)), 0), MAX_RGB),
-    Math.min(Math.max(parseFloat((g * MAX_RGB).toPrecision(6)), 0), MAX_RGB),
-    Math.min(Math.max(parseFloat((b * MAX_RGB).toPrecision(6)), 0), MAX_RGB),
+    Math.min(Math.max(roundToPrecision(r * MAX_RGB, OCT), 0), MAX_RGB),
+    Math.min(Math.max(roundToPrecision(g * MAX_RGB, OCT), 0), MAX_RGB),
+    Math.min(Math.max(roundToPrecision(b * MAX_RGB, OCT), 0), MAX_RGB),
     alpha
   ];
 };
@@ -1292,14 +1297,14 @@ export const parseHwb = (value, opt = {}) => {
     ];
   }
   if (w + b >= 1) {
-    const v = parseFloat(((w / (w + b)) * MAX_RGB).toPrecision(6));
+    const v = roundToPrecision(w / (w + b) * MAX_RGB, OCT);
     return ['rgb', v, v, v, alpha];
   }
   const factor = (1 - w - b) / MAX_RGB;
   let [, rr, gg, bb] = parseHsl(`hsl(${h} 100 50)`);
-  rr = parseFloat(((rr * factor + w) * MAX_RGB).toPrecision(6));
-  gg = parseFloat(((gg * factor + w) * MAX_RGB).toPrecision(6));
-  bb = parseFloat(((bb * factor + w) * MAX_RGB).toPrecision(6));
+  rr = roundToPrecision((rr * factor + w) * MAX_RGB, OCT);
+  gg = roundToPrecision((gg * factor + w) * MAX_RGB, OCT);
+  bb = roundToPrecision((bb * factor + w) * MAX_RGB, OCT);
   return [
     'rgb',
     Math.min(Math.max(rr, 0), MAX_RGB),
@@ -1392,9 +1397,9 @@ export const parseLab = (value, opt = {}) => {
   if (REG_SPEC.test(format)) {
     return [
       'lab',
-      l === NONE ? l : parseFloat(l.toPrecision(6)),
-      a === NONE ? a : parseFloat(a.toPrecision(6)),
-      b === NONE ? b : parseFloat(b.toPrecision(6)),
+      l === NONE ? l : roundToPrecision(l, HEX),
+      a === NONE ? a : roundToPrecision(a, HEX),
+      b === NONE ? b : roundToPrecision(b, HEX),
       alpha
     ];
   }
@@ -1411,9 +1416,9 @@ export const parseLab = (value, opt = {}) => {
   ];
   const [x, y, z] = xyz.map((val, i) => val * D50[i]);
   return ['xyz-d50',
-    parseFloat(x.toPrecision(6)),
-    parseFloat(y.toPrecision(6)),
-    parseFloat(z.toPrecision(6)),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     alpha
   ];
 };
@@ -1489,9 +1494,9 @@ export const parseLch = (value, opt = {}) => {
   if (REG_SPEC.test(format)) {
     return [
       'lch',
-      l === NONE ? l : parseFloat(l.toPrecision(6)),
-      c === NONE ? c : parseFloat(c.toPrecision(6)),
-      h === NONE ? h : parseFloat(h.toPrecision(6)),
+      l === NONE ? l : roundToPrecision(l, HEX),
+      c === NONE ? c : roundToPrecision(c, HEX),
+      h === NONE ? h : roundToPrecision(h, HEX),
       alpha
     ];
   }
@@ -1500,9 +1505,9 @@ export const parseLch = (value, opt = {}) => {
   const [, x, y, z] = parseLab(`lab(${l} ${a} ${b})`);
   return [
     'xyz-d50',
-    parseFloat(x.toPrecision(6)),
-    parseFloat(y.toPrecision(6)),
-    parseFloat(z.toPrecision(6)),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     alpha
   ];
 };
@@ -1586,9 +1591,9 @@ export const parseOklab = (value, opt = {}) => {
   if (REG_SPEC.test(format)) {
     return [
       'oklab',
-      l === NONE ? l : parseFloat(l.toPrecision(6)),
-      a === NONE ? a : parseFloat(a.toPrecision(6)),
-      b === NONE ? b : parseFloat(b.toPrecision(6)),
+      l === NONE ? l : roundToPrecision(l, HEX),
+      a === NONE ? a : roundToPrecision(a, HEX),
+      b === NONE ? b : roundToPrecision(b, HEX),
       alpha
     ];
   }
@@ -1597,9 +1602,9 @@ export const parseOklab = (value, opt = {}) => {
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
-    parseFloat(x.toPrecision(6)),
-    parseFloat(y.toPrecision(6)),
-    parseFloat(z.toPrecision(6)),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     alpha
   ];
 };
@@ -1682,9 +1687,9 @@ export const parseOklch = (value, opt = {}) => {
   if (REG_SPEC.test(format)) {
     return [
       'oklch',
-      l === NONE ? l : parseFloat(l.toPrecision(6)),
-      c === NONE ? c : parseFloat(c.toPrecision(6)),
-      h === NONE ? h : parseFloat(h.toPrecision(6)),
+      l === NONE ? l : roundToPrecision(l, HEX),
+      c === NONE ? c : roundToPrecision(c, HEX),
+      h === NONE ? h : roundToPrecision(h, HEX),
       alpha
     ];
   }
@@ -1695,9 +1700,9 @@ export const parseOklch = (value, opt = {}) => {
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
-    parseFloat(x.toPrecision(6)),
-    parseFloat(y.toPrecision(6)),
-    parseFloat(z.toPrecision(6)),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     alpha
   ];
 };
@@ -1766,9 +1771,9 @@ export const parseColorFunc = (value, opt = {}) => {
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
     return [
       cs,
-      v1 === NONE ? NONE : parseFloat(r.toPrecision(6)),
-      v2 === NONE ? NONE : parseFloat(g.toPrecision(6)),
-      v3 === NONE ? NONE : parseFloat(b.toPrecision(6)),
+      v1 === NONE ? NONE : roundToPrecision(r, DEC),
+      v2 === NONE ? NONE : roundToPrecision(g, DEC),
+      v3 === NONE ? NONE : roundToPrecision(b, DEC),
       v4 === NONE ? NONE : alpha
     ];
   }
@@ -1854,9 +1859,9 @@ export const parseColorFunc = (value, opt = {}) => {
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    parseFloat(x.toPrecision(6)),
-    parseFloat(y.toPrecision(6)),
-    parseFloat(z.toPrecision(6)),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     format === VAL_MIX && v4 === NONE ? NONE : alpha
   ];
 };
@@ -2015,9 +2020,9 @@ export const parseColorValue = (value, opt = {}) => {
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    parseFloat(x.toPrecision(6)),
-    parseFloat(y.toPrecision(6)),
-    parseFloat(z.toPrecision(6)),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     alpha
   ];
 };
@@ -2368,6 +2373,14 @@ export const convertColorToHsl = (value, opt = {}) => {
     [, h, s, l, alpha] = parseHsl(value, {
       format: 'hsl'
     });
+    if (format === 'hsl') {
+      return [
+        Math.round(h),
+        Math.round(s),
+        Math.round(l),
+        alpha
+      ];
+    }
     return [h, s, l, alpha];
   }
   if (format === VAL_MIX) {
@@ -2387,6 +2400,14 @@ export const convertColorToHsl = (value, opt = {}) => {
     [, x, y, z, alpha] = parseColorValue(value);
   }
   [h, s, l] = convertXyzToHsl([x, y, z], true);
+  if (format === 'hsl') {
+    return [
+      Math.round(h),
+      Math.round(s),
+      Math.round(l),
+      alpha
+    ];
+  }
   return [h, s, l, alpha];
 };
 
@@ -2409,6 +2430,14 @@ export const convertColorToHwb = (value, opt = {}) => {
     [, h, w, b, alpha] = parseHwb(value, {
       format: 'hwb'
     });
+    if (format === 'hwb') {
+      return [
+        Math.round(h),
+        Math.round(w),
+        Math.round(b),
+        alpha
+      ];
+    }
     return [h, w, b, alpha];
   }
   if (format === VAL_MIX) {
@@ -2428,6 +2457,14 @@ export const convertColorToHwb = (value, opt = {}) => {
     [, x, y, z, alpha] = parseColorValue(value);
   }
   [h, w, b] = convertXyzToHwb([x, y, z], true);
+  if (format === 'hwb') {
+    return [
+      Math.round(h),
+      Math.round(w),
+      Math.round(b),
+      alpha
+    ];
+  }
   return [h, w, b, alpha];
 };
 
@@ -2921,9 +2958,9 @@ export const resolveColorMix = (value, opt = {}) => {
     if (format === VAL_COMP) {
       return [
         colorSpace,
-        rNone ? NONE : parseFloat(r.toPrecision(6)),
-        gNone ? NONE : parseFloat(g.toPrecision(6)),
-        bNone ? NONE : parseFloat(b.toPrecision(6)),
+        rNone ? NONE : roundToPrecision(r, HEX),
+        gNone ? NONE : roundToPrecision(g, HEX),
+        bNone ? NONE : roundToPrecision(b, HEX),
         alphaNone ? NONE : alpha * m
       ];
     }
@@ -2931,7 +2968,7 @@ export const resolveColorMix = (value, opt = {}) => {
     g *= MAX_RGB;
     b *= MAX_RGB;
   // in xyz, xyz-d65, xyz-d50
-  } else if (/^xyz(?:-d(?:50|65))?$/.test(colorSpace)) {
+  } else if (REG_CS_XYZ.test(colorSpace)) {
     let xyzA, xyzB;
     if (REG_CURRENT.test(colorA)) {
       xyzA = [NONE, NONE, NONE, NONE];
@@ -2980,9 +3017,9 @@ export const resolveColorMix = (value, opt = {}) => {
     if (format === VAL_COMP) {
       return [
         colorSpace,
-        xNone ? NONE : parseFloat(x.toPrecision(6)),
-        yNone ? NONE : parseFloat(y.toPrecision(6)),
-        zNone ? NONE : parseFloat(z.toPrecision(6)),
+        xNone ? NONE : roundToPrecision(x, HEX),
+        yNone ? NONE : roundToPrecision(y, HEX),
+        zNone ? NONE : roundToPrecision(z, HEX),
         alphaNone ? NONE : alpha * m
       ];
     }
@@ -3058,9 +3095,9 @@ export const resolveColorMix = (value, opt = {}) => {
     if (format === VAL_COMP) {
       return [
         'srgb',
-        parseFloat((r / MAX_RGB).toPrecision(6)),
-        parseFloat((g / MAX_RGB).toPrecision(6)),
-        parseFloat((b / MAX_RGB).toPrecision(6)),
+        roundToPrecision(r / MAX_RGB, HEX),
+        roundToPrecision(g / MAX_RGB, HEX),
+        roundToPrecision(b / MAX_RGB, HEX),
         alphaNone ? NONE : alpha * m
       ];
     }
@@ -3131,9 +3168,9 @@ export const resolveColorMix = (value, opt = {}) => {
     if (format === VAL_COMP) {
       return [
         colorSpace,
-        lNone ? NONE : parseFloat(l.toPrecision(6)),
-        aNone ? NONE : parseFloat(aO.toPrecision(6)),
-        bNone ? NONE : parseFloat(bO.toPrecision(6)),
+        lNone ? NONE : roundToPrecision(l, HEX),
+        aNone ? NONE : roundToPrecision(aO, HEX),
+        bNone ? NONE : roundToPrecision(bO, HEX),
         alphaNone ? NONE : alpha * m
       ];
     }
@@ -3207,9 +3244,9 @@ export const resolveColorMix = (value, opt = {}) => {
     if (format === VAL_COMP) {
       return [
         colorSpace,
-        lNone ? NONE : parseFloat(l.toPrecision(6)),
-        cNone ? NONE : parseFloat(c.toPrecision(6)),
-        hNone ? NONE : parseFloat(h.toPrecision(6)),
+        lNone ? NONE : roundToPrecision(l, HEX),
+        cNone ? NONE : roundToPrecision(c, HEX),
+        hNone ? NONE : roundToPrecision(h, HEX),
         alphaNone ? NONE : alpha * m
       ];
     }

@@ -145,6 +145,89 @@ describe('value to JSON string', () => {
   });
 });
 
+describe('round to specified precision', () => {
+  const func = util.roundToPrecision;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a number.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(1.23456789, 'foo'), TypeError,
+      'foo is not a number.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(1.23456789, -1), RangeError,
+      '-1 is not between 0 and 16.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(1.23456789, 32), RangeError,
+      '32 is not between 0 and 16.');
+  });
+
+  it('should get value', () => {
+    const res = func(1.23456789);
+    assert.deepEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.23456789, 16);
+    assert.deepEqual(res, 1.23457, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.234506789, 16);
+    assert.deepEqual(res, 1.23451, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.23450456, 16);
+    assert.deepEqual(res, 1.2345, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.230456789, 16);
+    assert.deepEqual(res, 1.23046, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.23456789, 8);
+    assert.deepEqual(res, 1.235, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.230456789, 8);
+    assert.deepEqual(res, 1.23, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.203456789, 8);
+    assert.deepEqual(res, 1.203, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.023456789, 8);
+    assert.deepEqual(res, 1.023, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.23456789, 10);
+    assert.deepEqual(res, 1.2346, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.230456789, 10);
+    assert.deepEqual(res, 1.2305, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1.203456789, 10);
+    assert.deepEqual(res, 1.2035, 'result');
+  });
+});
+
 describe('interpolate hue', () => {
   const func = util.interpolateHue;
 

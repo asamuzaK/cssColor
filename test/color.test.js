@@ -1423,9 +1423,9 @@ describe('xyz to oklab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('rgb(48.477% 34.29% 38.412%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(res[2].toFixed(5));
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = parseFloat(res[1].toFixed(3));
+    res[2] = Math.abs(parseFloat(res[2].toFixed(3)));
     assert.deepEqual(res, [0.5, 0.05, 0, 1], 'result');
   });
 
@@ -1433,8 +1433,8 @@ describe('xyz to oklab', () => {
     const [, x, y, z, a] =
       color.parseColorValue('rgb(29.264% 70.096% 63.017%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = parseFloat(res[1].toFixed(3));
     res[2] = Math.abs(parseFloat(res[2].toFixed(3)));
     assert.deepEqual(res, [0.7, -0.1, 0, 1], 'result');
   });
@@ -1442,18 +1442,18 @@ describe('xyz to oklab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('rgb(73.942% 60.484% 19.65%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = Math.abs(parseFloat(res[1].toFixed(5)));
-    res[2] = parseFloat(res[2].toFixed(5));
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = Math.abs(parseFloat(res[1].toFixed(3)));
+    res[2] = parseFloat(res[2].toFixed(3));
     assert.deepEqual(res, [0.7, 0, 0.125, 1], 'result');
   });
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('rgb(27.888% 38.072% 89.414%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = Math.abs(parseFloat(res[1].toFixed(5)));
-    res[2] = parseFloat(res[2].toFixed(5));
+    res[0] = parseFloat(res[0].toFixed(3));
+    res[1] = Math.abs(parseFloat(res[1].toFixed(3)));
+    res[2] = parseFloat(res[2].toFixed(3));
     assert.deepEqual(res, [0.55, 0, -0.2, 1], 'result');
   });
 
@@ -1480,8 +1480,8 @@ describe('xyz to oklch', () => {
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
     res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(4));
-    assert.deepEqual(res, [0.52, 0.18, 142.4954, 1], 'result');
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.52, 0.18, 142.5, 1], 'result');
   });
 
   it('should get value', () => {
@@ -1493,25 +1493,25 @@ describe('xyz to oklch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#ffffff');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(4));
+    res[0] = parseFloat(res[0].toFixed(2));
     assert.deepEqual(res, [1, 'none', 'none', 1], 'result');
   });
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#808080');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(1));
-    res[1] = parseFloat(res[1].toFixed(5));
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
     assert.deepEqual(res, [0.6, 0, 'none', 1], 'result');
   });
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('rgb(70.492% 2.351% 37.073%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(Math.round(res[2]));
-    assert.deepEqual(res, [0.5, 0.2, 0, 1], 'result');
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.5, 0.2, 0.01, 1], 'result');
   });
 
   it('should get value', () => {
@@ -1519,7 +1519,7 @@ describe('xyz to oklch', () => {
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(Math.round(res[2]));
+    res[2] = parseFloat(res[2].toFixed(2));
     assert.deepEqual(res, [0.5, 0.2, 270, 1], 'result');
   });
 
@@ -1527,28 +1527,28 @@ describe('xyz to oklch', () => {
     const [, x, y, z, a] =
       color.parseColorValue('rgb(32.022% 85.805% 61.147%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(Math.round(res[2]));
-    assert.deepEqual(res, [0.8, 0.15, 160, 1], 'result');
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.8, 0.15, 159.99, 1], 'result');
   });
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('rgb(67.293% 27.791% 52.28%)');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(5));
-    res[1] = parseFloat(res[1].toFixed(5));
-    res[2] = parseFloat(Math.round(res[2]));
-    assert.deepEqual(res, [0.55, 0.15, 345, 1], 'result');
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.55, 0.15, 345.01, 1], 'result');
   });
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#7654cd');
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(3));
-    res[1] = parseFloat(res[1].toFixed(3));
-    res[2] = parseFloat(res[2].toFixed(3));
-    assert.deepEqual(res, [0.544, 0.179, 292.365, 1], 'result');
+    res[0] = parseFloat(res[0].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(2));
+    res[2] = parseFloat(res[2].toFixed(2));
+    assert.deepEqual(res, [0.54, 0.18, 292.37, 1], 'result');
   });
 });
 
@@ -1675,9 +1675,9 @@ describe('xyz-d50 to lab', () => {
         d50: true
       });
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(2));
+    res[0] = parseFloat(res[0].toFixed(1));
     res[1] = parseFloat(res[1].toFixed(1));
-    res[2] = Math.abs(parseFloat(res[2].toFixed(2)));
+    res[2] = Math.abs(parseFloat(res[2].toFixed(1)));
     assert.deepEqual(res, [50, 50, 0, 1], 'result');
   });
 
@@ -1687,9 +1687,9 @@ describe('xyz-d50 to lab', () => {
         d50: true
       });
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = parseFloat(res[1].toFixed(2));
-    res[2] = parseFloat(res[2].toFixed(2));
+    res[0] = parseFloat(res[0].toFixed(1));
+    res[1] = parseFloat(res[1].toFixed(1));
+    res[2] = parseFloat(res[2].toFixed(1));
     assert.deepEqual(res, [70, -45, 0, 1], 'result');
   });
 
@@ -1700,7 +1700,7 @@ describe('xyz-d50 to lab', () => {
       });
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = parseFloat(res[1].toFixed(2));
+    res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(2));
     assert.deepEqual(res, [70, 0, 70, 1], 'result');
   });
@@ -1711,9 +1711,9 @@ describe('xyz-d50 to lab', () => {
         d50: true
       });
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = Math.abs(parseFloat(res[1].toFixed(2)));
-    res[2] = parseFloat(res[2].toFixed(2));
+    res[0] = parseFloat(res[0].toFixed(1));
+    res[1] = Math.abs(parseFloat(res[1].toFixed(1)));
+    res[2] = parseFloat(res[2].toFixed(1));
     assert.deepEqual(res, [55, 0, -60, 1], 'result');
   });
 
@@ -1723,9 +1723,9 @@ describe('xyz-d50 to lab', () => {
         d50: true
       });
     const res = func([x, y, z, a]);
-    res[0] = parseFloat(res[0].toFixed(2));
-    res[1] = Math.abs(parseFloat(res[1].toFixed(2)));
-    res[2] = parseFloat(res[2].toFixed(2));
+    res[0] = parseFloat(res[0].toFixed(1));
+    res[1] = Math.abs(parseFloat(res[1].toFixed(1)));
+    res[2] = parseFloat(res[2].toFixed(1));
     assert.deepEqual(res, [55, 0, -60, 0.4], 'result');
   });
 
@@ -2230,7 +2230,7 @@ describe('parse rgb()', () => {
 
   it('should get value', () => {
     const res = func('rgb(91.1% 92.2% 93.3% / .944)');
-    assert.deepEqual(res, ['rgb', 232.305, 235.11, 237.915, 0.944], 'result');
+    assert.deepEqual(res, ['rgb', 232.3, 235.1, 237.9, 0.944], 'result');
   });
 
   it('should get value', () => {
@@ -2305,12 +2305,12 @@ describe('parse hsl()', () => {
 
   it('should get value', () => {
     const res = func('hsl(0 .1% 50%)');
-    assert.deepEqual(res, ['rgb', 127.627, 127.373, 127.373, 1], 'result');
+    assert.deepEqual(res, ['rgb', 127.6, 127.4, 127.4, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('hsl(0 .1% .1%)');
-    assert.deepEqual(res, ['rgb', 0.255255, 0.254745, 0.254745, 1], 'result');
+    assert.deepEqual(res, ['rgb', 0.2553, 0.2547, 0.2547, 1], 'result');
   });
 
   it('should get value', () => {
@@ -2464,7 +2464,7 @@ describe('parse hwb()', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 70% 60%)');
-    assert.deepEqual(res, ['rgb', 137.308, 137.308, 137.308, 1], 'result');
+    assert.deepEqual(res, ['rgb', 137.3, 137.3, 137.3, 1], 'result');
   });
 
   it('should get value', () => {
@@ -2479,7 +2479,7 @@ describe('parse hwb()', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 20% .3%)');
-    assert.deepEqual(res, ['rgb', 51, 254.235, 51, 1], 'result');
+    assert.deepEqual(res, ['rgb', 51, 254.2, 51, 1], 'result');
   });
 
   it('should get value', () => {
@@ -2564,7 +2564,7 @@ describe('parse hwb()', () => {
 
   it('should get value', () => {
     const res = func('hwb(180 0% 25% / 1)');
-    assert.deepEqual(res, ['rgb', 0, 191.25, 191.25, 1], 'result');
+    assert.deepEqual(res, ['rgb', 0, 191.3, 191.3, 1], 'result');
   });
 
   it('should get value', () => {
@@ -5071,7 +5071,7 @@ describe('convert color value to xyz', () => {
     const res = func('color(xyz-d50 0.08312 0.154746 0.020961)', {
       d50: true
     });
-    assert.deepEqual(res, [0.08312, 0.154746, 0.020961, 1], 'result');
+    assert.deepEqual(res, [0.08312, 0.15475, 0.020961, 1], 'result');
   });
 
   it('should get value', () => {

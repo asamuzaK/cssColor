@@ -7,6 +7,8 @@ import { isString } from './common.js';
 /* constants */
 import { NAMED_COLORS } from './color.js';
 import { SYN_COLOR_TYPE, SYN_MIX } from './constant.js';
+const DEC = 10;
+const HEX = 16;
 const DEG = 360;
 const DEG_HALF = 180;
 
@@ -66,6 +68,35 @@ export const valueToJsonString = (value, func = false) => {
     return replacedValue;
   });
   return res;
+};
+
+/**
+ * round to specified precision
+ * @param {number} value - value
+ * @param {number} bit - minimum bits
+ * @returns {number} - rounded value
+ */
+export const roundToPrecision = (value, bit = 0) => {
+  if (!Number.isFinite(value)) {
+    throw new TypeError(`${value} is not a number.`);
+  }
+  if (!Number.isFinite(bit)) {
+    throw new TypeError(`${bit} is not a number.`);
+  } else if (bit < 0 || bit > HEX) {
+    throw new RangeError(`${bit} is not between 0 and ${HEX}.`);
+  }
+  if (bit === 0) {
+    return Math.round(value);
+  }
+  let val;
+  if (bit === HEX) {
+    val = value.toPrecision(6);
+  } else if (bit < DEC) {
+    val = value.toPrecision(4);
+  } else {
+    val = value.toPrecision(5);
+  }
+  return parseFloat(val);
 };
 
 /**
