@@ -6,23 +6,25 @@ import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { isString } from './common.js';
-import { valueToJsonString } from './util.js';
+import { roundToPrecision, valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FUNC_CALC_ESC, FUNC_CALC_VAR_ESC, FUNC_VAR, FUNC_VAR_ESC, NUM, VAL_SPEC
+  FUNC_MATH, FUNC_MATH_CALC, FUNC_MATH_VAR, FUNC_VAR, NAME_VAR, NUM, VAL_SPEC
 } from './constant.js';
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, Dimension: DIM, EOF,
   Function: FUNC, OpenParen: PAREN_OPEN, Whitespace: W_SPACE
 } = TokenType;
+const DEG_HALF = 180;
+const HEX = 16;
 
 /* regexp */
-const REG_CALC_START = new RegExp(`^${FUNC_CALC_VAR_ESC}`);
-const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
-const REG_FUNC_SIGN = /^(?:abs|sign)\($/;
-const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
+const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR);
 const REG_LENGTH = new RegExp(`^(${NUM})([a-z]+|%)$`);
+const REG_START_MATH = new RegExp(FUNC_MATH);
+const REG_START_MATH_VAR = new RegExp(FUNC_MATH_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -99,7 +101,7 @@ export const parseTokens = (tokens, opt = {}) => {
       case PAREN_OPEN: {
         res.push(value);
         nest++;
-        if (REG_FUNC_SIGN.test(value)) {
+        if (REG_START_MATH.test(value)) {
           signFunc.add(nest);
         }
         break;
@@ -156,9 +158,9 @@ export const cssCalc = (value, opt = {}) => {
         return value;
       // var() must be resolved before cssCalc()
       } else {
-        throw new SyntaxError(`Unexpected token ${FUNC_VAR} found.`);
+        throw new SyntaxError(`Unexpected token ${NAME_VAR} found.`);
       }
-    } else if (!REG_FUNC_CALC.test(value)) {
+    } else if (!REG_FUNC_MATH_CALC.test(value)) {
       return value;
     }
     value = value.toLowerCase().trim();
@@ -175,13 +177,22 @@ export const cssCalc = (value, opt = {}) => {
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
   let resolvedValue = calc(values.join(''));
-  if (REG_CALC_START.test(value)) {
+  if (REG_START_MATH_VAR.test(value)) {
     if (REG_LENGTH.test(resolvedValue)) {
       const [, val, unit] = REG_LENGTH.exec(resolvedValue);
-      resolvedValue = `${parseFloat(Number(val).toPrecision(6))}${unit}`;
+      // FIXME:
+      // workaround for https://github.com/csstools/postcss-plugins/issues/1544
+      if (unit === 'rad') {
+        resolvedValue =
+          `${roundToPrecision(Number(val) * DEG_HALF / Math.PI, HEX)}deg`;
+      } else {
+        resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
+      }
+    } else if (resolvedValue.includes('NaN * 1rad')) {
+      resolvedValue = resolvedValue.replace('NaN * 1rad', 'NaN * 1deg');
     }
     // wrap with `calc()`
-    if (resolvedValue && !REG_CALC_START.test(resolvedValue) &&
+    if (resolvedValue && !REG_START_MATH_VAR.test(resolvedValue) &&
         format === VAL_SPEC) {
       resolvedValue = `calc(${resolvedValue})`;
     }

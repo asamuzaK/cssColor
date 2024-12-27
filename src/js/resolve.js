@@ -13,13 +13,13 @@ import { valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FUNC_CALC_ESC, FUNC_COLOR, FUNC_MIX, FUNC_VAR_ESC, VAL_COMP, VAL_SPEC
+  FUNC_MATH_CALC, FUNC_VAR, NAME_COLOR, NAME_MIX, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
-const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
+const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -117,7 +117,7 @@ export const resolve = (color, opt = {}) => {
     opt.format = format;
   }
   color = color.toLowerCase();
-  if (REG_FUNC_CALC.test(color)) {
+  if (REG_FUNC_MATH_CALC.test(color)) {
     color = cssCalc(color, opt);
   }
   if (color === 'transparent') {
@@ -163,9 +163,9 @@ export const resolve = (color, opt = {}) => {
       return color;
     }
     if (currentColor) {
-      if (currentColor.startsWith(FUNC_MIX)) {
+      if (currentColor.startsWith(NAME_MIX)) {
         [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt);
-      } else if (currentColor.startsWith(FUNC_COLOR)) {
+      } else if (currentColor.startsWith(NAME_COLOR)) {
         [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt);
       } else {
         [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt);
@@ -178,13 +178,13 @@ export const resolve = (color, opt = {}) => {
       return res;
     }
   } else if (format === VAL_SPEC) {
-    if (color.startsWith(FUNC_MIX)) {
+    if (color.startsWith(NAME_MIX)) {
       res = resolveColorMix(color, opt);
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
-    } else if (color.startsWith(FUNC_COLOR)) {
+    } else if (color.startsWith(NAME_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
@@ -233,17 +233,17 @@ export const resolve = (color, opt = {}) => {
     if (/transparent/.test(color)) {
       color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
-    if (color.startsWith(FUNC_MIX)) {
+    if (color.startsWith(NAME_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt);
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
-    if (color.startsWith(FUNC_MIX)) {
+    if (color.startsWith(NAME_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt);
     }
-  } else if (color.startsWith(FUNC_MIX)) {
+  } else if (color.startsWith(NAME_MIX)) {
     [cs, r, g, b, alpha] = resolveColorMix(color, opt);
-  } else if (color.startsWith(FUNC_COLOR)) {
+  } else if (color.startsWith(NAME_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
   } else if (color) {
     [cs, r, g, b, alpha] = resolveColorValue(color, opt);

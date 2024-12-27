@@ -15,11 +15,11 @@ import { resolve } from './resolve.js';
 import { valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_CALC_ESC, FUNC_VAR_ESC, VAL_COMP } from './constant.js';
+import { FUNC_MATH_CALC, FUNC_VAR, VAL_COMP } from './constant.js';
 
 /* regexp */
-const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
+const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -60,7 +60,7 @@ export const preProcess = (value, opt = {}) => {
       return null;
     }
   }
-  if (REG_FUNC_CALC.test(value)) {
+  if (REG_FUNC_MATH_CALC.test(value)) {
     value = cssCalc(value, opt);
   }
   if (value.startsWith('color-mix')) {

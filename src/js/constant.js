@@ -4,6 +4,9 @@
 
 /* constants */
 const _DIGIT = '(?:0|[1-9]\\d*)';
+const _MATH = 'a?(?:cos|sin|tan)|abs|atan2|clamp|exp|hypot|log|max|min|mod|pow|rem|round|sign|sqrt';
+const _CALC = `${_MATH}|calc`;
+const _VAR = `${_MATH}|calc|var`;
 export const ANGLE = 'deg|g?rad|turn';
 export const CS_HUE_ARC = '(?:de|in)creasing|longer|shorter';
 export const CS_HUE_NAME = '(?:ok)?lch|hsl|hwb';
@@ -15,13 +18,13 @@ export const CS_SRGB = 'srgb(?:-linear)?';
 export const CS_RGB = `(?:a98|prophoto)-rgb|display-p3|rec2020|${CS_SRGB}`;
 export const CS_XYZ = 'xyz(?:-d(?:50|65))?';
 export const CS_MIX = `${CS_HUE}|${CS_LAB}|${CS_SRGB}|${CS_XYZ}`;
-export const FUNC_CALC = '(?:abs|calc|sign)\\(';
-export const FUNC_CALC_ESC = `^${FUNC_CALC}|(?<=[*\\/\\s\\(])${FUNC_CALC}`;
-export const FUNC_CALC_VAR_ESC = '(?:abs|calc|sign|var)\\(';
-export const FUNC_COLOR = 'color(';
-export const FUNC_MIX = 'color-mix(';
-export const FUNC_VAR = 'var(';
-export const FUNC_VAR_ESC = '^var\\(|(?<=[*\\/\\s\\(])var\\(';
+export const FUNC_MATH = `^(?:${_MATH})\\($`;
+export const FUNC_MATH_CALC = `^${_CALC}\\(|(?<=[*\\/\\s\\(])${_CALC}\\(`;
+export const FUNC_MATH_VAR = `^(?:${_VAR})\\(`;
+export const FUNC_VAR = '^var\\(|(?<=[*\\/\\s\\(])var\\(';
+export const NAME_COLOR = 'color(';
+export const NAME_MIX = 'color-mix(';
+export const NAME_VAR = 'var(';
 export const NONE = 'none';
 export const NUM = `[+-]?(?:${_DIGIT}(?:\\.\\d*)?|\\.\\d+)(?:e-?${_DIGIT})?`;
 export const PCT = `${NUM}%`;
