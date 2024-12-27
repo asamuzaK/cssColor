@@ -511,4 +511,291 @@ describe('resolve CSS calc()', () => {
     const res = func('abs(sign(-0.5) * 2px / 3)');
     assert.strictEqual(res, '0.666667px', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('acos(1)');
+    assert.strictEqual(res, '0deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('acos(1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('acos(-1)');
+    assert.strictEqual(res, '180deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('acos(-1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(180deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('acos(-1.5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(NaN * 1deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('asin(1)');
+    assert.strictEqual(res, '90deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('asin(1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(90deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('asin(-1)');
+    assert.strictEqual(res, '-90deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('asin(-1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(-90deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('asin(-1.5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(NaN * 1deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan(1)');
+    assert.strictEqual(res, '45deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan(1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(45deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan(-1)');
+    assert.strictEqual(res, '-45deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan(-1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(-45deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan(infinity)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(90deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan2(37.320508075, 10)');
+    assert.strictEqual(res, '75deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan2(37.320508075, 10)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(75deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan2(1s, 1000ms)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(45deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan2(infinity, infinity)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(45deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('atan2(-infinity, -infinity)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(-135deg)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(asin(sin(pi/2)))');
+    assert.strictEqual(res, '90deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(asin(sin(30deg + 1.0471967rad ) ))');
+    assert.strictEqual(res, '90deg', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('cos(0)');
+    assert.strictEqual(res, '1', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('cos(0)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('sin(0)');
+    assert.strictEqual(res, '0', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('sin(0)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('tan(0)');
+    assert.strictEqual(res, '0', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('tan(0)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('sin(30deg)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0.5)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('cos(60deg)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0.5)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('tan(45deg)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('clamp(1px, 2px, 3px)');
+    assert.strictEqual(res, '2px', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('clamp(1px, 2px, 3px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(2px)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('clamp(30px, 100px, 20px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(30px)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('clamp(1px, 1em, 1vh)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'clamp(1px, 1em, 1vh)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('exp(0)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('log(1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('pow(1, 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('hypot(1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('sqrt(1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('round(1.1, 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('mod(1, 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rem(1, 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('min(1px, 2px)');
+    assert.strictEqual(res, '1px', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('min(1px, 2px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1px)', 'result');
+  });
 });

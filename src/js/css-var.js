@@ -9,15 +9,15 @@ import { cssCalc } from './css-calc.js';
 import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_CALC_ESC, FUNC_VAR, FUNC_VAR_ESC, VAL_SPEC } from './constant.js';
+import { FUNC_MATH_CALC, FUNC_VAR, NAME_VAR, VAL_SPEC } from './constant.js';
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, EOF, Ident: IDENT,
   Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
-const REG_FUNC_CALC = new RegExp(FUNC_CALC_ESC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR_ESC);
+const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
+const REG_FUNC_VAR = new RegExp(FUNC_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -48,7 +48,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
       break;
     }
     // nested var()
-    if (value === FUNC_VAR) {
+    if (value === NAME_VAR) {
       const [restTokens, item] = resolveCustomProperty(tokens, opt);
       tokens = restTokens;
       if (item) {
@@ -89,7 +89,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
           resolvedValue = item;
         }
       }
-    } else if (REG_FUNC_CALC.test(item)) {
+    } else if (REG_FUNC_MATH_CALC.test(item)) {
       item = cssCalc(item, opt);
       if (resolveAsColor) {
         if (isColor(item)) {
@@ -126,7 +126,7 @@ export function parseTokens(tokens, opt = {}) {
   while (tokens.length) {
     const token = tokens.shift();
     const [type, value] = token;
-    if (value === FUNC_VAR) {
+    if (value === NAME_VAR) {
       const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
         return null;
@@ -196,7 +196,7 @@ export function cssVar(value, opt = {}) {
   const values = parseTokens(tokens, opt);
   if (Array.isArray(values)) {
     let color = values.join('');
-    if (REG_FUNC_CALC.test(color)) {
+    if (REG_FUNC_MATH_CALC.test(color)) {
       color = cssCalc(color, opt);
     }
     if (cacheKey) {

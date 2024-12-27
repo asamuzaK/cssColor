@@ -11,9 +11,9 @@ import { interpolateHue, roundToPrecision } from './util.js';
 
 /* constants */
 import {
-  ANGLE, CS_HUE_CAPT, CS_MIX, CS_RGB, CS_XYZ, FUNC_COLOR, FUNC_MIX, NONE, NUM,
-  PCT, SYN_COLOR_TYPE, SYN_FUNC_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LAB, SYN_LCH,
-  SYN_MIX, SYN_MIX_CAPT, SYN_RGB, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
+  ANGLE, CS_HUE_CAPT, CS_MIX, CS_RGB, CS_XYZ, NAME_COLOR, NAME_MIX, NONE,
+  NUM, PCT, SYN_COLOR_TYPE, SYN_FUNC_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LAB,
+  SYN_LCH, SYN_MIX, SYN_MIX_CAPT, SYN_RGB, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const VAL_MIX = 'mixValue';
 
@@ -2217,7 +2217,7 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
   let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2230,7 +2230,7 @@ export const convertColorToLinearRgb = (value, opt = {}) => {
       return [x, y, z, alpha];
     }
     [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     const [, val] = value.match(REG_FUNC_COLOR);
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb-linear') {
@@ -2270,7 +2270,7 @@ export const convertColorToRgb = (value, opt = {}) => {
   let r, g, b, alpha;
   if (format === VAL_MIX) {
     let rgb;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       rgb = resolveColorFunc(value, opt);
     } else {
       rgb = resolveColorValue(value, opt);
@@ -2279,7 +2279,7 @@ export const convertColorToRgb = (value, opt = {}) => {
       return rgb;
     }
     [, r, g, b, alpha] = rgb;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     const [, val] = value.match(REG_FUNC_COLOR);
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb') {
@@ -2321,7 +2321,7 @@ export const convertColorToXyz = (value, opt = {}) => {
   let x, y, z, alpha;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2330,7 +2330,7 @@ export const convertColorToXyz = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     const [, val] = value.match(REG_FUNC_COLOR);
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (d50) {
@@ -2385,7 +2385,7 @@ export const convertColorToHsl = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2394,7 +2394,7 @@ export const convertColorToHsl = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2442,7 +2442,7 @@ export const convertColorToHwb = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2451,7 +2451,7 @@ export const convertColorToHwb = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2492,7 +2492,7 @@ export const convertColorToLab = (value, opt = {}) => {
   if (format === VAL_MIX) {
     let xyz;
     opt.d50 = true;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2501,7 +2501,7 @@ export const convertColorToLab = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
     });
@@ -2538,7 +2538,7 @@ export const convertColorToLch = (value, opt = {}) => {
   if (format === VAL_MIX) {
     let xyz;
     opt.d50 = true;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2547,7 +2547,7 @@ export const convertColorToLch = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
     });
@@ -2583,7 +2583,7 @@ export const convertColorToOklab = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2592,7 +2592,7 @@ export const convertColorToOklab = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2624,7 +2624,7 @@ export const convertColorToOklch = (value, opt = {}) => {
   }
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FUNC_COLOR)) {
+    if (value.startsWith(NAME_COLOR)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -2633,7 +2633,7 @@ export const convertColorToOklch = (value, opt = {}) => {
       return xyz;
     }
     [, x, y, z, alpha] = xyz;
-  } else if (value.startsWith(FUNC_COLOR)) {
+  } else if (value.startsWith(NAME_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value);
   } else {
     [, x, y, z, alpha] = parseColorValue(value);
@@ -2659,7 +2659,7 @@ export const resolveColorMix = (value, opt = {}) => {
   const { format } = opt;
   const nestedItems = [];
   if (!REG_MIX.test(value)) {
-    if (value.startsWith(FUNC_MIX) && REG_MIX_NEST.test(value)) {
+    if (value.startsWith(NAME_MIX) && REG_MIX_NEST.test(value)) {
       const regColorSpace = new RegExp(`^(?:${CS_RGB}|${CS_XYZ})$`);
       const items = value.match(REG_MIX_NEST);
       for (const item of items) {
@@ -2807,9 +2807,9 @@ export const resolveColorMix = (value, opt = {}) => {
   // specified value
   if (format === VAL_SPEC) {
     let valueA, valueB;
-    if (colorA.startsWith(FUNC_MIX)) {
+    if (colorA.startsWith(NAME_MIX)) {
       valueA = colorA;
-    } else if (colorA.startsWith(FUNC_COLOR)) {
+    } else if (colorA.startsWith(NAME_COLOR)) {
       valueA = parseColorFunc(colorA, opt);
       if (Array.isArray(valueA)) {
         const [v1, v2, v3, v4, v5] = [...valueA];
@@ -2839,9 +2839,9 @@ export const resolveColorMix = (value, opt = {}) => {
         }
       }
     }
-    if (colorB.startsWith(FUNC_MIX)) {
+    if (colorB.startsWith(NAME_MIX)) {
       valueB = colorB;
-    } else if (colorB.startsWith(FUNC_COLOR)) {
+    } else if (colorB.startsWith(NAME_COLOR)) {
       valueB = parseColorFunc(colorB, opt);
       if (Array.isArray(valueB)) {
         const [v1, v2, v3, v4, v5] = [...valueB];
