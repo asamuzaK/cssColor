@@ -189,8 +189,6 @@ export const cssCalc = (value, opt = {}) => {
     if (REG_LENGTH.test(resolvedValue)) {
       const [, val, unit] = REG_LENGTH.exec(resolvedValue);
       resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
-    } else if (resolvedValue.includes('NaN * 1rad')) {
-      resolvedValue = resolvedValue.replace('NaN * 1rad', 'NaN * 1deg');
     }
     // wrap with `calc()`
     if (resolvedValue && !REG_START_MATH_VAR.test(resolvedValue) &&
