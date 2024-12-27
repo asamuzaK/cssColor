@@ -16,7 +16,6 @@ const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, Dimension: DIM, EOF,
   Function: FUNC, OpenParen: PAREN_OPEN, Whitespace: W_SPACE
 } = TokenType;
-const DEG_HALF = 180;
 const HEX = 16;
 
 /* regexp */
@@ -174,20 +173,22 @@ export const cssCalc = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  const tokens = tokenize({ css: value });
-  const values = parseTokens(tokens, opt);
-  let resolvedValue = calc(values.join(''));
+  let resolvedValue;
+  if (dimension) {
+    const tokens = tokenize({ css: value });
+    const values = parseTokens(tokens, opt);
+    resolvedValue = calc(values.join(''), {
+      toCanonicalUnits: true
+    });
+  } else {
+    resolvedValue = calc(value, {
+      toCanonicalUnits: true
+    });
+  }
   if (REG_START_MATH_VAR.test(value)) {
     if (REG_LENGTH.test(resolvedValue)) {
       const [, val, unit] = REG_LENGTH.exec(resolvedValue);
-      // FIXME:
-      // workaround for https://github.com/csstools/postcss-plugins/issues/1544
-      if (unit === 'rad') {
-        resolvedValue =
-          `${roundToPrecision(Number(val) * DEG_HALF / Math.PI, HEX)}deg`;
-      } else {
-        resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
-      }
+      resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
     } else if (resolvedValue.includes('NaN * 1rad')) {
       resolvedValue = resolvedValue.replace('NaN * 1rad', 'NaN * 1deg');
     }
