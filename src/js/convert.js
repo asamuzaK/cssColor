@@ -15,11 +15,11 @@ import { resolve } from './resolve.js';
 import { valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_MATH_CALC, FUNC_VAR, VAL_COMP } from './constant.js';
+import { SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_COMP } from './constant.js';
 
 /* regexp */
-const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR);
+const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -51,7 +51,7 @@ export const preProcess = (value, opt = {}) => {
       return cachedResults.get(cacheKey);
     }
   }
-  if (REG_FUNC_VAR.test(value)) {
+  if (REG_FN_VAR.test(value)) {
     value = cssVar(value, opt);
     if (!value) {
       if (cacheKey) {
@@ -60,7 +60,7 @@ export const preProcess = (value, opt = {}) => {
       return null;
     }
   }
-  if (REG_FUNC_MATH_CALC.test(value)) {
+  if (REG_FN_MATH_CALC.test(value)) {
     value = cssCalc(value, opt);
   }
   if (value.startsWith('color-mix')) {

@@ -10,7 +10,8 @@ import { roundToPrecision, valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FUNC_MATH, FUNC_MATH_CALC, FUNC_MATH_VAR, FUNC_VAR, NAME_VAR, NUM, VAL_SPEC
+  FN_VAR, NUM, SYN_FN_MATH, SYN_FN_MATH_CALC, SYN_FN_MATH_VAR, SYN_FN_VAR,
+  VAL_SPEC
 } from './constant.js';
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, Dimension: DIM, EOF,
@@ -19,11 +20,11 @@ const {
 const HEX = 16;
 
 /* regexp */
-const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR);
+const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_LENGTH = new RegExp(`^(${NUM})([a-z]+|%)$`);
-const REG_START_MATH = new RegExp(FUNC_MATH);
-const REG_START_MATH_VAR = new RegExp(FUNC_MATH_VAR);
+const REG_START_MATH = new RegExp(SYN_FN_MATH);
+const REG_START_MATH_VAR = new RegExp(SYN_FN_MATH_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -73,7 +74,7 @@ export const parseTokens = (tokens, opt = {}) => {
     throw new TypeError(`${tokens} is not an array.`);
   }
   const { format } = opt;
-  const signFunc = new Set();
+  const mathFunc = new Set();
   let nest = 0;
   const res = [];
   while (tokens.length) {
@@ -85,7 +86,7 @@ export const parseTokens = (tokens, opt = {}) => {
     switch (type) {
       case DIM: {
         let resolvedValue;
-        if (format === VAL_SPEC && !signFunc.has(nest)) {
+        if (format === VAL_SPEC && !mathFunc.has(nest)) {
           resolvedValue = value;
         } else {
           resolvedValue = resolveDimension(token, opt);
@@ -101,7 +102,7 @@ export const parseTokens = (tokens, opt = {}) => {
         res.push(value);
         nest++;
         if (REG_START_MATH.test(value)) {
-          signFunc.add(nest);
+          mathFunc.add(nest);
         }
         break;
       }
@@ -116,8 +117,8 @@ export const parseTokens = (tokens, opt = {}) => {
         } else {
           res.push(value);
         }
-        if (signFunc.has(nest)) {
-          signFunc.delete(nest);
+        if (mathFunc.has(nest)) {
+          mathFunc.delete(nest);
         }
         nest--;
         break;
@@ -152,14 +153,14 @@ export const parseTokens = (tokens, opt = {}) => {
 export const cssCalc = (value, opt = {}) => {
   const { format, dimension } = opt;
   if (isString(value)) {
-    if (REG_FUNC_VAR.test(value)) {
+    if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
         return value;
       // var() must be resolved before cssCalc()
       } else {
-        throw new SyntaxError(`Unexpected token ${NAME_VAR} found.`);
+        throw new SyntaxError(`Unexpected token ${FN_VAR} found.`);
       }
-    } else if (!REG_FUNC_MATH_CALC.test(value)) {
+    } else if (!REG_FN_MATH_CALC.test(value)) {
       return value;
     }
     value = value.toLowerCase().trim();

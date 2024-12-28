@@ -13,13 +13,13 @@ import { valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FUNC_MATH_CALC, FUNC_VAR, NAME_COLOR, NAME_MIX, VAL_COMP, VAL_SPEC
+  FN_COLOR, FN_MIX, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
-const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR);
+const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -78,7 +78,7 @@ export const resolve = (color, opt = {}) => {
   }
   const { currentColor, customProperty, format = VAL_COMP, key } = opt;
   let cacheKey;
-  if (!REG_FUNC_VAR.test(color) ||
+  if (!REG_FN_VAR.test(color) ||
       typeof customProperty?.callback !== 'function') {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
@@ -86,7 +86,7 @@ export const resolve = (color, opt = {}) => {
     }
   }
   let res, cs, r, g, b, alpha;
-  if (REG_FUNC_VAR.test(color)) {
+  if (REG_FN_VAR.test(color)) {
     if (format === VAL_SPEC) {
       if (cacheKey) {
         cachedResults.set(cacheKey, color);
@@ -117,7 +117,7 @@ export const resolve = (color, opt = {}) => {
     opt.format = format;
   }
   color = color.toLowerCase();
-  if (REG_FUNC_MATH_CALC.test(color)) {
+  if (REG_FN_MATH_CALC.test(color)) {
     color = cssCalc(color, opt);
   }
   if (color === 'transparent') {
@@ -163,9 +163,9 @@ export const resolve = (color, opt = {}) => {
       return color;
     }
     if (currentColor) {
-      if (currentColor.startsWith(NAME_MIX)) {
+      if (currentColor.startsWith(FN_MIX)) {
         [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt);
-      } else if (currentColor.startsWith(NAME_COLOR)) {
+      } else if (currentColor.startsWith(FN_COLOR)) {
         [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt);
       } else {
         [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt);
@@ -178,13 +178,13 @@ export const resolve = (color, opt = {}) => {
       return res;
     }
   } else if (format === VAL_SPEC) {
-    if (color.startsWith(NAME_MIX)) {
+    if (color.startsWith(FN_MIX)) {
       res = resolveColorMix(color, opt);
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
-    } else if (color.startsWith(NAME_COLOR)) {
+    } else if (color.startsWith(FN_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
@@ -233,17 +233,17 @@ export const resolve = (color, opt = {}) => {
     if (/transparent/.test(color)) {
       color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
-    if (color.startsWith(NAME_MIX)) {
+    if (color.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt);
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
-    if (color.startsWith(NAME_MIX)) {
+    if (color.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt);
     }
-  } else if (color.startsWith(NAME_MIX)) {
+  } else if (color.startsWith(FN_MIX)) {
     [cs, r, g, b, alpha] = resolveColorMix(color, opt);
-  } else if (color.startsWith(NAME_COLOR)) {
+  } else if (color.startsWith(FN_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
   } else if (color) {
     [cs, r, g, b, alpha] = resolveColorValue(color, opt);

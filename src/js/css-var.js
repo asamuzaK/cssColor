@@ -9,15 +9,15 @@ import { cssCalc } from './css-calc.js';
 import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
-import { FUNC_MATH_CALC, FUNC_VAR, NAME_VAR, VAL_SPEC } from './constant.js';
+import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant.js';
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, EOF, Ident: IDENT,
   Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
-const REG_FUNC_MATH_CALC = new RegExp(FUNC_MATH_CALC);
-const REG_FUNC_VAR = new RegExp(FUNC_VAR);
+const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -48,7 +48,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
       break;
     }
     // nested var()
-    if (value === NAME_VAR) {
+    if (value === FN_VAR) {
       const [restTokens, item] = resolveCustomProperty(tokens, opt);
       tokens = restTokens;
       if (item) {
@@ -77,7 +77,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
   let resolvedValue;
   for (let item of items) {
     item = item.trim();
-    if (REG_FUNC_VAR.test(item)) {
+    if (REG_FN_VAR.test(item)) {
       // recurse cssVar()
       item = cssVar(item, opt);
       if (item) {
@@ -89,7 +89,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
           resolvedValue = item;
         }
       }
-    } else if (REG_FUNC_MATH_CALC.test(item)) {
+    } else if (REG_FN_MATH_CALC.test(item)) {
       item = cssCalc(item, opt);
       if (resolveAsColor) {
         if (isColor(item)) {
@@ -126,7 +126,7 @@ export function parseTokens(tokens, opt = {}) {
   while (tokens.length) {
     const token = tokens.shift();
     const [type, value] = token;
-    if (value === NAME_VAR) {
+    if (value === FN_VAR) {
       const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
         return null;
@@ -178,7 +178,7 @@ export function parseTokens(tokens, opt = {}) {
 export function cssVar(value, opt = {}) {
   const { customProperty, format } = opt;
   if (isString(value)) {
-    if (!REG_FUNC_VAR.test(value) || format === VAL_SPEC) {
+    if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
     }
     value = value.trim();
@@ -196,7 +196,7 @@ export function cssVar(value, opt = {}) {
   const values = parseTokens(tokens, opt);
   if (Array.isArray(values)) {
     let color = values.join('');
-    if (REG_FUNC_MATH_CALC.test(color)) {
+    if (REG_FN_MATH_CALC.test(color)) {
       color = cssCalc(color, opt);
     }
     if (cacheKey) {
