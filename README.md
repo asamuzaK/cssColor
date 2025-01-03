@@ -296,6 +296,13 @@ is valid color type
 Returns **[boolean][136]**
 
 
+## Acknowledgments
+
+The following resources have been of great help in the development of the CSS color.
+
+- [csstools/postcss-plugins](https://github.com/csstools/postcss-plugins)
+- [lru-cache](https://github.com/isaacs/node-lru-cache)
+
 ---
 Copyright (c) 2024 [asamuzaK (Kazz)](https://github.com/asamuzaK/)
 
