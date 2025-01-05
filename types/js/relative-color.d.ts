@@ -1,4 +1,6 @@
-export function resolveColorChannels(tokens: Array<any[]>, opt?: object): Array<string>;
+export function resolveColorChannels(tokens: Array<any[]>, opt?: {
+    colorSpace?: string;
+}): Array<string> | null;
 export function extractOriginColor(value: string, opt?: {
     currentColor?: string;
 }): string | null;

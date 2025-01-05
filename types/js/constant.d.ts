@@ -19,6 +19,7 @@ export const CS_MIX: "(?:(?:ok)?lch|hsl|hwb)(?:\\s(?:(?:de|in)creasing|longer|sh
 export const FN_COLOR: "color(";
 export const FN_MIX: "color-mix(";
 export const FN_REL: "(?:(?:ok)?l(?:ab|ch)|color|hsla?|hwb|rgba?)\\(\\s*from\\s+";
+export const FN_REL_CAPT: "((?:ok)?l(?:ab|ch)|color|hsla?|hwb|rgba?)\\(\\s*from\\s+";
 export const FN_VAR: "var(";
 export const SYN_FN_COLOR: "(?:(?:a98|prophoto)-rgb|display-p3|rec2020|srgb(?:-linear)?|xyz(?:-d(?:50|65))?)(?:\\s+(?:[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?|[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?%|none)){3}(?:\\s*\\/\\s*(?:[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?|[+-]?(?:(?:0|[1-9]\\d*)(?:\\.\\d*)?|\\.\\d+)(?:e-?(?:0|[1-9]\\d*))?%|none))?";
 export const SYN_FN_REL: "^(?:(?:ok)?l(?:ab|ch)|color|hsla?|hwb|rgba?)\\(\\s*from\\s+|(?<=[\\s])(?:(?:ok)?l(?:ab|ch)|color|hsla?|hwb|rgba?)\\(\\s*from\\s+";
