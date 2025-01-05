@@ -105,7 +105,7 @@ resolves CSS color
     * output format, one of below
       * `computedValue` (default), [computed value][139] of the color
       * `specifiedValue`, [specified value][140] of the color
-      * `hex`, hex color notation, i.e. `rrggbb`
+      * `hex`, hex color notation, i.e. `#rrggbb`
       * `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
   * `opt.key` **any?**
     *  key to return with the value, e.g. CSS property `background-color`
