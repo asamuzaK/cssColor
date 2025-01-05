@@ -142,13 +142,6 @@ export const resolve = (color, opt = {}) => {
   }
   if (color === 'transparent') {
     switch (format) {
-      case VAL_COMP: {
-        res = RGB_TRANSPARENT;
-        if (cacheKey) {
-          cachedResults.set(cacheKey, res);
-        }
-        return res;
-      }
       case VAL_SPEC: {
         if (cacheKey) {
           cachedResults.set(cacheKey, color);
@@ -168,11 +161,13 @@ export const resolve = (color, opt = {}) => {
         }
         return res;
       }
+      case VAL_COMP:
       default: {
-        r = 0;
-        g = 0;
-        b = 0;
-        alpha = 0;
+        res = RGB_TRANSPARENT;
+        if (cacheKey) {
+          cachedResults.set(cacheKey, res);
+        }
+        return res;
       }
     }
   } else if (color === 'currentcolor') {
@@ -294,23 +289,6 @@ export const resolve = (color, opt = {}) => {
         res = [key, hex];
       } else {
         res = hex;
-      }
-      break;
-    }
-    // deprecated
-    case 'rgb': {
-      let rgb;
-      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha)) {
-        rgb = RGB_TRANSPARENT;
-      } else if (alpha === 1) {
-        rgb = `rgb(${r}, ${g}, ${b})`;
-      } else {
-        rgb = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-      }
-      if (key) {
-        res = [key, rgb];
-      } else {
-        res = rgb;
       }
       break;
     }
