@@ -103,6 +103,7 @@ export function resolveColorChannels(tokens, opt = {}) {
         break;
       }
       case IDENT: {
+        // invalid channel key
         if (!colorChannel.includes(value)) {
           return null;
         }
