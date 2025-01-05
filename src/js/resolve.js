@@ -9,16 +9,18 @@ import {
 import { isString } from './common.js';
 import { cssCalc } from './css-calc.js';
 import { cssVar } from './css-var.js';
+import { resolveRelativeColor } from './relative-color.js';
 import { valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  FN_COLOR, FN_MIX, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_COMP, VAL_SPEC
+  FN_COLOR, FN_MIX, SYN_FN_MATH_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
 const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
@@ -117,7 +119,9 @@ export const resolve = (color, opt = {}) => {
     opt.format = format;
   }
   color = color.toLowerCase();
-  if (REG_FN_MATH_CALC.test(color)) {
+  if (REG_FN_REL.test(color)) {
+    color = resolveRelativeColor(color, opt);
+  } else if (REG_FN_MATH_CALC.test(color)) {
     color = cssCalc(color, opt);
   }
   if (color === 'transparent') {

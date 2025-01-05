@@ -12,8 +12,8 @@ import { interpolateHue, roundToPrecision } from './util.js';
 /* constants */
 import {
   ANGLE, CS_HUE_CAPT, CS_MIX, CS_RGB, CS_XYZ, FN_COLOR, FN_MIX, NONE, NUM, PCT,
-  SYN_COLOR_TYPE, SYN_FN_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LAB, SYN_LCH,
-  SYN_MIX, SYN_MIX_CAPT, SYN_RGB, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
+  SYN_COLOR_TYPE, SYN_FN_COLOR, SYN_HSL, SYN_HSL_LV3, SYN_LCH, SYN_MIX,
+  SYN_MIX_CAPT, SYN_MOD, SYN_RGB_LV3, VAL_COMP, VAL_SPEC
 } from './constant.js';
 const VAL_MIX = 'mixValue';
 
@@ -115,12 +115,12 @@ const REG_CURRENT = /^currentColor$/i;
 const REG_FN_COLOR = new RegExp(`^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`);
 const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
 const REG_HWB = new RegExp(`^hwb\\(\\s*(${SYN_HSL})\\s*\\)$`);
-const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_LAB})\\s*\\)$`);
+const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_MOD})\\s*\\)$`);
 const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_MIX = new RegExp(`^${SYN_MIX}$`);
 const REG_MIX_CAPT = new RegExp(`^${SYN_MIX_CAPT}$`);
 const REG_MIX_NEST = new RegExp(`${SYN_MIX}`, 'g');
-const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_LAB})\\s*\\)$`);
+const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_MOD})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
@@ -1076,7 +1076,7 @@ export const parseRgb = (value, opt = {}) => {
     throw new TypeError(`${value} is not a string.`);
   }
   const { format } = opt;
-  const reg = new RegExp(`^rgba?\\(\\s*(${SYN_RGB}|${SYN_RGB_LV3})\\s*\\)$`);
+  const reg = new RegExp(`^rgba?\\(\\s*(${SYN_MOD}|${SYN_RGB_LV3})\\s*\\)$`);
   if (!reg.test(value)) {
     switch (format) {
       case VAL_MIX: {

@@ -11,14 +11,18 @@ import {
 import { isString } from './common.js';
 import { cssCalc } from './css-calc.js';
 import { cssVar } from './css-var.js';
+import { resolveRelativeColor } from './relative-color.js';
 import { resolve } from './resolve.js';
 import { valueToJsonString } from './util.js';
 
 /* constants */
-import { SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_COMP } from './constant.js';
+import {
+  SYN_FN_MATH_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP
+} from './constant.js';
 
 /* regexp */
 const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
@@ -60,10 +64,12 @@ export const preProcess = (value, opt = {}) => {
       return null;
     }
   }
-  if (REG_FN_MATH_CALC.test(value)) {
+  if (REG_FN_REL.test(value)) {
+    value = resolveRelativeColor(value, opt);
+  } else if (REG_FN_MATH_CALC.test(value)) {
     value = cssCalc(value, opt);
   }
-  if (value.startsWith('color-mix')) {
+  if (value && value.startsWith('color-mix')) {
     value = resolve(value, {
       format: VAL_COMP
     });
