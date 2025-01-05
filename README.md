@@ -110,7 +110,7 @@ resolves CSS color
   * `opt.key` **any?**
     *  key to return with the value, e.g. CSS property `background-color`
 
-Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `'(empty-string)'`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `lab(l a b / alpha)`, `lch(l c h / alpha)`, `oklab(l a b / alpha)`, `oklch(l c h / alpha)`, `null`, or `[key, rgba?()]` etc. if `key` is specified
+Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `(ok)?lab(l a b / alpha)`, `(ok)?lch(l c h / alpha)`, `'(empty-string)'`, `null`, or `[key, rgba?()]` etc. if `key` is specified
 * in `computedValue`, values are numbers, however `rgb()` values are integers
 * in `specifiedValue`, returns `empty string` for unknown and/or invalid color
 * in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
