@@ -113,7 +113,6 @@ resolves CSS color
 Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `'(empty-string)'`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `lab(l a b / alpha)`, `lch(l c h / alpha)`, `oklab(l a b / alpha)`, `oklch(l c h / alpha)`, `null`, or `[key, rgba?()]` etc. if `key` is specified
 * in `computedValue`, values are numbers, however `rgb()` values are integers
 * in `specifiedValue`, returns `empty string` for unknown and/or invalid color
-* in `rgb`, values are rounded to integers, and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
 * in `hex`, returns `null` for `transparent`, and also returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
 * in `hexAlpha`, returns `#00000000` for `transparent`, however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
 

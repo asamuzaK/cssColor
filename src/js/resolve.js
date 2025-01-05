@@ -65,8 +65,6 @@ export const cachedResults = new LRUCache({
  *     integers
  *   - in `specifiedValue`, returns `empty string` for unknown and/or invalid
  *     color
- *   - in `rgb`, values are rounded to integers,
- *     and returns `rgba(0, 0, 0, 0)` for unknown and/or invalid color
  *   - in `hex`, returns `null` for `transparent`, and also returns `null` if
  *     any of `r`, `g`, `b`, `alpha` is not a number
  *   - in `hexAlpha`, returns `#00000000` for `transparent`,
@@ -299,6 +297,7 @@ export const resolve = (color, opt = {}) => {
       }
       break;
     }
+    // deprecated
     case 'rgb': {
       let rgb;
       if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha)) {
