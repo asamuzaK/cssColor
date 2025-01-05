@@ -83,17 +83,18 @@ export function resolveColorChannels(tokens, opt = {}) {
     }
     const [type, value,,, detail = {}] = token;
     const { value: numValue } = detail;
+    const channel = channels[i];
     switch (type) {
       case DIM: {
         let resolvedValue = resolveDimension(token, opt);
         if (!resolvedValue) {
           resolvedValue = value;
         }
-        channels[i].push(resolvedValue);
+        channel.push(resolvedValue);
         break;
       }
       case FUNC: {
-        channels[i].push(value);
+        channel.push(value);
         func = true;
         nest++;
         if (REG_START_MATH.test(value)) {
@@ -105,31 +106,31 @@ export function resolveColorChannels(tokens, opt = {}) {
         if (!colorChannel.includes(value)) {
           return null;
         }
-        channels[i].push(value);
+        channel.push(value);
         if (!func) {
           i++;
         }
         break;
       }
       case NUM: {
-        channels[i].push(numValue);
+        channel.push(numValue);
         if (!func) {
           i++;
         }
         break;
       }
       case PAREN_OPEN: {
-        channels[i].push(value);
+        channel.push(value);
         nest++;
         break;
       }
       case PAREN_CLOSE: {
         if (func) {
-          const lastValue = channels[i][channels[i].length - 1];
+          const lastValue = channel[channel.length - 1];
           if (lastValue === ' ') {
-            channels[i].splice(-1, 1, value);
+            channel.splice(-1, 1, value);
           } else {
-            channels[i].push(value);
+            channel.push(value);
           }
           if (mathFunc.has(nest)) {
             mathFunc.delete(nest);
@@ -143,27 +144,27 @@ export function resolveColorChannels(tokens, opt = {}) {
         break;
       }
       case PCT: {
-        channels[i].push(numValue / MAX_PCT);
+        channel.push(numValue / MAX_PCT);
         if (!func) {
           i++;
         }
         break;
       }
       case W_SPACE: {
-        if (channels[i].length && func) {
-          const lastValue = channels[i][channels[i].length - 1];
+        if (channel.length && func) {
+          const lastValue = channel[channel.length - 1];
           if (typeof lastValue === 'number') {
-            channels[i].push(value);
+            channel.push(value);
           } else if (isString(lastValue) &&
                      !lastValue.endsWith('(') && lastValue !== ' ') {
-            channels[i].push(value);
+            channel.push(value);
           }
         }
         break;
       }
       default: {
         if (type !== COMMENT && type !== EOF && func) {
-          channels[i].push(value);
+          channel.push(value);
         }
       }
     }
