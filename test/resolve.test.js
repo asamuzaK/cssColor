@@ -879,4 +879,15 @@ describe('resolve CSS color', () => {
     });
     assert.strictEqual(res, 'color(srgb 0.6 0 0.4)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
+
+  it('should get value', () => {
+    const res =
+      func('color-mix(in srgb, rgb(from rebeccapurple r g b), rebeccapurple)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
 });

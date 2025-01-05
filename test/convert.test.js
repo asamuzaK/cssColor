@@ -79,6 +79,14 @@ describe('pre process', () => {
   });
 
   it('should get value', () => {
+    const res = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+
+    const res2 = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res2, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)');
     assert.strictEqual(res, 'oklab(0.573854 0.0422802 0.116761)', 'result');
 
