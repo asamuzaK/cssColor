@@ -121,7 +121,25 @@ export const resolve = (color, opt = {}) => {
   color = color.toLowerCase();
   if (REG_FN_REL.test(color)) {
     color = resolveRelativeColor(color, opt);
-  } else if (REG_FN_MATH_CALC.test(color)) {
+    if (format === VAL_COMP) {
+      res = color || RGB_TRANSPARENT;
+      if (cacheKey) {
+        cachedResults.set(cacheKey, res);
+      }
+      return res;
+    }
+    if (format === VAL_SPEC) {
+      res = color || '';
+      if (cacheKey) {
+        cachedResults.set(cacheKey, res);
+      }
+      return res;
+    }
+    if (!color) {
+      color = '';
+    }
+  }
+  if (REG_FN_MATH_CALC.test(color)) {
     color = cssCalc(color, opt);
   }
   if (color === 'transparent') {
@@ -283,7 +301,9 @@ export const resolve = (color, opt = {}) => {
     }
     case 'rgb': {
       let rgb;
-      if (alpha === 1) {
+      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha)) {
+        rgb = RGB_TRANSPARENT;
+      } else if (alpha === 1) {
         rgb = `rgb(${r}, ${g}, ${b})`;
       } else {
         rgb = `rgba(${r}, ${g}, ${b}, ${alpha})`;

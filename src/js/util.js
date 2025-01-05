@@ -3,10 +3,11 @@
  */
 
 import { isString } from './common.js';
+import { resolve } from './resolve.js';
 
 /* constants */
 import { NAMED_COLORS } from './color.js';
-import { SYN_COLOR_TYPE, SYN_MIX } from './constant.js';
+import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant.js';
 const DEC = 10;
 const HEX = 16;
 const DEG = 360;
@@ -32,6 +33,14 @@ export const isColor = value => {
         }
       } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
         return true;
+      } else {
+        value = resolve(value, {
+          format: VAL_SPEC
+        });
+        if (value) {
+          return true;
+        }
+        return false;
       }
     }
   }

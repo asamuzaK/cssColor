@@ -14,8 +14,8 @@ import { roundToPrecision, valueToJsonString } from './util.js';
 
 /* constants */
 import {
-  CS_LAB, CS_LCH, FN_REL, FN_VAR, NONE, SYN_COLOR_TYPE, SYN_FN_MATH,
-  SYN_FN_VAR, SYN_MIX, VAL_SPEC
+  CS_LAB, CS_LCH, FN_REL, FN_REL_CAPT, FN_VAR, NONE, SYN_COLOR_TYPE,
+  SYN_FN_MATH, SYN_FN_VAR, SYN_MIX, VAL_SPEC
 } from './constant.js';
 import { NAMED_COLORS } from './color.js';
 const {
@@ -37,6 +37,7 @@ const REG_CS_HSL = /(?:hsla?|hwb)$/;
 const REG_CS_CIE = new RegExp(`^(?:${CS_LAB}|${CS_LCH})$`);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_REL = new RegExp(FN_REL);
+const REG_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
 const REG_START_MATH = new RegExp(SYN_FN_MATH);
 const REG_START_REL = new RegExp(`^${FN_REL}`);
 
@@ -49,12 +50,27 @@ export const cachedResults = new LRUCache({
  * resolve relative color channels
  * @param {Array.<Array>} tokens - tokens
  * @param {object} [opt] - options
- * @returns {Array.<string>} - resolved channels
+ * @param {string} [opt.colorSpace] - color space
+ * @returns {?Array.<string>} - resolved channels
  */
 export function resolveColorChannels(tokens, opt = {}) {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
+  const { colorSpace } = opt;
+  const colorChannels = new Map([
+    ['color', ['r', 'g', 'b', 'alpha']],
+    ['hsl', ['h', 's', 'l', 'alpha']],
+    ['hsla', ['h', 's', 'l', 'alpha']],
+    ['hwb', ['h', 'w', 'b', 'alpha']],
+    ['lab', ['l', 'a', 'b', 'alpha']],
+    ['lch', ['l', 'c', 'h', 'alpha']],
+    ['oklab', ['l', 'a', 'b', 'alpha']],
+    ['oklch', ['l', 'c', 'h', 'alpha']],
+    ['rgb', ['r', 'g', 'b', 'alpha']],
+    ['rgba', ['r', 'g', 'b', 'alpha']]
+  ]);
+  const colorChannel = colorChannels.get(colorSpace);
   const mathFunc = new Set();
   const channels = [[], [], [], []];
   let i = 0;
@@ -86,6 +102,9 @@ export function resolveColorChannels(tokens, opt = {}) {
         break;
       }
       case IDENT: {
+        if (!colorChannel.includes(value)) {
+          return null;
+        }
         channels[i].push(value);
         if (!func) {
           i++;
@@ -196,6 +215,8 @@ export function extractOriginColor(value, opt = {}) {
       return null;
     }
   }
+  const [, colorSpace] = REG_REL_CAPT.exec(value);
+  opt.colorSpace = colorSpace;
   if (REG_COLOR_CAPT.test(value)) {
     const [, originColor] = REG_COLOR_CAPT.exec(value);
     const [, restValue] = value.split(originColor);
@@ -214,6 +235,12 @@ export function extractOriginColor(value, opt = {}) {
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue });
       const channelValues = resolveColorChannels(tokens, opt);
+      if (!Array.isArray(channelValues)) {
+        if (cacheKey) {
+          cachedResults.set(cacheKey, null);
+        }
+        return null;
+      }
       let channelValue;
       if (channelValues.length === 3) {
         channelValue = ` ${channelValues.join(' ')})`;
@@ -275,6 +302,12 @@ export function extractOriginColor(value, opt = {}) {
         return null;
       }
       const channelValues = resolveColorChannels(tokens, opt);
+      if (!Array.isArray(channelValues)) {
+        if (cacheKey) {
+          cachedResults.set(cacheKey, null);
+        }
+        return null;
+      }
       let channelValue;
       if (channelValues.length === 3) {
         channelValue = ` ${channelValues.join(' ')})`;
@@ -336,9 +369,16 @@ export function resolveRelativeColor(value, opt = {}) {
   }
   const tokens = tokenize({ css: value });
   const components = parseComponentValue(tokens);
+  const parsedComponents = colorParser(components);
+  if (!parsedComponents) {
+    if (cacheKey) {
+      cachedResults.set(cacheKey, null);
+    }
+    return null;
+  }
   let {
     alpha, channels: [v1, v2, v3], colorNotation, syntaxFlags
-  } = colorParser(components);
+  } = parsedComponents;
   if (Number.isNaN(alpha)) {
     if (syntaxFlags.has(NONE_KEY)) {
       alpha = NONE;

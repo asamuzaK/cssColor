@@ -33,11 +33,22 @@ describe('resolve relative color channels', () => {
     assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
   });
 
+  it('should get null', () => {
+    const css = ' r g b / alpha)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, {
+      colorSpace: 'lab',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
   // FIXME: workaround limitation
   it('should get value', () => {
     const css = ' r calc(g * sign(2px) ) abs(-10))';
     const tokens = tokenize({ css });
     const res = func(tokens, {
+      colorSpace: 'rgb',
       format: 'specifiedValue'
     });
     // expected: ['r', 'calc(1 * g)', 'calc(10)']
@@ -49,6 +60,7 @@ describe('resolve relative color channels', () => {
     const css = ' r calc(g * sign(2em)) 1000%)';
     const tokens = tokenize({ css });
     const res = func(tokens, {
+      colorSpace: 'rgb',
       format: 'specifiedValue'
     });
     // expected: ['r', 'calc(1 * g)', 10]
@@ -60,6 +72,7 @@ describe('resolve relative color channels', () => {
     const css = ' r calc(g * .5 + g * .5) 10)';
     const tokens = tokenize({ css });
     const res = func(tokens, {
+      colorSpace: 'rgb',
       format: 'specifiedValue'
     });
     // expected: ['r', 'calc((0.5 * g) + (0.5 * g))', 10]
@@ -71,6 +84,7 @@ describe('resolve relative color channels', () => {
     const css = ' r calc((g * .5) + g * .5) 10)';
     const tokens = tokenize({ css });
     const res = func(tokens, {
+      colorSpace: 'rgb',
       format: 'specifiedValue'
     });
     // expected: ['r', 'calc((0.5 * g) + (0.5 * g))', 10]
@@ -82,6 +96,7 @@ describe('resolve relative color channels', () => {
     const css = ' r calc(b * 50% - g * .5) 10)';
     const tokens = tokenize({ css });
     const res = func(tokens, {
+      colorSpace: 'rgb',
       format: 'specifiedValue'
     });
     // expected: ['r', 'calc((0.5 * b) - (0.5 * g))', 10]
@@ -106,6 +121,20 @@ describe('extract origin color', () => {
 
   it('should get null', () => {
     const res = func(' ');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('rgb(from rebeccapurple l a b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
+      format: 'specifiedValue'
+    });
     assert.strictEqual(res, null, 'result');
   });
 
@@ -489,5 +518,10 @@ describe('resolve relative color', () => {
     assert.strictEqual(res,
       'rgb(from rgb(from rebeccapurple r g b) r calc(g * 0.5 + g * 0.5) 10)',
       'result');
+  });
+
+  it('should get null', () => {
+    const res = func('rgb(from rebeccapurple l a b)');
+    assert.strictEqual(res, null, 'result');
   });
 });

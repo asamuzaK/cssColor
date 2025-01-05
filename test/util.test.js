@@ -18,6 +18,11 @@ describe('is color', () => {
   });
 
   it('should get result', () => {
+    const res = func('');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get result', () => {
     const res = func('foo');
     assert.strictEqual(res, false, 'result');
   });
@@ -45,6 +50,16 @@ describe('is color', () => {
   it('should get result', () => {
     const res = func('color-mix(in oklab, red, blue)');
     assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get result', () => {
+    const res = func('rgb(from rebeccapurple l a b)');
+    assert.strictEqual(res, false, 'result');
   });
 });
 

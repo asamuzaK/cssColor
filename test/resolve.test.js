@@ -890,4 +890,23 @@ describe('resolve CSS color', () => {
       func('color-mix(in srgb, rgb(from rebeccapurple r g b), rebeccapurple)');
     assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple l a b)');
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple l a b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple l a b)', {
+      format: 'rgb'
+    });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
 });

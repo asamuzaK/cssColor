@@ -47,6 +47,7 @@ export const CS_MIX = `${CS_HUE}|${CS_LAB}|${CS_SRGB}|${CS_XYZ}`;
 export const FN_COLOR = 'color(';
 export const FN_MIX = 'color-mix(';
 export const FN_REL = `(?:${_COLOR_FUNC})\\(\\s*from\\s+`;
+export const FN_REL_CAPT = `(${_COLOR_FUNC})\\(\\s*from\\s+`;
 export const FN_VAR = 'var(';
 export const SYN_FN_COLOR =
   `(?:${CS_RGB}|${CS_XYZ})(?:\\s+${_NUM_PCT_NONE}){3}${_ALPHA}`;
