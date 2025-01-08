@@ -8,7 +8,7 @@ import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { isString } from './common.js';
 import { colorToRgb } from './convert.js';
-import { cssCalc, resolveDimension } from './css-calc.js';
+import { resolveDimension, serializeCalc } from './css-calc.js';
 import { resolve } from './resolve.js';
 import { roundToPrecision, valueToJsonString } from './util.js';
 
@@ -57,7 +57,7 @@ export function resolveColorChannels(tokens, opt = {}) {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
-  const { colorSpace } = opt;
+  const { colorSpace, format } = opt;
   const colorChannels = new Map([
     ['color', ['r', 'g', 'b', 'alpha']],
     ['hsl', ['h', 's', 'l', 'alpha']],
@@ -176,7 +176,9 @@ export function resolveColorChannels(tokens, opt = {}) {
       const [resolvedValue] = channel;
       channelValues.push(resolvedValue);
     } else if (channel.length) {
-      const resolvedValue = cssCalc(channel.join(''), opt);
+      const resolvedValue = serializeCalc(channel.join(''), {
+        format
+      });
       channelValues.push(resolvedValue);
     }
   }
