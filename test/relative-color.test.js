@@ -43,7 +43,6 @@ describe('resolve relative color channels', () => {
     assert.strictEqual(res, null, 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const css = ' r calc(g * sign(2px) ) abs(-10))';
     const tokens = tokenize({ css });
@@ -51,11 +50,9 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    // expected: ['r', 'calc(1 * g)', 'calc(10)']
-    assert.deepEqual(res, ['r', 'calc(g * 1)', 'calc(10)'], 'result');
+    assert.deepEqual(res, ['r', 'calc(1 * g)', 'abs(-10)'], 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const css = ' r calc(g * sign(2em)) 1000%)';
     const tokens = tokenize({ css });
@@ -63,11 +60,9 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    // expected: ['r', 'calc(1 * g)', 10]
-    assert.deepEqual(res, ['r', 'calc(g * 1)', 10], 'result');
+    assert.deepEqual(res, ['r', 'calc(1 * g)', 10], 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const css = ' r calc(g * .5 + g * .5) 10)';
     const tokens = tokenize({ css });
@@ -75,11 +70,9 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    // expected: ['r', 'calc((0.5 * g) + (0.5 * g))', 10]
-    assert.deepEqual(res, ['r', 'calc(g * 0.5 + g * 0.5)', 10], 'result');
+    assert.deepEqual(res, ['r', 'calc((0.5 * g) + (0.5 * g))', 10], 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const css = ' r calc((g * .5) + g * .5) 10)';
     const tokens = tokenize({ css });
@@ -87,11 +80,9 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    // expected: ['r', 'calc((0.5 * g) + (0.5 * g))', 10]
-    assert.deepEqual(res, ['r', 'calc((g * 0.5) + g * 0.5)', 10], 'result');
+    assert.deepEqual(res, ['r', 'calc((0.5 * g) + (0.5 * g))', 10], 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const css = ' r calc(b * 50% - g * .5) 10)';
     const tokens = tokenize({ css });
@@ -99,8 +90,7 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    // expected: ['r', 'calc((0.5 * b) - (0.5 * g))', 10]
-    assert.deepEqual(res, ['r', 'calc(b * 0.5 - g * 0.5)', 10], 'result');
+    assert.deepEqual(res, ['r', 'calc((0.5 * b) - (0.5 * g))', 10], 'result');
   });
 });
 
@@ -480,43 +470,36 @@ describe('resolve relative color', () => {
       'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(g * 2) 10)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'rgb(from rebeccapurple r calc(g * 2) 10)',
+    assert.strictEqual(res, 'rgb(from rebeccapurple r calc(2 * g) 10)',
       'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(g * .5 + g * .5) 10)', {
       format: 'specifiedValue'
     });
-    // expected: 'rgb(from rebeccapurple r calc((0.5 * g) + (0.5 * g)) 10)'
     assert.strictEqual(res,
-      'rgb(from rebeccapurple r calc(g * 0.5 + g * 0.5) 10)', 'result');
+      'rgb(from rebeccapurple r calc((0.5 * g) + (0.5 * g)) 10)', 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(b * 50% - g * .5) 10)', {
       format: 'specifiedValue'
     });
-    // expected: 'rgb(from rebeccapurple r calc((0.5 * b) - (0.5 * g)) 10)'
     assert.strictEqual(res,
-      'rgb(from rebeccapurple r calc(b * 0.5 - g * 0.5) 10)', 'result');
+      'rgb(from rebeccapurple r calc((0.5 * b) - (0.5 * g)) 10)', 'result');
   });
 
-  // FIXME: workaround limitation
   it('should get value', () => {
     const res = func('rgba(from rgba(from rebeccapurple r g b) r calc(g * .5 + g * .5) 10)', {
       format: 'specifiedValue'
     });
-    // expected: 'rgb(from rgb(from rebeccapurple r g b) r calc((0.5 * g) + (0.5 * g)) 10)'
     assert.strictEqual(res,
-      'rgb(from rgb(from rebeccapurple r g b) r calc(g * 0.5 + g * 0.5) 10)',
+      'rgb(from rgb(from rebeccapurple r g b) r calc((0.5 * g) + (0.5 * g)) 10)',
       'result');
   });
 

@@ -9,6 +9,777 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 /* test */
 import * as csscalc from '../src/js/css-calc.js';
 
+describe('calculator', () => {
+  const { Calculator } = csscalc;
+
+  it('should create instance', () => {
+    const cal = new Calculator();
+    assert.strictEqual(cal instanceof Calculator, true, 'instance');
+    assert.strictEqual(cal.hasNum, false, 'hasNum');
+    assert.deepEqual(cal.numSum, [], 'numSum');
+    assert.deepEqual(cal.numMul, [], 'numMul');
+    assert.strictEqual(cal.hasPct, false, 'hasPct');
+    assert.deepEqual(cal.pctSum, [], 'pctSum');
+    assert.deepEqual(cal.pctMul, [], 'pctMul');
+    assert.strictEqual(cal.hasDim, false, 'hasDim');
+    assert.deepEqual(cal.dimSum, [], 'dimSum');
+    assert.deepEqual(cal.dimSub, [], 'dimSub');
+    assert.deepEqual(cal.dimMul, [], 'dimMul');
+    assert.deepEqual(cal.dimDiv, [], 'dimDiv');
+    assert.strictEqual(cal.hasEtc, false, 'hasEtc');
+    assert.deepEqual(cal.etcSum, [], 'etcSum');
+    assert.deepEqual(cal.etcSub, [], 'etcSub');
+    assert.deepEqual(cal.etcMul, [], 'etcMul');
+    assert.deepEqual(cal.etcDiv, [], 'etcDiv');
+    assert.strictEqual(typeof cal.clear, 'function', 'clear');
+    assert.strictEqual(typeof cal.sort, 'function', 'sort');
+    assert.strictEqual(typeof cal.multiply, 'function', 'multiply');
+    assert.strictEqual(typeof cal.sum, 'function', 'sum');
+  });
+
+  it('should get/set values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    assert.strictEqual(cal.hasNum, true, 'hasNum');
+    cal.numSum.push(10, -10);
+    assert.deepEqual(cal.numSum, [10, -10], 'numSum');
+    cal.numMul.push(10, -10, 1 / 10);
+    assert.deepEqual(cal.numMul, [10, -10, 0.1], 'numMul');
+    cal.hasPct = true;
+    assert.strictEqual(cal.hasPct, true, 'hasPct');
+    cal.pctSum.push(10, -10);
+    assert.deepEqual(cal.pctSum, [10, -10], 'pctSum');
+    cal.pctMul.push(10, -10, 1 / 10);
+    assert.deepEqual(cal.pctMul, [10, -10, 0.1], 'pctMul');
+    cal.hasDim = true;
+    assert.strictEqual(cal.hasDim, true, 'hasDim');
+    cal.dimSum.push('10px', '-10px');
+    assert.deepEqual(cal.dimSum, ['10px', '-10px'], 'dimSum');
+    cal.dimSub.push('10px', '-1em');
+    assert.deepEqual(cal.dimSub, ['10px', '-1em'], 'dimSub');
+    cal.dimMul.push('10px', '-10px');
+    assert.deepEqual(cal.dimMul, ['10px', '-10px'], 'dimMul');
+    cal.dimDiv.push('10px', '-1em');
+    assert.deepEqual(cal.dimDiv, ['10px', '-1em'], 'dimDiv');
+    cal.hasEtc = true;
+    assert.strictEqual(cal.hasEtc, true, 'hasEtc');
+    cal.etcSum.push('r', 'g', 'b', 'alpha');
+    assert.deepEqual(cal.etcSum, ['r', 'g', 'b', 'alpha'], 'etcSum');
+    cal.etcSub.push('r', 'g', 'b', 'alpha');
+    assert.deepEqual(cal.etcSub, ['r', 'g', 'b', 'alpha'], 'etcSub');
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    assert.deepEqual(cal.etcMul, ['r', 'g', 'b', 'alpha'], 'etcMul');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    assert.deepEqual(cal.etcDiv, ['r', 'g', 'b', 'alpha'], 'etcDiv');
+  });
+
+  it('should clear values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numSum.push(10, -10);
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasPct = true;
+    cal.pctSum.push(10, -10);
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimSum.push('10px', '-10px');
+    cal.dimSub.push('10px', '-10px');
+    cal.dimMul.push('10px', '-10px');
+    cal.dimDiv.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcSum.push('r', 'g', 'b', 'alpha');
+    cal.etcSub.push('r', 'g', 'b', 'alpha');
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    cal.clear();
+    assert.strictEqual(cal.hasNum, false, 'hasNum');
+    assert.deepEqual(cal.numSum, [], 'numSum');
+    assert.deepEqual(cal.numMul, [], 'numMul');
+    assert.strictEqual(cal.hasPct, false, 'hasPct');
+    assert.deepEqual(cal.pctSum, [], 'pctSum');
+    assert.deepEqual(cal.pctMul, [], 'pctMul');
+    assert.strictEqual(cal.hasDim, false, 'hasDim');
+    assert.deepEqual(cal.dimSum, [], 'dimSum');
+    assert.deepEqual(cal.dimSub, [], 'dimSub');
+    assert.deepEqual(cal.dimMul, [], 'dimMul');
+    assert.deepEqual(cal.dimDiv, [], 'dimDiv');
+    assert.strictEqual(cal.hasEtc, false, 'hasEtc');
+    assert.deepEqual(cal.etcSum, [], 'etcSum');
+    assert.deepEqual(cal.etcSub, [], 'etcSub');
+    assert.deepEqual(cal.etcMul, [], 'etcMul');
+    assert.deepEqual(cal.etcDiv, [], 'etcDiv');
+  });
+
+  it('should sort values', () => {
+    const cal = new Calculator();
+    const res = cal.sort([1, -1, 3, 5, 2, 2, 4]);
+    assert.deepEqual(res, [-1, 1, 2, 2, 3, 4, 5], 'result');
+  });
+
+  it('should sort values', () => {
+    const cal = new Calculator();
+    const res = cal.sort(['-1px', '3px', '5em', '2em', '2em', '4px', '1vw']);
+    assert.deepEqual(res, ['2em', '2em', '5em', '-1px', '3px', '4px', '1vw'],
+      'result');
+  });
+
+  it('should get null', () => {
+    const cal = new Calculator();
+    const res = cal.multiply();
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasPct = true;
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px', '-10px');
+    cal.dimDiv.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res,
+      '100% * (-10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, 0, 1 / 10);
+    const res = cal.multiply();
+    assert.strictEqual(res, '0', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, Infinity, 1 / 10);
+    const res = cal.multiply();
+    assert.strictEqual(res, 'Infinity', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, NaN, 1 / 10);
+    const res = cal.multiply();
+    assert.strictEqual(res, 'NaN', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-10% * (-10px * 10px) * alpha * b * g * r',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-10% * 10px * r', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimDiv.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-10% / (-10px * 10px) / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimDiv.push('10px');
+    cal.hasEtc = true;
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-10% / 10px / r', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, 0, 1 / 10);
+    const res = cal.multiply();
+    assert.strictEqual(res, '0%', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, Infinity, 1 / 10);
+    const res = cal.multiply();
+    assert.strictEqual(res, 'Infinity', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, NaN, 1 / 10);
+    const res = cal.multiply();
+    assert.strictEqual(res, 'NaN', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px', '-10px');
+    cal.dimDiv.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res,
+      '(-10 * -10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px', '-10px');
+    cal.dimDiv.push('10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res,
+      '-10% * (-10px * 10px / 10px) * alpha * b * g * r / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px', '-10px');
+    cal.dimDiv.push('10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res,
+      '(-10 * -10px * 10px / 10px) * alpha * b * g * r / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res, '(-10 * -10px * 10px) * alpha * b * g * r',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    cal.hasEtc = true;
+    cal.etcMul.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-100px * r', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimDiv.push('10px', '-10px');
+    cal.hasEtc = true;
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res, '(-10 / (-10px * 10px)) / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    const res = cal.multiply();
+    assert.strictEqual(res, '10px', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctMul.push(10, 0, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    const res = cal.multiply();
+    assert.strictEqual(res, '0% * 10px', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, NaN, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    const res = cal.multiply();
+    assert.strictEqual(res, 'NaN * 10px', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, Infinity, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    const res = cal.multiply();
+    assert.strictEqual(res, 'Infinity * 10px', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -Infinity, 1 / 10);
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-Infinity * 10px', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasDim = true;
+    cal.dimDiv.push('10px');
+    cal.hasEtc = true;
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '(-10 / 10px) / r', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasDim = true;
+    cal.dimMul.push('10px');
+    cal.hasEtc = true;
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '10px / r', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasDim = true;
+    cal.dimDiv.push('10px');
+    cal.hasEtc = true;
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '1 / 10px / r', 'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r', 'g', 'b', 'alpha');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-10 * alpha * b * g * r / (alpha * b * g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, -10, 1 / 10);
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '-10 * alpha * b * g * r / r',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcMul.push('r', 'g', 'b', 'alpha');
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, 'alpha * b * g * r / r',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcDiv.push('r', 'g');
+    const res = cal.multiply();
+    assert.strictEqual(res, '1 / (g * r)',
+      'result');
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcDiv.push('r');
+    const res = cal.multiply();
+    assert.strictEqual(res, '1 / r',
+      'result');
+  });
+
+  it('should get null', () => {
+    const cal = new Calculator();
+    const res = cal.sum();
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numSum.push(20, -10);
+    cal.hasPct = true;
+    cal.pctSum.push(20, -10);
+    cal.hasDim = true;
+    cal.dimSum.push('30px', '-10px');
+    cal.dimSub.push('20px', '-10px');
+    cal.hasEtc = true;
+    cal.etcSum.push('r', 'g', 'b');
+    cal.etcSub.push('r', 'alpha');
+    const res = cal.sum();
+    assert.strictEqual(res, '10 + 10% + 10px + (b + g + r) - (alpha + r)',
+      'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numSum.push(20, Infinity);
+    const res = cal.sum();
+    assert.strictEqual(res, 'Infinity', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numSum.push(20, NaN);
+    const res = cal.sum();
+    assert.strictEqual(res, 'NaN', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctSum.push(20, Infinity);
+    const res = cal.sum();
+    assert.strictEqual(res, 'Infinity', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasPct = true;
+    cal.pctSum.push(20, NaN);
+    const res = cal.sum();
+    assert.strictEqual(res, 'NaN', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasDim = true;
+    cal.dimSum.push('30px', '-10px');
+    cal.dimSub.push('10px');
+    const res = cal.sum();
+    assert.strictEqual(res, '10px', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasDim = true;
+    cal.dimSum.push('30px', '-10px');
+    const res = cal.sum();
+    assert.strictEqual(res, '20px', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasDim = true;
+    cal.dimSub.push('30px', '-10px');
+    const res = cal.sum();
+    assert.strictEqual(res, '-20px', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcSum.push('r', 'g', 'b');
+    cal.etcSub.push('r');
+    const res = cal.sum();
+    assert.strictEqual(res, 'b + g + r - r', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcSum.push('r', 'g', 'b');
+    const res = cal.sum();
+    assert.strictEqual(res, 'b + g + r', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcSub.push('r', 'g', 'b');
+    const res = cal.sum();
+    assert.strictEqual(res, '-1 * (b + g + r)', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcSub.push('r');
+    const res = cal.sum();
+    assert.strictEqual(res, '-1 * r', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numSum.push(1);
+    cal.hasEtc = true;
+    cal.etcSum.push('r');
+    const res = cal.sum();
+    assert.strictEqual(res, '1 + r', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcSum.push('r');
+    const res = cal.sum();
+    assert.strictEqual(res, 'r', 'result');
+  });
+
+  it('should sum values', () => {
+    const cal = new Calculator();
+    cal.hasEtc = true;
+    cal.etcSub.push('1 * r');
+    const res = cal.sum();
+    assert.strictEqual(res, '-1 * (1 * r)', 'result');
+  });
+});
+
+describe('sort calc values', () => {
+  const func = csscalc.sortCalcValues;
+
+  it('should get null', () => {
+    const res = func();
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func(['calc(', ')']);
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 1, ')']);
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '*', 0.5, ')']);
+    assert.strictEqual(res, 'calc(0.5 * r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '+', 0.5, ')'], true);
+    assert.strictEqual(res, 'calc(0.5 + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '*', 0.5, ')']);
+    assert.strictEqual(res, 'calc(0.5 * r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '/', 2, ')']);
+    assert.strictEqual(res, 'calc(0.5 * r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '/', '200%', ')']);
+    assert.strictEqual(res, 'calc(50% * r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '/', '50vw', ')']);
+    assert.strictEqual(res, 'calc(1 / 50vw * r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '/', 'g', ')']);
+    assert.strictEqual(res, 'calc(r / g)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '*', '1em', ')']);
+    assert.strictEqual(res, 'calc(1em * r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '-', 1, ')'], true);
+    assert.strictEqual(res, 'calc(-1 + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '-', '50%', ')'], true);
+    assert.strictEqual(res, 'calc(-50% + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '-', '1em', ')'], true);
+    assert.strictEqual(res, 'calc(-1em + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '-', 'b', ')'], true);
+    assert.strictEqual(res, 'calc(r - b)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '+', 1, ')'], true);
+    assert.strictEqual(res, 'calc(1 + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '+', '50%', ')'], true);
+    assert.strictEqual(res, 'calc(50% + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '+', '1em', ')'], true);
+    assert.strictEqual(res, 'calc(1em + r)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '/', 2, '+', 'r', '*', '50%', ')'], true);
+    assert.strictEqual(res, 'calc((0.5 * r) + (50% * r))', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', 'r', '*', '1', ')'], true);
+    assert.strictEqual(res, 'calc(1 * r)', 'result');
+  });
+});
+
+describe('serialize calc', () => {
+  const func = csscalc.serializeCalc;
+
+  beforeEach(() => {
+    csscalc.cachedResults.clear();
+  });
+  afterEach(() => {
+    csscalc.cachedResults.clear();
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
+  });
+
+  it('should get value', () => {
+    const res = func('red');
+    assert.strictEqual(res, 'red', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(1)');
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(r * 0.5 - g * 0.5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc((0.5 * r) - (0.5 * g))', 'result');
+
+    const res2 = func('calc(r * 0.5 + r * 0.5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc((0.5 * r) + (0.5 * r))', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(r * 0.5 + r * 0.5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc((0.5 * r) + (0.5 * r))', 'result');
+
+    const res2 = func('calc(r * 0.5 + r * 0.5)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc((0.5 * r) + (0.5 * r))', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc((r * 0.5) + (r * 0.5))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc((0.5 * r) + (0.5 * r))', 'result');
+
+    const res2 = func('calc((r * 0.5) + (r * 0.5))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc((0.5 * r) + (0.5 * r))', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(r * sign(2px))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1 * r)', 'result');
+
+    const res2 = func('calc(r * sign(2px))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc(1 * r)', 'result');
+  });
+});
+
 describe('resolve dimension', () => {
   const func = csscalc.resolveDimension;
 
@@ -424,7 +1195,7 @@ describe('resolve CSS calc()', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
-  it('should get value', () => {
+  it('should throw', () => {
     assert.throws(() => func('var(--foo)'), SyntaxError,
       'Unexpected token var( found.');
   });
