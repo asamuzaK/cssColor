@@ -2,49 +2,45 @@
  * common.test.js
  */
 
-/* api */
-import { strict as assert } from 'node:assert';
-import { describe, it } from 'mocha';
-
-/* test */
+import { describe, it, expect } from 'vitest';
 import * as common from '../src/js/common.js';
 
 describe('get type', () => {
-  const func = common.getType;
+  const func = common.getType as Function;
 
   it('should get Array', () => {
     const res = func([]);
-    assert.deepEqual(res, 'Array');
+    expect(res).toBe('Array');
   });
 
   it('should get Object', () => {
     const res = func({});
-    assert.deepEqual(res, 'Object');
+    expect(res).toBe('Object');
   });
 
   it('should get String', () => {
     const res = func('');
-    assert.deepEqual(res, 'String');
+    expect(res).toBe('String');
   });
 
   it('should get Number', () => {
     const res = func(1);
-    assert.deepEqual(res, 'Number');
+    expect(res).toBe('Number');
   });
 
   it('should get Boolean', () => {
     const res = func(true);
-    assert.deepEqual(res, 'Boolean');
+    expect(res).toBe('Boolean');
   });
 
   it('should get Undefined', () => {
     const res = func();
-    assert.deepEqual(res, 'Undefined');
+    expect(res).toBe('Undefined');
   });
 
   it('should get Null', () => {
     const res = func(null);
-    assert.deepEqual(res, 'Null');
+    expect(res).toBe('Null');
   });
 });
 
@@ -54,14 +50,14 @@ describe('is string', () => {
   it('should get false', () => {
     const items = [[], ['foo'], {}, { foo: 'bar' }, undefined, null, 1, true];
     for (const item of items) {
-      assert.strictEqual(func(item), false);
+      expect(func(item)).toBe(false);
     }
   });
 
   it('should get true', () => {
     const items = ['', 'foo'];
     for (const item of items) {
-      assert.strictEqual(func(item), true);
+      expect(func(item)).toBe(true);
     }
   });
 });
