@@ -47,6 +47,7 @@
   "scripts": {
     "build": "npm run tsc && npm run lint && npm test && npm run bundle",
     "bundle": "npm-run-all -s bundle-*",
+    "bundle-browser": "esbuild --format=esm --platform=browser --outfile=dist/esm/css-color.min.js --bundle --minify --sourcemap src/index.js",
     "bundle-cjs": "esbuild --format=cjs --platform=node --outfile=dist/cjs/css-color.min.cjs --bundle --minify --sourcemap src/index.js",
     "lint": "eslint --fix .",
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
