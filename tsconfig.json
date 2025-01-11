@@ -1,16 +1,28 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "checkJs": true,
     "declaration": true,
-    "declarationDir": "types",
-    "emitDeclarationOnly": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "newLine": "LF",
-    "removeComments": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "module": "ES2022",
+    "moduleResolution": "Node",
+    "noEmit": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false, // TODO enable
+    "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "target": "esnext"
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2020",
+    "types": ["@testing-library/jest-dom"]
   },
-  "include": ["src/index.js"]
+  "include": ["src", "tests", "eslint.config.js", "vite.config.ts"],
 }
