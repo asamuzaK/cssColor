@@ -2,15 +2,11 @@
  * css-var.test.js
  */
 
-/* api */
-import { strict as assert } from 'node:assert';
-import { afterEach, beforeEach, describe, it } from 'mocha';
-
-/* test */
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import * as custom from '../src/js/css-var.js';
 
 describe('resolve CSS variable', () => {
-  const func = custom.resolveCustomProperty;
+  const func = custom.resolveCustomProperty as Function;
 
   beforeEach(() => {
     custom.cachedResults.clear();
@@ -20,11 +16,13 @@ describe('resolve CSS variable', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not an array.');
+    expect(() => func()).toThrow(TypeError);
+    expect(() => func()).toThrow('undefined is not an array.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
+    expect(() => func(['foo'])).toThrow(TypeError);
+    expect(() => func(['foo'])).toThrow('foo is not an array.');
   });
 
   it('should get value', () => {
@@ -32,10 +30,10 @@ describe('resolve CSS variable', () => {
       ['ident-token', '--foo'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [],
       undefined
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -46,10 +44,10 @@ describe('resolve CSS variable', () => {
       ['ident-token', 'red'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -61,7 +59,7 @@ describe('resolve CSS variable', () => {
       [')-token', ')'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -69,7 +67,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -85,7 +83,7 @@ describe('resolve CSS variable', () => {
         '--foo': 'blue'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -93,7 +91,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'blue'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -122,7 +120,7 @@ describe('resolve CSS variable', () => {
         callback: getPropertyValue
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -130,7 +128,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'blue'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -159,7 +157,7 @@ describe('resolve CSS variable', () => {
         callback: getPropertyValue
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -167,7 +165,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -183,7 +181,7 @@ describe('resolve CSS variable', () => {
         '--foo': 'blue'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -191,7 +189,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -207,7 +205,7 @@ describe('resolve CSS variable', () => {
         '--foo': '20px'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -215,7 +213,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -231,7 +229,7 @@ describe('resolve CSS variable', () => {
         '--bar': 'blue'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -239,7 +237,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -255,7 +253,7 @@ describe('resolve CSS variable', () => {
         '--foo': 'currentColor'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -263,7 +261,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'currentColor'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -280,7 +278,7 @@ describe('resolve CSS variable', () => {
         '--bar': 'blue'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -288,7 +286,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'blue'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -305,7 +303,7 @@ describe('resolve CSS variable', () => {
         '--bar': 'initial'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -313,7 +311,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -330,7 +328,7 @@ describe('resolve CSS variable', () => {
         '--bar': '20px'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -338,7 +336,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       '20px'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -354,7 +352,7 @@ describe('resolve CSS variable', () => {
         '--foo': 'rgb(255 0 calc(255 / 2))'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -362,7 +360,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'rgb(255 0 127.5)'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -378,7 +376,7 @@ describe('resolve CSS variable', () => {
         '--foo': 'color-mix(in oklab, rgb(255 0 0), green)'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -386,7 +384,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'color-mix(in oklab, rgb(255 0 0), green)'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -402,7 +400,7 @@ describe('resolve CSS variable', () => {
         '--foo': 'transparent'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [
         [
           ')-token',
@@ -410,7 +408,7 @@ describe('resolve CSS variable', () => {
         ]
       ],
       'transparent'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -427,10 +425,10 @@ describe('resolve CSS variable', () => {
         '--foo': 'blue'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [],
       'blue'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -447,10 +445,10 @@ describe('resolve CSS variable', () => {
         '--foo': 'calc(1 / 2)'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [],
       'red'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -467,10 +465,10 @@ describe('resolve CSS variable', () => {
         '--foo': 'calc(1 / 2)'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [],
       '0.5'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -487,15 +485,15 @@ describe('resolve CSS variable', () => {
         '--foo': 'initial'
       }
     });
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       [],
       'red'
-    ], 'result');
+    ]);
   });
 });
 
 describe('parse tokens', () => {
-  const func = custom.parseTokens;
+  const func = custom.parseTokens as Function;
 
   beforeEach(() => {
     custom.cachedResults.clear();
@@ -510,7 +508,7 @@ describe('parse tokens', () => {
       ['ident-token', '--foo'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, null, 'result');
+    expect(res).toBe(null);
   });
 
   it('should get value', () => {
@@ -522,7 +520,7 @@ describe('parse tokens', () => {
       ['ident-token', 'red'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, ['red'], 'result');
+    expect(res).toEqual(['red']); 
   });
 
   it('should get value', () => {
@@ -538,11 +536,11 @@ describe('parse tokens', () => {
       ['whitespace-token', ' '],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       'calc(',
       'red',
       ')'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
@@ -552,25 +550,25 @@ describe('parse tokens', () => {
       ['whitespace-token', ' '],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       '--foo',
       ')',
       ')'
-    ], 'result');
+    ]);
   });
 
   it('should get value', () => {
     const res = func([
       [')-token', ')'],
     ]);
-    assert.deepEqual(res, [
+    expect(res).toEqual([
       ')'
-    ], 'result');
+    ]);
   });
 });
 
 describe('resolve CSS var()', () => {
-  const func = custom.cssVar;
+  const func = custom.cssVar as Function;
 
   beforeEach(() => {
     custom.cachedResults.clear();
@@ -580,32 +578,33 @@ describe('resolve CSS var()', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+    expect(() => func()).toThrow(TypeError);
+    expect(() => func()).toThrow('undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func('');
-    assert.strictEqual(res, '', 'result');
+    expect(res).toBe('');
   });
 
   it('should get value', () => {
     const res = func('foo');
-    assert.strictEqual(res, 'foo', 'result');
+    expect(res).toBe('foo');
   });
 
   it('should get value', () => {
     const res = func('var(--foo)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'var(--foo)', 'result');
+    expect(res).toBe('var(--foo)');
   });
 
   it('should get null', () => {
     const res = func('var(--foo)');
-    assert.deepEqual(res, null, 'result');
+    expect(res).toBe(null);
 
     const res2 = func('var(--foo)');
-    assert.deepEqual(res2, null, 'result');
+    expect(res2).toBe(null);
   });
 
   it('should get value', () => {
@@ -614,18 +613,18 @@ describe('resolve CSS var()', () => {
         '--foo': 'red'
       }
     });
-    assert.strictEqual(res, 'red', 'result');
+    expect(res).toBe('red');
 
     const res2 = func('var(--foo)', {
       customProperty: {
         '--foo': 'red'
       }
     });
-    assert.strictEqual(res2, 'red', 'result');
+    expect(res2).toBe('red');
   });
 
   it('should get value', () => {
-    const getPropertyValue = v => {
+    const getPropertyValue = (v: string) => {
       let res;
       switch (v) {
         case '--foo':
@@ -646,14 +645,14 @@ describe('resolve CSS var()', () => {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res, 'blue', 'result');
+    expect(res).toBe('blue');
 
     const res2 = func('var(--foo)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res2, 'blue', 'result');
+    expect(res2).toBe('blue');
   });
 
   it('should get value', () => {
@@ -661,8 +660,8 @@ describe('resolve CSS var()', () => {
       '--foo': 'blue',
       '--bar': 'green',
       '--baz': 'yellow'
-    };
-    const getPropertyValue = v => {
+    } as Record<string, string>;
+    const getPropertyValue = (v: keyof typeof colorMap) => {
       const res = colorMap[v];
       return res;
     };
@@ -671,7 +670,7 @@ describe('resolve CSS var()', () => {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res, 'red', 'result');
+    expect(res).toBe('red');
 
     colorMap['--qux'] = 'cyan';
     const res2 = func('var(--qux, red)', {
@@ -679,7 +678,7 @@ describe('resolve CSS var()', () => {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res2, 'cyan', 'result');
+    expect(res2).toBe('cyan');
 
     colorMap['--qux'] = 'teal';
     const res3 = func('var(--qux, red)', {
@@ -687,7 +686,7 @@ describe('resolve CSS var()', () => {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res3, 'teal', 'result');
+    expect(res3).toBe('teal');
   });
 
   it('should get value', () => {
@@ -697,7 +696,7 @@ describe('resolve CSS var()', () => {
         '--max-rgb': '255'
       }
     });
-    assert.strictEqual(res, 'rgb(0 127.5 0)', 'result');
+    expect(res).toBe('rgb(0 127.5 0)');
 
     const res2 = func('rgb( 0 calc( var( --max-rgb ) * var( --half ) ) 0 )', {
       customProperty: {
@@ -705,6 +704,6 @@ describe('resolve CSS var()', () => {
         '--max-rgb': '255'
       }
     });
-    assert.strictEqual(res2, 'rgb(0 127.5 0)', 'result');
+    expect(res2).toBe('rgb(0 127.5 0)');
   });
 });
