@@ -2,16 +2,12 @@
  * api.test.js
  */
 
-/* api */
-import { strict as assert } from 'node:assert';
-import { afterEach, beforeEach, describe, it } from 'mocha';
-
-/* test */
+import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import * as api from '../src/js/resolve.js';
 import { parseColorValue } from '../src/js/color.js';
 
 describe('resolve CSS color', () => {
-  const func = api.resolve;
+  const func = api.resolve as Function;
 
   beforeEach(() => {
     api.cachedResults.clear();
@@ -21,25 +17,26 @@ describe('resolve CSS color', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+    expect(() => func()).toThrow(TypeError);
+    expect(() => func()).toThrow('undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func('foo');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
     const res2 = func('foo');
-    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res2).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get value', () => {
     const res = func('var(--foo)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'var(--foo)', 'result');
+    expect(res).toBe('var(--foo)');
   });
 
   it('should get value', () => {
-    const getPropertyValue = v => {
+    const getPropertyValue = (v: string) => {
       let res;
       switch (v) {
         case '--foo':
@@ -60,33 +57,33 @@ describe('resolve CSS color', () => {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res, 'rgb(0, 0, 255)', 'result');
+    expect(res).toBe('rgb(0, 0, 255)');
 
     const res2 = func('var(--foo)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    assert.strictEqual(res2, 'rgb(0, 0, 255)', 'result');
+    expect(res2).toBe('rgb(0, 0, 255)');
   });
 
   it('should get null', () => {
     const res = func('var(--foo)', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
   });
 
   it('should get null', () => {
     const res = func('var(--foo)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
   });
 
   it('should get value', () => {
     const res = func('var(--foo)');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get value', () => {
@@ -95,89 +92,89 @@ describe('resolve CSS color', () => {
         '--foo': 'red'
       }
     });
-    assert.strictEqual(res, 'rgb(255, 0, 0)', 'result');
+    expect(res).toBe('rgb(255, 0, 0)');
   });
 
   it('should get value', () => {
     const res =
       func('rgb(calc(64 * 2) calc(100% / 2) calc(128 + 127.5) / calc(2 / 3))');
-    assert.strictEqual(res, 'rgba(128, 128, 255, 0.667)', 'result');
+    expect(res).toBe('rgba(128, 128, 255, 0.667)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in lab, blue, red)'
     });
-    assert.strictEqual(res, 'lab(41.9294 74.5461 -21.0694)', 'result');
+    expect(res).toBe('lab(41.9294 74.5461 -21.0694)');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in lab, blue, red)'
     });
-    assert.strictEqual(res2, 'lab(41.9294 74.5461 -21.0694)', 'result');
+    expect(res2).toBe('lab(41.9294 74.5461 -21.0694)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'currentcolor', 'result');
+    expect(res).toBe('currentcolor');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in lab, rgb(0 0 255 / .5), color(srgb 1 0 0 / .5))'
     });
-    assert.strictEqual(res, 'lab(41.9294 74.5461 -21.0694 / 0.5)', 'result');
+    expect(res).toBe('lab(41.9294 74.5461 -21.0694 / 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in lab, rgb(0 0 255 / .5), color(srgb 1 0 0 / .5))'
     });
-    assert.strictEqual(res2, 'lab(41.9294 74.5461 -21.0694 / 0.5)', 'result');
+    expect(res2).toBe('lab(41.9294 74.5461 -21.0694 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
-    assert.strictEqual(res, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res).toBe('color(srgb 0.5 0 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
-    assert.strictEqual(res2, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res2).toBe('color(srgb 0.5 0 0.5)');
   });
 
   it('should get value', () => {
     const res = func('foo');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
     const res2 = func('foo');
-    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res2).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get empty string', () => {
     const res = func('foo', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, '', 'result');
+    expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
     const res2 = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    expect(res2).toBeNull();
   });
 
   it('should get value', () => {
     const res = func('foo', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, '#00000000', 'result');
+    expect(res).toBe('#00000000');
     const res2 = func('foo', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, '#00000000', 'result');
+    expect(res2).toBe('#00000000');
   });
 
   it('should get value', () => {
@@ -185,11 +182,11 @@ describe('resolve CSS color', () => {
       currentColor: 'purple',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgb(128, 0, 128)', 'result');
+    expect(res).toBe('rgb(128, 0, 128)');
     const res2 = func('currentColor', {
       currentColor: 'purple'
     });
-    assert.strictEqual(res2, 'rgb(128, 0, 128)', 'result');
+    expect(res2).toBe('rgb(128, 0, 128)');
   });
 
   it('should get value', () => {
@@ -197,12 +194,12 @@ describe('resolve CSS color', () => {
       currentColor: 'rgb(0 50% 0 / .5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res).toBe('rgba(0, 128, 0, 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'rgb(0 50% 0 / .5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res2).toBe('rgba(0, 128, 0, 0.5)');
   });
 
   it('should get value', () => {
@@ -210,12 +207,12 @@ describe('resolve CSS color', () => {
       currentColor: 'lab(46.28% -47.57 48.58)',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'lab(46.28 -47.57 48.58)', 'result');
+    expect(res).toBe('lab(46.28 -47.57 48.58)');
     const res2 = func('currentcolor', {
       currentColor: 'lab(46.28% -47.57 48.58)',
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
+    expect(res2).toBe('lab(46.28 -47.57 48.58)');
   });
 
   it('should get value', () => {
@@ -223,12 +220,12 @@ describe('resolve CSS color', () => {
       currentColor: 'lab(46.28% -47.57 48.58 / .5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    expect(res).toBe('lab(46.28 -47.57 48.58 / 0.5)');
     const res2 = func('currentcolor', {
       currentColor: 'lab(46.28% -47.57 48.58 / .5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    expect(res2).toBe('lab(46.28 -47.57 48.58 / 0.5)');
   });
 
   it('should get value', () => {
@@ -236,23 +233,23 @@ describe('resolve CSS color', () => {
       currentColor: 'rgb(0 50% 0 / .5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res).toBe('rgba(0, 128, 0, 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'rgb(0 50% 0 / .5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res2).toBe('rgba(0, 128, 0, 0.5)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, rgba(0 255 0 / .5), rgba(255 0 0 / .5))'
     });
-    assert.strictEqual(res, 'color(srgb 0.5 0.5 0 / 0.5)', 'result');
+    expect(res).toBe('color(srgb 0.5 0.5 0 / 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in srgb, rgba(0 255 0 / .5), rgba(255 0 0 / .5))'
     });
-    assert.strictEqual(res2, 'color(srgb 0.5 0.5 0 / 0.5)', 'result');
+    expect(res2).toBe('color(srgb 0.5 0.5 0 / 0.5)');
   });
 
   it('should get value', () => {
@@ -260,34 +257,34 @@ describe('resolve CSS color', () => {
       currentColor: 'color-mix(in srgb, blue, red)',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res).toBe('color(srgb 0.5 0 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)',
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res2).toBe('color(srgb 0.5 0 0.5)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color(srgb 0 .5 1.0 / 0.5)'
     });
-    assert.strictEqual(res, 'color(srgb 0 0.5 1 / 0.5)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 1 / 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'color(srgb 0 .5 1.0 / 0.5)'
     });
-    assert.strictEqual(res2, 'color(srgb 0 0.5 1 / 0.5)', 'result');
+    expect(res2).toBe('color(srgb 0 0.5 1 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color(srgb 0 .5 1.0 / 1)'
     });
-    assert.strictEqual(res, 'color(srgb 0 0.5 1)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 1)');
     const res2 = func('currentColor', {
       currentColor: 'color(srgb 0 .5 1.0)'
     });
-    assert.strictEqual(res2, 'color(srgb 0 0.5 1)', 'result');
+    expect(res2).toBe('color(srgb 0 0.5 1)');
   });
 
   it('should get value', () => {
@@ -295,100 +292,98 @@ describe('resolve CSS color', () => {
       currentColor: 'color(srgb 0 0.5 0 / 0.5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'color(srgb 0 0.5 0 / 0.5)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 0 / 0.5)');
     const res2 = func('currentColor', {
       currentColor: 'color(srgb 0 0.5 0 / 0.5)',
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'color(srgb 0 0.5 0 / 0.5)', 'result');
+    expect(res2).toBe('color(srgb 0 0.5 0 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'green'
     });
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('currentColor', {
       currentColor: 'green'
     });
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('currentColor');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
     const res2 = func('currentColor');
-    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res2).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get value', () => {
     const res = func('transparent');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
     const res2 = func('transparent');
-    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res2).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get value', () => {
     const res = func('transparent', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'transparent', 'result');
+    expect(res).toBe('transparent');
   });
 
   it('should get value', () => {
     const res = func('transparent', {
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
     const res2 = func('transparent', {
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res2).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get null', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
     const res2 = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    expect(res2).toBeNull();
   });
 
   it('should get value', () => {
     const res = func('transparent', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, '#00000000', 'result');
+    expect(res).toBe('#00000000');
     const res2 = func('transparent', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, '#00000000', 'result');
+    expect(res2).toBe('#00000000');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)');
-    assert.strictEqual(res, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res).toBe('color(srgb 0.5 0 0.5)');
     const res2 = func('color-mix(in srgb, blue, red)');
-    assert.strictEqual(res2, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res2).toBe('color(srgb 0.5 0 0.5)');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, blue, rgb(255, 0, 0))', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'color-mix(in srgb, blue, rgb(255, 0, 0))',
-      'result');
+    expect(res).toBe('color-mix(in srgb, blue, rgb(255, 0, 0))');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, #0000ff, rgb(255 0 0))', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res,
-      'color-mix(in srgb, rgb(0, 0, 255), rgb(255, 0, 0))', 'result');
+    expect(res).toBe('color-mix(in srgb, rgb(0, 0, 255), rgb(255, 0, 0))');
   });
 
   it('should get value', () => {
@@ -396,262 +391,262 @@ describe('resolve CSS color', () => {
       currentColor: 'rgba(255 0 0 / .5)',
       key: 'foo'
     });
-    assert.deepEqual(res, ['foo', 'color(srgb 0.5 0 0.5 / 0.5)'], 'result');
+    expect(res).toEqual(['foo', 'color(srgb 0.5 0 0.5 / 0.5)']);
     const res2 = func('color-mix(in srgb, rgba(0 0 255 / .5), currentcolor)', {
       currentColor: 'rgba(255 0 0 / .5)',
       key: 'foo'
     });
-    assert.deepEqual(res2, ['foo', 'color(srgb 0.5 0 0.5 / 0.5)'], 'result');
+    expect(res2).toEqual(['foo', 'color(srgb 0.5 0 0.5 / 0.5)']);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, currentcolor)', {
       currentColor: 'red'
     });
-    assert.strictEqual(res, 'color(srgb 1 0 0 / 0.5)', 'result');
+    expect(res).toBe('color(srgb 1 0 0 / 0.5)');
     const res2 = func('color-mix(in srgb, transparent, currentColor)', {
       currentColor: 'red'
     });
-    assert.strictEqual(res2, 'color(srgb 1 0 0 / 0.5)', 'result');
+    expect(res2).toBe('color(srgb 1 0 0 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, red)');
-    assert.strictEqual(res, 'color(srgb 1 0 0 / 0.5)', 'result');
+    expect(res).toBe('color(srgb 1 0 0 / 0.5)');
     const res2 = func('color-mix(in srgb, transparent, red)');
-    assert.strictEqual(res2, 'color(srgb 1 0 0 / 0.5)', 'result');
+    expect(res2).toBe('color(srgb 1 0 0 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0.0 .5 1.0 / 1)');
-    assert.strictEqual(res, 'color(srgb 0 0.5 1)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 1)');
     const res2 = func('color(srgb 0.0 .5 1.0 / 1)');
-    assert.strictEqual(res2, 'color(srgb 0 0.5 1)', 'result');
+    expect(res2).toBe('color(srgb 0 0.5 1)');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0.0 .5 1.0 / 1)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'color(srgb 0 0.5 1)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 1)');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0.0 .5 1.0 / .5)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'color(srgb 0 0.5 1 / 0.5)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 1 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0.0 .5 1.0 / none)');
-    assert.strictEqual(res, 'color(srgb 0 0.5 1 / none)', 'result');
+    expect(res).toBe('color(srgb 0 0.5 1 / none)');
     const res2 = func('color(srgb 0.0 .5 1.0 / none)');
-    assert.strictEqual(res2, 'color(srgb 0 0.5 1 / none)', 'result');
+    expect(res2).toBe('color(srgb 0 0.5 1 / none)');
   });
 
   it('should get value', () => {
     const res = func('rgb(0 127.5 0)');
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('rgb(0 127.5 0)');
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('rgb(0 127.5 0)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('rgb(0 127.5 0)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('rgb(0 127.5 0 / .5)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res).toBe('rgba(0, 128, 0, 0.5)');
     const res2 = func('rgb(0 127.5 0 / .5)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res2).toBe('rgba(0, 128, 0, 0.5)');
   });
 
   it('should get value', () => {
     const res = func('rgb(0 127.5 0 / .5)');
-    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res).toBe('rgba(0, 128, 0, 0.5)');
     const res2 = func('rgb(0 127.5 0 / .5)');
-    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res2).toBe('rgba(0, 128, 0, 0.5)');
   });
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50%)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('hwb(120 0% 50%)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('hwb(calc(360deg / 3) 0% 50%)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('hwb(calc(360deg / 3) 0% 50%)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('hwb(calc(360deg / 3) 0% 50%)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('hwb(calc(360deg / 3) 0% 50%)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50% / .5)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res).toBe('rgba(0, 128, 0, 0.5)');
     const res2 = func('hwb(120 0% 50% / .5)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'rgba(0, 128, 0, 0.5)', 'result');
+    expect(res2).toBe('rgba(0, 128, 0, 0.5)');
   });
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50%)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('hwb(120 0% 50%)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'lab(46.28 -47.57 48.58)', 'result');
+    expect(res).toBe('lab(46.28 -47.57 48.58)');
     const res2 = func('lab(46.28% -47.57 48.58)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
+    expect(res2).toBe('lab(46.28 -47.57 48.58)');
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'lab(46.28 -47.57 48.58)', 'result');
+    expect(res).toBe('lab(46.28 -47.57 48.58)');
     const res2 = func('lab(46.28% -47.57 48.58)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58)', 'result');
+    expect(res2).toBe('lab(46.28 -47.57 48.58)');
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58 / .5)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    expect(res).toBe('lab(46.28 -47.57 48.58 / 0.5)');
     const res2 = func('lab(46.28% -47.57 48.58 / .5)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    expect(res2).toBe('lab(46.28 -47.57 48.58 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58 / .5)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    expect(res).toBe('lab(46.28 -47.57 48.58 / 0.5)');
     const res2 = func('lab(46.28% -47.57 48.58 / .5)', {
       format: 'computedValue'
     });
-    assert.strictEqual(res2, 'lab(46.28 -47.57 48.58 / 0.5)', 'result');
+    expect(res2).toBe('lab(46.28 -47.57 48.58 / 0.5)');
   });
 
   it('should get value', () => {
     const res = func('green');
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func('green');
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func(' GREEN ');
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
     const res2 = func(' GREEN ');
-    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+    expect(res2).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, blue, red)', {
       key: 'foo'
     });
-    assert.deepEqual(res, ['foo', 'color(srgb 0.5 0 0.5)'], 'result');
+    expect(res).toEqual(['foo', 'color(srgb 0.5 0 0.5)']);
     const res2 = func('color-mix(in srgb, blue, red)', {
       key: 'foo'
     });
-    assert.deepEqual(res2, ['foo', 'color(srgb 0.5 0 0.5)'], 'result');
+    expect(res2).toEqual(['foo', 'color(srgb 0.5 0 0.5)']);
   });
 
   it('should get null', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
     const res2 = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    expect(res2).toBeNull();
   });
 
   it('should get null', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
     const res2 = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    expect(res2).toBeNull();
   });
 
   it('should get value', () => {
     const res = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hex'
     });
-    assert.strictEqual(res, '#008000', 'result');
+    expect(res).toBe('#008000');
     const res2 = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hex'
     });
-    assert.strictEqual(res2, '#008000', 'result');
+    expect(res2).toBe('#008000');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
     const res2 = func('currentColor', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    expect(res2).toBeNull();
   });
 
   it('should get value', () => {
@@ -659,56 +654,56 @@ describe('resolve CSS color', () => {
       format: 'hex',
       key: 'foo'
     });
-    assert.deepEqual(res, ['foo', '#008000'], 'result');
+    expect(res).toEqual(['foo', '#008000']);
     const res2 = func('rgba(0% 50% 0%)', {
       format: 'hex',
       key: 'foo'
     });
-    assert.deepEqual(res2, ['foo', '#008000'], 'result');
+    expect(res2).toEqual(['foo', '#008000']);
   });
 
   it('should get value', () => {
     const res = func('transparent', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, '#00000000', 'result');
+    expect(res).toBe('#00000000');
     const res2 = func('transparent', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, '#00000000', 'result');
+    expect(res2).toBe('#00000000');
   });
 
   it('should get null', () => {
     const res = func('foo', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, '#00000000', 'result');
+    expect(res).toBe('#00000000');
     const res2 = func('foo', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, '#00000000', 'result');
+    expect(res2).toBe('#00000000');
   });
 
   it('should get value', () => {
     const res = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, '#00800080', 'result');
+    expect(res).toBe('#00800080');
     const res2 = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, '#00800080', 'result');
+    expect(res2).toBe('#00800080');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
     const res2 = func('currentColor', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, null, 'result');
+    expect(res2).toBeNull();
   });
 
   it('should get value', () => {
@@ -716,12 +711,12 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha',
       key: 'foo'
     });
-    assert.deepEqual(res, ['foo', '#00800080'], 'result');
+    expect(res).toEqual(['foo', '#00800080']);
     const res2 = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hexAlpha',
       key: 'foo'
     });
-    assert.deepEqual(res2, ['foo', '#00800080'], 'result');
+    expect(res2).toEqual(['foo', '#00800080']);
   });
 
   it('should get value', () => {
@@ -731,20 +726,18 @@ describe('resolve CSS color', () => {
     const res2 = parseColorValue(res, {
       format: 'computedValue'
     });
-    assert.deepEqual(res2, ['lab', 41.9294, 74.5461, -21.0694, 1], 'result');
+    expect(res2).toEqual(['lab', 41.9294, 74.5461, -21.0694, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, color-mix(in srgb, currentColor, blue), color-mix(in srgb, transparent, #008000))', {
       currentColor: 'rgb(255 0 0)'
     });
-    assert.strictEqual(res, 'color(srgb 0.333333 0.16732 0.333333 / 0.75)',
-      'result');
+    expect(res).toBe('color(srgb 0.333333 0.16732 0.333333 / 0.75)');
     const res2 = func('color-mix(in srgb, color-mix(in srgb, currentColor, blue), color-mix(in srgb, transparent, #008000))', {
       currentColor: 'rgb(255 0 0)'
     });
-    assert.strictEqual(res2, 'color(srgb 0.333333 0.16732 0.333333 / 0.75)',
-      'result');
+    expect(res2).toBe('color(srgb 0.333333 0.16732 0.333333 / 0.75)');
   });
 
   it('should get value', () => {
@@ -752,25 +745,23 @@ describe('resolve CSS color', () => {
       currentColor: 'rgb(255 0 0)',
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'color-mix(in srgb, color-mix(in srgb, currentcolor, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))',
-      'result');
+    expect(res).toBe('color-mix(in srgb, color-mix(in srgb, currentcolor, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))');
     const res2 = func('color-mix(in srgb, color-mix(in srgb, currentColor, blue), color-mix(in srgb, transparent, #008000))', {
       currentColor: 'rgb(255 0 0)',
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, 'color-mix(in srgb, color-mix(in srgb, currentcolor, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))',
-      'result');
+    expect(res2).toBe('color-mix(in srgb, color-mix(in srgb, currentcolor, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))');
   });
 
   it('should get value', () => {
     const res =
       func('color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))');
-    assert.strictEqual(res, 'oklab(0.620754 -0.0931934 -0.00374881)', 'result');
+    expect(res).toBe('oklab(0.620754 -0.0931934 -0.00374881)');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, red calc(50% + (sign(100em - 1px) * 10%)), blue)');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get value', () => {
@@ -779,43 +770,43 @@ describe('resolve CSS color', () => {
         em: 20
       }
     });
-    assert.strictEqual(res, 'color(srgb 0.6 0 0.4)', 'result');
+    expect(res).toBe('color(srgb 0.6 0 0.4)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple r g b)');
-    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+    expect(res).toBe('color(srgb 0.4 0.2 0.6)');
   });
 
   it('should get value', () => {
     const res =
       func('color-mix(in srgb, rgb(from rebeccapurple r g b), rebeccapurple)');
-    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+    expect(res).toBe('color(srgb 0.4 0.2 0.6)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple l a b)');
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+    expect(res).toBe('rgba(0, 0, 0, 0)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, '', 'result');
+    expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
   });
 
   it('should get null', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, null, 'result');
+    expect(res).toBeNull();
   });
 });
