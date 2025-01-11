@@ -2,144 +2,118 @@
  * util.test.js
  */
 
-/* api */
-import { strict as assert } from 'node:assert';
-import { describe, it } from 'mocha';
-
-/* test */
+import { describe, it, expect } from 'vitest';
 import * as util from '../src/js/util.js';
 
 describe('is color', () => {
-  const func = util.isColor;
+  const func = util.isColor as Function;
 
   it('should get result', () => {
-    const res = func();
-    assert.strictEqual(res, false, 'result');
+    expect(func()).toBe(false);
   });
 
   it('should get result', () => {
-    const res = func('');
-    assert.strictEqual(res, false, 'result');
+    expect(func('')).toBe(false);
   });
 
   it('should get result', () => {
-    const res = func('foo');
-    assert.strictEqual(res, false, 'result');
+    expect(func('foo')).toBe(false);
   });
 
   it('should get result', () => {
-    const res = func('red');
-    assert.strictEqual(res, true, 'result');
+    expect(func('red')).toBe(true);
   });
 
   it('should get result', () => {
-    const res = func('currentcolor');
-    assert.strictEqual(res, true, 'result');
+    expect(func('currentcolor')).toBe(true);
   });
 
   it('should get result', () => {
-    const res = func('transparent');
-    assert.strictEqual(res, true, 'result');
+    expect(func('transparent')).toBe(true);
   });
 
   it('should get result', () => {
-    const res = func('color(srgb 0 127.5 0)');
-    assert.strictEqual(res, true, 'result');
+    expect(func('color(srgb 0 127.5 0)')).toBe(true);
   });
 
   it('should get result', () => {
-    const res = func('color-mix(in oklab, red, blue)');
-    assert.strictEqual(res, true, 'result');
+    expect(func('color-mix(in oklab, red, blue)')).toBe(true);
   });
 
   it('should get result', () => {
-    const res = func('rgb(from rebeccapurple r g b)');
-    assert.strictEqual(res, true, 'result');
+    expect(func('rgb(from rebeccapurple r g b)')).toBe(true);
   });
 
   it('should get result', () => {
-    const res = func('rgb(from rebeccapurple l a b)');
-    assert.strictEqual(res, false, 'result');
+    expect(func('rgb(from rebeccapurple l a b)')).toBe(false);
   });
 });
 
 describe('value to JSON string', () => {
-  const func = util.valueToJsonString;
+  const func = util.valueToJsonString as Function;
 
   it('should get result', () => {
-    const res = func();
-    assert.strictEqual(res, '', 'result');
+    expect(func()).toBe('');
   });
 
   it('should get result', () => {
-    const res = func(null);
-    assert.strictEqual(res, 'null', 'result');
+    expect(func(null)).toBe('null');
   });
 
   it('should get result', () => {
-    const res = func('foo');
-    assert.strictEqual(res, '"foo"', 'result');
+    expect(func('foo')).toBe('"foo"');
   });
 
   it('should get result', () => {
-    const res = func({
+    expect(func({
       foo: 'bar',
       baz: undefined
-    });
-    assert.strictEqual(res, '{"foo":"bar","baz":null}', 'result');
+    })).toBe('{"foo":"bar","baz":null}');
   });
 
   it('should get result', () => {
-    const res = func({
+    expect(func({
       foo: 'bar',
-      map: new Map([['key1', 1], ['key2', true], ['key1', 3]]),
-      set: new Set([1, 'baz', 3, 2, 3, 'baz']),
-    });
-    assert.strictEqual(res,
-      '{"foo":"bar","map":[["key1",3],["key2",true]],"set":[1,"baz",3,2]}',
-      'result');
+      map: new Map([['key1', 1], ['key2', true], ['key1', 3]] as never),
+      set: new Set([1, 'baz', 3, 2, 3, 'baz'])
+    })).toBe('{"foo":"bar","map":[["key1",3],["key2",true]],"set":[1,"baz",3,2]}');
   });
 
   it('should get result', () => {
-    const res = func({
+    expect(func({
       foo: 'bar',
       func: () => {}
-    });
-    assert.strictEqual(res, '{"foo":"bar","func":"func"}', 'result');
+    })).toBe('{"foo":"bar","func":"func"}');
   });
 
   it('should get result', () => {
-    const res = func({
+    expect(func({
       foo: 'bar',
       func: () => {}
-    }, true);
-    assert.strictEqual(res, '{"foo":"bar","func":"() => {}"}', 'result');
+    }, true)).toBe(`{"foo":"bar","func":"() => {\\n      }"}`);
   });
 
   it('should get result', () => {
     const myCallback = () => {};
-    const res = func({
+    expect(func({
       foo: 'bar',
       func: myCallback
-    });
-    assert.strictEqual(res, '{"foo":"bar","func":"myCallback"}', 'result');
+    })).toBe('{"foo":"bar","func":"myCallback"}');
   });
 
   it('should get result', () => {
     const myCallback = () => {};
-    const res = func({
+    expect(func({
       foo: 'bar',
       func: myCallback
-    }, true);
-    assert.strictEqual(res, '{"foo":"bar","func":"() => {}"}', 'result');
+    }, true)).toBe(`{"foo":"bar","func":"() => {\\n    }"}`);
   });
 
   it('should get result', () => {
-    const res = func({
+    expect(func({
       foo: 'bar',
       big: 1n
-    });
-    assert.strictEqual(res, '{"foo":"bar","big":"1"}', 'result');
+    })).toBe('{"foo":"bar","big":"1"}');
   });
 
   it('should get result', () => {
@@ -149,208 +123,177 @@ describe('value to JSON string', () => {
         globals: new Map([
           ['bar', 'baz'],
           ['qux', 1]
-        ])
+        ] as never)
       }
     };
     const res = func(opt);
-    assert.strictEqual(opt.cssCalc.globals instanceof Map, true, 'map');
-    assert.strictEqual(res,
-      '{"foo":"bar","cssCalc":{"globals":[["bar","baz"],["qux",1]]}}',
-      'result');
+    expect(opt.cssCalc.globals instanceof Map).toBe(true);
+    expect(res).toBe('{"foo":"bar","cssCalc":{"globals":[["bar","baz"],["qux",1]]}}');
   });
 });
 
 describe('round to specified precision', () => {
-  const func = util.roundToPrecision;
+  const func = util.roundToPrecision as Function;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a number.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(1.23456789, 'foo'), TypeError,
-      'foo is not a number.');
+    expect(() => func()).toThrow(TypeError);
+    expect(() => func()).toThrow('undefined is not a number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func(1.23456789, -1), RangeError,
-      '-1 is not between 0 and 16.');
+    expect(() => func(1.23456789, 'foo')).toThrow(TypeError);
+    expect(() => func(1.23456789, 'foo')).toThrow('foo is not a number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func(1.23456789, 32), RangeError,
-      '32 is not between 0 and 16.');
+    expect(() => func(1.23456789, -1)).toThrow(RangeError);
+    expect(() => func(1.23456789, -1)).toThrow('-1 is not between 0 and 16.');
+  });
+
+  it('should throw', () => {
+    expect(() => func(1.23456789, 32)).toThrow(RangeError);
+    expect(() => func(1.23456789, 32)).toThrow('32 is not between 0 and 16.');
   });
 
   it('should get value', () => {
-    const res = func(1.23456789);
-    assert.deepEqual(res, 1, 'result');
+    expect(func(1.23456789)).toBe(1);
   });
 
   it('should get value', () => {
-    const res = func(1.23456789, 16);
-    assert.deepEqual(res, 1.23457, 'result');
+    expect(func(1.23456789, 16)).toBe(1.23457);
   });
 
   it('should get value', () => {
-    const res = func(1.234506789, 16);
-    assert.deepEqual(res, 1.23451, 'result');
+    expect(func(1.234506789, 16)).toBe(1.23451);
   });
 
   it('should get value', () => {
-    const res = func(1.23450456, 16);
-    assert.deepEqual(res, 1.2345, 'result');
+    expect(func(1.23450456, 16)).toBe(1.2345);
   });
 
   it('should get value', () => {
-    const res = func(1.230456789, 16);
-    assert.deepEqual(res, 1.23046, 'result');
+    expect(func(1.230456789, 16)).toBe(1.23046);
   });
 
   it('should get value', () => {
-    const res = func(1.23456789, 8);
-    assert.deepEqual(res, 1.235, 'result');
+    expect(func(1.23456789, 8)).toBe(1.235);
   });
 
   it('should get value', () => {
-    const res = func(1.230456789, 8);
-    assert.deepEqual(res, 1.23, 'result');
+    expect(func(1.230456789, 8)).toBe(1.23);
   });
 
   it('should get value', () => {
-    const res = func(1.203456789, 8);
-    assert.deepEqual(res, 1.203, 'result');
+    expect(func(1.203456789, 8)).toBe(1.203);
   });
 
   it('should get value', () => {
-    const res = func(1.023456789, 8);
-    assert.deepEqual(res, 1.023, 'result');
+    expect(func(1.023456789, 8)).toBe(1.023);
   });
 
   it('should get value', () => {
-    const res = func(1.23456789, 10);
-    assert.deepEqual(res, 1.2346, 'result');
+    expect(func(1.23456789, 10)).toBe(1.2346);
   });
 
   it('should get value', () => {
-    const res = func(1.230456789, 10);
-    assert.deepEqual(res, 1.2305, 'result');
+    expect(func(1.230456789, 10)).toBe(1.2305);
   });
 
   it('should get value', () => {
-    const res = func(1.203456789, 10);
-    assert.deepEqual(res, 1.2035, 'result');
+    expect(func(1.203456789, 10)).toBe(1.2035);
   });
 });
 
 describe('interpolate hue', () => {
-  const func = util.interpolateHue;
+  const func = util.interpolateHue as Function;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a number.');
+    expect(() => func()).toThrow(TypeError);
+    expect(() => func()).toThrow('undefined is not a number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func(90), TypeError, 'undefined is not a number.');
+    expect(() => func(90)).toThrow(TypeError);
+    expect(() => func(90)).toThrow('undefined is not a number.');
   });
 
   it('should get value', () => {
-    const res = func(30, 60);
-    assert.deepEqual(res, [30, 60], 'result');
+    expect(func(30, 60)).toEqual([30, 60]);
   });
 
   it('should get value', () => {
-    const res = func(60, 30);
-    assert.deepEqual(res, [60, 30], 'result');
+    expect(func(60, 30)).toEqual([60, 30]);
   });
 
   it('should get value', () => {
-    const res = func(30, 240);
-    assert.deepEqual(res, [390, 240], 'result');
+    expect(func(30, 240)).toEqual([390, 240]);
   });
 
   it('should get value', () => {
-    const res = func(240, 30);
-    assert.deepEqual(res, [240, 390], 'result');
+    expect(func(240, 30)).toEqual([240, 390]);
   });
 
   it('should get value', () => {
-    const res = func(30, 60, 'shorter');
-    assert.deepEqual(res, [30, 60], 'result');
+    expect(func(30, 60, 'shorter')).toEqual([30, 60]);
   });
 
   it('should get value', () => {
-    const res = func(60, 30, 'shorter');
-    assert.deepEqual(res, [60, 30], 'result');
+    expect(func(60, 30, 'shorter')).toEqual([60, 30]);
   });
 
   it('should get value', () => {
-    const res = func(30, 240, 'shorter');
-    assert.deepEqual(res, [390, 240], 'result');
+    expect(func(30, 240, 'shorter')).toEqual([390, 240]);
   });
 
   it('should get value', () => {
-    const res = func(240, 30, 'shorter');
-    assert.deepEqual(res, [240, 390], 'result');
+    expect(func(240, 30, 'shorter')).toEqual([240, 390]);
   });
 
   it('should get value', () => {
-    const res = func(30, 60, 'longer');
-    assert.deepEqual(res, [390, 60], 'result');
+    expect(func(30, 60, 'longer')).toEqual([390, 60]);
   });
 
   it('should get value', () => {
-    const res = func(60, 30, 'longer');
-    assert.deepEqual(res, [60, 390], 'result');
+    expect(func(60, 30, 'longer')).toEqual([60, 390]);
   });
 
   it('should get value', () => {
-    const res = func(30, 240, 'longer');
-    assert.deepEqual(res, [30, 240], 'result');
+    expect(func(30, 240, 'longer')).toEqual([30, 240]);
   });
 
   it('should get value', () => {
-    const res = func(240, 30, 'longer');
-    assert.deepEqual(res, [240, 30], 'result');
+    expect(func(240, 30, 'longer')).toEqual([240, 30]);
   });
 
   it('should get value', () => {
-    const res = func(30, 60, 'increasing');
-    assert.deepEqual(res, [30, 60], 'result');
+    expect(func(30, 60, 'increasing')).toEqual([30, 60]);
   });
 
   it('should get value', () => {
-    const res = func(60, 30, 'increasing');
-    assert.deepEqual(res, [60, 390], 'result');
+    expect(func(60, 30, 'increasing')).toEqual([60, 390]);
   });
 
   it('should get value', () => {
-    const res = func(30, 240, 'increasing');
-    assert.deepEqual(res, [30, 240], 'result');
+    expect(func(30, 240, 'increasing')).toEqual([30, 240]);
   });
 
   it('should get value', () => {
-    const res = func(240, 30, 'increasing');
-    assert.deepEqual(res, [240, 390], 'result');
+    expect(func(240, 30, 'increasing')).toEqual([240, 390]);
   });
 
   it('should get value', () => {
-    const res = func(30, 60, 'decreasing');
-    assert.deepEqual(res, [390, 60], 'result');
+    expect(func(30, 60, 'decreasing')).toEqual([390, 60]);
   });
 
   it('should get value', () => {
-    const res = func(60, 30, 'decreasing');
-    assert.deepEqual(res, [60, 30], 'result');
+    expect(func(60, 30, 'decreasing')).toEqual([60, 30]);
   });
 
   it('should get value', () => {
-    const res = func(30, 240, 'decreasing');
-    assert.deepEqual(res, [390, 240], 'result');
+    expect(func(30, 240, 'decreasing')).toEqual([390, 240]);
   });
 
   it('should get value', () => {
-    const res = func(240, 30, 'decreasing');
-    assert.deepEqual(res, [240, 30], 'result');
+    expect(func(240, 30, 'decreasing')).toEqual([240, 30]);
   });
 });
