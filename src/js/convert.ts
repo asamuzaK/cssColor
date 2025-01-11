@@ -38,7 +38,10 @@ export const cachedResults = new LRUCache({
  * @param {object} [opt.dimension] - dimension
  * @returns {?string} - value
  */
-export const preProcess = (value, opt = {}) => {
+export const preProcess = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): string | null => {
   if (isString(value)) {
     value = value.trim();
     if (!value) {
@@ -49,17 +52,18 @@ export const preProcess = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as string;
     }
   }
   if (REG_FN_VAR.test(value)) {
     value = cssVar(value, opt);
     if (!value) {
       if (cacheKey) {
-        cachedResults.set(cacheKey, null);
+        cachedResults.set(cacheKey, null as never);
       }
       return null;
     }
@@ -85,10 +89,10 @@ export const preProcess = (value, opt = {}) => {
  * @param {number} value - color value
  * @returns {string} - hex string: 00..ff
  */
-export const numberToHex = value => {
+export const numberToHex = (value: number): string => {
   const cacheKey = typeof value === 'number' && `{numberToHex:${value}}`;
   if (cacheKey && cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+    return cachedResults.get(cacheKey) as string;
   }
   const hex = numberToHexString(value);
   if (cacheKey) {
@@ -106,7 +110,11 @@ export const numberToHex = value => {
  * @param {object} [opt.dimension] - dimension
  * @returns {?string} - #rrggbb | #rrggbbaa | null
  */
-export const colorToHex = (value, opt = {}) => {
+export const colorToHex = (value: string, opt: {
+  alpha?: boolean;
+  customProperty?: object;
+  dimension?: object;
+} = {}) => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -119,7 +127,8 @@ export const colorToHex = (value, opt = {}) => {
   }
   const { alpha, customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey);
@@ -127,10 +136,10 @@ export const colorToHex = (value, opt = {}) => {
   }
   let hex;
   if (alpha) {
-    opt.format = 'hexAlpha';
+    (opt as Record<string,string>).format = 'hexAlpha';
     hex = resolve(value, opt);
   } else {
-    opt.format = 'hex';
+    (opt as Record<string,string>).format = 'hex';
     hex = resolve(value, opt);
   }
   if (cacheKey) {
@@ -147,7 +156,10 @@ export const colorToHex = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [h, s, l, alpha]
  */
-export const colorToHsl = (value, opt = {}) => {
+export const colorToHsl = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -160,13 +172,14 @@ export const colorToHsl = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToHsl:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  opt.format = 'hsl';
+  (opt as Record<string, string>).format = 'hsl';
   const hsl = convertColorToHsl(value, opt);
   if (cacheKey) {
     cachedResults.set(cacheKey, hsl);
@@ -182,7 +195,10 @@ export const colorToHsl = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [h, w, b, alpha]
  */
-export const colorToHwb = (value, opt = {}) => {
+export const colorToHwb = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -195,15 +211,18 @@ export const colorToHwb = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToHwb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  opt.format = 'hwb';
+  (opt as Record<string, string>).format = 'hwb';
   const hwb = convertColorToHwb(value, opt);
-  cachedResults.set(cacheKey, hwb);
+  if (cacheKey) {
+    cachedResults.set(cacheKey, hwb);
+  }
   return hwb;
 };
 
@@ -215,7 +234,10 @@ export const colorToHwb = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, a, b, alpha]
  */
-export const colorToLab = (value, opt = {}) => {
+export const colorToLab = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -228,10 +250,11 @@ export const colorToLab = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToLab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
   const lab = convertColorToLab(value, opt);
@@ -249,7 +272,10 @@ export const colorToLab = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, c, h, alpha]
  */
-export const colorToLch = (value, opt = {}) => {
+export const colorToLch = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -262,10 +288,11 @@ export const colorToLch = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToLch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
   const lch = convertColorToLch(value, opt);
@@ -283,7 +310,10 @@ export const colorToLch = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, a, b, alpha]
  */
-export const colorToOklab = (value, opt = {}) => {
+export const colorToOklab = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -296,10 +326,11 @@ export const colorToOklab = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToOklab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
   const lab = convertColorToOklab(value, opt);
@@ -317,7 +348,10 @@ export const colorToOklab = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [l, c, h, alpha]
  */
-export const colorToOklch = (value, opt = {}) => {
+export const colorToOklch = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -330,10 +364,11 @@ export const colorToOklch = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToOklch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as  Array<number>;
     }
   }
   const lch = convertColorToOklch(value, opt);
@@ -351,7 +386,10 @@ export const colorToOklch = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [r, g, b, alpha]
  */
-export const colorToRgb = (value, opt = {}) => {
+export const colorToRgb = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -364,10 +402,11 @@ export const colorToRgb = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToRgb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
   const rgb = convertColorToRgb(value, opt);
@@ -386,7 +425,11 @@ export const colorToRgb = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [x, y, z, alpha]
  */
-export const colorToXyz = (value, opt = {}) => {
+export const colorToXyz = (value: string, opt: {
+  customProperty?: object;
+  d50?: object;
+  dimension?: object;
+} = {}): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt);
     if (value) {
@@ -399,10 +442,11 @@ export const colorToXyz = (value, opt = {}) => {
   }
   const { customProperty } = opt;
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (typeof (customProperty as {callback?: () => void})?.callback !== 'function') {
     cacheKey = `{colorToXyz:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as Array<number>;
     }
   }
   let xyz;
@@ -425,8 +469,11 @@ export const colorToXyz = (value, opt = {}) => {
  * @param {object} [opt.dimension] - dimension
  * @returns {Array.<number>} - [x, y, z, alpha]
  */
-export const colorToXyzD50 = (value, opt = {}) => {
-  opt.d50 = true;
+export const colorToXyzD50 = (value: string, opt: {
+  customProperty?: object;
+  dimension?: object;
+} = {}): Array<number> => {
+  (opt as Record<string, boolean>).d50 = true;
   return colorToXyz(value, opt);
 };
 
