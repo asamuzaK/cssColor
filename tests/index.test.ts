@@ -2,11 +2,7 @@
  * index.test.js
  */
 
-/* api */
-import { strict as assert } from 'node:assert';
-import { describe, it } from 'mocha';
-
-/* test */
+import { describe, it, expect } from 'vitest';
 import * as api from '../src/index.js';
 
 describe('resolve CSS color', () => {
@@ -14,27 +10,27 @@ describe('resolve CSS color', () => {
 
   it('should get value', () => {
     const res = func('green');
-    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+    expect(res).toBe('rgb(0, 128, 0)');
   });
 
   it('should get value', () => {
     const res =
       func('color-mix(in oklab, rgb(255 0 0), color(srgb 0 0.5 0 / 0.5))');
-    assert.strictEqual(res, 'oklab(0.5914 0.103273 0.119688 / 0.75)', 'result');
+    expect(res).toBe('oklab(0.5914 0.103273 0.119688 / 0.75)');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
-    assert.strictEqual(res, 'color(srgb 0.5 0 0.5)', 'result');
+    expect(res).toBe('color(srgb 0.5 0 0.5)');
   });
 
   it('should get value', () => {
     const res = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, '#00800080', 'result');
+    expect(res).toBe('#00800080');
   });
 });
 
@@ -43,7 +39,7 @@ describe('convert', () => {
 
   it('should get value', () => {
     const hex = convert.colorToHex('lab(46.2775% -47.5621 48.5837)');
-    assert.strictEqual(hex, '#008000', 'result');
+    expect(hex).toBe('#008000');
   });
 });
 
@@ -52,16 +48,16 @@ describe('isColor', () => {
 
   it('should get value', () => {
     const res = isColor('foo');
-    assert.strictEqual(res, false, 'result');
+    expect(res).toBe(false);
   });
 
   it('should get value', () => {
     const res = isColor('green');
-    assert.strictEqual(res, true, 'result');
+    expect(res).toBe(true);
   });
 
   it('should get value', () => {
     const res = isColor('lab(46.2775% -47.5621 48.5837)');
-    assert.strictEqual(res, true, 'result');
+    expect(res).toBe(true);
   });
 });
