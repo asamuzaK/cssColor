@@ -70,7 +70,13 @@ export const cachedResults = new LRUCache({
  *   - in `hexAlpha`, returns `#00000000` for `transparent`,
  *     however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
  */
-export const resolve = (color, opt = {}) => {
+export const resolve = (color: string, opt: {
+  currentColor?: string;
+  customProperty?: object;
+  dimension?: object;
+  format?: string;
+  key?: any;
+} = {}): (string | Array<any>) | null => {
   if (isString(color)) {
     color = color.trim();
   } else {
@@ -79,10 +85,13 @@ export const resolve = (color, opt = {}) => {
   const { currentColor, customProperty, format = VAL_COMP, key } = opt;
   let cacheKey;
   if (!REG_FN_VAR.test(color) ||
-      typeof customProperty?.callback !== 'function') {
+      typeof (customProperty as {
+        callback: () => void;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      })?.callback !== 'function') {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as never;
     }
   }
   let res, cs, r, g, b, alpha;
@@ -93,13 +102,13 @@ export const resolve = (color, opt = {}) => {
       }
       return color;
     }
-    color = cssVar(color, opt);
+    color = cssVar(color, opt)!;
     if (!color) {
       switch (format) {
         case 'hex':
         case 'hexAlpha': {
           if (cacheKey) {
-            cachedResults.set(cacheKey, null);
+            cachedResults.set(cacheKey, null!);
           }
           return null;
         }
@@ -118,7 +127,7 @@ export const resolve = (color, opt = {}) => {
   }
   color = color.toLowerCase();
   if (REG_FN_REL.test(color)) {
-    color = resolveRelativeColor(color, opt);
+    color = resolveRelativeColor(color, opt)!;
     if (format === VAL_COMP) {
       res = color || RGB_TRANSPARENT;
       if (cacheKey) {
@@ -138,7 +147,7 @@ export const resolve = (color, opt = {}) => {
     }
   }
   if (REG_FN_MATH_CALC.test(color)) {
-    color = cssCalc(color, opt);
+    color = cssCalc(color, opt)!;
   }
   if (color === 'transparent') {
     switch (format) {
@@ -150,7 +159,7 @@ export const resolve = (color, opt = {}) => {
       }
       case 'hex': {
         if (cacheKey) {
-          cachedResults.set(cacheKey, null);
+          cachedResults.set(cacheKey, null!);
         }
         return null;
       }
@@ -179,11 +188,11 @@ export const resolve = (color, opt = {}) => {
     }
     if (currentColor) {
       if (currentColor.startsWith(FN_MIX)) {
-        [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt);
+        [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt) as [number, number, number, number, number];
       } else if (currentColor.startsWith(FN_COLOR)) {
-        [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt);
+        [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt) as [number, number, number, number, number];;
       } else {
-        [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt);
+        [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt) as [number, number, number, number, number];;
       }
     } else if (format === VAL_COMP) {
       res = RGB_TRANSPARENT;
@@ -196,11 +205,11 @@ export const resolve = (color, opt = {}) => {
     if (color.startsWith(FN_MIX)) {
       res = resolveColorMix(color, opt);
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, res as never);
       }
       return res;
     } else if (color.startsWith(FN_COLOR)) {
-      [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
+      [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [number, number, number, number, number];;
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
       } else {
@@ -249,27 +258,29 @@ export const resolve = (color, opt = {}) => {
       color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
     if (color.startsWith(FN_MIX)) {
-      [cs, r, g, b, alpha] = resolveColorMix(color, opt);
+      [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [number, number, number, number, number];;
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
     if (color.startsWith(FN_MIX)) {
-      [cs, r, g, b, alpha] = resolveColorMix(color, opt);
+      [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [number, number, number, number, number];;
     }
   } else if (color.startsWith(FN_MIX)) {
-    [cs, r, g, b, alpha] = resolveColorMix(color, opt);
+    [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [number, number, number, number, number];;
   } else if (color.startsWith(FN_COLOR)) {
-    [cs, r, g, b, alpha] = resolveColorFunc(color, opt);
+    [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [number, number, number, number, number];;
   } else if (color) {
-    [cs, r, g, b, alpha] = resolveColorValue(color, opt);
+    [cs, r, g, b, alpha] = resolveColorValue(color, opt) as [number, number, number, number, number];;
   }
   switch (format) {
     case 'hex': {
       let hex;
-      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha) || alpha === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      if (isNaN(r!) || isNaN(g!) || isNaN(b!) || isNaN(alpha!) || alpha === 0) {
         hex = null;
       } else {
-        hex = convertRgbToHex([r, g, b]);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        hex = convertRgbToHex([r!, g!, b!]);
       }
       if (key) {
         res = [key, hex];
@@ -280,10 +291,12 @@ export const resolve = (color, opt = {}) => {
     }
     case 'hexAlpha': {
       let hex;
-      if (isNaN(r) || isNaN(g) || isNaN(b) || isNaN(alpha)) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      if (isNaN(r!) || isNaN(g!) || isNaN(b!) || isNaN(alpha!)) {
         hex = null;
       } else {
-        hex = convertRgbToHex([r, g, b, alpha]);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        hex = convertRgbToHex([r!, g!, b!, alpha!]);
       }
       if (key) {
         res = [key, hex];
@@ -295,7 +308,7 @@ export const resolve = (color, opt = {}) => {
     case VAL_COMP:
     default: {
       let value;
-      switch (cs) {
+      switch ((cs as never as string)) {
         case 'rgb': {
           if (alpha === 1) {
             value = `${cs}(${r}, ${g}, ${b})`;
@@ -332,7 +345,7 @@ export const resolve = (color, opt = {}) => {
     }
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, res);
+    cachedResults.set(cacheKey, res as never);
   }
   return res;
 };

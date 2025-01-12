@@ -124,7 +124,7 @@ export function resolveCustomProperty(tokens: Array<any>, opt: {
  * @param {object} [opt] - options
  * @returns {?Array.<Array>} - parsed tokens
  */
-export function parseTokens(tokens: Array<Array<any>>, opt: object = {}) {
+export function parseTokens(tokens: Array<Array<any>>, opt: object = {}): Array<Array<any>> | null {
   const res = [];
   while (tokens.length) {
     const token = tokens.shift();
@@ -180,7 +180,7 @@ export function parseTokens(tokens: Array<Array<any>>, opt: object = {}) {
  */
 export function cssVar(value: string, opt: {
   customProperty?: object;
-} = {}) {
+} = {}): string | null {
   const { customProperty, format } = opt as Record<string, any>;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
@@ -194,7 +194,7 @@ export function cssVar(value: string, opt: {
   if (typeof customProperty?.callback !== 'function') {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey);
+      return cachedResults.get(cacheKey) as never;
     }
   }
   const tokens = tokenize({ css: value });
