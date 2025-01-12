@@ -18,6 +18,7 @@ import {
   SYN_FN_MATH, SYN_FN_VAR, SYN_MIX, VAL_SPEC
 } from './constant.js';
 import { NAMED_COLORS } from './color.js';
+
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, Dimension: DIM, EOF,
   Function: FUNC, Ident: IDENT, Number: NUM, OpenParen: PAREN_OPEN,
@@ -53,11 +54,13 @@ export const cachedResults = new LRUCache({
  * @param {string} [opt.colorSpace] - color space
  * @returns {?Array.<string>} - resolved channels
  */
-export function resolveColorChannels(tokens, opt = {}) {
+export function resolveColorChannels(tokens: Array<Array<any>>, opt: {
+  colorSpace?: string;
+} = {}) {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
-  const { colorSpace, format } = opt;
+  const { colorSpace, format } = opt as Record<string, any>;
   const colorChannels = new Map([
     ['color', ['r', 'g', 'b', 'alpha']],
     ['hsl', ['h', 's', 'l', 'alpha']],
@@ -70,9 +73,9 @@ export function resolveColorChannels(tokens, opt = {}) {
     ['rgb', ['r', 'g', 'b', 'alpha']],
     ['rgba', ['r', 'g', 'b', 'alpha']]
   ]);
-  const colorChannel = colorChannels.get(colorSpace);
+  const colorChannel = colorChannels.get(colorSpace)!;
   const mathFunc = new Set();
-  const channels = [[], [], [], []];
+  const channels = [[], [], [], []] as Array<Array<any>>;
   let i = 0;
   let nest = 0;
   let func = false;
@@ -83,10 +86,10 @@ export function resolveColorChannels(tokens, opt = {}) {
     }
     const [type, value,,, detail = {}] = token;
     const { value: numValue } = detail;
-    const channel = channels[i];
+    const channel = channels[i]!;
     switch (type) {
       case DIM: {
-        let resolvedValue = resolveDimension(token, opt);
+        let resolvedValue = resolveDimension(token, opt as never);
         if (!resolvedValue) {
           resolvedValue = value;
         }
@@ -176,7 +179,7 @@ export function resolveColorChannels(tokens, opt = {}) {
       const [resolvedValue] = channel;
       channelValues.push(resolvedValue);
     } else if (channel.length) {
-      const resolvedValue = serializeCalc(channel.join(''), {
+      const resolvedValue = serializeCalc(channel.join('') as never, {
         format
       });
       channelValues.push(resolvedValue);
@@ -192,7 +195,9 @@ export function resolveColorChannels(tokens, opt = {}) {
  * @param {string} [opt.currentColor] - current color value
  * @returns {?string} - value
  */
-export function extractOriginColor(value, opt = {}) {
+export function extractOriginColor(value: string, opt: {
+  currentColor?: string;
+} = {}) {
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (!value) {
@@ -204,7 +209,7 @@ export function extractOriginColor(value, opt = {}) {
   } else {
     return null;
   }
-  const { currentColor, format } = opt;
+  const { currentColor, format } = opt as Record<string, any>;
   const cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey);
@@ -214,34 +219,34 @@ export function extractOriginColor(value, opt = {}) {
       value = value.replace(/currentcolor/g, currentColor);
     } else {
       if (cacheKey) {
-        cachedResults.set(cacheKey, null);
+        cachedResults.set(cacheKey, null!);
       }
       return null;
     }
   }
-  const [, colorSpace] = REG_REL_CAPT.exec(value);
-  opt.colorSpace = colorSpace;
+  const [, colorSpace] = REG_REL_CAPT.exec(value) as unknown as [string, string];
+  (opt as Record<string, string>).colorSpace = colorSpace;
   if (REG_COLOR_CAPT.test(value)) {
-    const [, originColor] = REG_COLOR_CAPT.exec(value);
+    const [, originColor] = REG_COLOR_CAPT.exec(value) as unknown as [string, string];
     const [, restValue] = value.split(originColor);
     if (/^[a-z]+$/.test(originColor)) {
       if (!/^transparent$/.test(originColor) &&
           !Object.prototype.hasOwnProperty.call(NAMED_COLORS, originColor)) {
         if (cacheKey) {
-          cachedResults.set(cacheKey, null);
+          cachedResults.set(cacheKey, null!);
         }
         return null;
       }
     } else if (format === VAL_SPEC) {
-      const resolvedOriginColor = resolve(originColor, opt);
+      const resolvedOriginColor = resolve(originColor, opt) as string;
       value = value.replace(originColor, resolvedOriginColor);
     }
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue });
-      const channelValues = resolveColorChannels(tokens, opt);
+      const channelValues = resolveColorChannels(tokens, opt as never);
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
-          cachedResults.set(cacheKey, null);
+          cachedResults.set(cacheKey, null!);
         }
         return null;
       }
@@ -252,11 +257,11 @@ export function extractOriginColor(value, opt = {}) {
         const [v1, v2, v3, v4] = channelValues;
         channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
       }
-      value = value.replace(restValue, channelValue);
+      value = value.replace(restValue!, channelValue);
     }
   // nested relative color
   } else {
-    const [, restValue] = value.split(REG_START_REL);
+    const [, restValue] = value.split(REG_START_REL) as unknown as [string, string];
     if (REG_START_REL.test(restValue)) {
       const tokens = tokenize({ css: restValue });
       let originColor = [];
@@ -298,17 +303,18 @@ export function extractOriginColor(value, opt = {}) {
           break;
         }
       }
-      originColor = resolveRelativeColor(originColor.join('').trim(), opt);
+      originColor = resolveRelativeColor(originColor.join('').trim(), opt as never) as never;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!originColor) {
         if (cacheKey) {
-          cachedResults.set(cacheKey, null);
+          cachedResults.set(cacheKey, null!);
         }
         return null;
       }
-      const channelValues = resolveColorChannels(tokens, opt);
+      const channelValues = resolveColorChannels(tokens, opt as never);
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
-          cachedResults.set(cacheKey, null);
+          cachedResults.set(cacheKey, null!);
         }
         return null;
       }
@@ -335,7 +341,9 @@ export function extractOriginColor(value, opt = {}) {
  * @param {string} [opt.format] - output format
  * @returns {?string} - value
  */
-export function resolveRelativeColor(value, opt = {}) {
+export function resolveRelativeColor(value: string, opt: {
+  format?: string;
+} = {}): string | null {
   const { format } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
@@ -354,12 +362,12 @@ export function resolveRelativeColor(value, opt = {}) {
   }
   const cacheKey = `{relativeColor:${value},opt:${valueToJsonString(opt)}}`;
   if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey);
+    return cachedResults.get(cacheKey) as never;
   }
-  value = extractOriginColor(value, opt);
+  value = extractOriginColor(value, opt as never) as never;
   if (!value) {
     if (cacheKey) {
-      cachedResults.set(cacheKey, null);
+      cachedResults.set(cacheKey, null!);
     }
     return null;
   }
@@ -376,11 +384,12 @@ export function resolveRelativeColor(value, opt = {}) {
   const parsedComponents = colorParser(components);
   if (!parsedComponents) {
     if (cacheKey) {
-      cachedResults.set(cacheKey, null);
+      cachedResults.set(cacheKey, null!);
     }
     return null;
   }
   let {
+    // eslint-disable-next-line prefer-const
     alpha, channels: [v1, v2, v3], colorNotation, syntaxFlags
   } = parsedComponents;
   if (Number.isNaN(alpha)) {
@@ -438,9 +447,9 @@ export function resolveRelativeColor(value, opt = {}) {
     }
     let [r, g, b] =
       colorToRgb(`${colorNotation}(${v1} ${v2} ${v3} / ${alpha})`);
-    r = roundToPrecision(r / MAX_RGB, DEC);
-    g = roundToPrecision(g / MAX_RGB, DEC);
-    b = roundToPrecision(b / MAX_RGB, DEC);
+    r = roundToPrecision(r! / MAX_RGB, DEC);
+    g = roundToPrecision(g! / MAX_RGB, DEC);
+    b = roundToPrecision(b! / MAX_RGB, DEC);
     if (alpha === 1) {
       resolvedValue = `color(srgb ${r} ${g} ${b})`;
     } else {
