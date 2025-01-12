@@ -18,9 +18,18 @@
   ],
   "type": "module",
   "exports": {
-    "import": "./src/index.js",
-    "require": "./dist/cjs/css-color.min.cjs",
-    "default": "./dist/cjs/css-color.min.cjs"
+    "import": {
+      "types": "./types/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "require": {
+      "types": "./dist/cjs/css-color.d.cts",
+      "default": "./dist/cjs/css-color.cjs"
+    },
+    "default": {
+      "types": "./dist/cjs/css-color.d.cts",
+      "default": "./dist/cjs/css-color.cjs"
+    }
   },
   "types": "types/index.d.ts",
   "dependencies": {
@@ -42,13 +51,14 @@
     "neostandard": "^0.12.0",
     "npm-run-all2": "^7.0.2",
     "sinon": "^19.0.2",
+    "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   },
   "scripts": {
     "build": "npm run tsc && npm run lint && npm test && npm run bundle",
     "bundle": "npm-run-all -s bundle-*",
     "bundle-browser": "esbuild --format=esm --platform=browser --outfile=dist/esm/css-color.min.js --bundle --minify --sourcemap src/index.js",
-    "bundle-cjs": "esbuild --format=cjs --platform=node --outfile=dist/cjs/css-color.min.cjs --bundle --minify --sourcemap src/index.js",
+    "bundle-cjs": "tsup --entry.css-color src/index.js --format=cjs --platform=node --outDir=dist/cjs/ --minify --sourcemap --dts",
     "lint": "eslint --fix .",
     "test": "c8 --reporter=text mocha --exit test/**/*.test.js",
     "tsc": "node -e \"fs.rmSync('types',{recursive:true,force:true})\" && npx tsc"
