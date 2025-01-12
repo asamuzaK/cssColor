@@ -65,10 +65,9 @@ export const preProcess = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -146,10 +145,9 @@ export const colorToHex = (
   }
   const { alpha, customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -197,10 +195,9 @@ export const colorToHsl = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToHsl:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -242,10 +239,9 @@ export const colorToHwb = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToHwb:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -287,10 +283,9 @@ export const colorToLab = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToLab:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -331,10 +326,9 @@ export const colorToLch = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToLch:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -375,10 +369,9 @@ export const colorToOklab = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToOklab:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -419,10 +412,9 @@ export const colorToOklch = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToOklch:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -463,10 +455,9 @@ export const colorToRgb = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToRgb:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
@@ -509,10 +500,9 @@ export const colorToXyz = (
   }
   const { customProperty } = opt
   let cacheKey
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (customProperty as { callback?: () => void }).callback !== 'function'
   ) {
     cacheKey = `{colorToXyz:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {

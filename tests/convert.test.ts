@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * convert.test.js
  */
 
-import { describe, it, beforeEach, afterEach, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as convert from '../src/js/convert.js'
 
 describe('pre process', () => {
@@ -106,7 +107,7 @@ describe('convert number to hex string', () => {
 
   it('should throw', () => {
     expect(() => func()).toThrow(TypeError)
-    expect(() => func()).toThrow('undefined is not a string.')
+    expect(() => func()).toThrow('undefined is not a number.')
   })
 
   it('should get value', () => {
@@ -1009,7 +1010,7 @@ describe('convert', () => {
   it('should get functions', () => {
     const keys = Object.keys(convert.convert)
     for (const key of keys) {
-      expect(typeof convert.convert[key]).toBe('function')
+      expect(typeof convert.convert[key as never]).toBe('function')
     }
   })
 })

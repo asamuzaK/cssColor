@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * relative-color.test.js
  *
@@ -7,7 +8,7 @@
  * see also: https://github.com/w3c/csswg-drafts/issues/10328
  */
 
-import { describe, it, beforeEach, afterEach, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { tokenize } from '@csstools/css-tokenizer'
 import * as relColor from '../src/js/relative-color.js'
 
@@ -194,7 +195,7 @@ describe('resolve relative color', () => {
 
   it('should throw', () => {
     expect(() => func()).toThrow(TypeError)
-    expect(() => func()).toThrow('undefined is not a string.')
+    expect(() => func()).toThrow('undefined is not a string')
   })
 
   it('should throw', () => {

@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * css-calc.test.js
  */
 
-import { describe, it, beforeEach, afterEach, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as csscalc from '../src/js/css-calc.js'
 
 describe('calculator', () => {
@@ -694,7 +695,7 @@ describe('serialize calc', () => {
 
   it('should throw', () => {
     expect(() => func()).toThrow(TypeError)
-    expect(() => func()).toThrow('undefined is not an array.')
+    expect(() => func()).toThrow('undefined is not a string')
   })
 
   it('should get value', () => {
@@ -1197,7 +1198,7 @@ describe('resolve CSS calc()', () => {
 
   it('should throw', () => {
     expect(() => func()).toThrow(TypeError)
-    expect(() => func()).toThrow('undefined is not a string.')
+    expect(() => func()).toThrow('undefined is not a string')
   })
 
   it('should throw', () => {

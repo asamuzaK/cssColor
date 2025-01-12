@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * api.test.js
  */
 
-import { describe, it, beforeEach, afterEach, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as api from '../src/js/resolve.js'
 import { parseColorValue } from '../src/js/color.js'
 

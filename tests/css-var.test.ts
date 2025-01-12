@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * css-var.test.js
  */
 
-import { describe, it, beforeEach, afterEach, expect } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import * as custom from '../src/js/css-var.js'
 
 describe('resolve CSS variable', () => {
@@ -76,7 +77,7 @@ describe('resolve CSS variable', () => {
   })
 
   it('should get value', () => {
-    const getPropertyValue = (v) => {
+    const getPropertyValue = (v: string) => {
       let res
       switch (v) {
         case '--foo':
@@ -108,7 +109,7 @@ describe('resolve CSS variable', () => {
   })
 
   it('should get value', () => {
-    const getPropertyValue = (v) => {
+    const getPropertyValue = (v: string) => {
       let res
       switch (v) {
         case '--bar':

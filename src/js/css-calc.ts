@@ -899,9 +899,8 @@ export const cssCalc = (
     typeof (
       dimension as {
         callback: (unit: any) => number
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       }
-    )?.callback !== 'function'
+    ).callback !== 'function'
   ) {
     cacheKey = `{cssCalc:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {

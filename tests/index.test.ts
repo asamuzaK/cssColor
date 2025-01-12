@@ -2,7 +2,7 @@
  * index.test.js
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as api from '../src/index.js'
 
 describe('resolve CSS color', () => {

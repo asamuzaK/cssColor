@@ -429,10 +429,11 @@ export function resolveRelativeColor(
     return null
   }
   let {
-    // eslint-disable-next-line prefer-const
     alpha,
     channels: [v1, v2, v3],
+    // eslint-disable-next-line prefer-const
     colorNotation,
+    // eslint-disable-next-line prefer-const
     syntaxFlags,
   } = parsedComponents
   if (Number.isNaN(alpha)) {

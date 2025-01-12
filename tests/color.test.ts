@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * color.test.js
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 /* test */
 import * as color from '../src/js/color.js'
@@ -162,7 +163,7 @@ describe('transform matrix', () => {
 
   it('should throw', () => {
     expect(() => func(['foo', [], []])).toThrow(TypeError)
-    expect(() => func(['foo', [], []])).toThrow('foo is not a number.')
+    expect(() => func(['foo', [], []])).toThrow('foo is not an array.')
   })
 
   it('should throw', () => {
@@ -1521,7 +1522,9 @@ describe('xyz to oklab', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(48.477% 34.29% 38.412%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(48.477% 34.29% 38.412%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(3))
     res[1] = parseFloat(res[1].toFixed(3))
@@ -1530,7 +1533,9 @@ describe('xyz to oklab', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(29.264% 70.096% 63.017%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(29.264% 70.096% 63.017%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(3))
     res[1] = parseFloat(res[1].toFixed(3))
@@ -1539,7 +1544,9 @@ describe('xyz to oklab', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(73.942% 60.484% 19.65%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(73.942% 60.484% 19.65%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(3))
     res[1] = Math.abs(parseFloat(res[1].toFixed(3)))
@@ -1548,7 +1555,9 @@ describe('xyz to oklab', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(27.888% 38.072% 89.414%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(27.888% 38.072% 89.414%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(3))
     res[1] = Math.abs(parseFloat(res[1].toFixed(3)))
@@ -1575,7 +1584,7 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('#008000')
+    const [, x, y, z, a] = color.parseColorValue('#008000') as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1584,20 +1593,20 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('#000000')
+    const [, x, y, z, a] = color.parseColorValue('#000000') as Array<number>
     const res = func([x, y, z, a])
     expect(res).toEqual([0, 'none', 'none', 1])
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('#ffffff')
+    const [, x, y, z, a] = color.parseColorValue('#ffffff') as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     expect(res).toEqual([1, 'none', 'none', 1])
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('#808080')
+    const [, x, y, z, a] = color.parseColorValue('#808080') as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1605,7 +1614,9 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(70.492% 2.351% 37.073%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(70.492% 2.351% 37.073%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1614,7 +1625,9 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(23.056% 31.73% 82.628%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(23.056% 31.73% 82.628%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(5))
     res[1] = parseFloat(res[1].toFixed(5))
@@ -1623,7 +1636,9 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(32.022% 85.805% 61.147%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(32.022% 85.805% 61.147%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1632,7 +1647,9 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('rgb(67.293% 27.791% 52.28%)')
+    const [, x, y, z, a] = color.parseColorValue(
+      'rgb(67.293% 27.791% 52.28%)',
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1641,7 +1658,7 @@ describe('xyz to oklch', () => {
   })
 
   it('should get value', () => {
-    const [, x, y, z, a] = color.parseColorValue('#7654cd')
+    const [, x, y, z, a] = color.parseColorValue('#7654cd') as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1728,7 +1745,7 @@ describe('xyz-d50 to lab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(3))
     res[1] = parseFloat(res[1].toFixed(1))
@@ -1739,7 +1756,7 @@ describe('xyz-d50 to lab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a], {
       skip: true,
     })
@@ -1752,7 +1769,7 @@ describe('xyz-d50 to lab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#000000', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     expect(res).toEqual([0, 'none', 'none', 1])
   })
@@ -1760,7 +1777,7 @@ describe('xyz-d50 to lab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#ffffff', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(5))
     expect(res).toEqual([100, 'none', 'none', 1])
@@ -1772,7 +1789,7 @@ describe('xyz-d50 to lab', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(1))
     res[1] = parseFloat(res[1].toFixed(1))
@@ -1786,7 +1803,7 @@ describe('xyz-d50 to lab', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(1))
     res[1] = parseFloat(res[1].toFixed(1))
@@ -1800,7 +1817,7 @@ describe('xyz-d50 to lab', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(1))
@@ -1814,7 +1831,7 @@ describe('xyz-d50 to lab', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(1))
     res[1] = Math.abs(parseFloat(res[1].toFixed(1)))
@@ -1828,7 +1845,7 @@ describe('xyz-d50 to lab', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(1))
     res[1] = Math.abs(parseFloat(res[1].toFixed(1)))
@@ -1839,7 +1856,7 @@ describe('xyz-d50 to lab', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#7654cd', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(2))
     res[1] = parseFloat(res[1].toFixed(2))
@@ -1859,7 +1876,7 @@ describe('xyz-d50 to lch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(5))
     res[1] = parseFloat(res[1].toFixed(5))
@@ -1870,7 +1887,7 @@ describe('xyz-d50 to lch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a], {
       skip: true,
     })
@@ -1883,7 +1900,7 @@ describe('xyz-d50 to lch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#000000', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     expect(res).toEqual([0, 'none', 'none', 1])
   })
@@ -1891,7 +1908,7 @@ describe('xyz-d50 to lch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#ffffff', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     expect(res).toEqual([100, 'none', 'none', 1])
   })
@@ -1899,7 +1916,7 @@ describe('xyz-d50 to lch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#808080', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(4))
     res[1] = parseFloat(res[1].toFixed(4))
@@ -1913,7 +1930,7 @@ describe('xyz-d50 to lch', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(0))
     res[1] = parseFloat(res[1].toFixed(0))
@@ -1927,7 +1944,7 @@ describe('xyz-d50 to lch', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(0))
     res[1] = parseFloat(res[1].toFixed(0))
@@ -1941,7 +1958,7 @@ describe('xyz-d50 to lch', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(0))
     res[1] = parseFloat(res[1].toFixed(0))
@@ -1955,7 +1972,7 @@ describe('xyz-d50 to lch', () => {
       {
         d50: true,
       },
-    )
+    ) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(0))
     res[1] = parseFloat(res[1].toFixed(0))
@@ -1966,7 +1983,7 @@ describe('xyz-d50 to lch', () => {
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#7654cd', {
       d50: true,
-    })
+    }) as Array<number>
     const res = func([x, y, z, a])
     res[0] = parseFloat(res[0].toFixed(3))
     res[1] = parseFloat(res[1].toFixed(3))

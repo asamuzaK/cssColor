@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 /**
  * util.test.js
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as util from '../src/js/util.js'
 
 describe('is color', () => {
@@ -105,7 +106,7 @@ describe('value to JSON string', () => {
         },
         true,
       ),
-    ).toBe(`{"foo":"bar","func":"() => {\\n      }"}`)
+    ).toBe(`{"foo":"bar","func":"() => {\\n          }"}`)
   })
 
   it('should get result', () => {

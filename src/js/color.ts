@@ -121,11 +121,10 @@ const MATRIX_A98_TO_XYZ = [
   [53769 / 1989134, 351524 / 4972835, 4929758 / 4972835],
 ]
 const MATRIX_PROPHOTO_TO_XYZ_D50 = [
-  // eslint-disable-next-line no-loss-of-precision
   [0.7977666449006423, 0.13518129740053308, 0.0313477341283922],
-  // eslint-disable-next-line no-loss-of-precision
+
   [0.2880748288194013, 0.711835234241873, 0.00008993693872564],
-  // eslint-disable-next-line no-loss-of-precision
+
   [0.0, 0.0, 0.8251046025104602],
 ]
 
@@ -2054,9 +2053,9 @@ export const parseColorFunc = (
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x!, HEX),
-    roundToPrecision(y!, HEX),
-    roundToPrecision(z!, HEX),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     format === VAL_MIX && v4 === NONE ? NONE : alpha,
   ]
 }
@@ -2267,9 +2266,9 @@ export const parseColorValue = (
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x!, HEX),
-    roundToPrecision(y!, HEX),
-    roundToPrecision(z!, HEX),
+    roundToPrecision(x, HEX),
+    roundToPrecision(y, HEX),
+    roundToPrecision(z, HEX),
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     alpha!,
   ]

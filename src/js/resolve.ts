@@ -25,6 +25,7 @@ import {
   VAL_COMP,
   VAL_SPEC,
 } from './constant.js'
+
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)'
 
 /* regexp */
@@ -101,9 +102,8 @@ export const resolve = (
     typeof (
       customProperty as {
         callback: () => void
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       }
-    )?.callback !== 'function'
+    ).callback !== 'function'
   ) {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {

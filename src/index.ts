@@ -1,4 +1,4 @@
-/*!
+/* !
  * CSS color - Resolve, parse, convert CSS color.
  * @license MIT
  * @copyright asamuzaK (Kazz)
