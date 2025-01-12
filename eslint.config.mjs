@@ -7,7 +7,6 @@ export default [
   ...tanstackConfig,
   {
     name: 'tanstack/temp',
-    rules: {
-    },
+    rules: {},
   },
 ]
