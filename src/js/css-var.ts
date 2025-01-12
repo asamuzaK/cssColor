@@ -10,6 +10,7 @@ import { isColor, valueToJsonString } from './util.js';
 
 /* constants */
 import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant.js';
+
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, EOF, Ident: IDENT,
   Whitespace: W_SPACE
@@ -31,7 +32,9 @@ export const cachedResults = new LRUCache({
  * @param {object} [opt.customProperty] - custom properties
  * @returns {Array.<string|Array|undefined>} - [tokens, resolvedValue]
  */
-export function resolveCustomProperty(tokens, opt = {}) {
+export function resolveCustomProperty(tokens: Array<any>, opt: {
+  customProperty?: object;
+} = {}): Array<string | Array<any> | undefined> {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
@@ -49,7 +52,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
     }
     // nested var()
     if (value === FN_VAR) {
-      const [restTokens, item] = resolveCustomProperty(tokens, opt);
+      const [restTokens, item] = resolveCustomProperty(tokens, opt) as [Array<any>, string];
       tokens = restTokens;
       if (item) {
         items.push(item);
@@ -57,9 +60,9 @@ export function resolveCustomProperty(tokens, opt = {}) {
     } else if (type === IDENT) {
       if (value.startsWith('--')) {
         if (Object.hasOwnProperty.call(customProperty, value)) {
-          items.push(customProperty[value]);
-        } else if (typeof customProperty.callback === 'function') {
-          const item = customProperty.callback(value);
+          items.push(customProperty[value as never]);
+        } else if (typeof (customProperty as {callback: (value: any) => string}).callback === 'function') {
+          const item = (customProperty as {callback: (value: any) => string}).callback(value);
           if (item) {
             items.push(item);
           }
@@ -90,7 +93,7 @@ export function resolveCustomProperty(tokens, opt = {}) {
         }
       }
     } else if (REG_FN_MATH_CALC.test(item)) {
-      item = cssCalc(item, opt);
+      item = cssCalc(item, opt as never);
       if (resolveAsColor) {
         if (isColor(item)) {
           resolvedValue = item;
@@ -121,17 +124,17 @@ export function resolveCustomProperty(tokens, opt = {}) {
  * @param {object} [opt] - options
  * @returns {?Array.<Array>} - parsed tokens
  */
-export function parseTokens(tokens, opt = {}) {
+export function parseTokens(tokens: Array<Array<any>>, opt: object = {}) {
   const res = [];
   while (tokens.length) {
     const token = tokens.shift();
-    const [type, value] = token;
+    const [type, value] = token as [any, any];
     if (value === FN_VAR) {
       const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
         return null;
       }
-      tokens = restTokens;
+      tokens = restTokens as never;
       res.push(resolvedValue);
     } else {
       switch (type) {
@@ -175,8 +178,10 @@ export function parseTokens(tokens, opt = {}) {
  * @param {object} [opt.customProperty] - custom properties
  * @returns {?string} - value
  */
-export function cssVar(value, opt = {}) {
-  const { customProperty, format } = opt;
+export function cssVar(value: string, opt: {
+  customProperty?: object;
+} = {}) {
+  const { customProperty, format } = opt as Record<string, any>;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
@@ -197,7 +202,7 @@ export function cssVar(value, opt = {}) {
   if (Array.isArray(values)) {
     let color = values.join('');
     if (REG_FN_MATH_CALC.test(color)) {
-      color = cssCalc(color, opt);
+      color = cssCalc(color, opt as never) as never;
     }
     if (cacheKey) {
       cachedResults.set(cacheKey, color);
@@ -205,7 +210,7 @@ export function cssVar(value, opt = {}) {
     return color;
   } else {
     if (cacheKey) {
-      cachedResults.set(cacheKey, null);
+      cachedResults.set(cacheKey, null!);
     }
     return null;
   }
