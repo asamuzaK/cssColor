@@ -8,6 +8,7 @@ import { resolve } from './resolve.js';
 /* constants */
 import { NAMED_COLORS } from './color.js';
 import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant.js';
+
 const DEC = 10;
 const HEX = 16;
 const DEG = 360;
@@ -36,7 +37,7 @@ export const isColor = (value: string): boolean => {
       } else {
         value = resolve(value, {
           format: VAL_SPEC
-        });
+        }) as never;
         if (value) {
           return true;
         }
@@ -57,7 +58,7 @@ export const valueToJsonString = (value: any, func: boolean = false): string => 
   if (typeof value === 'undefined') {
     return '';
   }
-  const res = JSON.stringify(value, (key, val) => {
+  const res = JSON.stringify(value, (_key, val) => {
     let replacedValue;
     if (typeof val === 'undefined') {
       replacedValue = null;

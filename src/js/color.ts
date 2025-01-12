@@ -1441,9 +1441,9 @@ export const parseLab = (value: string, opt: {
   ];
   const [x, y, z] = xyz.map((val, i) => val * D50[i]!);
   return ['xyz-d50',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    roundToPrecision(x!, HEX),
+    roundToPrecision(y!, HEX),
+    roundToPrecision(z!, HEX),
     alpha
   ];
 };
@@ -1631,9 +1631,9 @@ export const parseOklab = (value: string, opt: {
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    roundToPrecision(x!, HEX),
+    roundToPrecision(y!, HEX),
+    roundToPrecision(z!, HEX),
     alpha
   ];
 };
@@ -1731,9 +1731,9 @@ export const parseOklch = (value: string, opt: {
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    roundToPrecision(x!, HEX),
+    roundToPrecision(y!, HEX),
+    roundToPrecision(z!, HEX),
     alpha
   ];
 };
@@ -1900,9 +1900,9 @@ export const parseColorFunc = (value: string, opt: {
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    roundToPrecision(x!, HEX),
+    roundToPrecision(y!, HEX),
+    roundToPrecision(z!, HEX),
     format === VAL_MIX && v4 === NONE ? NONE : alpha
   ];
 };
@@ -2070,9 +2070,9 @@ export const parseColorValue = (value: string, opt: {
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    roundToPrecision(x!, HEX),
+    roundToPrecision(y!, HEX),
+    roundToPrecision(z!, HEX),
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     alpha!
   ];
@@ -2549,7 +2549,7 @@ export const convertColorToHwb = (value: string, opt: {
       Math.round(w!),
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       Math.round(b!),
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+
       alpha as number
     ];
   }
@@ -3061,18 +3061,18 @@ export const resolveColorMix = (value: string, opt: {
     const alphaNone = alphaA === NONE && alphaB === NONE;
     [[rA, gA, bA, alphaA], [rB, gB, bB, alphaB]] =
       normalizeColorComponents([rA, gA, bA, alphaA], [rB, gB, bB, alphaB],
-        true);
-    const factorA = (alphaA as number) * pA;
-    const factorB = (alphaB as number) * pB;
+        true) as [[number, number, number, number], [number, number, number, number]];
+    const factorA = (alphaA) * pA;
+    const factorB = (alphaB) * pB;
     alpha = (factorA + factorB);
     if (alpha === 0) {
-      r = (rA as number) * pA + (rB as number) * pB;
-      g = (gA as number) * pA + (gB as number) * pB;
-      b = (bA as number) * pA + (bB as number) * pB;
+      r = (rA) * pA + (rB) * pB;
+      g = (gA) * pA + (gB) * pB;
+      b = (bA) * pA + (bB) * pB;
     } else {
-      r = ((rA as number) * factorA + (rB as number) * factorB) / alpha;
-      g = ((gA as number) * factorA + (gB as number) * factorB) / alpha;
-      b = ((bA as number) * factorA + (bB as number) * factorB) / alpha;
+      r = ((rA) * factorA + (rB) * factorB) / alpha;
+      g = ((gA) * factorA + (gB) * factorB) / alpha;
+      b = ((bA) * factorA + (bB) * factorB) / alpha;
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
@@ -3124,19 +3124,19 @@ export const resolveColorMix = (value: string, opt: {
     const alphaNone = alphaA === NONE && alphaB === NONE;
     [[xA, yA, zA, alphaA], [xB, yB, zB, alphaB]] =
       normalizeColorComponents([xA, yA, zA, alphaA], [xB, yB, zB, alphaB],
-        true);
-    const factorA = (alphaA as number) * pA;
-    const factorB = (alphaB as number) * pB;
+        true) as [[number, number, number, number], [number, number, number, number]];
+    const factorA = (alphaA) * pA;
+    const factorB = (alphaB) * pB;
     alpha = (factorA + factorB);
     let x, y, z;
     if (alpha === 0) {
-      x = (xA as number) * pA + (xB as number) * pB;
-      y = (yA as number) * pA + (yB as number) * pB;
-      z = (zA as number) * pA + (zB as number) * pB;
+      x = (xA) * pA + (xB) * pB;
+      y = (yA) * pA + (yB) * pB;
+      z = (zA) * pA + (zB) * pB;
     } else {
-      x = ((xA as number) * factorA + (xB as number) * factorB) / alpha;
-      y = ((yA as number) * factorA + (yB as number) * factorB) / alpha;
-      z = ((zA as number) * factorA + (zB as number) * factorB) / alpha;
+      x = ((xA) * factorA + (xB) * factorB) / alpha;
+      y = ((yA) * factorA + (yB) * factorB) / alpha;
+      z = ((zA) * factorA + (zB) * factorB) / alpha;
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
@@ -3208,21 +3208,21 @@ export const resolveColorMix = (value: string, opt: {
     const alphaNone = alphaA === NONE && alphaB === NONE;
     [[hA, sA, lA, alphaA], [hB, sB, lB, alphaB]] =
       normalizeColorComponents([hA, sA, lA, alphaA], [hB, sB, lB, alphaB],
-        true);
+        true) as [[number, number, number, number], [number, number, number, number]];
     if (hueArc) {
       [hA, hB] = interpolateHue(hA, hB, hueArc);
     }
-    const factorA = (alphaA as number) * pA;
-    const factorB = (alphaB as number) * pB;
+    const factorA = (alphaA) * pA;
+    const factorB = (alphaB) * pB;
     alpha = (factorA + factorB);
     const h = ((hA as number) * pA + (hB as number) * pB) % DEG;
     let s, l;
     if (alpha === 0) {
-      s = (sA as number) * pA + (sB as number) * pB;
-      l = (lA as number) * pA + (lB as number) * pB;
+      s = (sA) * pA + (sB) * pB;
+      l = (lA) * pA + (lB) * pB;
     } else {
-      s = ((sA as number) * factorA + (sB as number) * factorB) / alpha;
-      l = ((lA as number) * factorA + (lB as number) * factorB) / alpha;
+      s = ((sA) * factorA + (sB) * factorB) / alpha;
+      l = ((lA) * factorA + (lB) * factorB) / alpha;
       alpha = parseFloat(alpha.toFixed(3));
     }
     [r, g, b] = convertColorToRgb(`${colorSpace}(${h} ${s} ${l})`);
@@ -3296,19 +3296,19 @@ export const resolveColorMix = (value: string, opt: {
     const alphaNone = alphaA === NONE && alphaB === NONE;
     [[lA, aA, bA, alphaA], [lB, aB, bB, alphaB]] =
       normalizeColorComponents([lA, aA, bA, alphaA], [lB, aB, bB, alphaB],
-        true);
-    const factorA = (alphaA as number) * pA;
-    const factorB = (alphaB as number) * pB;
+        true) as [[number, number, number, number], [number, number, number, number]];
+    const factorA = (alphaA) * pA;
+    const factorB = (alphaB) * pB;
     alpha = (factorA + factorB);
     let l, aO, bO;
     if (alpha === 0) {
-      l = (lA as number) * pA + (lB as number) * pB;
-      aO = (aA as number) * pA + (aB as number) * pB;
-      bO = (bA as number) * pA + (bB as number) * pB;
+      l = (lA) * pA + (lB) * pB;
+      aO = (aA) * pA + (aB) * pB;
+      bO = (bA) * pA + (bB) * pB;
     } else {
-      l = ((lA as number) * factorA + (lB as number) * factorB) / alpha;
-      aO = ((aA as number) * factorA + (aB as number) * factorB) / alpha;
-      bO = ((bA as number) * factorA + (bB as number) * factorB) / alpha;
+      l = ((lA) * factorA + (lB) * factorB) / alpha;
+      aO = ((aA) * factorA + (aB) * factorB) / alpha;
+      bO = ((bA) * factorA + (bB) * factorB) / alpha;
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
@@ -3379,21 +3379,21 @@ export const resolveColorMix = (value: string, opt: {
     const alphaNone = alphaA === NONE && alphaB === NONE;
     [[lA, cA, hA, alphaA], [lB, cB, hB, alphaB]] =
       normalizeColorComponents([lA, cA, hA, alphaA], [lB, cB, hB, alphaB],
-        true);
+        true) as [[number, number, number, number], [number, number, number, number]];
     if (hueArc) {
       [hA, hB] = interpolateHue(hA, hB, hueArc);
     }
-    const factorA = (alphaA as number) * pA;
-    const factorB = (alphaB as number) * pB;
+    const factorA = (alphaA) * pA;
+    const factorB = (alphaB) * pB;
     alpha = (factorA + factorB);
     const h = ((hA as number) * pA + (hB as number) * pB) % DEG;
     let l, c;
     if (alpha === 0) {
-      l = (lA as number) * pA + (lB as number) * pB;
-      c = (cA as number) * pA + (cB as number) * pB;
+      l = (lA) * pA + (lB) * pB;
+      c = (cA) * pA + (cB) * pB;
     } else {
-      l = ((lA as number) * factorA + (lB as number) * factorB) / alpha;
-      c = ((cA as number) * factorA + (cB as number) * factorB) / alpha;
+      l = ((lA) * factorA + (lB) * factorB) / alpha;
+      c = ((cA) * factorA + (cB) * factorB) / alpha;
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {

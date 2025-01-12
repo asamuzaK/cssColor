@@ -661,7 +661,7 @@ export const serializeCalc = (value: Array<any>, opt: {
   if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey) as string
   }
-  const items = tokenize({ css: value }).map((token: any) => {
+  const items = tokenize({ css: value as never }).map((token) => {
     const [type, value] = token;
     let res;
     if (type !== W_SPACE && type !== COMMENT) {
@@ -675,7 +675,7 @@ export const serializeCalc = (value: Array<any>, opt: {
       return item === ')' && index > startIndex;
     });
     const slicedValues = items.slice(startIndex, endIndex + 1);
-    let serializedValue = sortCalcValues(slicedValues)!;
+    let serializedValue = sortCalcValues(slicedValues as never)!;
     if (REG_START_MATH_VAR.test(serializedValue)) {
       serializedValue = calc(serializedValue, {
         toCanonicalUnits: true
@@ -684,7 +684,7 @@ export const serializeCalc = (value: Array<any>, opt: {
     items.splice(startIndex, endIndex - startIndex + 1, serializedValue);
     startIndex = items.findLastIndex((item: any) => /\($/.test(item));
   }
-  const serializedCalc = sortCalcValues(items, true)!;
+  const serializedCalc = sortCalcValues(items as never, true)!;
   if (cacheKey) {
     cachedResults.set(cacheKey, serializedCalc);
   }

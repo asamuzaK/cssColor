@@ -242,7 +242,7 @@ export function extractOriginColor(value: string, opt: {
       value = value.replace(originColor, resolvedOriginColor);
     }
     if (format === VAL_SPEC) {
-      const tokens = tokenize({ css: restValue });
+      const tokens = tokenize({ css: restValue as never });
       const channelValues = resolveColorChannels(tokens, opt as never);
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
@@ -268,7 +268,7 @@ export function extractOriginColor(value: string, opt: {
       let nest = 0;
       while (tokens.length) {
         const token = tokens.shift();
-        const [type, tokenValue] = token;
+        const [type, tokenValue] = token as [TokenType, string];
         switch (type) {
           case FUNC:
           case PAREN_OPEN: {
@@ -287,7 +287,7 @@ export function extractOriginColor(value: string, opt: {
             break;
           }
           case W_SPACE: {
-            const lastValue = originColor[originColor.length - 1];
+            const lastValue = originColor[originColor.length - 1]!;
             if (!lastValue.endsWith('(') && lastValue !== ' ') {
               originColor.push(tokenValue);
             }
@@ -381,7 +381,7 @@ export function resolveRelativeColor(value: string, opt: {
   }
   const tokens = tokenize({ css: value });
   const components = parseComponentValue(tokens);
-  const parsedComponents = colorParser(components);
+  const parsedComponents = colorParser(components as never);
   if (!parsedComponents) {
     if (cacheKey) {
       cachedResults.set(cacheKey, null!);
@@ -393,19 +393,19 @@ export function resolveRelativeColor(value: string, opt: {
     alpha, channels: [v1, v2, v3], colorNotation, syntaxFlags
   } = parsedComponents;
   if (Number.isNaN(alpha)) {
-    if (syntaxFlags.has(NONE_KEY)) {
-      alpha = NONE;
+    if (syntaxFlags.has(NONE_KEY as never)) {
+      alpha = NONE as never;
     } else {
       alpha = 0;
     }
   } else {
-    alpha = roundToPrecision(alpha, OCT);
+    alpha = roundToPrecision(alpha as never, OCT);
   }
   let resolvedValue;
   if (REG_CS_CIE.test(colorNotation)) {
     if (Number.isNaN(v1)) {
-      if (syntaxFlags.has(NONE_KEY)) {
-        v1 = NONE;
+      if (syntaxFlags.has(NONE_KEY as never)) {
+        v1 = NONE as never;
       } else {
         v1 = 0;
       }
@@ -413,8 +413,8 @@ export function resolveRelativeColor(value: string, opt: {
       v1 = roundToPrecision(v1, HEX);
     }
     if (Number.isNaN(v2)) {
-      if (syntaxFlags.has(NONE_KEY)) {
-        v2 = NONE;
+      if (syntaxFlags.has(NONE_KEY as never)) {
+        v2 = NONE as never;
       } else {
         v2 = 0;
       }
@@ -422,8 +422,8 @@ export function resolveRelativeColor(value: string, opt: {
       v2 = roundToPrecision(v2, HEX);
     }
     if (Number.isNaN(v3)) {
-      if (syntaxFlags.has(NONE_KEY)) {
-        v3 = NONE;
+      if (syntaxFlags.has(NONE_KEY as never)) {
+        v3 = NONE as never;
       } else {
         v3 = 0;
       }
@@ -458,8 +458,8 @@ export function resolveRelativeColor(value: string, opt: {
   } else {
     const cs = colorNotation === 'rgb' ? 'srgb' : colorNotation;
     if (Number.isNaN(v1)) {
-      if (syntaxFlags.has(NONE_KEY)) {
-        v1 = NONE;
+      if (syntaxFlags.has(NONE_KEY as never)) {
+        v1 = NONE as never;
       } else {
         v1 = 0;
       }
@@ -467,8 +467,8 @@ export function resolveRelativeColor(value: string, opt: {
       v1 = roundToPrecision(v1, DEC);
     }
     if (Number.isNaN(v2)) {
-      if (syntaxFlags.has(NONE_KEY)) {
-        v2 = NONE;
+      if (syntaxFlags.has(NONE_KEY as never)) {
+        v2 = NONE as never;
       } else {
         v2 = 0;
       }
@@ -476,8 +476,8 @@ export function resolveRelativeColor(value: string, opt: {
       v2 = roundToPrecision(v2, DEC);
     }
     if (Number.isNaN(v3)) {
-      if (syntaxFlags.has(NONE_KEY)) {
-        v3 = NONE;
+      if (syntaxFlags.has(NONE_KEY as never)) {
+        v3 = NONE as never;
       } else {
         v3 = 0;
       }
