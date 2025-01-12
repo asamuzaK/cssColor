@@ -19,4 +19,4 @@ export const getType = (o: any): string =>
  * @param {*} o - object to check
  * @returns {boolean} - result
  */
-export const isString = (o: any): boolean => typeof o === 'string' || o instanceof String;
+export const isString = (o: any): o is string => typeof o === 'string' || o instanceof String;
