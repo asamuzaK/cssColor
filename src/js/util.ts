@@ -22,7 +22,7 @@ const REG_MIX = new RegExp(`${SYN_MIX}`);
  * @param {string} value - value
  * @returns {boolean} - result
  */
-export const isColor = value => {
+export const isColor = (value: string): boolean => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (value) {
@@ -53,7 +53,7 @@ export const isColor = value => {
  * @param {boolean} func - stringify function
  * @returns {string} - stringified value in JSON notation
  */
-export const valueToJsonString = (value, func = false) => {
+export const valueToJsonString = (value: any, func: boolean = false): string => {
   if (typeof value === 'undefined') {
     return '';
   }
@@ -85,7 +85,7 @@ export const valueToJsonString = (value, func = false) => {
  * @param {number} bit - minimum bits
  * @returns {number} - rounded value
  */
-export const roundToPrecision = (value, bit = 0) => {
+export const roundToPrecision = (value: number, bit: number = 0): number => {
   if (!Number.isFinite(value)) {
     throw new TypeError(`${value} is not a number.`);
   }
@@ -115,7 +115,7 @@ export const roundToPrecision = (value, bit = 0) => {
  * @param {string} arc - arc
  * @returns {Array} - [hueA, hueB]
  */
-export const interpolateHue = (hueA, hueB, arc = 'shorter') => {
+export const interpolateHue = (hueA: number, hueB: number, arc: string = 'shorter'): Array<any> => {
   if (!Number.isFinite(hueA)) {
     throw new TypeError(`${hueA} is not a number.`);
   }
