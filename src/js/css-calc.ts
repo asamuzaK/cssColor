@@ -5,8 +5,8 @@
 import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { isString } from './common.js';
-import { roundToPrecision, valueToJsonString } from './util.js';
+import { isString } from './common';
+import { roundToPrecision, valueToJsonString } from './util';
 
 /* constants */
 import {

@@ -4,12 +4,12 @@
 
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { isString } from './common.js';
-import { cssCalc } from './css-calc.js';
-import { isColor, valueToJsonString } from './util.js';
+import { isString } from './common';
+import { cssCalc } from './css-calc';
+import { isColor, valueToJsonString } from './util';
 
 /* constants */
-import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant.js';
+import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
 
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, EOF, Ident: IDENT,

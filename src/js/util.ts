@@ -2,12 +2,12 @@
  * util.js
  */
 
-import { isString } from './common.js';
-import { resolve } from './resolve.js';
+import { isString } from './common';
+import { resolve } from './resolve';
 
 /* constants */
-import { NAMED_COLORS } from './color.js';
-import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant.js';
+import { NAMED_COLORS } from './color';
+import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant';
 
 const DEC = 10;
 const HEX = 16;

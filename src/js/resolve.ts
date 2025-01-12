@@ -5,12 +5,12 @@
 import { LRUCache } from 'lru-cache';
 import {
   convertRgbToHex, resolveColorFunc, resolveColorMix, resolveColorValue
-} from './color.js';
-import { isString } from './common.js';
-import { cssCalc } from './css-calc.js';
-import { cssVar } from './css-var.js';
-import { resolveRelativeColor } from './relative-color.js';
-import { valueToJsonString } from './util.js';
+} from './color';
+import { isString } from './common';
+import { cssCalc } from './css-calc';
+import { cssVar } from './css-var';
+import { resolveRelativeColor } from './relative-color';
+import { valueToJsonString } from './util';
 
 /* constants */
 import {

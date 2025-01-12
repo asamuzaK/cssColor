@@ -6,8 +6,8 @@
  *      https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
  */
 
-import { isString } from './common.js';
-import { interpolateHue, roundToPrecision } from './util.js';
+import { isString } from './common';
+import { interpolateHue, roundToPrecision } from './util';
 
 /* constants */
 import {

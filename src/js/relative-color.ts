@@ -6,18 +6,18 @@ import { color as colorParser } from '@csstools/css-color-parser';
 import { parseComponentValue } from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { isString } from './common.js';
-import { colorToRgb } from './convert.js';
-import { resolveDimension, serializeCalc } from './css-calc.js';
-import { resolve } from './resolve.js';
-import { roundToPrecision, valueToJsonString } from './util.js';
+import { isString } from './common';
+import { colorToRgb } from './convert';
+import { resolveDimension, serializeCalc } from './css-calc';
+import { resolve } from './resolve';
+import { roundToPrecision, valueToJsonString } from './util';
 
 /* constants */
 import {
   CS_LAB, CS_LCH, FN_REL, FN_REL_CAPT, FN_VAR, NONE, SYN_COLOR_TYPE,
   SYN_FN_MATH, SYN_FN_VAR, SYN_MIX, VAL_SPEC
-} from './constant.js';
-import { NAMED_COLORS } from './color.js';
+} from './constant';
+import { NAMED_COLORS } from './color';
 
 const {
   CloseParen: PAREN_CLOSE, Comment: COMMENT, Dimension: DIM, EOF,
