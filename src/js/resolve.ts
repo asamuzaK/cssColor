@@ -97,13 +97,14 @@ export const resolve = (
   }
   const { currentColor, customProperty, format = VAL_COMP, key } = opt
   let cacheKey
+
+  const _customProperty: {
+    callback: (unit: any) => number
+  } = customProperty as never
   if (
     !REG_FN_VAR.test(color) ||
-    typeof (
-      customProperty as {
-        callback: () => void
-      }
-    ).callback !== 'function'
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    typeof _customProperty?.callback !== 'function'
   ) {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {

@@ -2053,9 +2053,12 @@ export const parseColorFunc = (
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    roundToPrecision(x!, HEX),
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    roundToPrecision(y!, HEX),
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    roundToPrecision(z!, HEX),
     format === VAL_MIX && v4 === NONE ? NONE : alpha,
   ]
 }
@@ -2266,9 +2269,12 @@ export const parseColorValue = (
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    roundToPrecision(x!, HEX),
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    roundToPrecision(y!, HEX),
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    roundToPrecision(z!, HEX),
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     alpha!,
   ]

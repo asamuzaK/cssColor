@@ -895,12 +895,12 @@ export const cssCalc = (
     throw new TypeError(`${value} is not a string`)
   }
   let cacheKey
+  const _dimension: {
+    callback: (unit: any) => number
+  } = dimension as never
   if (
-    typeof (
-      dimension as {
-        callback: (unit: any) => number
-      }
-    ).callback !== 'function'
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    typeof _dimension?.callback !== 'function'
   ) {
     cacheKey = `{cssCalc:${value},opt:${valueToJsonString(opt)}}`
     if (cachedResults.has(cacheKey)) {
