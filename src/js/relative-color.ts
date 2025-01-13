@@ -24,7 +24,7 @@ import {
   SYN_FN_MATH,
   SYN_FN_VAR,
   SYN_MIX,
-  VAL_SPEC,
+  VAL_SPEC
 } from './constant';
 import { NAMED_COLORS } from './color';
 
@@ -38,7 +38,7 @@ const {
   Number: NUM,
   OpenParen: PAREN_OPEN,
   Percentage: PCT,
-  Whitespace: W_SPACE,
+  Whitespace: W_SPACE
 } = TokenType;
 const NONE_KEY = 'has-none-keywords';
 const OCT = 8;
@@ -49,7 +49,7 @@ const MAX_RGB = 255;
 
 /* regexp */
 const REG_COLOR_CAPT = new RegExp(
-  `^${FN_REL}(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`,
+  `^${FN_REL}(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
 );
 const REG_CS_HSL = /(?:hsla?|hwb)$/;
 const REG_CS_CIE = new RegExp(`^(?:${CS_LAB}|${CS_LCH})$`);
@@ -61,7 +61,7 @@ const REG_START_REL = new RegExp(`^${FN_REL}`);
 
 /* cached results */
 export const cachedResults = new LRUCache({
-  max: 4096,
+  max: 4096
 });
 
 /**
@@ -75,7 +75,7 @@ export function resolveColorChannels(
   tokens: Array<Array<any>>,
   opt: {
     colorSpace?: string;
-  } = {},
+  } = {}
 ) {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
@@ -91,7 +91,7 @@ export function resolveColorChannels(
     ['oklab', ['l', 'a', 'b', 'alpha']],
     ['oklch', ['l', 'c', 'h', 'alpha']],
     ['rgb', ['r', 'g', 'b', 'alpha']],
-    ['rgba', ['r', 'g', 'b', 'alpha']],
+    ['rgba', ['r', 'g', 'b', 'alpha']]
   ]);
   const colorChannel = colorChannels.get(colorSpace)!;
   const mathFunc = new Set();
@@ -203,7 +203,7 @@ export function resolveColorChannels(
       channelValues.push(resolvedValue);
     } else if (channel.length) {
       const resolvedValue = serializeCalc(channel.join('') as never, {
-        format,
+        format
       });
       channelValues.push(resolvedValue);
     }
@@ -222,7 +222,7 @@ export function extractOriginColor(
   value: string,
   opt: {
     currentColor?: string;
-  } = {},
+  } = {}
 ) {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -252,13 +252,13 @@ export function extractOriginColor(
   }
   const [, colorSpace] = REG_REL_CAPT.exec(value) as unknown as [
     string,
-    string,
+    string
   ];
   (opt as Record<string, string>).colorSpace = colorSpace;
   if (REG_COLOR_CAPT.test(value)) {
     const [, originColor] = REG_COLOR_CAPT.exec(value) as unknown as [
       string,
-      string,
+      string
     ];
     const [, restValue] = value.split(originColor);
     if (/^[a-z]+$/.test(originColor)) {
@@ -297,7 +297,7 @@ export function extractOriginColor(
   } else {
     const [, restValue] = value.split(REG_START_REL) as unknown as [
       string,
-      string,
+      string
     ];
     if (REG_START_REL.test(restValue)) {
       const tokens = tokenize({ css: restValue });
@@ -342,7 +342,7 @@ export function extractOriginColor(
       }
       originColor = resolveRelativeColor(
         originColor.join('').trim(),
-        opt as never,
+        opt as never
       ) as never;
 
       if (!originColor) {
@@ -385,7 +385,7 @@ export function resolveRelativeColor(
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): string | null {
   const { format } = opt;
   if (isString(value)) {
@@ -437,7 +437,7 @@ export function resolveRelativeColor(
 
     colorNotation,
 
-    syntaxFlags,
+    syntaxFlags
   } = parsedComponents;
   if (Number.isNaN(alpha)) {
     if (syntaxFlags.has(NONE_KEY as never)) {
@@ -493,7 +493,7 @@ export function resolveRelativeColor(
       v3 = 0;
     }
     let [r, g, b] = colorToRgb(
-      `${colorNotation}(${v1} ${v2} ${v3} / ${alpha})`,
+      `${colorNotation}(${v1} ${v2} ${v3} / ${alpha})`
     );
     r = roundToPrecision(r! / MAX_RGB, DEC);
     g = roundToPrecision(g! / MAX_RGB, DEC);

@@ -18,7 +18,7 @@ npm i @asamuzakjp/css-color
 import { convert, isColor, resolve } from '@asamuzakjp/css-color';
 
 const resolvedValue = resolve(
-  'color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))',
+  'color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))'
 );
 // 'oklab(0.620754 -0.0931934 -0.00374881)'
 
@@ -54,8 +54,8 @@ resolves CSS color
       const opt = {
         customProperty: {
           '--some-color': '#008000',
-          '--some-length': '16px',
-        },
+          '--some-length': '16px'
+        }
       };
       ```
     - and/or `callback` function to get the value of the custom property,
@@ -77,8 +77,8 @@ resolves CSS color
         dimension: {
           em: 12,
           rem: 16,
-          vw: 10.24,
-        },
+          vw: 10.24
+        }
       };
       ```
     - and/or `callback` function to get the value as a number in pixels,
@@ -97,8 +97,8 @@ resolves CSS color
               default:
                 return;
             }
-          },
-        },
+          }
+        }
       };
       ```
   - `opt.format` **[string][133]?**

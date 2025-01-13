@@ -38,8 +38,8 @@ describe('pre process', () => {
   it('should get value', () => {
     const res = func('var(--foo)', {
       customProperty: {
-        '--foo': 'red',
-      },
+        '--foo': 'red'
+      }
     });
     expect(res).toBe('red');
   });
@@ -63,8 +63,8 @@ describe('pre process', () => {
     };
     const res = func('var(--foo)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toBe('blue');
   });
@@ -196,24 +196,24 @@ describe('convert color to hex', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0 / 0.5)', {
-      alpha: true,
+      alpha: true
     });
     expect(res).toBe('#00800080');
 
     const res2 = func('color(srgb 0 0.5 0 / 0.5)', {
-      alpha: true,
+      alpha: true
     });
     expect(res2).toBe('#00800080');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)', {
-      alpha: true,
+      alpha: true
     });
     expect(res).toBe('#008000');
 
     const res2 = func('color(srgb 0 0.5 0)', {
-      alpha: true,
+      alpha: true
     });
     expect(res2).toBe('#008000');
   });
@@ -237,15 +237,15 @@ describe('convert color to hex', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toBe('#008000');
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toBe('#008000');
   });
@@ -269,15 +269,15 @@ describe('convert color to hex', () => {
     };
     const res = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toBe('#ffff00');
 
     const res2 = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toBe('#ffff00');
   });
@@ -332,15 +332,15 @@ describe('convert color to hsl', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toEqual([120, 100, 25, 1]);
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toEqual([120, 100, 25, 1]);
   });
@@ -364,15 +364,15 @@ describe('convert color to hsl', () => {
     };
     const res = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toEqual([60, 100, 50, 1]);
 
     const res2 = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toEqual([60, 100, 50, 1]);
   });
@@ -427,16 +427,16 @@ describe('convert color to hwb', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([120, 0, 50, 1]);
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[2] = Math.round(res2[2]);
     expect(res2).toEqual([120, 0, 50, 1]);
@@ -461,16 +461,16 @@ describe('convert color to hwb', () => {
     };
     const res = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([60, 0, 0, 1]);
 
     const res2 = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[2] = Math.round(res2[2]);
     expect(res2).toEqual([60, 0, 0, 1]);
@@ -530,8 +530,8 @@ describe('convert color to lab', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -540,8 +540,8 @@ describe('convert color to lab', () => {
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
@@ -568,8 +568,8 @@ describe('convert color to lab', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -578,8 +578,8 @@ describe('convert color to lab', () => {
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
@@ -641,8 +641,8 @@ describe('convert color to lch', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -651,8 +651,8 @@ describe('convert color to lch', () => {
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
@@ -714,8 +714,8 @@ describe('convert color to oklab', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -724,8 +724,8 @@ describe('convert color to oklab', () => {
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
@@ -787,8 +787,8 @@ describe('convert color to oklch', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -797,8 +797,8 @@ describe('convert color to oklch', () => {
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
@@ -854,15 +854,15 @@ describe('convert color to rgb', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toEqual([0, 128, 0, 1]);
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toEqual([0, 128, 0, 1]);
   });
@@ -886,15 +886,15 @@ describe('convert color to rgb', () => {
     };
     const res = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toEqual([128, 128, 0, 1]);
 
     const res2 = func('var(--baz)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toEqual([128, 128, 0, 1]);
   });
@@ -930,12 +930,12 @@ describe('convert color to xyz', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual([0.0824383, 0.153443, 0.0207794, 1]);
 
     const res2 = func('color(srgb 0 0.5 0)', {
-      d50: true,
+      d50: true
     });
     expect(res2).toEqual([0.0824383, 0.153443, 0.0207794, 1]);
   });
@@ -959,15 +959,15 @@ describe('convert color to xyz', () => {
     };
     const res = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res).toEqual([0.0771883, 0.154377, 0.0257294, 1]);
 
     const res2 = func('var(--bar)', {
       customProperty: {
-        callback: getPropertyValue,
-      },
+        callback: getPropertyValue
+      }
     });
     expect(res2).toEqual([0.0771883, 0.154377, 0.0257294, 1]);
   });

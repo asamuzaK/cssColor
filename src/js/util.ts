@@ -38,7 +38,7 @@ export const isColor = (value: string): boolean => {
         return true;
       } else {
         value = resolve(value, {
-          format: VAL_SPEC,
+          format: VAL_SPEC
         }) as never;
         if (value) {
           return true;
@@ -58,7 +58,7 @@ export const isColor = (value: string): boolean => {
  */
 export const valueToJsonString = (
   value: any,
-  func: boolean = false,
+  func: boolean = false
 ): string => {
   if (typeof value === 'undefined') {
     return '';
@@ -124,7 +124,7 @@ export const roundToPrecision = (value: number, bit: number = 0): number => {
 export const interpolateHue = (
   hueA: number,
   hueB: number,
-  arc: string = 'shorter',
+  arc: string = 'shorter'
 ): Array<any> => {
   if (!Number.isFinite(hueA)) {
     throw new TypeError(`${hueA} is not a number.`);

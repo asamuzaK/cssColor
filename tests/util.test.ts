@@ -68,8 +68,8 @@ describe('value to JSON string', () => {
     expect(
       func({
         foo: 'bar',
-        baz: undefined,
-      }),
+        baz: undefined
+      })
     ).toBe('{"foo":"bar","baz":null}');
   });
 
@@ -80,12 +80,12 @@ describe('value to JSON string', () => {
         map: new Map([
           ['key1', 1],
           ['key2', true],
-          ['key1', 3],
+          ['key1', 3]
         ] as never),
-        set: new Set([1, 'baz', 3, 2, 3, 'baz']),
-      }),
+        set: new Set([1, 'baz', 3, 2, 3, 'baz'])
+      })
     ).toBe(
-      '{"foo":"bar","map":[["key1",3],["key2",true]],"set":[1,"baz",3,2]}',
+      '{"foo":"bar","map":[["key1",3],["key2",true]],"set":[1,"baz",3,2]}'
     );
   });
 
@@ -93,8 +93,8 @@ describe('value to JSON string', () => {
     expect(
       func({
         foo: 'bar',
-        func: () => {},
-      }),
+        func: () => {}
+      })
     ).toBe('{"foo":"bar","func":"func"}');
   });
 
@@ -103,10 +103,10 @@ describe('value to JSON string', () => {
       func(
         {
           foo: 'bar',
-          func: () => {},
+          func: () => {}
         },
-        true,
-      ),
+        true
+      )
     ).toBe(`{"foo":"bar","func":"() => {\\n          }"}`);
   });
 
@@ -115,8 +115,8 @@ describe('value to JSON string', () => {
     expect(
       func({
         foo: 'bar',
-        func: myCallback,
-      }),
+        func: myCallback
+      })
     ).toBe('{"foo":"bar","func":"myCallback"}');
   });
 
@@ -126,10 +126,10 @@ describe('value to JSON string', () => {
       func(
         {
           foo: 'bar',
-          func: myCallback,
+          func: myCallback
         },
-        true,
-      ),
+        true
+      )
     ).toBe(`{"foo":"bar","func":"() => {\\n    }"}`);
   });
 
@@ -137,8 +137,8 @@ describe('value to JSON string', () => {
     expect(
       func({
         foo: 'bar',
-        big: 1n,
-      }),
+        big: 1n
+      })
     ).toBe('{"foo":"bar","big":"1"}');
   });
 
@@ -148,14 +148,14 @@ describe('value to JSON string', () => {
       cssCalc: {
         globals: new Map([
           ['bar', 'baz'],
-          ['qux', 1],
-        ] as never),
-      },
+          ['qux', 1]
+        ] as never)
+      }
     };
     const res = func(opt);
     expect(opt.cssCalc.globals instanceof Map).toBe(true);
     expect(res).toBe(
-      '{"foo":"bar","cssCalc":{"globals":[["bar","baz"],["qux",1]]}}',
+      '{"foo":"bar","cssCalc":{"globals":[["bar","baz"],["qux",1]]}}'
     );
   });
 });

@@ -21,7 +21,7 @@ describe('validate color components', () => {
 
   it('should throw', () => {
     expect(() => func([1, 1, 1, 1], { maxLength: 3 })).toThrow(
-      'Unexpected array length 4.',
+      'Unexpected array length 4.'
     );
   });
 
@@ -58,61 +58,61 @@ describe('validate color components', () => {
   it('should throw', () => {
     expect(() => func([0, 128, 256, 1], { maxRange: 255 })).toThrow(RangeError);
     expect(() => func([0, 128, 256, 1], { maxRange: 255 })).toThrow(
-      '256 is not between 0 and 255.',
+      '256 is not between 0 and 255.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([0, -128, 192, 1], { maxRange: 255 })).toThrow(
-      RangeError,
+      RangeError
     );
     expect(() => func([0, -128, 192, 1], { maxRange: 255 })).toThrow(
-      '-128 is not between 0 and 255.',
+      '-128 is not between 0 and 255.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([0, 128, 192, 1.1], { maxRange: 255 })).toThrow(
-      RangeError,
+      RangeError
     );
     expect(() => func([0, 128, 192, 1.1], { maxRange: 255 })).toThrow(
-      '1.1 is not between 0 and 1.',
+      '1.1 is not between 0 and 1.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([0, 128, 192, 1], { minLength: 'foo' })).toThrow(
-      TypeError,
+      TypeError
     );
     expect(() => func([0, 128, 192, 1], { minLength: 'foo' })).toThrow(
-      'foo is not a number.',
+      'foo is not a number.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([0, 128, 192, 1], { maxLength: 'foo' })).toThrow(
-      TypeError,
+      TypeError
     );
     expect(() => func([0, 128, 192, 1], { maxLength: 'foo' })).toThrow(
-      'foo is not a number.',
+      'foo is not a number.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([0, 128, 192, 1], { minRange: 'foo' })).toThrow(
-      TypeError,
+      TypeError
     );
     expect(() => func([0, 128, 192, 1], { minRange: 'foo' })).toThrow(
-      'foo is not a number.',
+      'foo is not a number.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([0, 128, 192, 1], { maxRange: 'foo' })).toThrow(
-      TypeError,
+      TypeError
     );
     expect(() => func([0, 128, 192, 1], { maxRange: 'foo' })).toThrow(
-      'foo is not a number.',
+      'foo is not a number.'
     );
   });
 
@@ -128,7 +128,7 @@ describe('validate color components', () => {
 
   it('should get value', () => {
     const res = func([1, -1, 1.1, 0.5], {
-      validateRange: false,
+      validateRange: false
     });
     expect(res).toEqual([1, -1, 1.1, 0.5]);
   });
@@ -136,7 +136,7 @@ describe('validate color components', () => {
   it('should get value', () => {
     const res = func([1, -1, 1.1], {
       maxLength: 3,
-      validateRange: false,
+      validateRange: false
     });
     expect(res).toEqual([1, -1, 1.1]);
   });
@@ -148,7 +148,7 @@ describe('validate color components', () => {
 
   it('should get value', () => {
     const res = func([1, 0.3, 0.7], {
-      alpha: true,
+      alpha: true
     });
     expect(res).toEqual([1, 0.3, 0.7, 1]);
   });
@@ -185,15 +185,15 @@ describe('transform matrix', () => {
       func([
         [1, 0, 0],
         [0, 1, 0],
-        [0, 0, 1],
-      ]),
+        [0, 0, 1]
+      ])
     ).toThrow(TypeError);
     expect(() =>
       func([
         [1, 0, 0],
         [0, 1, 0],
-        [0, 0, 1],
-      ]),
+        [0, 0, 1]
+      ])
     ).toThrow('undefined is not an array.');
   });
 
@@ -203,10 +203,10 @@ describe('transform matrix', () => {
         [
           [1, 0, 0],
           [0, 1, 0],
-          [0, 0, 1],
+          [0, 0, 1]
         ],
-        [],
-      ),
+        []
+      )
     ).toThrow('Unexpected array length 0.');
   });
 
@@ -216,20 +216,20 @@ describe('transform matrix', () => {
         [
           [1, 0, 0],
           [0, 1, 0],
-          [0, 0, 1],
+          [0, 0, 1]
         ],
-        [1, 0, NaN],
-      ),
+        [1, 0, NaN]
+      )
     ).toThrow(TypeError);
     expect(() =>
       func(
         [
           [1, 0, 0],
           [0, 1, 0],
-          [0, 0, 1],
+          [0, 0, 1]
         ],
-        [1, 0, NaN],
-      ),
+        [1, 0, NaN]
+      )
     ).toThrow('NaN is not a number.');
   });
 
@@ -238,9 +238,9 @@ describe('transform matrix', () => {
       [
         [1, 0, 0],
         [0, 1, 0],
-        [0, 0, 1],
+        [0, 0, 1]
       ],
-      [1, 0, 0.5],
+      [1, 0, 0.5]
     );
     expect(res).toEqual([1, 0, 0.5]);
   });
@@ -250,10 +250,10 @@ describe('transform matrix', () => {
       [
         [1, 0, 0],
         [0, 1, 0],
-        [0, 0, 1],
+        [0, 0, 1]
       ],
       [1, 0, 0.5],
-      true,
+      true
     );
     expect(res).toEqual([1, 0, 0.5]);
   });
@@ -263,9 +263,9 @@ describe('transform matrix', () => {
       [
         [0, 0, 1],
         [0, 1, 0],
-        [1, 0, 0],
+        [1, 0, 0]
       ],
-      [1, 0, 0.5],
+      [1, 0, 0.5]
     );
     expect(res).toEqual([0.5, 0, 1]);
   });
@@ -275,9 +275,9 @@ describe('transform matrix', () => {
       [
         [1, 0, 0],
         [0, 1, 0],
-        [0, 0, 1],
+        [0, 0, 1]
       ],
-      [1, 0.5, 0],
+      [1, 0.5, 0]
     );
     expect(res).toEqual([1, 0.5, 0]);
   });
@@ -287,9 +287,9 @@ describe('transform matrix', () => {
       [
         [0, 0, 1],
         [0, 1, 0],
-        [1, 0, 0],
+        [1, 0, 0]
       ],
-      [0, 0.5, 1],
+      [0, 0.5, 1]
     );
     expect(res).toEqual([1, 0.5, 0]);
   });
@@ -320,7 +320,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 0.4], [5, 6, 7, 0.8]);
     expect(res).toEqual([
       [1, 2, 3, 0.4],
-      [5, 6, 7, 0.8],
+      [5, 6, 7, 0.8]
     ]);
   });
 
@@ -328,7 +328,7 @@ describe('normalize color components', () => {
     const res = func(['none', 2, 3, 0.4], ['none', 6, 7, 0.8]);
     expect(res).toEqual([
       [0, 2, 3, 0.4],
-      [0, 6, 7, 0.8],
+      [0, 6, 7, 0.8]
     ]);
   });
 
@@ -336,7 +336,7 @@ describe('normalize color components', () => {
     const res = func(['none', 2, 3, 0.4], [5, 6, 7, 0.8]);
     expect(res).toEqual([
       [5, 2, 3, 0.4],
-      [5, 6, 7, 0.8],
+      [5, 6, 7, 0.8]
     ]);
   });
 
@@ -344,7 +344,7 @@ describe('normalize color components', () => {
     const res = func(['none', 2, 3, 0.4], [5, 6, 7, 0.8], true);
     expect(res).toEqual([
       [5, 2, 3, 0.4],
-      [5, 6, 7, 0.8],
+      [5, 6, 7, 0.8]
     ]);
   });
 
@@ -352,7 +352,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 0.4], ['none', 6, 7, 0.8]);
     expect(res).toEqual([
       [1, 2, 3, 0.4],
-      [1, 6, 7, 0.8],
+      [1, 6, 7, 0.8]
     ]);
   });
 
@@ -360,7 +360,7 @@ describe('normalize color components', () => {
     const res = func([1, 'none', 3, 0.4], [5, 'none', 7, 0.8]);
     expect(res).toEqual([
       [1, 0, 3, 0.4],
-      [5, 0, 7, 0.8],
+      [5, 0, 7, 0.8]
     ]);
   });
 
@@ -368,7 +368,7 @@ describe('normalize color components', () => {
     const res = func([1, 'none', 3, 0.4], [5, 6, 7, 0.8]);
     expect(res).toEqual([
       [1, 6, 3, 0.4],
-      [5, 6, 7, 0.8],
+      [5, 6, 7, 0.8]
     ]);
   });
 
@@ -376,7 +376,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 0.4], [5, 'none', 7, 0.8]);
     expect(res).toEqual([
       [1, 2, 3, 0.4],
-      [5, 2, 7, 0.8],
+      [5, 2, 7, 0.8]
     ]);
   });
 
@@ -384,7 +384,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 'none', 0.4], [5, 6, 'none', 0.8]);
     expect(res).toEqual([
       [1, 2, 0, 0.4],
-      [5, 6, 0, 0.8],
+      [5, 6, 0, 0.8]
     ]);
   });
 
@@ -392,7 +392,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 'none', 0.4], [5, 6, 7, 0.8]);
     expect(res).toEqual([
       [1, 2, 7, 0.4],
-      [5, 6, 7, 0.8],
+      [5, 6, 7, 0.8]
     ]);
   });
 
@@ -400,7 +400,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 0.4], [5, 6, 'none', 0.8]);
     expect(res).toEqual([
       [1, 2, 3, 0.4],
-      [5, 6, 3, 0.8],
+      [5, 6, 3, 0.8]
     ]);
   });
 
@@ -408,7 +408,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 'none'], [5, 6, 7, 'none']);
     expect(res).toEqual([
       [1, 2, 3, 0],
-      [5, 6, 7, 0],
+      [5, 6, 7, 0]
     ]);
   });
 
@@ -416,7 +416,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 'none'], [5, 6, 7, 0.8]);
     expect(res).toEqual([
       [1, 2, 3, 0.8],
-      [5, 6, 7, 0.8],
+      [5, 6, 7, 0.8]
     ]);
   });
 
@@ -424,7 +424,7 @@ describe('normalize color components', () => {
     const res = func([1, 2, 3, 0.4], [5, 6, 7, 'none']);
     expect(res).toEqual([
       [1, 2, 3, 0.4],
-      [5, 6, 7, 0.4],
+      [5, 6, 7, 0.4]
     ]);
   });
 });
@@ -760,7 +760,7 @@ describe('convert rgb to linear rgb', () => {
 
   it('should throw', () => {
     expect(() => func([255, 255, 255, 1])).toThrow(
-      'Unexpected array length 4.',
+      'Unexpected array length 4.'
     );
   });
 
@@ -830,7 +830,7 @@ describe('convert rgb to xyz', () => {
   it('should throw', () => {
     expect(() => func([256, 255, 255])).toThrow(RangeError);
     expect(() => func([256, 255, 255])).toThrow(
-      '256 is not between 0 and 255.',
+      '256 is not between 0 and 255.'
     );
   });
 
@@ -842,14 +842,14 @@ describe('convert rgb to xyz', () => {
   it('should throw', () => {
     expect(() => func([255, 255, 255, -1])).toThrow(RangeError);
     expect(() => func([255, 255, 255, -1])).toThrow(
-      '-1 is not between 0 and 1.',
+      '-1 is not between 0 and 1.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([255, 255, 255, 1.1])).toThrow(RangeError);
     expect(() => func([255, 255, 255, 1.1])).toThrow(
-      '1.1 is not between 0 and 1.',
+      '1.1 is not between 0 and 1.'
     );
   });
 
@@ -916,7 +916,7 @@ describe('convert rgb to xyz-d50', () => {
   it('should throw', () => {
     expect(() => func([256, 255, 255])).toThrow(RangeError);
     expect(() => func([256, 255, 255])).toThrow(
-      '256 is not between 0 and 255.',
+      '256 is not between 0 and 255.'
     );
   });
 
@@ -928,14 +928,14 @@ describe('convert rgb to xyz-d50', () => {
   it('should throw', () => {
     expect(() => func([255, 255, 255, -1])).toThrow(RangeError);
     expect(() => func([255, 255, 255, -1])).toThrow(
-      '-1 is not between 0 and 1.',
+      '-1 is not between 0 and 1.'
     );
   });
 
   it('should throw', () => {
     expect(() => func([255, 255, 255, 1.1])).toThrow(RangeError);
     expect(() => func([255, 255, 255, 1.1])).toThrow(
-      '1.1 is not between 0 and 1.',
+      '1.1 is not between 0 and 1.'
     );
   });
 
@@ -980,7 +980,7 @@ describe('convert rgb to hex color', () => {
   it('should throw', () => {
     expect(() => func([128, 192, 256])).toThrow(RangeError);
     expect(() => func([128, 192, 256])).toThrow(
-      '256 is not between 0 and 255.',
+      '256 is not between 0 and 255.'
     );
   });
 
@@ -1252,7 +1252,7 @@ describe('convert xyz to rgb', () => {
 
   it('should get value', () => {
     const res = func([0.41239, 0.21264, 0.01933, 0.5], {
-      skip: true,
+      skip: true
     });
     expect(res).toEqual([255, 0, 0, 0.5]);
   });
@@ -1536,7 +1536,7 @@ describe('xyz to oklab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(48.477% 34.29% 38.412%)',
+      'rgb(48.477% 34.29% 38.412%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(3));
@@ -1547,7 +1547,7 @@ describe('xyz to oklab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(29.264% 70.096% 63.017%)',
+      'rgb(29.264% 70.096% 63.017%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(3));
@@ -1558,7 +1558,7 @@ describe('xyz to oklab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(73.942% 60.484% 19.65%)',
+      'rgb(73.942% 60.484% 19.65%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(3));
@@ -1569,7 +1569,7 @@ describe('xyz to oklab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(27.888% 38.072% 89.414%)',
+      'rgb(27.888% 38.072% 89.414%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(3));
@@ -1628,7 +1628,7 @@ describe('xyz to oklch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(70.492% 2.351% 37.073%)',
+      'rgb(70.492% 2.351% 37.073%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
@@ -1639,7 +1639,7 @@ describe('xyz to oklch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(23.056% 31.73% 82.628%)',
+      'rgb(23.056% 31.73% 82.628%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(5));
@@ -1650,7 +1650,7 @@ describe('xyz to oklch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(32.022% 85.805% 61.147%)',
+      'rgb(32.022% 85.805% 61.147%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
@@ -1661,7 +1661,7 @@ describe('xyz to oklch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue(
-      'rgb(67.293% 27.791% 52.28%)',
+      'rgb(67.293% 27.791% 52.28%)'
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
@@ -1699,7 +1699,7 @@ describe('convert xyz D50 to rgb', () => {
 
   it('should get value', () => {
     const res = func([0.43601, 0.22247, 0.01393, 1], {
-      skip: true,
+      skip: true
     });
     expect(res).toEqual([255, 0, 0, 1]);
   });
@@ -1757,7 +1757,7 @@ describe('xyz-d50 to lab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(3));
@@ -1768,10 +1768,10 @@ describe('xyz-d50 to lab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a], {
-      skip: true,
+      skip: true
     });
     res[0] = parseFloat(res[0].toFixed(3));
     res[1] = parseFloat(res[1].toFixed(1));
@@ -1781,7 +1781,7 @@ describe('xyz-d50 to lab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#000000', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     expect(res).toEqual([0, 'none', 'none', 1]);
@@ -1789,7 +1789,7 @@ describe('xyz-d50 to lab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#ffffff', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(5));
@@ -1800,8 +1800,8 @@ describe('xyz-d50 to lab', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(75.6208% 30.4487% 47.5634%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(1));
@@ -1814,8 +1814,8 @@ describe('xyz-d50 to lab', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(10.751% 75.558% 66.398%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(1));
@@ -1828,8 +1828,8 @@ describe('xyz-d50 to lab', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(76.6254% 66.3607% 5.5775%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
@@ -1842,8 +1842,8 @@ describe('xyz-d50 to lab', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(12.8128% 53.105% 92.7645%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(1));
@@ -1856,8 +1856,8 @@ describe('xyz-d50 to lab', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(12.8128% 53.105% 92.7645% / 0.4)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(1));
@@ -1868,7 +1868,7 @@ describe('xyz-d50 to lab', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#7654cd', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(2));
@@ -1888,7 +1888,7 @@ describe('xyz-d50 to lch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(5));
@@ -1899,10 +1899,10 @@ describe('xyz-d50 to lch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#008000', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a], {
-      skip: true,
+      skip: true
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -1912,7 +1912,7 @@ describe('xyz-d50 to lch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#000000', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     expect(res).toEqual([0, 'none', 'none', 1]);
@@ -1920,7 +1920,7 @@ describe('xyz-d50 to lch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#ffffff', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     expect(res).toEqual([100, 'none', 'none', 1]);
@@ -1928,7 +1928,7 @@ describe('xyz-d50 to lch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#808080', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(4));
@@ -1941,8 +1941,8 @@ describe('xyz-d50 to lch', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(75.6208% 30.4487% 47.5634%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(0));
@@ -1955,8 +1955,8 @@ describe('xyz-d50 to lch', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(10.7906% 75.5567% 66.3982%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(0));
@@ -1969,8 +1969,8 @@ describe('xyz-d50 to lch', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(76.6254% 66.3607% 5.5775%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(0));
@@ -1983,8 +1983,8 @@ describe('xyz-d50 to lch', () => {
     const [, x, y, z, a] = color.parseColorValue(
       'rgb(12.8128% 53.105% 92.7645%)',
       {
-        d50: true,
-      },
+        d50: true
+      }
     ) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(0));
@@ -1995,7 +1995,7 @@ describe('xyz-d50 to lch', () => {
 
   it('should get value', () => {
     const [, x, y, z, a] = color.parseColorValue('#7654cd', {
-      d50: true,
+      d50: true
     }) as Array<number>;
     const res = func([x, y, z, a]);
     res[0] = parseFloat(res[0].toFixed(3));
@@ -2041,7 +2041,7 @@ describe('convert hex to rgb', () => {
   it('should throw', () => {
     expect(() => func('#123456789')).toThrow(SyntaxError);
     expect(() => func('#123456789')).toThrow(
-      'Invalid property value: #123456789',
+      'Invalid property value: #123456789'
     );
   });
 
@@ -2278,14 +2278,14 @@ describe('parse rgb()', () => {
 
   it('should get empty string', () => {
     const res = func('rgb(1, 2, 3 / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('rgb(1, 2, 3 / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -2401,21 +2401,21 @@ describe('parse hsl()', () => {
 
   it('should get empty string', () => {
     const res = func('hsl(1, 2%, 3% / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('hsl(1, 2%, 3% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
 
   it('should get null', () => {
     const res = func('hsl(1, 2%, 3% / 1)', {
-      format: 'hsl',
+      format: 'hsl'
     });
     expect(res).toBe(null);
   });
@@ -2532,14 +2532,14 @@ describe('parse hsl()', () => {
 
   it('should get value', () => {
     const res = func('hsl(120 100% 25%)', {
-      format: 'hsl',
+      format: 'hsl'
     });
     expect(res).toEqual(['hsl', 120, 100, 25, 1]);
   });
 
   it('should get value', () => {
     const res = func('hsl(none none none / none)', {
-      format: 'hsl',
+      format: 'hsl'
     });
     expect(res).toEqual(['hsl', 'none', 'none', 'none', 'none']);
   });
@@ -2560,21 +2560,21 @@ describe('parse hwb()', () => {
 
   it('should get empty string', () => {
     const res = func('hsw(1, 20%, 30% / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('hsw(1, 20%, 30% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
 
   it('should get null', () => {
     const res = func('hsw(1, 20%, 30% / 1)', {
-      format: 'hwb',
+      format: 'hwb'
     });
     expect(res).toBe(null);
   });
@@ -2716,14 +2716,14 @@ describe('parse hwb()', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50%)', {
-      format: 'hwb',
+      format: 'hwb'
     });
     expect(res).toEqual(['hwb', 120, 0, 50, 1]);
   });
 
   it('should get value', () => {
     const res = func('hwb(none none none / none)', {
-      format: 'hwb',
+      format: 'hwb'
     });
     expect(res).toEqual(['hwb', 'none', 'none', 'none', 'none']);
   });
@@ -2744,14 +2744,14 @@ describe('parse lab()', () => {
 
   it('should get empty string', () => {
     const res = func('lab(100%, 20%, 30% / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('lab(100%, 20%, 30% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -2863,35 +2863,35 @@ describe('parse lab()', () => {
 
   it('should get value', () => {
     const res = func('lab(62.2345% -34.9638 47.7721)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 62.2345, -34.9638, 47.7721, 1]);
   });
 
   it('should get value', () => {
     const res = func('lab(62.2345% -34.9638 47.7721)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lab', 62.2345, -34.9638, 47.7721, 1]);
   });
 
   it('should get value', () => {
     const res = func('lab(110% none -10% / .5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 100, 'none', -12.5, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('lab(none none none / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 'none', 'none', 'none', 'none']);
   });
 
   it('should get value', () => {
     const res = func('lab(none none none / none)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lab', 'none', 'none', 'none', 'none']);
   });
@@ -2912,14 +2912,14 @@ describe('parse lch()', () => {
 
   it('should get empty string', () => {
     const res = func('lch(100%, 20%, 30% / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('lch(100%, 20%, 30% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -3026,35 +3026,35 @@ describe('parse lch()', () => {
 
   it('should get value', () => {
     const res = func('lch(62.2345% 59.2 126.2)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 62.2345, 59.2, 126.2, 1]);
   });
 
   it('should get value', () => {
     const res = func('lch(62.2345% 59.2 126.2)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lch', 62.2345, 59.2, 126.2, 1]);
   });
 
   it('should get value', () => {
     const res = func('lch(-10% none -90deg / .5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 0, 'none', 270, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('lch(none none none / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 'none', 'none', 'none', 'none']);
   });
 
   it('should get value', () => {
     const res = func('lch(none none none / none)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lch', 'none', 'none', 'none', 'none']);
   });
@@ -3075,14 +3075,14 @@ describe('parse oklab()', () => {
 
   it('should get empty string', () => {
     const res = func('oklab(100%, 20%, 30% / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('oklab(100%, 20%, 30% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -3184,35 +3184,35 @@ describe('parse oklab()', () => {
 
   it('should get value', () => {
     const res = func('oklab(66.016% -0.1084 0.1114)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.66016, -0.1084, 0.1114, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklab(66.016% -0.1084 0.1114)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklab', 0.66016, -0.1084, 0.1114, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklab(-10% none 30% / .5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0, 'none', 0.12, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('oklab(none none none / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 'none', 'none', 'none', 'none']);
   });
 
   it('should get value', () => {
     const res = func('oklab(none none none / none)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklab', 'none', 'none', 'none', 'none']);
   });
@@ -3233,14 +3233,14 @@ describe('parse oklch()', () => {
 
   it('should get empty string', () => {
     const res = func('oklch(100%, 20%, 30% / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('oklch(100%, 20%, 30% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -3322,7 +3322,7 @@ describe('parse oklch()', () => {
       0.00000371006,
       0.0000109137,
       -0.000310562,
-      1,
+      1
     ]);
   });
 
@@ -3353,35 +3353,35 @@ describe('parse oklch()', () => {
 
   it('should get value', () => {
     const res = func('oklch(59.686% 0.15619 49.7694)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.59686, 0.15619, 49.7694, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklch(59.686% 0.15619 49.7694)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklch', 0.59686, 0.15619, 49.7694, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklch(-10% none -90deg / .5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0, 'none', 270, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('oklch(none none none / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 'none', 'none', 'none', 'none']);
   });
 
   it('should get value', () => {
     const res = func('oklch(none none none / none)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklch', 'none', 'none', 'none', 'none']);
   });
@@ -3402,14 +3402,14 @@ describe('parse color func', () => {
 
   it('should get empty string', () => {
     const res = func('color(in foo, 1 1 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('color(in foo, 1 1 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -3421,7 +3421,7 @@ describe('parse color func', () => {
 
   it('should get empty string', () => {
     const res = func('color(srgb foo bar baz)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -3433,7 +3433,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.0824383, 0.153443, 0.0207794, 1]);
   });
@@ -3445,7 +3445,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.6 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.122689, 0.228362, 0.0309249, 1]);
   });
@@ -3487,7 +3487,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(srgb-linear 0 0.21586 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.0831388, 0.154747, 0.020956, 1]);
   });
@@ -3499,7 +3499,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(display-p3 0.26374 0.59085 0.16434)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.122687, 0.22836, 0.0309241, 1]);
   });
@@ -3511,14 +3511,14 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(rec2020 0.299218 0.533327 0.120785)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.122686, 0.228357, 0.0309241, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(rec2020 0 1 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.165697, 0.675318, 0.0299778, 1]);
   });
@@ -3530,7 +3530,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(a98-rgb 0.33582 0.59441 0.13934)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.122685, 0.228357, 0.0309238, 1]);
   });
@@ -3542,7 +3542,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(prophoto-rgb 0.2861 0.49131 0.16133)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.12266, 0.228359, 0.0309312, 1]);
   });
@@ -3554,7 +3554,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(prophoto-rgb 0 1 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.135181, 0.711835, 0, 1]);
   });
@@ -3566,7 +3566,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.0771895 0.154379 0.0257347)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.08314, 0.15475, 0.02096, 1]);
   });
@@ -3578,7 +3578,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(xyz-d65 0.0771895 0.154379 0.0257347)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.08314, 0.15475, 0.02096, 1]);
   });
@@ -3590,7 +3590,7 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(xyz-d50 0.08314 0.15475 0.02096)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.08314, 0.15475, 0.02096, 1]);
   });
@@ -3617,56 +3617,56 @@ describe('parse color func', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 1)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.5, 1, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.5, 1, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(srgb none 0.5 1)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 'none', 0.5, 1, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 none 1)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 'none', 1, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.5, 'none', 1]);
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 1 / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.5, 1, 'none']);
   });
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['xyz-d65', 0.07719, 0.15438, 0.02573, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['xyz-d65', 0.07719, 0.15438, 0.02573, 1]);
   });
@@ -3687,14 +3687,14 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('currentColor', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('currentcolor');
   });
@@ -3706,21 +3706,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('transparent', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
 
   it('should get value', () => {
     const res = func('transparent', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('transparent');
   });
 
   it('should get value', () => {
     const res = func('transparent', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
@@ -3732,21 +3732,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.083139, 0.154748, 0.020956, 1]);
   });
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 128, 0, 1]);
   });
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('green');
   });
@@ -3758,21 +3758,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('foo', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
 
   it('should get empty string', () => {
     const res = func('foo', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -3784,28 +3784,28 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('foo(1 1 1 / 1)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
 
   it('should get value', () => {
     const res = func('foo(1 1 1 / 1)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
 
   it('should get empty string', () => {
     const res = func('foo(1 1 1 / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('foo(1 1 1 / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -3817,14 +3817,14 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('#008000', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.083139, 0.154748, 0.020956, 1]);
   });
 
   it('should get value', () => {
     const res = func('#008000', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 128, 0, 1]);
   });
@@ -3836,14 +3836,14 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('#00800080', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.083139, 0.154748, 0.020956, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('#00800080', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 128, 0, 0.5]);
   });
@@ -3865,21 +3865,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.0831303, 0.154765, 0.020967, 1]);
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 46.28, -47.57, 48.58, 1]);
   });
 
   it('should get value', () => {
     const res = func('lab(46.28% -47.57 48.58)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lab', 46.28, -47.57, 48.58, 1]);
   });
@@ -3891,21 +3891,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('lch(46.2775% 67.9892 134.3912)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.083127, 0.154746, 0.0209584, 1]);
   });
 
   it('should get value', () => {
     const res = func('lch(46.2775% 67.9892 134.3912)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 46.2775, 67.9892, 134.391, 1]);
   });
 
   it('should get value', () => {
     const res = func('lch(46.2775% 67.9892 134.3912)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lch', 46.2775, 67.9892, 134.391, 1]);
   });
@@ -3917,21 +3917,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.0831393, 0.154746, 0.0209525, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.51975, -0.1403, 0.10768, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklab', 0.51975, -0.1403, 0.10768, 1]);
   });
@@ -3943,21 +3943,21 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('oklch(51.975% 0.17686 142.495)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.0831379, 0.154746, 0.0209542, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklch(51.975% 0.17686 142.495)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.51975, 0.17686, 142.495, 1]);
   });
 
   it('should get value', () => {
     const res = func('oklch(51.975% 0.17686 142.495)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklch', 0.51975, 0.17686, 142.495, 1]);
   });
@@ -3969,14 +3969,14 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('rgb(0 128 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.083139, 0.154748, 0.020956, 1]);
   });
 
   it('should get value', () => {
     const res = func('rgb(0 128 0)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 128, 0, 1]);
   });
@@ -3988,14 +3988,14 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('hsl(120 100% 25%)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.0824383, 0.153443, 0.0207794, 1]);
   });
 
   it('should get value', () => {
     const res = func('hsl(120 100% 25%)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 128, 0, 1]);
   });
@@ -4007,14 +4007,14 @@ describe('parse color value', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 0% 49.8039%)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual(['xyz-d50', 0.083139, 0.154748, 0.020956, 1]);
   });
 
   it('should get value', () => {
     const res = func('hwb(120 0% 50%)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 128, 0, 1]);
   });
@@ -4035,14 +4035,14 @@ describe('resolve color value', () => {
 
   it('should get empty string', () => {
     const res = func('#12345', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('#12345', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -4054,14 +4054,14 @@ describe('resolve color value', () => {
 
   it('should get empty string', () => {
     const res = func('rgb(foo 128 255)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('rgb(foo 128 255)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -4073,14 +4073,14 @@ describe('resolve color value', () => {
 
   it('should get empty string', () => {
     const res = func('foo', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -4092,7 +4092,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('currentColor', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('currentcolor');
   });
@@ -4104,14 +4104,14 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('transparent', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('transparent');
   });
 
   it('should get value', () => {
     const res = func('transparent', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
@@ -4133,7 +4133,7 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('WHITE', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('white');
   });
@@ -4260,14 +4260,14 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('lab(44.36 36.05 -59 / 0.5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 44.36, 36.05, -59, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('lab(44.36 36.05 -59 / 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lab', 44.36, 36.05, -59, 0.5]);
   });
@@ -4279,14 +4279,14 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('lch(44.36% 69.13 301.43 / 1)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 44.36, 69.13, 301.43, 1]);
   });
 
   it('should get value', () => {
     const res = func('lch(44.36% 69.13 301.43 / 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['lch', 44.36, 69.13, 301.43, 1]);
   });
@@ -4303,14 +4303,14 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('oklab(0.54432 0.06817 -0.16567 / 0.5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.54432, 0.06817, -0.16567, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('oklab(0.54432 0.06817 -0.16567 / 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklab', 0.54432, 0.06817, -0.16567, 0.5]);
   });
@@ -4327,21 +4327,21 @@ describe('resolve color value', () => {
 
   it('should get value', () => {
     const res = func('oklch(54.4% 0.179 292.365 / 0.5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.544, 0.179, 292.365, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('oklch(54.4% 0.179 292.365 / 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['oklch', 0.544, 0.179, 292.365, 0.5]);
   });
 
   it('should get value', () => {
     const res = func('rgb(none none none / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
@@ -4362,14 +4362,14 @@ describe('resolve color()', () => {
 
   it('should get empty string', () => {
     const res = func('color(in foo, 1 1 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('color(in foo, 1 1 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -4381,14 +4381,14 @@ describe('resolve color()', () => {
 
   it('should get empty string', () => {
     const res = func('color(srgb foo bar baz)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
 
   it('should get null', () => {
     const res = func('color(srgb foo bar baz)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -4415,7 +4415,7 @@ describe('resolve color()', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.6 0 / 0.5)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.6, 0, 0.5]);
   });
@@ -4472,7 +4472,7 @@ describe('resolve color()', () => {
 
   it('should get value', () => {
     const res = func('color(srgb none none none / none)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 'none', 'none', 'none', 'none']);
   });
@@ -4936,7 +4936,7 @@ describe('resolve color()', () => {
 
   it('should get value', () => {
     const res = func('color(xyz none none none / none)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['xyz-d65', 'none', 'none', 'none', 'none']);
   });
@@ -4952,14 +4952,14 @@ describe('convert color value to linear rgb', () => {
 
   it('should get null', () => {
     const res = func('color(srgb-linear foo bar baz)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
 
   it('should get null', () => {
     const res = func('rgb(foo bar baz)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -4971,7 +4971,7 @@ describe('convert color value to linear rgb', () => {
 
   it('should get value', () => {
     const res = func('color(srgb-linear 0 0.21586 0)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -4987,7 +4987,7 @@ describe('convert color value to linear rgb', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[1] = parseFloat(res[1].toFixed(5));
     expect(res).toEqual([0, 0.21586, 0, 1]);
@@ -5017,7 +5017,7 @@ describe('convert color value to rgb', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5029,7 +5029,7 @@ describe('convert color value to rgb', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0, 128, 0, 1]);
   });
@@ -5041,7 +5041,7 @@ describe('convert color value to rgb', () => {
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0 / 0.5)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0, 128, 0, 0.5]);
   });
@@ -5060,7 +5060,7 @@ describe('convert color value to rgb', () => {
 
   it('should get value', () => {
     const res = func('lab(46.2775% -47.5621 48.5837)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0, 128, 0, 1]);
   });
@@ -5076,7 +5076,7 @@ describe('convert color value to xyz', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5088,7 +5088,7 @@ describe('convert color value to xyz', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0.07719, 0.15438, 0.02573, 1]);
   });
@@ -5105,28 +5105,28 @@ describe('convert color value to xyz', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0.0771883, 0.154377, 0.0257294, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(xyz-d50 0.08312 0.154746 0.020961)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual([0.08312, 0.15475, 0.020961, 1]);
   });
 
   it('should get value', () => {
     const res = func('color(display-p3 0 1 0)', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual([0.29201, 0.692223, 0.0418783, 1]);
   });
 
   it('should get value', () => {
     const res = func('green', {
-      d50: true,
+      d50: true
     });
     expect(res).toEqual([0.083139, 0.154748, 0.020956, 1]);
   });
@@ -5142,14 +5142,14 @@ describe('convert color value to hsl', () => {
 
   it('should get null', () => {
     const res = func('hsl(foo, bar, baz)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5161,7 +5161,7 @@ describe('convert color value to hsl', () => {
 
   it('should get value', () => {
     const res = func('hsl(120deg 100% 25% / 1)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([120, 100, 25, 1]);
@@ -5175,7 +5175,7 @@ describe('convert color value to hsl', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([120, 100, 25, 1]);
@@ -5189,7 +5189,7 @@ describe('convert color value to hsl', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([120, 100, 25, 1]);
@@ -5206,7 +5206,7 @@ describe('convert color value to hwb', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5218,7 +5218,7 @@ describe('convert color value to hwb', () => {
 
   it('should get value', () => {
     const res = func('hwb(120 0% 49.8039%)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([120, 0, 49.8039, 1]);
   });
@@ -5231,7 +5231,7 @@ describe('convert color value to hwb', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([120, 0, 50, 1]);
@@ -5245,7 +5245,7 @@ describe('convert color value to hwb', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[2] = Math.round(res[2]);
     expect(res).toEqual([120, 0, 50, 1]);
@@ -5262,7 +5262,7 @@ describe('convert color value to lab', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5274,7 +5274,7 @@ describe('convert color value to lab', () => {
 
   it('should get value', () => {
     const res = func('lab(46.2775% -47.5621 48.5837)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([46.2775, -47.5621, 48.5837, 1]);
   });
@@ -5289,7 +5289,7 @@ describe('convert color value to lab', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5307,7 +5307,7 @@ describe('convert color value to lab', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5326,7 +5326,7 @@ describe('convert color value to lch', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5338,7 +5338,7 @@ describe('convert color value to lch', () => {
 
   it('should get value', () => {
     const res = func('lch(46.2775% 67.9892 134.3912)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([46.2775, 67.9892, 134.391, 1]);
   });
@@ -5353,7 +5353,7 @@ describe('convert color value to lch', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5371,7 +5371,7 @@ describe('convert color value to lch', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5390,7 +5390,7 @@ describe('convert color value to oklab', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5402,7 +5402,7 @@ describe('convert color value to oklab', () => {
 
   it('should get value', () => {
     const res = func('oklab(51.975% -0.1403 0.10768)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0.51975, -0.1403, 0.10768, 1]);
   });
@@ -5417,7 +5417,7 @@ describe('convert color value to oklab', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5435,7 +5435,7 @@ describe('convert color value to oklab', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5454,7 +5454,7 @@ describe('convert color value to oklch', () => {
 
   it('should get null', () => {
     const res = func('foo', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toBe(null);
   });
@@ -5466,7 +5466,7 @@ describe('convert color value to oklch', () => {
 
   it('should get value', () => {
     const res = func('oklch(51.975% 0.17686 142.495)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     expect(res).toEqual([0.51975, 0.17686, 142.495, 1]);
   });
@@ -5481,7 +5481,7 @@ describe('convert color value to oklch', () => {
 
   it('should get value', () => {
     const res = func('color(xyz 0.07719 0.15438 0.02573)', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5499,7 +5499,7 @@ describe('convert color value to oklch', () => {
 
   it('should get value', () => {
     const res = func('green', {
-      format: 'mixValue',
+      format: 'mixValue'
     });
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
@@ -5523,7 +5523,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in foo, blue, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5535,7 +5535,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue -10%, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5547,7 +5547,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue 110%, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5559,7 +5559,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue, red -10%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5571,7 +5571,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue, red 110%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5583,7 +5583,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue -10%, red 10%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5595,7 +5595,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue 110%, red 10%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5607,7 +5607,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue 10%, red -10%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5619,7 +5619,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue 10%, red 110%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5631,7 +5631,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, blue 0%, red 0%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5643,7 +5643,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5657,11 +5657,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb 0 0 1), color(srgb 1 0 0 / .5))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in srgb, color(srgb 0 0 1), color(srgb 1 0 0 / 0.5))',
+      'color-mix(in srgb, color(srgb 0 0 1), color(srgb 1 0 0 / 0.5))'
     );
   });
 
@@ -5669,11 +5669,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb 0 0 1 / .5), color(srgb 1 0 0))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in srgb, color(srgb 0 0 1 / 0.5), color(srgb 1 0 0))',
+      'color-mix(in srgb, color(srgb 0 0 1 / 0.5), color(srgb 1 0 0))'
     );
   });
 
@@ -5681,53 +5681,53 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb 0 0 1 / .5), color(srgb 1 0 0))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in srgb, color(srgb 0 0 1 / 0.5), color(srgb 1 0 0))',
+      'color-mix(in srgb, color(srgb 0 0 1 / 0.5), color(srgb 1 0 0))'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, #0000ff 50%, rgb(255 0 0 / .5))', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(
-      'color-mix(in srgb, rgb(0, 0, 255), rgba(255, 0, 0, 0.5))',
+      'color-mix(in srgb, rgb(0, 0, 255), rgba(255, 0, 0, 0.5))'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, #0000ff 40%, rgb(255 0 0 / .5))', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(
-      'color-mix(in srgb, rgb(0, 0, 255) 40%, rgba(255, 0, 0, 0.5))',
+      'color-mix(in srgb, rgb(0, 0, 255) 40%, rgba(255, 0, 0, 0.5))'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, rgb(0 0 255 / .5), #ff0000 50%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(
-      'color-mix(in srgb, rgba(0, 0, 255, 0.5), rgb(255, 0, 0))',
+      'color-mix(in srgb, rgba(0, 0, 255, 0.5), rgb(255, 0, 0))'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, rgb(0 0 255 / .5), #ff0000 40%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(
-      'color-mix(in srgb, rgba(0, 0, 255, 0.5) 60%, rgb(255, 0, 0))',
+      'color-mix(in srgb, rgba(0, 0, 255, 0.5) 60%, rgb(255, 0, 0))'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, blue 60%, red 60%)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('color-mix(in srgb, blue 60%, red 60%)');
   });
@@ -5736,11 +5736,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lab, lab(62.2345% -34.9638 47.7721), lch(62.2345% 59.2 126.2 / .5))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in lab, lab(62.2345 -34.9638 47.7721), lch(62.2345 59.2 126.2 / 0.5))',
+      'color-mix(in lab, lab(62.2345 -34.9638 47.7721), lch(62.2345 59.2 126.2 / 0.5))'
     );
   });
 
@@ -5748,17 +5748,17 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lab, lab(62.2345% -34.9638 47.7721 / .5), lch(62.2345% 59.2 126.2))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in lab, lab(62.2345 -34.9638 47.7721 / 0.5), lch(62.2345 59.2 126.2))',
+      'color-mix(in lab, lab(62.2345 -34.9638 47.7721 / 0.5), lch(62.2345 59.2 126.2))'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, color(srgb 0 0 1), red)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0.5, 0, 0.5, 1]);
   });
@@ -5800,7 +5800,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb, hsl(240 100% 50%), hsl(120 100% 25%))',
+      'color-mix(in srgb, hsl(240 100% 50%), hsl(120 100% 25%))'
     );
     expect(res).toEqual(['rgb', 0, 64, 128, 1]);
   });
@@ -5837,7 +5837,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, red, rgba(0, 0, 255, 0.5) 100%)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0, 1, 0.5]);
   });
@@ -5846,29 +5846,29 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, rgb(100% 0% 0% / 0.7) 25%, rgb(0% 100% 0% / 0.2))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.538462, 0.461538, 0, 0.325]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb, rgb(100% 0% 0% / 0.7) 20%, rgb(0% 100% 0% / 0.2) 60%)',
+      'color-mix(in srgb, rgb(100% 0% 0% / 0.7) 20%, rgb(0% 100% 0% / 0.2) 60%)'
     );
     expect(res).toEqual(['rgb', 137, 118, 0, 0.26]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb, blue, lab(46.2775% -47.5621 48.5837))',
+      'color-mix(in srgb, blue, lab(46.2775% -47.5621 48.5837))'
     );
     expect(res).toEqual(['rgb', 0, 64, 128, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb, lab(46.2775% -47.5621 48.5837), blue)',
+      'color-mix(in srgb, lab(46.2775% -47.5621 48.5837), blue)'
     );
     expect(res).toEqual(['rgb', 0, 64, 128, 1]);
   });
@@ -5877,8 +5877,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb 0 0.5 0 / 0), rgba(0 0 255 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0, 0.25, 0.5, 0]);
   });
@@ -5890,7 +5890,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in srgb-linear, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -5918,7 +5918,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, rgb(0 0 255), rgb(0 128 0))', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     res[1] = parseFloat(res[1].toFixed(5));
     expect(res).toEqual(['srgb-linear', 0, 0.107931, 0.5, 1]);
@@ -5926,14 +5926,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb-linear, hsl(240 100% 50%), hsl(120 100% 25%))',
+      'color-mix(in srgb-linear, hsl(240 100% 50%), hsl(120 100% 25%))'
     );
     expect(res).toEqual(['rgb', 0, 27, 127, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb-linear, hwb(240 0% 0%), hwb(120 0% 50%))',
+      'color-mix(in srgb-linear, hwb(240 0% 0%), hwb(120 0% 50%))'
     );
     expect(res).toEqual(['rgb', 0, 27, 127, 1]);
   });
@@ -5945,7 +5945,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in srgb-linear, green 50%, purple)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb-linear', 0.107931, 0.107931, 0.10793, 1]);
   });
@@ -5957,7 +5957,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in srgb-linear, rgba(0, 0, 255, 0.5) 100%, red)',
+      'color-mix(in srgb-linear, rgba(0, 0, 255, 0.5) 100%, red)'
     );
     expect(res).toEqual(['rgb', 0, 0, 255, 0.5]);
   });
@@ -5966,8 +5966,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, red, rgba(0, 0, 255, 0.5) 100%)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(5));
     expect(res).toEqual(['srgb-linear', 0, 0, 1, 0.5]);
@@ -5977,8 +5977,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, rgb(100% 0% 50% / 0.7) 25%, rgb(0% 100% 30% / 0.2))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb-linear', 0.538462, 0.461538, 0.149056, 0.325]);
   });
@@ -5997,8 +5997,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, rgb(0 128 0 / 0), color(srgb 0 0 1 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(3));
     expect(res).toEqual(['srgb-linear', 0, 0.107931, 0.5, 0]);
@@ -6011,7 +6011,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in xyz, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6023,7 +6023,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, red, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['xyz-d65', 0.24479, 0.183508, 0.0225301, 1]);
   });
@@ -6040,7 +6040,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in xyz, color(srgb 1 0 0), color(srgb 0 0.5 0))',
+      'color-mix(in xyz, color(srgb 1 0 0), color(srgb 0 0.5 0))'
     );
     expect(res).toEqual(['rgb', 188, 92, 0, 1]);
   });
@@ -6049,8 +6049,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz, rgb(255 0 0 / 0.5), color(srgb 0 0.5 0 / 0.5))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d65', 0.244464, 0.182858, 0.0224217, 0.5]);
   });
@@ -6082,7 +6082,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz, rgb(0 0 255 / 0), rgb(0 128 0 / 0))', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['xyz-d65', 0.128835, 0.113285, 0.488131, 0]);
   });
@@ -6094,7 +6094,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in xyz-d50, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6106,7 +6106,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in xyz-d50, red, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['xyz-d50', 0.259603, 0.18862, 0.0174399, 1]);
   });
@@ -6123,7 +6123,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in xyz-d50, color(srgb 1 0 0), color(srgb 0 0.5 0))',
+      'color-mix(in xyz-d50, color(srgb 1 0 0), color(srgb 0 0.5 0))'
     );
     expect(res).toEqual(['rgb', 188, 92, 0, 1]);
   });
@@ -6132,8 +6132,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, rgb(255 0 0 / 0.5), color(srgb 0 0.5 0 / 0.5))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d50', 0.259252, 0.187968, 0.0173516, 0.5]);
   });
@@ -6152,8 +6152,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, rgb(0 128 0 / 0), rgb(255 0 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d50', 0.259603, 0.18862, 0.0174399, 0]);
   });
@@ -6165,7 +6165,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in hsl, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6177,14 +6177,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in hsl, blue, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.752941, 0.752941, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, color(srgb 0 0 1), color(srgb 0 0.5 0))',
+      'color-mix(in hsl, color(srgb 0 0 1), color(srgb 0 0.5 0))'
     );
     expect(res).toEqual(['rgb', 0, 192, 192, 1]);
   });
@@ -6201,35 +6201,35 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20%) 25%, hsl(30 30% 40%))',
+      'color-mix(in hsl, hsl(120 10% 20%) 25%, hsl(30 30% 40%))'
     );
     expect(res).toEqual(['rgb', 112, 106, 67, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20%), hsl(30 30% 40%) 25%)',
+      'color-mix(in hsl, hsl(120 10% 20%), hsl(30 30% 40%) 25%)'
     );
     expect(res).toEqual(['rgb', 61, 73, 54, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20%) 25%, hsl(30 30% 40%) 75%)',
+      'color-mix(in hsl, hsl(120 10% 20%) 25%, hsl(30 30% 40%) 75%)'
     );
     expect(res).toEqual(['rgb', 112, 106, 67, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20%) 30%, hsl(30 30% 40%) 90%)',
+      'color-mix(in hsl, hsl(120 10% 20%) 30%, hsl(30 30% 40%) 90%)'
     );
     expect(res).toEqual(['rgb', 112, 106, 67, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20%) 12.5%, hsl(30 30% 40%) 37.5%)',
+      'color-mix(in hsl, hsl(120 10% 20%) 12.5%, hsl(30 30% 40%) 37.5%)'
     );
     expect(res).toEqual(['rgb', 112, 106, 67, 0.5]);
   });
@@ -6241,7 +6241,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20% / .4), hsl(30 30% 40% / .8))',
+      'color-mix(in hsl, hsl(120 10% 20% / .4), hsl(30 30% 40% / .8))'
     );
     expect(res).toEqual(['rgb', 95, 105, 65, 0.6]);
   });
@@ -6260,8 +6260,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, color(srgb 1 0 0 / 0), hsl(120 100% 25% / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.74902, 0.74902, 0, 0]);
   });
@@ -6270,50 +6270,50 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, hsl(120 10% 20%) 25%, hsl(30 30% 40% / .8))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.423529, 0.403922, 0.258824, 0.85]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20% / .4), hsl(30 30% 40% / .8) 25%)',
+      'color-mix(in hsl, hsl(120 10% 20% / .4), hsl(30 30% 40% / .8) 25%)'
     );
     expect(res).toEqual(['rgb', 68, 84, 59, 0.5]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20% / .4) 25%, hsl(30 30% 40% / .8) 75%)',
+      'color-mix(in hsl, hsl(120 10% 20% / .4) 25%, hsl(30 30% 40% / .8) 75%)'
     );
     expect(res).toEqual(['rgb', 120, 114, 69, 0.7]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20% / .4) 30%, hsl(30 30% 40% / .8) 90%)',
+      'color-mix(in hsl, hsl(120 10% 20% / .4) 30%, hsl(30 30% 40% / .8) 90%)'
     );
     expect(res).toEqual(['rgb', 120, 114, 69, 0.7]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20% / .4) 12.5%, hsl(30 30% 40% / .8) 37.5%)',
+      'color-mix(in hsl, hsl(120 10% 20% / .4) 12.5%, hsl(30 30% 40% / .8) 37.5%)'
     );
     expect(res).toEqual(['rgb', 120, 114, 69, 0.35]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl, hsl(120 10% 20% / .4) 0%, hsl(30 30% 40% / .8))',
+      'color-mix(in hsl, hsl(120 10% 20% / .4) 0%, hsl(30 30% 40% / .8))'
     );
     expect(res).toEqual(['rgb', 133, 102, 71, 0.8]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hsl shorter hue, hsl(120 10% 20% / .4) 0%, hsl(30 30% 40% / .8))',
+      'color-mix(in hsl shorter hue, hsl(120 10% 20% / .4) 0%, hsl(30 30% 40% / .8))'
     );
     expect(res).toEqual(['rgb', 133, 102, 71, 0.8]);
   });
@@ -6325,7 +6325,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in hwb, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6337,14 +6337,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in hwb, blue, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['srgb', 0, 0.752941, 0.752941, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, color(srgb 0 0 1), color(srgb 0 0.5 0))',
+      'color-mix(in hwb, color(srgb 0 0 1), color(srgb 0 0.5 0))'
     );
     expect(res).toEqual(['rgb', 0, 192, 192, 1]);
   });
@@ -6366,35 +6366,35 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20%) 25%, hwb(30 30% 40%))',
+      'color-mix(in hwb, hwb(120 10% 20%) 25%, hwb(30 30% 40%))'
     );
     expect(res).toEqual(['rgb', 166, 153, 64, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20%), hwb(30 30% 40%) 25%)',
+      'color-mix(in hwb, hwb(120 10% 20%), hwb(30 30% 40%) 25%)'
     );
     expect(res).toEqual(['rgb', 96, 191, 38, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20%) 25%, hwb(30 30% 40%) 75%)',
+      'color-mix(in hwb, hwb(120 10% 20%) 25%, hwb(30 30% 40%) 75%)'
     );
     expect(res).toEqual(['rgb', 166, 153, 64, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20%) 30%, hwb(30 30% 40%) 90%)',
+      'color-mix(in hwb, hwb(120 10% 20%) 30%, hwb(30 30% 40%) 90%)'
     );
     expect(res).toEqual(['rgb', 166, 153, 64, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20%) 12.5%, hwb(30 30% 40%) 37.5%)',
+      'color-mix(in hwb, hwb(120 10% 20%) 12.5%, hwb(30 30% 40%) 37.5%)'
     );
     expect(res).toEqual(['rgb', 166, 153, 64, 0.5]);
   });
@@ -6406,49 +6406,49 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20% / .4), hwb(30 30% 40% / .8))',
+      'color-mix(in hwb, hwb(120 10% 20% / .4), hwb(30 30% 40% / .8))'
     );
     expect(res).toEqual(['rgb', 142, 170, 60, 0.6]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20%) 25%, hwb(30 30% 40% / .8))',
+      'color-mix(in hwb, hwb(120 10% 20%) 25%, hwb(30 30% 40% / .8))'
     );
     expect(res).toEqual(['rgb', 168, 155, 62, 0.85]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20% / .4), hwb(30 30% 40% / .8) 25%)',
+      'color-mix(in hwb, hwb(120 10% 20% / .4), hwb(30 30% 40% / .8) 25%)'
     );
     expect(res).toEqual(['rgb', 98, 184, 46, 0.5]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20% / .4) 25%, hwb(30 30% 40% / .8) 75%)',
+      'color-mix(in hwb, hwb(120 10% 20% / .4) 25%, hwb(30 30% 40% / .8) 75%)'
     );
     expect(res).toEqual(['rgb', 160, 149, 69, 0.7]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20% / .4) 30%, hwb(30 30% 40% / .8) 90%)',
+      'color-mix(in hwb, hwb(120 10% 20% / .4) 30%, hwb(30 30% 40% / .8) 90%)'
     );
     expect(res).toEqual(['rgb', 160, 149, 69, 0.7]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20% / .4) 12.5%, hwb(30 30% 40% / .8) 37.5%)',
+      'color-mix(in hwb, hwb(120 10% 20% / .4) 12.5%, hwb(30 30% 40% / .8) 37.5%)'
     );
     expect(res).toEqual(['rgb', 160, 149, 69, 0.35]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in hwb, hwb(120 10% 20% / .4) 0%, hwb(30 30% 40% / .8))',
+      'color-mix(in hwb, hwb(120 10% 20% / .4) 0%, hwb(30 30% 40% / .8))'
     );
     expect(res).toEqual(['rgb', 153, 115, 77, 0.8]);
   });
@@ -6467,8 +6467,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb, hwb(120 0% 49.8039% / 0), color(srgb 1 0 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.752941, 0.752941, 0, 0]);
   });
@@ -6477,8 +6477,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb shorter hue, hwb(120 0% 49.8039% / 0), color(srgb 1 0 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.752941, 0.752941, 0, 0]);
   });
@@ -6490,7 +6490,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in lab, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6502,14 +6502,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lab, red, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 50.2841, 16.6262, 59.2387, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in lab, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))',
+      'color-mix(in lab, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))'
     );
     expect(res).toEqual(['rgb', 126, 117, 0, 0.75]);
   });
@@ -6518,8 +6518,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lab, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lab', 48.8316, -4.67711, 55.5965, 0.75]);
   });
@@ -6536,14 +6536,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lab, currentcolor, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 46.2778, -47.5526, 48.5864, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, green, currentcolor)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 46.2778, -47.5526, 48.5864, 1]);
   });
@@ -6552,8 +6552,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lab, color(srgb 1 0 0 / 0), rgb(0 128 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lab', 50.2841, 16.6262, 59.2387, 0]);
   });
@@ -6565,7 +6565,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in lch, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6577,14 +6577,14 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lch, red, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 50.2841, 87.4109, 87.6208, 1]);
   });
 
   it('should get value', () => {
     const res = func(
-      'color-mix(in lch, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))',
+      'color-mix(in lch, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))'
     );
     expect(res).toEqual(['rgb', 140, 113, 0, 0.75]);
   });
@@ -6601,21 +6601,21 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in lch, currentcolor, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 46.2778, 67.9845, 134.384, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lch, green, currentcolor)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 46.2778, 67.9845, 134.384, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lch, rgb(255 0 0 / 0), rgb(0 128 0 / 0))', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lch', 50.2841, 87.4109, 87.6208, 0]);
   });
@@ -6624,8 +6624,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch shorter hue, rgb(255 0 0 / 0), rgb(0 128 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 50.2841, 87.4109, 87.6208, 0]);
   });
@@ -6637,7 +6637,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in oklab, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6649,7 +6649,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.573854, 0.0422802, 0.116761, 1]);
   });
@@ -6658,36 +6658,36 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklab, color(srgb 1 0 0 / 0.5), rgb(0 0.5 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklab', 0.240129, 0.0666374, 0.0483318, 0.75]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green 90%)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.530572, -0.103786, 0.109493, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red 90%, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.617135, 0.188347, 0.124029, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, currentcolor, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.519752, -0.140303, 0.107676, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, currentcolor)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklab', 0.627955, 0.224863, 0.125846, 1]);
   });
@@ -6696,8 +6696,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklab, rgb(255 0 0 / 0), rgb(0 128 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklab', 0.573854, 0.0422802, 0.116761, 0]);
   });
@@ -6709,7 +6709,7 @@ describe('resolve color-mix()', () => {
 
   it('should get empty string', () => {
     const res = func('color-mix(in oklch, foo, red)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('');
   });
@@ -6721,7 +6721,7 @@ describe('resolve color-mix()', () => {
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.573854, 0.217271, 85.8646, 1]);
   });
@@ -6730,36 +6730,36 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch, color(srgb 1 0 0 / 0.5), rgb(0 0.5 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 0.240129, 0.0963786, 85.8646, 0.75]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, green 90%)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.530572, 0.184941, 131.169, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red 90%, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.617135, 0.249601, 40.56, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, currentcolor, green)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.519752, 0.176859, 142.495, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklch, red, currentcolor)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['oklch', 0.627955, 0.257683, 29.2339, 1]);
   });
@@ -6768,8 +6768,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch, rgb(255 0 0 / 0), rgb(0 128 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 0.573854, 0.217271, 85.8646, 0]);
   });
@@ -6778,8 +6778,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch shorter hue, rgb(255 0 0 / 0), rgb(0 128 0 / 0))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 0.573854, 0.217271, 85.8646, 0]);
   });
@@ -6788,8 +6788,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color-mix(in srgb, red, blue), color-mix(in srgb, transparent, #008000))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.333333, 0.16732, 0.333333, 0.75]);
   });
@@ -6798,11 +6798,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color-mix(in srgb, red, blue), color-mix(in srgb, transparent, #008000))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in srgb, color-mix(in srgb, red, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))',
+      'color-mix(in srgb, color-mix(in srgb, red, blue), color-mix(in srgb, transparent, rgb(0, 128, 0)))'
     );
   });
 
@@ -6810,8 +6810,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, purple, color-mix(in srgb, transparent, #008000))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.334641, 0.16732, 0.334641, 0.75]);
   });
@@ -6820,11 +6820,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, purple, color-mix(in srgb, transparent, #008000))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in srgb, purple, color-mix(in srgb, transparent, rgb(0, 128, 0)))',
+      'color-mix(in srgb, purple, color-mix(in srgb, transparent, rgb(0, 128, 0)))'
     );
   });
 
@@ -6832,8 +6832,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color-mix(in srgb, transparent, #008000), purple)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.334641, 0.16732, 0.334641, 0.75]);
   });
@@ -6842,11 +6842,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color-mix(in srgb, transparent, #008000), purple)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in srgb, color-mix(in srgb, transparent, rgb(0, 128, 0)), purple)',
+      'color-mix(in srgb, color-mix(in srgb, transparent, rgb(0, 128, 0)), purple)'
     );
   });
 
@@ -6854,8 +6854,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklab, color-mix(in lab, lab(46.2775% -47.5621 48.5837), blue), purple)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklab', 0.44711, 0.0903907, -0.0947484, 1]);
   });
@@ -6864,11 +6864,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklab, color-mix(in lab, lab(46.2775% -47.5621 48.5837), blue), purple)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in oklab, color-mix(in lab, lab(46.2775 -47.5621 48.5837), blue), purple)',
+      'color-mix(in oklab, color-mix(in lab, lab(46.2775 -47.5621 48.5837), blue), purple)'
     );
   });
 
@@ -6876,8 +6876,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklab, color-mix(in lab, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklab', 0.439, 0.109966, -0.128598, 0.875]);
   });
@@ -6886,11 +6886,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklab, color-mix(in lab, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in oklab, color-mix(in lab, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)',
+      'color-mix(in oklab, color-mix(in lab, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)'
     );
   });
 
@@ -6898,8 +6898,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, color-mix(in lch, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 32.0257, 85.385, 272.492, 0.875]);
   });
@@ -6908,8 +6908,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch shorter hue, color-mix(in lch, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 32.0257, 85.385, 272.492, 0.875]);
   });
@@ -6918,11 +6918,11 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, color-mix(in lch, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in lch, color-mix(in lch, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)',
+      'color-mix(in lch, color-mix(in lch, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)'
     );
   });
 
@@ -6930,17 +6930,17 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch shorter hue, color-mix(in lch shorter hue, lab(46.2775% -47.5621 48.5837 / .5), blue), purple)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'color-mix(in lch shorter hue, color-mix(in lch shorter hue, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)',
+      'color-mix(in lch shorter hue, color-mix(in lch shorter hue, lab(46.2775 -47.5621 48.5837 / 0.5), blue), purple)'
     );
   });
 
   it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, foo)', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
@@ -6949,8 +6949,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color-mix(in srgb, transparent, foo), purple)',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['rgb', 0, 0, 0, 0]);
   });
@@ -6959,8 +6959,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color-mix(in srgb, transparent, foo), purple)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe('');
   });
@@ -6969,8 +6969,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb none none none), color(srgb none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 'none', 'none', 'none', 1]);
   });
@@ -6979,8 +6979,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb none none none), color(srgb .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -6992,8 +6992,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb .1 .2 .3), color(srgb none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7005,8 +7005,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb .1 .2 none), color(srgb .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7018,8 +7018,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb .1 .2 .3), color(srgb .5 .6 none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7031,8 +7031,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb none .2 .3), color(srgb .5 none .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7044,8 +7044,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb .1 .2 .3 / none), color(srgb .5 .6 .7 / .5))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7057,8 +7057,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb .1 .2 .3 / 25%), color(srgb .5 none none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.3, 0.2, 0.3, 0.25]);
   });
@@ -7067,8 +7067,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, color(srgb .1 .2 .3 / 25%), color(srgb none .5 none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.1, 0.35, 0.3, 0.25]);
   });
@@ -7077,8 +7077,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0, 0.25, 0.5, 'none']);
   });
@@ -7087,8 +7087,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear none none none), color(srgb-linear none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb-linear', 'none', 'none', 'none', 1]);
   });
@@ -7097,8 +7097,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear none none none), color(srgb-linear .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7110,8 +7110,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear .1 .2 .3), color(srgb-linear none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7123,8 +7123,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear .1 .2 none), color(srgb-linear .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7136,8 +7136,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear .1 .2 .3), color(srgb-linear .5 .6 none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7149,8 +7149,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear none .2 .3), color(srgb-linear .5 none .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7162,8 +7162,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear .1 .2 .3 / none), color(srgb-linear .5 .6 .7 / .5))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7175,8 +7175,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear .1 .2 .3 / 25%), color(srgb-linear .5 none none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb-linear', 0.3, 0.2, 0.3, 0.25]);
   });
@@ -7185,8 +7185,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, color(srgb-linear .1 .2 .3 / 25%), color(srgb-linear none .5 none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb-linear', 0.1, 0.35, 0.3, 0.25]);
   });
@@ -7195,8 +7195,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in srgb-linear, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(5));
     expect(res).toEqual(['srgb-linear', 0, 0.107021, 0.5, 'none']);
@@ -7206,8 +7206,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 none none none), color(xyz-d65 none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d65', 'none', 'none', 'none', 1]);
   });
@@ -7216,8 +7216,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 none none none), color(xyz-d65 .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7229,8 +7229,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 .1 .2 .3), color(xyz-d65 none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7242,8 +7242,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 .1 .2 none), color(xyz-d65 .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7255,8 +7255,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 .1 .2 .3), color(xyz-d65 .5 .6 none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7268,8 +7268,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 none .2 .3), color(xyz-d65 .5 none .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7281,8 +7281,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 .1 .2 .3 / none), color(xyz-d65 .5 .6 .7 / .5))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7294,8 +7294,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 .1 .2 .3 / 25%), color(xyz-d65 .5 none none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d65', 0.3, 0.2, 0.3, 0.25]);
   });
@@ -7304,8 +7304,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, color(xyz-d65 .1 .2 .3 / 25%), color(xyz-d65 none .5 none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d65', 0.1, 0.35, 0.3, 0.25]);
   });
@@ -7314,8 +7314,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d65, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d65', 0.128509, 0.112634, 0.488022, 'none']);
   });
@@ -7324,8 +7324,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 none none none), color(xyz-d50 none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d50', 'none', 'none', 'none', 1]);
   });
@@ -7334,8 +7334,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 none none none), color(xyz-d50 .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7347,8 +7347,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 .1 .2 .3), color(xyz-d50 none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7360,8 +7360,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 .1 .2 none), color(xyz-d50 .5 .6 .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7373,8 +7373,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 .1 .2 .3), color(xyz-d50 .5 .6 none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7386,8 +7386,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 none .2 .3), color(xyz-d50 .5 none .7))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7399,8 +7399,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 .1 .2 .3 / none), color(xyz-d50 .5 .6 .7 / .5))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(1));
     res[2] = parseFloat(res[2].toFixed(1));
@@ -7412,8 +7412,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 .1 .2 .3 / 25%), color(xyz-d50 .5 none none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d50', 0.3, 0.2, 0.3, 0.25]);
   });
@@ -7422,8 +7422,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, color(xyz-d50 .1 .2 .3 / 25%), color(xyz-d50 none .5 none / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d50', 0.1, 0.35, 0.3, 0.25]);
   });
@@ -7432,8 +7432,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in xyz-d50, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['xyz-d50', 0.112758, 0.107031, 0.367439, 'none']);
   });
@@ -7442,8 +7442,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, hsl(none none none), hsl(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0, 0, 0, 1]);
   });
@@ -7452,8 +7452,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, hsl(none none none), hsl(30deg 40% 80%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
@@ -7465,8 +7465,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, hsl(120deg 20% 40%), hsl(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
@@ -7478,8 +7478,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, hsl(120deg 40% 40% / none), hsl(0deg 40% 40% / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
@@ -7491,8 +7491,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0, 0.752941, 0.752941, 'none']);
   });
@@ -7501,8 +7501,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb, hwb(none none none), hwb(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
@@ -7514,8 +7514,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb, hwb(none none none), hwb(30deg 30% 40%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
@@ -7527,8 +7527,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb, hwb(120deg 10% 20%), hwb(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(2));
     res[2] = parseFloat(res[2].toFixed(2));
@@ -7540,8 +7540,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb, hwb(120deg 10% 20% / none), hwb(30deg 30% 40% / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     res[1] = parseFloat(res[1].toFixed(3));
     res[2] = parseFloat(res[2].toFixed(3));
@@ -7553,8 +7553,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0, 0.752941, 0.752941, 'none']);
   });
@@ -7563,8 +7563,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, lch(none none none), lch(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 'none', 'none', 'none', 1]);
   });
@@ -7573,8 +7573,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, lch(none none none), lch(50 60 70deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 50, 60, 70, 1]);
   });
@@ -7583,8 +7583,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, lch(10 20 30deg), lch(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 10, 20, 30, 1]);
   });
@@ -7593,8 +7593,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, lch(10 20 30deg / none), lch(50 60 70deg / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 30, 40, 50, 'none']);
   });
@@ -7603,8 +7603,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch, rgb(0 127.5 0 / none), color(srgb 0 0 1 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 37.8353, 99.4969, 217.874, 'none']);
   });
@@ -7613,22 +7613,22 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lab, lab(none none none), lab(none none none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lab', 'none', 'none', 'none', 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, lab(none none none), lab(50 60 70))', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 50, 60, 70, 1]);
   });
 
   it('should get value', () => {
     const res = func('color-mix(in lab, lab(10 20 30), lab(none none none))', {
-      format: 'computedValue',
+      format: 'computedValue'
     });
     expect(res).toEqual(['lab', 10, 20, 30, 1]);
   });
@@ -7637,8 +7637,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lab, lab(10 20 30 / none), lab(50 60 70 / none))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lab', 30, 40, 50, 'none']);
   });
@@ -7647,8 +7647,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl shorter hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.74902, 0.666667, 0.25098, 1]);
   });
@@ -7657,8 +7657,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl longer hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.25098, 0.333333, 0.74902, 1]);
   });
@@ -7667,8 +7667,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl increasing hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.74902, 0.666667, 0.25098, 1]);
   });
@@ -7677,8 +7677,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hsl decreasing hue, hsl(40deg 50% 50%), hsl(60deg 50% 50%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.25098, 0.333333, 0.74902, 1]);
   });
@@ -7687,8 +7687,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb shorter hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.6, 0.54902, 0.301961, 1]);
   });
@@ -7697,8 +7697,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb shorter hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.6, 0.54902, 0.301961, 1]);
   });
@@ -7707,8 +7707,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb longer hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.301961, 0.34902, 0.6, 1]);
   });
@@ -7717,8 +7717,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb increasing hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.6, 0.54902, 0.301961, 1]);
   });
@@ -7727,8 +7727,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in hwb decreasing hue, hwb(40deg 30% 40%), hwb(60deg 30% 40%))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['srgb', 0.301961, 0.34902, 0.6, 1]);
   });
@@ -7737,8 +7737,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch shorter hue, lch(100 0 40deg), lch(100 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 100, 0, 50, 1]);
   });
@@ -7747,8 +7747,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch longer hue, lch(100 0 40deg), lch(100 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 100, 0, 230, 1]);
   });
@@ -7757,8 +7757,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch increasing hue, lch(100 0 40deg), lch(100 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 100, 0, 50, 1]);
   });
@@ -7767,8 +7767,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in lch decreasing hue, lch(100 0 40deg), lch(100 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['lch', 100, 0, 230, 1]);
   });
@@ -7777,8 +7777,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch shorter hue, oklch(1 0 40deg), oklch(1 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 1, 0, 50, 1]);
   });
@@ -7787,8 +7787,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch longer hue, oklch(1 0 40deg), oklch(1 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 1, 0, 230, 1]);
   });
@@ -7797,8 +7797,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch increasing hue, oklch(1 0 40deg), oklch(1 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 1, 0, 50, 1]);
   });
@@ -7807,8 +7807,8 @@ describe('resolve color-mix()', () => {
     const res = func(
       'color-mix(in oklch decreasing hue, oklch(1 0 40deg), oklch(1 0 60deg))',
       {
-        format: 'computedValue',
-      },
+        format: 'computedValue'
+      }
     );
     expect(res).toEqual(['oklch', 1, 0, 230, 1]);
   });

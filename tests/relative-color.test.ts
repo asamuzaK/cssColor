@@ -36,7 +36,7 @@ describe('resolve relative color channels', () => {
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'lab',
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(null);
   });
@@ -46,7 +46,7 @@ describe('resolve relative color channels', () => {
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'rgb',
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['r', 'calc(1 * g)', 'abs(-10)']);
   });
@@ -56,7 +56,7 @@ describe('resolve relative color channels', () => {
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'rgb',
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['r', 'calc(1 * g)', 10]);
   });
@@ -66,7 +66,7 @@ describe('resolve relative color channels', () => {
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'rgb',
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['r', 'calc((0.5 * g) + (0.5 * g))', 10]);
   });
@@ -76,7 +76,7 @@ describe('resolve relative color channels', () => {
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'rgb',
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['r', 'calc((0.5 * g) + (0.5 * g))', 10]);
   });
@@ -86,7 +86,7 @@ describe('resolve relative color channels', () => {
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'rgb',
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toEqual(['r', 'calc((0.5 * b) - (0.5 * g))', 10]);
   });
@@ -112,14 +112,14 @@ describe('extract origin color', () => {
 
   it('should get null', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(null);
   });
 
   it('should get null', () => {
     const res = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(null);
   });
@@ -131,7 +131,7 @@ describe('extract origin color', () => {
 
   it('should get null', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: 'foo',
+      currentColor: 'foo'
     });
     expect(res).toBe(null);
   });
@@ -143,40 +143,40 @@ describe('extract origin color', () => {
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: 'rebeccapurple',
+      currentColor: 'rebeccapurple'
     });
     expect(res).toBe('rgb(from rebeccapurple r g b)');
 
     const res2 = func('rgb(from currentColor r g b)', {
-      currentColor: 'rebeccapurple',
+      currentColor: 'rebeccapurple'
     });
     expect(res2).toBe('rgb(from rebeccapurple r g b)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: '#639',
+      currentColor: '#639'
     });
     expect(res).toBe('rgb(from #639 r g b)');
   });
 
   it('should get null', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: 'rgb(from foo r g b)',
+      currentColor: 'rgb(from foo r g b)'
     });
     expect(res).toBe(null);
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: 'rgb(from rebeccapurple r g b)',
+      currentColor: 'rgb(from rebeccapurple r g b)'
     });
     expect(res).toBe('rgb(from color(srgb 0.4 0.2 0.6) r g b)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: 'rgb( from rebeccapurple r g b )',
+      currentColor: 'rgb( from rebeccapurple r g b )'
     });
     expect(res).toBe('rgb(from color(srgb 0.4 0.2 0.6) r g b)');
   });
@@ -212,7 +212,7 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func('rgb(from var(--foo) r g b)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from var(--foo) r g b)');
   });
@@ -227,12 +227,12 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func(
-      'rgb(from rgb(100 110 120 / 0.8) calc(r + 1) calc(g + 1) calc(b + 1) / calc(alpha + 0.01))',
+      'rgb(from rgb(100 110 120 / 0.8) calc(r + 1) calc(g + 1) calc(b + 1) / calc(alpha + 0.01))'
     );
     expect(res).toBe('color(srgb 0.39608 0.43529 0.47451 / 0.81)');
 
     const res2 = func(
-      'rgb(from rgb(100 110 120 / 0.8) calc(r + 1) calc(g + 1) calc(b + 1) / calc(alpha + 0.01))',
+      'rgb(from rgb(100 110 120 / 0.8) calc(r + 1) calc(g + 1) calc(b + 1) / calc(alpha + 0.01))'
     );
     expect(res2).toBe('color(srgb 0.39608 0.43529 0.47451 / 0.81)');
   });
@@ -255,12 +255,12 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
-      currentColor: 'color(srgb 0.4 0.2 0.6)',
+      currentColor: 'color(srgb 0.4 0.2 0.6)'
     });
     expect(res).toBe('color(srgb 0.4 0.2 0.6)');
 
     const res2 = func('rgb(from currentColor r g b)', {
-      currentColor: 'color(srgb 0.4 0.2 0.6)',
+      currentColor: 'color(srgb 0.4 0.2 0.6)'
     });
     expect(res2).toBe('color(srgb 0.4 0.2 0.6)');
   });
@@ -269,16 +269,16 @@ describe('resolve relative color', () => {
     const res = func(
       'rgb(from color-mix(in srgb, currentColor, red) r g b / alpha)',
       {
-        currentColor: 'rebeccapurple',
-      },
+        currentColor: 'rebeccapurple'
+      }
     );
     expect(res).toBe('color(srgb 0.7 0.1 0.3)');
 
     const res2 = func(
       'rgb(from color-mix(in srgb, currentColor, red) r g b / alpha)',
       {
-        currentColor: 'rebeccapurple',
-      },
+        currentColor: 'rebeccapurple'
+      }
     );
     expect(res2).toBe('color(srgb 0.7 0.1 0.3)');
   });
@@ -323,7 +323,7 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func(
-      'lab(from lab(50 5 10 / 0.8) calc(l + 1) calc(a + 1) calc(b + 1) / calc(alpha + 0.01))',
+      'lab(from lab(50 5 10 / 0.8) calc(l + 1) calc(a + 1) calc(b + 1) / calc(alpha + 0.01))'
     );
     expect(res).toBe('lab(51 6 11 / 0.81)');
   });
@@ -340,7 +340,7 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func('lab(from currentColor l a b)', {
-      currentColor: 'lab(25 20 50)',
+      currentColor: 'lab(25 20 50)'
     });
     expect(res).toBe('lab(25 20 50)');
   });
@@ -349,50 +349,50 @@ describe('resolve relative color', () => {
     const res = func(
       'lab(from color-mix(in lab, currentColor, lab(25 20 50)) l a b / alpha)',
       {
-        currentColor: 'lab(25 20 50)',
-      },
+        currentColor: 'lab(25 20 50)'
+      }
     );
     expect(res).toBe('lab(25 20 50)');
   });
 
   it('should get value', () => {
     const res = func(
-      'color(from color(srgb-linear 0.7 0.5 0.3) srgb-linear r g b)',
+      'color(from color(srgb-linear 0.7 0.5 0.3) srgb-linear r g b)'
     );
     expect(res).toBe('color(srgb-linear 0.7 0.5 0.3)');
   });
 
   it('should get value', () => {
     const res = func(
-      'color(from color(srgb-linear 0.7 0.5 0.3 / 40%) srgb-linear r g b)',
+      'color(from color(srgb-linear 0.7 0.5 0.3 / 40%) srgb-linear r g b)'
     );
     expect(res).toBe('color(srgb-linear 0.7 0.5 0.3 / 0.4)');
   });
 
   it('should get value', () => {
     const res = func(
-      'color(from color(srgb-linear 0.7 0.5 0.3 / 0.8) srgb-linear calc(r + 0.01) calc(g + 0.01) calc(b + 0.01) / calc(alpha + 0.01))',
+      'color(from color(srgb-linear 0.7 0.5 0.3 / 0.8) srgb-linear calc(r + 0.01) calc(g + 0.01) calc(b + 0.01) / calc(alpha + 0.01))'
     );
     expect(res).toBe('color(srgb-linear 0.71 0.51 0.31 / 0.81)');
   });
 
   it('should get value', () => {
     const res = func(
-      'color(from color(srgb-linear 0.7 0.5 0.3) srgb-linear none none none / none)',
+      'color(from color(srgb-linear 0.7 0.5 0.3) srgb-linear none none none / none)'
     );
     expect(res).toBe('color(srgb-linear none none none / none)');
   });
 
   it('should get value', () => {
     const res = func(
-      'color(from color(srgb-linear none none none / none) srgb-linear r g b / alpha)',
+      'color(from color(srgb-linear none none none / none) srgb-linear r g b / alpha)'
     );
     expect(res).toBe('color(srgb-linear 0 0 0 / 0)');
   });
 
   it('should get value', () => {
     const res = func('color(from currentColor srgb-linear r g b)', {
-      currentColor: 'color(srgb-linear 0.7 0.5 0.3)',
+      currentColor: 'color(srgb-linear 0.7 0.5 0.3)'
     });
     expect(res).toBe('color(srgb-linear 0.7 0.5 0.3)');
   });
@@ -401,8 +401,8 @@ describe('resolve relative color', () => {
     const res = func(
       'color(from color-mix(in xyz, currentColor, color(srgb-linear 0.7 0.5 0.3)) srgb-linear r g b / alpha)',
       {
-        currentColor: 'color(srgb-linear 0.7 0.5 0.3)',
-      },
+        currentColor: 'color(srgb-linear 0.7 0.5 0.3)'
+      }
     );
     expect(res).toBe('color(srgb-linear 0.7 0.5 0.3)');
   });
@@ -414,14 +414,14 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple r g b)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rebeccapurple r g b)');
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r g b / alpha)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rebeccapurple r g b / alpha)');
   });
@@ -430,11 +430,11 @@ describe('resolve relative color', () => {
     const res = func(
       'rgba(from rebeccapurple calc(r) calc(g) calc(b) / calc(alpha))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'rgb(from rebeccapurple calc(r) calc(g) calc(b) / calc(alpha))',
+      'rgb(from rebeccapurple calc(r) calc(g) calc(b) / calc(alpha))'
     );
   });
 
@@ -442,71 +442,71 @@ describe('resolve relative color', () => {
     const res = func(
       'rgba(from rgb(from rebeccapurple r g b) calc(r) calc(g) calc(b) / calc(alpha))',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'rgb(from rgb(from rebeccapurple r g b) calc(r) calc(g) calc(b) / calc(alpha))',
+      'rgb(from rgb(from rebeccapurple r g b) calc(r) calc(g) calc(b) / calc(alpha))'
     );
   });
 
   it('should get value', () => {
     const res = func('hsla(from rebeccapurple h s l / alpha)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('hsl(from rebeccapurple h s l / alpha)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rgb(20%, 40%, 60%, 80%) r g b / alpha)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rgba(51, 102, 153, 0.8) r g b / alpha)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rgb(20%, 40%, 60%, 150%) r g b / alpha)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rgb(51, 102, 153) r g b / alpha)');
   });
 
   it('should get value', () => {
     const res = func('rgb(from hsl(120deg 20% 50% / .5) r g b / alpha)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rgba(102, 153, 102, 0.5) r g b / alpha)');
   });
 
   it('should get value', () => {
     const res = func('rgba(from rgb(from rebeccapurple r g b) r g b)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rgb(from rebeccapurple r g b) r g b)');
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(g * 2) 10)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('rgb(from rebeccapurple r calc(2 * g) 10)');
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(g * .5 + g * .5) 10)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(
-      'rgb(from rebeccapurple r calc((0.5 * g) + (0.5 * g)) 10)',
+      'rgb(from rebeccapurple r calc((0.5 * g) + (0.5 * g)) 10)'
     );
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(b * 50% - g * .5) 10)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(
-      'rgb(from rebeccapurple r calc((0.5 * b) - (0.5 * g)) 10)',
+      'rgb(from rebeccapurple r calc((0.5 * b) - (0.5 * g)) 10)'
     );
   });
 
@@ -514,11 +514,11 @@ describe('resolve relative color', () => {
     const res = func(
       'rgba(from rgba(from rebeccapurple r g b) r calc(g * .5 + g * .5) 10)',
       {
-        format: 'specifiedValue',
-      },
+        format: 'specifiedValue'
+      }
     );
     expect(res).toBe(
-      'rgb(from rgb(from rebeccapurple r g b) r calc((0.5 * g) + (0.5 * g)) 10)',
+      'rgb(from rgb(from rebeccapurple r g b) r calc((0.5 * g) + (0.5 * g)) 10)'
     );
   });
 

@@ -7,7 +7,7 @@ import {
   convertRgbToHex,
   resolveColorFunc,
   resolveColorMix,
-  resolveColorValue,
+  resolveColorValue
 } from './color';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
@@ -23,7 +23,7 @@ import {
   SYN_FN_REL,
   SYN_FN_VAR,
   VAL_COMP,
-  VAL_SPEC,
+  VAL_SPEC
 } from './constant.js';
 
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
@@ -35,7 +35,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
-  max: 4096,
+  max: 4096
 });
 
 /**
@@ -88,7 +88,7 @@ export const resolve = (
     dimension?: object;
     format?: string;
     key?: any;
-  } = {},
+  } = {}
 ): (string | Array<any>) | null => {
   if (isString(color)) {
     color = color.trim();
@@ -209,7 +209,7 @@ export const resolve = (
           number,
           number,
           number,
-          number,
+          number
         ];
       } else if (currentColor.startsWith(FN_COLOR)) {
         [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt) as [
@@ -217,7 +217,7 @@ export const resolve = (
           number,
           number,
           number,
-          number,
+          number
         ];
       } else {
         [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt) as [
@@ -225,7 +225,7 @@ export const resolve = (
           number,
           number,
           number,
-          number,
+          number
         ];
       }
     } else if (format === VAL_COMP) {
@@ -248,7 +248,7 @@ export const resolve = (
         number,
         number,
         number,
-        number,
+        number
       ];
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
@@ -303,7 +303,7 @@ export const resolve = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
   } else if (/transparent/.test(color)) {
@@ -314,7 +314,7 @@ export const resolve = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
   } else if (color.startsWith(FN_MIX)) {
@@ -323,7 +323,7 @@ export const resolve = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else if (color.startsWith(FN_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
@@ -331,7 +331,7 @@ export const resolve = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else if (color) {
     [cs, r, g, b, alpha] = resolveColorValue(color, opt) as [
@@ -339,7 +339,7 @@ export const resolve = (
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   switch (format) {

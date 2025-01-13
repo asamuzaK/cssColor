@@ -121,7 +121,7 @@ describe('calculator', () => {
       '2em',
       '2em',
       '4px',
-      '1vw',
+      '1vw'
     ] as never);
     expect(res).toEqual(['2em', '2em', '5em', '-1px', '3px', '4px', '1vw']);
   });
@@ -146,7 +146,7 @@ describe('calculator', () => {
     cal.etcDiv.push('r', 'g', 'b', 'alpha');
     const res = cal.multiply();
     expect(res).toBe(
-      '100% * (-10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)',
+      '100% * (-10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)'
     );
   });
 
@@ -258,7 +258,7 @@ describe('calculator', () => {
     cal.etcDiv.push('r', 'g', 'b', 'alpha');
     const res = cal.multiply();
     expect(res).toBe(
-      '(-10 * -10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)',
+      '(-10 * -10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)'
     );
   });
 
@@ -274,7 +274,7 @@ describe('calculator', () => {
     cal.etcDiv.push('r', 'g', 'b', 'alpha');
     const res = cal.multiply();
     expect(res).toBe(
-      '-10% * (-10px * 10px / 10px) * alpha * b * g * r / (alpha * b * g * r)',
+      '-10% * (-10px * 10px / 10px) * alpha * b * g * r / (alpha * b * g * r)'
     );
   });
 
@@ -290,7 +290,7 @@ describe('calculator', () => {
     cal.etcDiv.push('r', 'g', 'b', 'alpha');
     const res = cal.multiply();
     expect(res).toBe(
-      '(-10 * -10px * 10px / 10px) * alpha * b * g * r / (alpha * b * g * r)',
+      '(-10 * -10px * 10px / 10px) * alpha * b * g * r / (alpha * b * g * r)'
     );
   });
 
@@ -673,7 +673,7 @@ describe('sort calc values', () => {
 
   it('should get value', () => {
     expect(func(['calc(', 'r', '/', 2, '+', 'r', '*', '50%', ')'], true)).toBe(
-      'calc((0.5 * r) + (50% * r))',
+      'calc((0.5 * r) + (50% * r))'
     );
   });
 
@@ -709,48 +709,48 @@ describe('serialize calc', () => {
 
   it('should get value', () => {
     const res = func('calc(r * 0.5 - g * 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc((0.5 * r) - (0.5 * g))');
 
     const res2 = func('calc(r * 0.5 + r * 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res2).toBe('calc((0.5 * r) + (0.5 * r))');
   });
 
   it('should get value', () => {
     const res = func('calc(r * 0.5 + r * 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc((0.5 * r) + (0.5 * r))');
 
     const res2 = func('calc(r * 0.5 + r * 0.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res2).toBe('calc((0.5 * r) + (0.5 * r))');
   });
 
   it('should get value', () => {
     const res = func('calc((r * 0.5) + (r * 0.5))', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc((0.5 * r) + (0.5 * r))');
 
     const res2 = func('calc((r * 0.5) + (r * 0.5))', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res2).toBe('calc((0.5 * r) + (0.5 * r))');
   });
 
   it('should get value', () => {
     const res = func('calc(r * sign(2px))', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1 * r)');
 
     const res2 = func('calc(r * sign(2px))', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res2).toBe('calc(1 * r)');
   });
@@ -786,8 +786,8 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: undefined,
-      },
+        unit: undefined
+      }
     ];
     const res = func(token);
     expect(res).toBe(null);
@@ -803,8 +803,8 @@ describe('resolve dimension', () => {
         value: undefined,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'em',
-      },
+        unit: 'em'
+      }
     ];
     const res = func(token);
     expect(res).toBe(null);
@@ -820,8 +820,8 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'em',
-      },
+        unit: 'em'
+      }
     ];
     const res = func(token);
     expect(res).toBe(null);
@@ -837,8 +837,8 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'px',
-      },
+        unit: 'px'
+      }
     ];
     const res = func(token);
     expect(res).toBe('100px');
@@ -854,13 +854,13 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'em',
-      },
+        unit: 'em'
+      }
     ];
     const res = func(token, {
       dimension: {
-        em: 16,
-      },
+        em: 16
+      }
     });
     expect(res).toBe('1600px');
   });
@@ -875,19 +875,19 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'em',
-      },
+        unit: 'em'
+      }
     ];
     const unitMap = {
       em: 12,
       rem: 16,
-      vw: 10.26,
+      vw: 10.26
     };
     const resolver = (arg: keyof typeof unitMap) => unitMap[arg];
     const res = func(token, {
       dimension: {
-        callback: resolver,
-      },
+        callback: resolver
+      }
     });
     expect(res).toBe('1200px');
   });
@@ -902,15 +902,15 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'ch',
-      },
+        unit: 'ch'
+      }
     ];
     const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
-        vw: 10.26,
-      },
+        vw: 10.26
+      }
     });
     expect(res).toBe(null);
   });
@@ -925,15 +925,15 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'ex',
-      },
+        unit: 'ex'
+      }
     ];
     const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
-        vw: 10.26,
-      },
+        vw: 10.26
+      }
     });
     expect(res).toBe(null);
   });
@@ -948,15 +948,15 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'lh',
-      },
+        unit: 'lh'
+      }
     ];
     const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
-        vw: 10.26,
-      },
+        vw: 10.26
+      }
     });
     expect(res).toBe(null);
   });
@@ -971,15 +971,15 @@ describe('resolve dimension', () => {
         value: 10,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'rch',
-      },
+        unit: 'rch'
+      }
     ];
     const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
-        vw: 10.26,
-      },
+        vw: 10.26
+      }
     });
     expect(res).toBe(null);
   });
@@ -994,15 +994,15 @@ describe('resolve dimension', () => {
         value: 10,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'rex',
-      },
+        unit: 'rex'
+      }
     ];
     const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
-        vw: 10.26,
-      },
+        vw: 10.26
+      }
     });
     expect(res).toBe(null);
   });
@@ -1017,15 +1017,15 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'rlh',
-      },
+        unit: 'rlh'
+      }
     ];
     const res = func(token, {
       dimension: {
         em: 12,
         rem: 16,
-        vw: 10.26,
-      },
+        vw: 10.26
+      }
     });
     expect(res).toBe(null);
   });
@@ -1040,11 +1040,11 @@ describe('resolve dimension', () => {
         value: 100,
         signCharacter: undefined,
         type: 'integer',
-        unit: 'em',
-      },
+        unit: 'em'
+      }
     ];
     const res = func(token, {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe(null);
   });
@@ -1089,7 +1089,7 @@ describe('parse tokens', () => {
         '50%',
         43,
         45,
-        { value: 50, signCharacter: undefined },
+        { value: 50, signCharacter: undefined }
       ],
       ['whitespace-token', ' ', 46, 46, undefined],
       ['delim-token', '+', 47, 47, { value: '+' }],
@@ -1105,8 +1105,8 @@ describe('parse tokens', () => {
           value: 100,
           signCharacter: undefined,
           type: 'integer',
-          unit: 'em',
-        },
+          unit: 'em'
+        }
       ],
       ['whitespace-token', ' ', 60, 60, undefined],
       ['delim-token', '-', 61, 61, { value: '-' }],
@@ -1116,7 +1116,7 @@ describe('parse tokens', () => {
         '1px',
         63,
         65,
-        { value: 1, signCharacter: undefined, type: 'integer', unit: 'px' },
+        { value: 1, signCharacter: undefined, type: 'integer', unit: 'px' }
       ],
       [')-token', ')', 66, 66, undefined],
       ['whitespace-token', ' ', 67, 67, undefined],
@@ -1127,7 +1127,7 @@ describe('parse tokens', () => {
         '10%',
         70,
         72,
-        { value: 10, signCharacter: undefined },
+        { value: 10, signCharacter: undefined }
       ],
       [')-token', ')', 73, 73, undefined],
       [')-token', ')', 74, 74, undefined],
@@ -1135,7 +1135,7 @@ describe('parse tokens', () => {
       ['whitespace-token', ' ', 76, 76, undefined],
       ['ident-token', 'blue', 77, 80, { value: 'blue' }],
       [')-token', ')', 81, 81, undefined],
-      ['EOF-token', '', -1, -1, undefined],
+      ['EOF-token', '', -1, -1, undefined]
     ];
     const res = func(tokens);
     expect(res).toEqual([
@@ -1169,7 +1169,7 @@ describe('parse tokens', () => {
       ',',
       ' ',
       'blue',
-      ')',
+      ')'
     ]);
   });
 
@@ -1178,7 +1178,7 @@ describe('parse tokens', () => {
       ['whitespace-token', ' ', 12, 12, undefined],
       [')-token', ')', 66, 66, undefined],
       ['whitespace-token', ' ', 67, 67, undefined],
-      [')-token', ')', 73, 73, undefined],
+      [')-token', ')', 73, 73, undefined]
     ];
     const res = func(tokens);
     expect(res).toEqual([')', ')']);
@@ -1207,7 +1207,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('var(--foo)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('var(--foo)');
   });
@@ -1227,9 +1227,9 @@ describe('resolve CSS calc()', () => {
       'color-mix(in srgb, red calc( /* comment */ 50% + (sign(100em - 1px) * 10%)), blue)',
       {
         dimension: {
-          em: 16,
-        },
-      },
+          em: 16
+        }
+      }
     );
     expect(res).toBe('color-mix(in srgb, red 60%, blue)');
 
@@ -1237,9 +1237,9 @@ describe('resolve CSS calc()', () => {
       'color-mix(in srgb, red calc( /* comment */ 50% + (sign(100em - 1px) * 10%)), blue)',
       {
         dimension: {
-          em: 16,
-        },
-      },
+          em: 16
+        }
+      }
     );
     expect(res2).toBe('color-mix(in srgb, red 60%, blue)');
   });
@@ -1247,8 +1247,8 @@ describe('resolve CSS calc()', () => {
   it('should get value', () => {
     const res = func('calc( /* comment */ 50% + (sign(100em - 1px) * 10%))', {
       dimension: {
-        em: 16,
-      },
+        em: 16
+      }
     });
     expect(res).toBe('60%');
   });
@@ -1256,9 +1256,9 @@ describe('resolve CSS calc()', () => {
   it('should get value', () => {
     const res = func('calc( /* comment */ 50% + (sign(100em - 1px) * 10%))', {
       dimension: {
-        em: 16,
+        em: 16
       },
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(60%)');
   });
@@ -1266,8 +1266,8 @@ describe('resolve CSS calc()', () => {
   it('should get value', () => {
     const res = func('calc( /* comment */ 50em * calc(2 / 3))', {
       dimension: {
-        em: 16,
-      },
+        em: 16
+      }
     });
     expect(res).toBe('533.333px');
   });
@@ -1275,16 +1275,16 @@ describe('resolve CSS calc()', () => {
   it('should get value', () => {
     const res = func('calc( /* comment */ 50em * calc(2 / 3))', {
       dimension: {
-        em: 16,
+        em: 16
       },
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(33.3333em)');
   });
 
   it('should get value', () => {
     const res = func('calc(100% - 100px)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(100% - 100px)');
   });
@@ -1301,7 +1301,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('acos(1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0deg)');
   });
@@ -1313,14 +1313,14 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('acos(-1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(180deg)');
   });
 
   it('should get value', () => {
     const res = func('acos(-1.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(NaN * 1deg)');
   });
@@ -1332,7 +1332,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('asin(1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(90deg)');
   });
@@ -1344,14 +1344,14 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('asin(-1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(-90deg)');
   });
 
   it('should get value', () => {
     const res = func('asin(-1.5)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(NaN * 1deg)');
   });
@@ -1363,7 +1363,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('atan(1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(45deg)');
   });
@@ -1375,14 +1375,14 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('atan(-1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(-45deg)');
   });
 
   it('should get value', () => {
     const res = func('atan(infinity)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(90deg)');
   });
@@ -1394,28 +1394,28 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('atan2(37.320508075, 10)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(75deg)');
   });
 
   it('should get value', () => {
     const res = func('atan2(1s, 1000ms)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(45deg)');
   });
 
   it('should get value', () => {
     const res = func('atan2(infinity, infinity)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(45deg)');
   });
 
   it('should get value', () => {
     const res = func('atan2(-infinity, -infinity)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(-135deg)');
   });
@@ -1437,7 +1437,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('cos(0)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
@@ -1449,7 +1449,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('sin(0)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0)');
   });
@@ -1461,28 +1461,28 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('tan(0)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0)');
   });
 
   it('should get value', () => {
     const res = func('sin(30deg)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0.5)');
   });
 
   it('should get value', () => {
     const res = func('cos(60deg)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0.5)');
   });
 
   it('should get value', () => {
     const res = func('tan(45deg)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
@@ -1494,77 +1494,77 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('clamp(1px, 2px, 3px)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(2px)');
   });
 
   it('should get value', () => {
     const res = func('clamp(30px, 100px, 20px)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(30px)');
   });
 
   it('should get value', () => {
     const res = func('clamp(1px, 1em, 1vh)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('clamp(1px, 1em, 1vh)');
   });
 
   it('should get value', () => {
     const res = func('exp(0)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
 
   it('should get value', () => {
     const res = func('log(1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0)');
   });
 
   it('should get value', () => {
     const res = func('pow(1, 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
 
   it('should get value', () => {
     const res = func('hypot(1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
 
   it('should get value', () => {
     const res = func('sqrt(1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
 
   it('should get value', () => {
     const res = func('round(1.1, 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1)');
   });
 
   it('should get value', () => {
     const res = func('mod(1, 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0)');
   });
 
   it('should get value', () => {
     const res = func('rem(1, 1)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(0)');
   });
@@ -1576,7 +1576,7 @@ describe('resolve CSS calc()', () => {
 
   it('should get value', () => {
     const res = func('min(1px, 2px)', {
-      format: 'specifiedValue',
+      format: 'specifiedValue'
     });
     expect(res).toBe('calc(1px)');
   });

@@ -9,17 +9,17 @@ const minifyBundle = (): Plugin => ({
         asset.code = (
           await esbuild.transform(asset.code, {
             minify: true,
-            legalComments: 'none',
+            legalComments: 'none'
           })
         ).code;
     }
-  },
+  }
 });
 
 export default defineConfig({
   plugins: [minifyBundle()],
   ssr: {
-    noExternal: true,
+    noExternal: true
   },
   build: {
     emptyOutDir: false,
@@ -29,7 +29,7 @@ export default defineConfig({
       formats: ['es'],
       fileName: () => {
         return '[name].min.js';
-      },
-    },
-  },
+      }
+    }
+  }
 });

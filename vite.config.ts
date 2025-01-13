@@ -8,14 +8,14 @@ const config = defineConfig({
     dir: './tests',
     watch: false,
     coverage: { enabled: true, provider: 'istanbul', include: ['src/**/*'] },
-    typecheck: { enabled: true },
-  },
+    typecheck: { enabled: true }
+  }
 });
 
 export default mergeConfig(
   config,
   tanstackViteConfig({
     entry: './src/index.ts',
-    srcDir: './src',
-  }),
+    srcDir: './src'
+  })
 );

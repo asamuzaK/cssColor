@@ -16,7 +16,7 @@ const {
   Comment: COMMENT,
   EOF,
   Ident: IDENT,
-  Whitespace: W_SPACE,
+  Whitespace: W_SPACE
 } = TokenType;
 
 /* regexp */
@@ -25,7 +25,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
-  max: 4096,
+  max: 4096
 });
 
 /**
@@ -39,7 +39,7 @@ export function resolveCustomProperty(
   tokens: Array<any>,
   opt: {
     customProperty?: object;
-  } = {},
+  } = {}
 ): Array<string | Array<any> | undefined> {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
@@ -60,7 +60,7 @@ export function resolveCustomProperty(
     if (value === FN_VAR) {
       const [restTokens, item] = resolveCustomProperty(tokens, opt) as [
         Array<any>,
-        string,
+        string
       ];
       tokens = restTokens;
       if (item) {
@@ -142,7 +142,7 @@ export function resolveCustomProperty(
  */
 export function parseTokens(
   tokens: Array<Array<any>>,
-  opt: object = {},
+  opt: object = {}
 ): Array<Array<any>> | null {
   const res = [];
   while (tokens.length) {
@@ -201,7 +201,7 @@ export function cssVar(
   value: string,
   opt: {
     customProperty?: object;
-  } = {},
+  } = {}
 ): string | null {
   const { customProperty, format } = opt as Record<string, any>;
   if (isString(value)) {

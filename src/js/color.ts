@@ -31,7 +31,7 @@ import {
   SYN_MOD,
   SYN_RGB_LV3,
   VAL_COMP,
-  VAL_SPEC,
+  VAL_SPEC
 } from './constant.js';
 
 const VAL_MIX = 'mixValue';
@@ -66,66 +66,66 @@ const D50 = [0.3457 / 0.3585, 1.0, (1.0 - 0.3457 - 0.3585) / 0.3585];
 const MATRIX_D50_TO_D65 = [
   [0.955473421488075, -0.02309845494876471, 0.06325924320057072],
   [-0.0283697093338637, 1.0099953980813041, 0.021041441191917323],
-  [0.012314014864481998, -0.020507649298898964, 1.330365926242124],
+  [0.012314014864481998, -0.020507649298898964, 1.330365926242124]
 ];
 const MATRIX_D65_TO_D50 = [
   [1.0479297925449969, 0.022946870601609652, -0.05019226628920524],
   [0.02962780877005599, 0.9904344267538799, -0.017073799063418826],
-  [-0.009243040646204504, 0.015055191490298152, 0.7518742814281371],
+  [-0.009243040646204504, 0.015055191490298152, 0.7518742814281371]
 ];
 
 /* color space */
 const MATRIX_L_RGB_TO_XYZ = [
   [506752 / 1228815, 87881 / 245763, 12673 / 70218],
   [87098 / 409605, 175762 / 245763, 12673 / 175545],
-  [7918 / 409605, 87881 / 737289, 1001167 / 1053270],
+  [7918 / 409605, 87881 / 737289, 1001167 / 1053270]
 ];
 const MATRIX_XYZ_TO_L_RGB = [
   [12831 / 3959, -329 / 214, -1974 / 3959],
   [-851781 / 878810, 1648619 / 878810, 36519 / 878810],
-  [705 / 12673, -2585 / 12673, 705 / 667],
+  [705 / 12673, -2585 / 12673, 705 / 667]
 ];
 const MATRIX_XYZ_TO_LMS = [
   [0.819022437996703, 0.3619062600528904, -0.1288737815209879],
   [0.0329836539323885, 0.9292868615863434, 0.0361446663506424],
-  [0.0481771893596242, 0.2642395317527308, 0.6335478284694309],
+  [0.0481771893596242, 0.2642395317527308, 0.6335478284694309]
 ];
 const MATRIX_LMS_TO_XYZ = [
   [1.2268798758459243, -0.5578149944602171, 0.2813910456659647],
   [-0.0405757452148008, 1.112286803280317, -0.0717110580655164],
-  [-0.0763729366746601, -0.4214933324022432, 1.5869240198367816],
+  [-0.0763729366746601, -0.4214933324022432, 1.5869240198367816]
 ];
 const MATRIX_OKLAB_TO_LMS = [
   [1.0, 0.3963377773761749, 0.2158037573099136],
   [1.0, -0.1055613458156586, -0.0638541728258133],
-  [1.0, -0.0894841775298119, -1.2914855480194092],
+  [1.0, -0.0894841775298119, -1.2914855480194092]
 ];
 const MATRIX_LMS_TO_OKLAB = [
   [0.210454268309314, 0.7936177747023054, -0.0040720430116193],
   [1.9779985324311684, -2.4285922420485799, 0.450593709617411],
-  [0.0259040424655478, 0.7827717124575296, -0.8086757549230774],
+  [0.0259040424655478, 0.7827717124575296, -0.8086757549230774]
 ];
 const MATRIX_P3_TO_XYZ = [
   [608311 / 1250200, 189793 / 714400, 198249 / 1000160],
   [35783 / 156275, 247089 / 357200, 198249 / 2500400],
-  [0 / 1, 32229 / 714400, 5220557 / 5000800],
+  [0 / 1, 32229 / 714400, 5220557 / 5000800]
 ];
 const MATRIX_REC2020_TO_XYZ = [
   [63426534 / 99577255, 20160776 / 139408157, 47086771 / 278816314],
   [26158966 / 99577255, 472592308 / 697040785, 8267143 / 139408157],
-  [0 / 1, 19567812 / 697040785, 295819943 / 278816314],
+  [0 / 1, 19567812 / 697040785, 295819943 / 278816314]
 ];
 const MATRIX_A98_TO_XYZ = [
   [573536 / 994567, 263643 / 1420810, 187206 / 994567],
   [591459 / 1989134, 6239551 / 9945670, 374412 / 4972835],
-  [53769 / 1989134, 351524 / 4972835, 4929758 / 4972835],
+  [53769 / 1989134, 351524 / 4972835, 4929758 / 4972835]
 ];
 const MATRIX_PROPHOTO_TO_XYZ_D50 = [
   [0.7977666449006423, 0.13518129740053308, 0.0313477341283922],
 
   [0.2880748288194013, 0.711835234241873, 0.00008993693872564],
 
-  [0.0, 0.0, 0.8251046025104602],
+  [0.0, 0.0, 0.8251046025104602]
 ];
 
 /* regexp */
@@ -294,7 +294,7 @@ export const NAMED_COLORS = {
   white: [0xff, 0xff, 0xff],
   whitesmoke: [0xf5, 0xf5, 0xf5],
   yellow: [0xff, 0xff, 0x00],
-  yellowgreen: [0x9a, 0xcd, 0x32],
+  yellowgreen: [0x9a, 0xcd, 0x32]
 } as const;
 
 /**
@@ -318,7 +318,7 @@ export const validateColorComponents = (
     minRange?: number;
     maxRange?: number;
     validateRange?: boolean;
-  } = {},
+  } = {}
 ): Array<any> => {
   if (!Array.isArray(arr)) {
     throw new TypeError(`${arr} is not an array.`);
@@ -329,7 +329,7 @@ export const validateColorComponents = (
     maxLength = QUAT,
     minRange = 0,
     maxRange = 1,
-    validateRange = true,
+    validateRange = true
   } = opt;
   if (!Number.isFinite(minLength)) {
     throw new TypeError(`${minLength} is not a number.`);
@@ -375,7 +375,7 @@ export const validateColorComponents = (
 export const transformMatrix = (
   mtx: Array<Array<number>>,
   vct: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   if (!Array.isArray(mtx)) {
     throw new TypeError(`${mtx} is not an array.`);
@@ -385,14 +385,14 @@ export const transformMatrix = (
     for (let i of mtx) {
       i = validateColorComponents(i, {
         maxLength: TRIA,
-        validateRange: false,
+        validateRange: false
       });
     }
   }
   const [[r1c1, r1c2, r1c3], [r2c1, r2c2, r2c3], [r3c1, r3c2, r3c3]] = mtx as [
     [number, number, number],
     [number, number, number],
-    [number, number, number],
+    [number, number, number]
   ];
   let v1, v2, v3;
   if (skip) {
@@ -400,7 +400,7 @@ export const transformMatrix = (
   } else {
     [v1, v2, v3] = validateColorComponents(vct, {
       maxLength: TRIA,
-      validateRange: false,
+      validateRange: false
     });
   }
   const p1 = r1c1 * v1 + r1c2 * v2 + r1c3 * v3;
@@ -419,7 +419,7 @@ export const transformMatrix = (
 export const normalizeColorComponents = (
   colorA: Array<any>,
   colorB: Array<any>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<Array<number>> => {
   if (!Array.isArray(colorA)) {
     throw new TypeError(`${colorA} is not an array.`);
@@ -446,11 +446,11 @@ export const normalizeColorComponents = (
   if (!skip) {
     colorA = validateColorComponents(colorA, {
       minLength: QUAT,
-      validateRange: false,
+      validateRange: false
     });
     colorB = validateColorComponents(colorB, {
       minLength: QUAT,
-      validateRange: false,
+      validateRange: false
     });
   }
   return [colorA, colorB];
@@ -599,7 +599,7 @@ export const parseHexAlpha = (value: string): number => {
  */
 export const convertRgbToLinearRgb = (
   rgb: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   let rr, gg, bb;
   if (skip) {
@@ -607,7 +607,7 @@ export const convertRgbToLinearRgb = (
   } else {
     [rr, gg, bb] = validateColorComponents(rgb, {
       maxLength: TRIA,
-      maxRange: MAX_RGB,
+      maxRange: MAX_RGB
     });
   }
   let r = rr / MAX_RGB;
@@ -640,7 +640,7 @@ export const convertRgbToLinearRgb = (
  */
 export const convertRgbToXyz = (
   rgb: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   let r, g, b, alpha;
   if (skip) {
@@ -648,7 +648,7 @@ export const convertRgbToXyz = (
   } else {
     [r, g, b, alpha] = validateColorComponents(rgb, {
       alpha: true,
-      maxRange: MAX_RGB,
+      maxRange: MAX_RGB
     });
   }
   const [rr, gg, bb] = convertRgbToLinearRgb([r, g, b], true);
@@ -675,7 +675,7 @@ export const convertRgbToXyzD50 = (rgb: Array<number>): Array<number> => {
 export const convertRgbToHex = (rgb: Array<number>): string => {
   const [r, g, b, alpha] = validateColorComponents(rgb, {
     alpha: true,
-    maxRange: MAX_RGB,
+    maxRange: MAX_RGB
   });
   const rr = numberToHexString(r);
   const gg = numberToHexString(g);
@@ -698,10 +698,10 @@ export const convertRgbToHex = (rgb: Array<number>): string => {
  */
 export const convertLinearRgbToRgb = (
   rgb: Array<number>,
-  round: boolean = false,
+  round: boolean = false
 ): Array<number> => {
   let [r, g, b] = validateColorComponents(rgb, {
-    maxLength: TRIA,
+    maxLength: TRIA
   });
   const COND_POW = 809 / 258400;
   if (r > COND_POW) {
@@ -725,7 +725,7 @@ export const convertLinearRgbToRgb = (
   return [
     round ? Math.round(r) : r,
     round ? Math.round(g) : g,
-    round ? Math.round(b) : b,
+    round ? Math.round(b) : b
   ];
 };
 
@@ -737,14 +737,14 @@ export const convertLinearRgbToRgb = (
  */
 export const convertLinearRgbToHex = (
   rgb: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): string => {
   let r, g, b, alpha;
   if (skip) {
     [r, g, b, alpha] = rgb;
   } else {
     [r, g, b, alpha] = validateColorComponents(rgb, {
-      minLength: QUAT,
+      minLength: QUAT
     });
   }
   [r, g, b] = convertLinearRgbToRgb([r, g, b], true);
@@ -772,7 +772,7 @@ export const convertLinearRgbToHex = (
 export const convertXyzToHex = (xyz: Array<number>): string => {
   const [x, y, z, alpha] = validateColorComponents(xyz, {
     minLength: QUAT,
-    validateRange: false,
+    validateRange: false
   });
   const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
   const hex = convertLinearRgbToHex(
@@ -780,9 +780,9 @@ export const convertXyzToHex = (xyz: Array<number>): string => {
       Math.min(Math.max(r!, 0), 1),
       Math.min(Math.max(g!, 0), 1),
       Math.min(Math.max(b!, 0), 1),
-      alpha,
+      alpha
     ],
-    true,
+    true
   );
   return hex;
 };
@@ -795,7 +795,7 @@ export const convertXyzToHex = (xyz: Array<number>): string => {
 export const convertXyzD50ToHex = (xyz: Array<number>): string => {
   const [x, y, z, alpha] = validateColorComponents(xyz, {
     minLength: QUAT,
-    validateRange: false,
+    validateRange: false
   });
   const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
   const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, xyzD65, true);
@@ -803,7 +803,7 @@ export const convertXyzD50ToHex = (xyz: Array<number>): string => {
     Math.min(Math.max(r!, 0), 1),
     Math.min(Math.max(g!, 0), 1),
     Math.min(Math.max(b!, 0), 1),
-    alpha,
+    alpha
   ]);
   return hex;
 };
@@ -816,14 +816,14 @@ export const convertXyzD50ToHex = (xyz: Array<number>): string => {
  */
 export const convertXyzToRgb = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   let x, y, z, alpha;
   if (skip) {
     [x, y, z, alpha] = xyz;
   } else {
     [x, y, z, alpha] = validateColorComponents(xyz, {
-      validateRange: false,
+      validateRange: false
     });
   }
   let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
@@ -831,9 +831,9 @@ export const convertXyzToRgb = (
     [
       Math.min(Math.max(r!, 0), 1),
       Math.min(Math.max(g!, 0), 1),
-      Math.min(Math.max(b!, 0), 1),
+      Math.min(Math.max(b!, 0), 1)
     ],
-    true,
+    true
   );
   return [r, g, b, alpha];
 };
@@ -845,7 +845,7 @@ export const convertXyzToRgb = (
  */
 export const convertXyzToXyzD50 = (xyz: Array<number>): Array<number> => {
   const [xx, yy, zz, alpha] = validateColorComponents(xyz, {
-    validateRange: false,
+    validateRange: false
   });
   const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz], true);
   return [x, y, z, alpha];
@@ -859,7 +859,7 @@ export const convertXyzToXyzD50 = (xyz: Array<number>): Array<number> => {
  */
 export const convertXyzToHsl = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   const [rr, gg, bb, alpha] = convertXyzToRgb(xyz, skip);
   const r = rr! / MAX_RGB;
@@ -907,7 +907,7 @@ export const convertXyzToHsl = (
  */
 export const convertXyzToHwb = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   const [r, g, b, alpha] = convertXyzToRgb(xyz, skip);
   const w = Math.min(r!, g!, b!) / MAX_RGB;
@@ -929,14 +929,14 @@ export const convertXyzToHwb = (
  */
 export const convertXyzToOklab = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   let x, y, z, alpha;
   if (skip) {
     [x, y, z, alpha] = xyz;
   } else {
     [x, y, z, alpha] = validateColorComponents(xyz, {
-      validateRange: false,
+      validateRange: false
     });
   }
   const lms = transformMatrix(MATRIX_XYZ_TO_LMS, [x, y, z], true);
@@ -959,7 +959,7 @@ export const convertXyzToOklab = (
  */
 export const convertXyzToOklch = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   const [l, a, b, aa] = convertXyzToOklab(xyz, skip);
   let c, h;
@@ -989,7 +989,7 @@ export const convertXyzToOklch = (
  */
 export const convertXyzD50ToRgb = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   let x, y, z, alpha;
   if (skip) {
@@ -997,7 +997,7 @@ export const convertXyzD50ToRgb = (
   } else {
     [x, y, z, alpha] = validateColorComponents(xyz, {
       minLength: QUAT,
-      validateRange: false,
+      validateRange: false
     });
   }
   const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
@@ -1013,19 +1013,19 @@ export const convertXyzD50ToRgb = (
  */
 export const convertXyzD50ToLab = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   let x, y, z, alpha;
   if (skip) {
     [x, y, z, alpha] = xyz;
   } else {
     [x, y, z, alpha] = validateColorComponents(xyz, {
-      validateRange: false,
+      validateRange: false
     });
   }
   const xyzD50 = [x, y, z].map((val, i) => val / D50[i]!);
   const [f0, f1, f2] = xyzD50.map((val) =>
-    val > LAB_EPSILON ? Math.cbrt(val) : (val * LAB_KAPPA + HEX) / LAB_L,
+    val > LAB_EPSILON ? Math.cbrt(val) : (val * LAB_KAPPA + HEX) / LAB_L
   );
   const l = Math.min(Math.max(LAB_L * f1! - HEX, 0), MAX_PCT);
   let a, b;
@@ -1047,7 +1047,7 @@ export const convertXyzD50ToLab = (
  */
 export const convertXyzD50ToLch = (
   xyz: Array<number>,
-  skip: boolean = false,
+  skip: boolean = false
 ): Array<number> => {
   const [l, a, b, alpha] = convertXyzD50ToLab(xyz, skip);
   let c, h;
@@ -1088,7 +1088,7 @@ export const convertHexToRgb = (value: string): Array<number> => {
   const arr = [];
   if (/^#[\da-f]{6}$/.test(value)) {
     const [, r, g, b] = value.match(
-      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/,
+      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
     ) as [string, string, string, string];
     arr.push(parseInt(r, HEX), parseInt(g, HEX), parseInt(b, HEX), 1);
   } else if (/^#[\da-f]{3}$/.test(value)) {
@@ -1096,33 +1096,33 @@ export const convertHexToRgb = (value: string): Array<number> => {
       string,
       string,
       string,
-      string,
+      string
     ];
     arr.push(
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
       parseInt(`${b}${b}`, HEX),
-      1,
+      1
     );
   } else if (/^#[\da-f]{8}$/.test(value)) {
     const [, r, g, b, alpha] = value.match(
-      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})$/,
+      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
     ) as [string, string, string, string, string];
     arr.push(
       parseInt(r, HEX),
       parseInt(g, HEX),
       parseInt(b, HEX),
-      parseHexAlpha(alpha),
+      parseHexAlpha(alpha)
     );
   } else if (/^#[\da-f]{4}$/.test(value)) {
     const [, r, g, b, alpha] = value.match(
-      /^#([\da-f])([\da-f])([\da-f])([\da-f])$/,
+      /^#([\da-f])([\da-f])([\da-f])([\da-f])$/
     ) as [string, string, string, string, string];
     arr.push(
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
       parseInt(`${b}${b}`, HEX),
-      parseHexAlpha(`${alpha}${alpha}`),
+      parseHexAlpha(`${alpha}${alpha}`)
     );
   }
   return arr;
@@ -1161,7 +1161,7 @@ export const parseRgb = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | string => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -1189,7 +1189,7 @@ export const parseRgb = (
     string,
     string,
     string,
-    string,
+    string
   ];
   let r, g, b;
   if (v1 === NONE) {
@@ -1247,7 +1247,7 @@ export const parseHsl = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.trim();
@@ -1274,7 +1274,7 @@ export const parseHsl = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (h === NONE) {
     if (format !== 'hsl') {
@@ -1325,7 +1325,7 @@ export const parseHsl = (
     Math.min(Math.max(roundToPrecision(r * MAX_RGB, OCT), 0), MAX_RGB),
     Math.min(Math.max(roundToPrecision(g * MAX_RGB, OCT), 0), MAX_RGB),
     Math.min(Math.max(roundToPrecision(b * MAX_RGB, OCT), 0), MAX_RGB),
-    alpha,
+    alpha
   ];
 };
 
@@ -1341,7 +1341,7 @@ export const parseHwb = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.trim();
@@ -1368,7 +1368,7 @@ export const parseHwb = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (h === NONE) {
     if (format !== 'hwb') {
@@ -1406,13 +1406,13 @@ export const parseHwb = (
       h,
       w === NONE ? w : w * MAX_PCT,
       b === NONE ? b : b * MAX_PCT,
-      alpha,
+      alpha
     ];
   }
   if ((w as number) + (b as number) >= 1) {
     const v = roundToPrecision(
       ((w as number) / ((w as number) + (b as number))) * MAX_RGB,
-      OCT,
+      OCT
     );
     return ['rgb', v, v, v, alpha];
   }
@@ -1421,7 +1421,7 @@ export const parseHwb = (
     number,
     number,
     number,
-    number,
+    number
   ];
   rr = roundToPrecision((rr * factor + (w as number)) * MAX_RGB, OCT);
   gg = roundToPrecision((gg * factor + (w as number)) * MAX_RGB, OCT);
@@ -1431,7 +1431,7 @@ export const parseHwb = (
     Math.min(Math.max(rr, 0), MAX_RGB),
     Math.min(Math.max(gg, 0), MAX_RGB),
     Math.min(Math.max(bb, 0), MAX_RGB),
-    alpha,
+    alpha
   ];
 };
 
@@ -1447,7 +1447,7 @@ export const parseLab = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.trim();
@@ -1475,7 +1475,7 @@ export const parseLab = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (l === NONE) {
     if (!REG_SPEC.test(format!)) {
@@ -1531,7 +1531,7 @@ export const parseLab = (
       l === NONE ? l : roundToPrecision(l, HEX),
       a === NONE ? a : roundToPrecision(a, HEX),
       b === NONE ? b : roundToPrecision(b, HEX),
-      alpha,
+      alpha
     ];
   }
   const fl = ((l as number) + HEX) / LAB_L;
@@ -1543,7 +1543,7 @@ export const parseLab = (
   const xyz = [
     powFa > LAB_EPSILON ? powFa : (fa * LAB_L - HEX) / LAB_KAPPA,
     (l as number) > COND_POW ? powFl : (l as number) / LAB_KAPPA,
-    powFb > LAB_EPSILON ? powFb : (fb * LAB_L - HEX) / LAB_KAPPA,
+    powFb > LAB_EPSILON ? powFb : (fb * LAB_L - HEX) / LAB_KAPPA
   ];
   const [x, y, z] = xyz.map((val, i) => val * D50[i]!);
   return [
@@ -1551,7 +1551,7 @@ export const parseLab = (
     roundToPrecision(x!, HEX),
     roundToPrecision(y!, HEX),
     roundToPrecision(z!, HEX),
-    alpha,
+    alpha
   ];
 };
 
@@ -1567,7 +1567,7 @@ export const parseLch = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.trim();
@@ -1594,7 +1594,7 @@ export const parseLch = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (l === NONE) {
     if (!REG_SPEC.test(format!)) {
@@ -1639,7 +1639,7 @@ export const parseLch = (
       l === NONE ? l : roundToPrecision(l, HEX),
       c === NONE ? c : roundToPrecision(c, HEX),
       h === NONE ? h : roundToPrecision(h, HEX),
-      alpha,
+      alpha
     ];
   }
   const a = (c as number) * Math.cos(((h as number) * Math.PI) / (DEG * HALF));
@@ -1648,14 +1648,14 @@ export const parseLch = (
     number,
     number,
     number,
-    number,
+    number
   ];
   return [
     'xyz-d50',
     roundToPrecision(x, HEX),
     roundToPrecision(y, HEX),
     roundToPrecision(z, HEX),
-    alpha,
+    alpha
   ];
 };
 
@@ -1671,7 +1671,7 @@ export const parseOklab = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ) => {
   if (isString(value)) {
     value = value.trim();
@@ -1698,7 +1698,7 @@ export const parseOklab = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (l === NONE) {
     if (!REG_SPEC.test(format!)) {
@@ -1751,13 +1751,13 @@ export const parseOklab = (
       l === NONE ? l : roundToPrecision(l, HEX),
       a === NONE ? a : roundToPrecision(a, HEX),
       b === NONE ? b : roundToPrecision(b, HEX),
-      alpha,
+      alpha
     ];
   }
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [
     l as number,
     a as number,
-    b as number,
+    b as number
   ]);
   const xyzLms = lms.map((c) => Math.pow(c, POW_CUBE));
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
@@ -1766,7 +1766,7 @@ export const parseOklab = (
     roundToPrecision(x!, HEX),
     roundToPrecision(y!, HEX),
     roundToPrecision(z!, HEX),
-    alpha,
+    alpha
   ];
 };
 
@@ -1782,7 +1782,7 @@ export const parseOklch = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.trim();
@@ -1809,7 +1809,7 @@ export const parseOklch = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (l === NONE) {
     if (!REG_SPEC.test(format!)) {
@@ -1861,7 +1861,7 @@ export const parseOklch = (
       l === NONE ? l : roundToPrecision(l, HEX),
       c === NONE ? c : roundToPrecision(c, HEX),
       h === NONE ? h : roundToPrecision(h, HEX),
-      alpha,
+      alpha
     ];
   }
   const a = (c as number) * Math.cos(((h as number) * Math.PI) / (DEG * HALF));
@@ -1874,7 +1874,7 @@ export const parseOklch = (
     roundToPrecision(x!, HEX),
     roundToPrecision(y!, HEX),
     roundToPrecision(z!, HEX),
-    alpha,
+    alpha
   ];
 };
 
@@ -1894,7 +1894,7 @@ export const parseColorFunc = (
     colorSpace?: string;
     d50?: boolean;
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.trim();
@@ -1922,7 +1922,7 @@ export const parseColorFunc = (
     string,
     string,
     string,
-    string,
+    string
   ];
   let r, g, b;
   if (cs === 'xyz') {
@@ -1959,7 +1959,7 @@ export const parseColorFunc = (
       v1 === NONE ? NONE : roundToPrecision(r, DEC),
       v2 === NONE ? NONE : roundToPrecision(g, DEC),
       v3 === NONE ? NONE : roundToPrecision(b, DEC),
-      v4 === NONE ? NONE : alpha,
+      v4 === NONE ? NONE : alpha
     ];
   }
   let x, y, z;
@@ -1980,7 +1980,7 @@ export const parseColorFunc = (
     const linearRgb = convertRgbToLinearRgb([
       r * MAX_RGB,
       g * MAX_RGB,
-      b * MAX_RGB,
+      b * MAX_RGB
     ]);
     [x, y, z] = transformMatrix(MATRIX_P3_TO_XYZ, linearRgb);
     if (d50) {
@@ -2050,7 +2050,7 @@ export const parseColorFunc = (
     roundToPrecision(y!, HEX),
 
     roundToPrecision(z!, HEX),
-    format === VAL_MIX && v4 === NONE ? NONE : alpha,
+    format === VAL_MIX && v4 === NONE ? NONE : alpha
   ];
 };
 
@@ -2069,7 +2069,7 @@ export const parseColorValue = (
   opt: {
     d50?: boolean;
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2113,7 +2113,7 @@ export const parseColorValue = (
       const [r, g, b] = NAMED_COLORS[value as keyof typeof NAMED_COLORS] as [
         number,
         number,
-        number,
+        number
       ];
       alpha = 1;
       if (format === VAL_COMP) {
@@ -2164,7 +2164,7 @@ export const parseColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     if (!d50) {
       [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x!, y!, z!], true);
@@ -2179,7 +2179,7 @@ export const parseColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     if (!d50) {
       [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x!, y!, z!], true);
@@ -2194,7 +2194,7 @@ export const parseColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
@@ -2209,7 +2209,7 @@ export const parseColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
@@ -2223,7 +2223,7 @@ export const parseColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
       // hwb()
     } else if (value.startsWith('hwb')) {
@@ -2232,7 +2232,7 @@ export const parseColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
       // rgb()
     } else {
@@ -2241,7 +2241,7 @@ export const parseColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
     if (REG_SPEC.test(format!)) {
@@ -2261,7 +2261,7 @@ export const parseColorValue = (
 
     roundToPrecision(z!, HEX),
 
-    alpha!,
+    alpha!
   ];
 };
 
@@ -2279,7 +2279,7 @@ export const resolveColorValue = (
   opt: {
     colorSpace?: string;
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2320,7 +2320,7 @@ export const resolveColorValue = (
       [r, g, b] = NAMED_COLORS[value as keyof typeof NAMED_COLORS] as [
         number,
         number,
-        number,
+        number
       ];
       alpha = 1;
     } else {
@@ -2347,7 +2347,7 @@ export const resolveColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     // rgb()
   } else if (value.startsWith('rgb')) {
@@ -2356,7 +2356,7 @@ export const resolveColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     // hsl()
   } else if (value.startsWith('hsl')) {
@@ -2365,7 +2365,7 @@ export const resolveColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     // hwb()
   } else if (value.startsWith('hwb')) {
@@ -2374,7 +2374,7 @@ export const resolveColorValue = (
       number,
       number,
       number,
-      number,
+      number
     ];
     // lab(), lch()
   } else if (/^l(?:ab|ch)/.test(value)) {
@@ -2385,7 +2385,7 @@ export const resolveColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
     } else {
       [cs, x, y, z, alpha] = parseLch(value, opt) as [
@@ -2393,7 +2393,7 @@ export const resolveColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
     if (REG_SPEC.test(format!)) {
@@ -2409,7 +2409,7 @@ export const resolveColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
     } else {
       [cs, x, y, z, alpha] = parseOklch(value, opt) as [
@@ -2417,7 +2417,7 @@ export const resolveColorValue = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
     if (REG_SPEC.test(format!)) {
@@ -2445,7 +2445,7 @@ export const resolveColorFunc = (
   opt: {
     colorSpace?: string;
     format?: string;
-  } = {},
+  } = {}
 ) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2471,7 +2471,7 @@ export const resolveColorFunc = (
     string | number,
     string | number,
     string | number,
-    string | number,
+    string | number
   ];
   if (REG_SPEC.test(format!)) {
     return [cs, x, y, z, alpha];
@@ -2484,7 +2484,7 @@ export const resolveColorFunc = (
         x === NONE ? x : x,
         y === NONE ? y : y,
         z === NONE ? z : z,
-        alpha,
+        alpha
       ];
     }
     [r, g, b] = convertXyzToRgb([x as number, y as number, z as number], true);
@@ -2507,7 +2507,7 @@ export const convertColorToLinearRgb = (
   opt: {
     colorSpace?: string;
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2537,7 +2537,7 @@ export const convertColorToLinearRgb = (
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb-linear') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP,
+        format: VAL_COMP
       }) as [number, number, number, number, number];
     } else {
       [, x, y, z, alpha] = parseColorFunc(value) as [
@@ -2545,7 +2545,7 @@ export const convertColorToLinearRgb = (
         number,
         number,
         number,
-        number,
+        number
       ];
       [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
     }
@@ -2555,7 +2555,7 @@ export const convertColorToLinearRgb = (
       number,
       number,
       number,
-      number,
+      number
     ];
     [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
   }
@@ -2566,7 +2566,7 @@ export const convertColorToLinearRgb = (
 
     Math.min(Math.max(b!, 0), 1),
 
-    alpha!,
+    alpha!
   ];
 };
 
@@ -2581,7 +2581,7 @@ export const convertColorToRgb = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2606,7 +2606,7 @@ export const convertColorToRgb = (
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP,
+        format: VAL_COMP
       }) as [number, number, number, number, number];
       r *= MAX_RGB;
       g *= MAX_RGB;
@@ -2617,7 +2617,7 @@ export const convertColorToRgb = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
   } else if (/^(?:ok)?l(?:ab|ch)/.test(value)) {
@@ -2625,7 +2625,7 @@ export const convertColorToRgb = (
     [r, g, b] = convertLinearRgbToRgb([r!, g!, b!]);
   } else {
     [, r, g, b, alpha] = resolveColorValue(value, {
-      format: VAL_COMP,
+      format: VAL_COMP
     }) as [number, number, number, number, number];
   }
   return [r as number, g as number, b as number, alpha as number];
@@ -2644,7 +2644,7 @@ export const convertColorToXyz = (
   opt: {
     d50?: boolean;
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2670,7 +2670,7 @@ export const convertColorToXyz = (
     if (d50) {
       if (cs === 'xyz-d50') {
         [, x, y, z, alpha] = resolveColorFunc(value, {
-          format: VAL_COMP,
+          format: VAL_COMP
         }) as [number, number, number, number, number];
       } else {
         [, x, y, z, alpha] = parseColorFunc(value, opt) as [
@@ -2678,12 +2678,12 @@ export const convertColorToXyz = (
           number,
           number,
           number,
-          number,
+          number
         ];
       }
     } else if (/^xyz(?:-d65)?$/.test(cs!)) {
       [, x, y, z, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP,
+        format: VAL_COMP
       }) as [number, number, number, number, number];
     } else {
       [, x, y, z, alpha] = parseColorFunc(value) as [
@@ -2691,7 +2691,7 @@ export const convertColorToXyz = (
         number,
         number,
         number,
-        number,
+        number
       ];
     }
   } else {
@@ -2700,7 +2700,7 @@ export const convertColorToXyz = (
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   return [x as number, y as number, z as number, alpha as number];
@@ -2717,7 +2717,7 @@ export const convertColorToHsl = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2728,7 +2728,7 @@ export const convertColorToHsl = (
   let h, s, l, alpha, x, y, z;
   if (REG_HSL.test(value)) {
     [, h, s, l, alpha] = parseHsl(value, {
-      format: 'hsl',
+      format: 'hsl'
     }) as [number, number, number, number, number];
     if (format === 'hsl') {
       return [Math.round(h), Math.round(s), Math.round(l), alpha];
@@ -2752,7 +2752,7 @@ export const convertColorToHsl = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
@@ -2760,12 +2760,12 @@ export const convertColorToHsl = (
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   [h, s, l] = convertXyzToHsl(
     [x as number, y as number, z as number],
-    true,
+    true
   ) as [number, number, number];
   if (format === 'hsl') {
     return [Math.round(h), Math.round(s), Math.round(l), alpha as number];
@@ -2784,7 +2784,7 @@ export const convertColorToHwb = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2795,7 +2795,7 @@ export const convertColorToHwb = (
   let h, w, b, alpha, x, y, z;
   if (REG_HWB.test(value)) {
     [, h, w, b, alpha] = parseHwb(value, {
-      format: 'hwb',
+      format: 'hwb'
     }) as [number, number, number, number, number];
     if (format === 'hwb') {
       return [Math.round(h), Math.round(w), Math.round(b), alpha];
@@ -2819,7 +2819,7 @@ export const convertColorToHwb = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
@@ -2827,7 +2827,7 @@ export const convertColorToHwb = (
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   [h, w, b] = convertXyzToHwb([x as number, y as number, z as number], true);
@@ -2849,7 +2849,7 @@ export const convertColorToLab = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2860,7 +2860,7 @@ export const convertColorToLab = (
   let l, a, b, alpha, x, y, z;
   if (REG_LAB.test(value)) {
     [, l, a, b, alpha] = parseLab(value, {
-      format: VAL_COMP,
+      format: VAL_COMP
     }) as [number, number, number, number, number];
     return [l, a, b, alpha];
   }
@@ -2878,11 +2878,11 @@ export const convertColorToLab = (
     [, x, y, z, alpha] = xyz;
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
-      d50: true,
+      d50: true
     }) as [number, number, number, number, number];
   } else {
     [, x, y, z, alpha] = parseColorValue(value, {
-      d50: true,
+      d50: true
     }) as [number, number, number, number, number];
   }
   [l, a, b] = convertXyzD50ToLab([x as number, y as number, z as number], true);
@@ -2901,7 +2901,7 @@ export const convertColorToLch = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2912,7 +2912,7 @@ export const convertColorToLch = (
   let l, c, h, alpha, x, y, z;
   if (REG_LCH.test(value)) {
     [, l, c, h, alpha] = parseLch(value, {
-      format: VAL_COMP,
+      format: VAL_COMP
     }) as [number, number, number, number, number];
     return [l, c, h, alpha];
   }
@@ -2930,11 +2930,11 @@ export const convertColorToLch = (
     [, x, y, z, alpha] = xyz;
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
-      d50: true,
+      d50: true
     }) as [number, number, number, number, number];
   } else {
     [, x, y, z, alpha] = parseColorValue(value, {
-      d50: true,
+      d50: true
     }) as [number, number, number, number, number];
   }
   [l, c, h] = convertXyzD50ToLch([x as number, y as number, z as number], true);
@@ -2953,7 +2953,7 @@ export const convertColorToOklab = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -2964,7 +2964,7 @@ export const convertColorToOklab = (
   let l, a, b, alpha, x, y, z;
   if (REG_OKLAB.test(value)) {
     [, l, a, b, alpha] = parseOklab(value, {
-      format: VAL_COMP,
+      format: VAL_COMP
     }) as [number, number, number, number, number];
     return [l, a, b, alpha];
   }
@@ -2985,7 +2985,7 @@ export const convertColorToOklab = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
@@ -2993,7 +2993,7 @@ export const convertColorToOklab = (
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   [l, a, b] = convertXyzToOklab([x as number, y as number, z as number], true);
@@ -3012,7 +3012,7 @@ export const convertColorToOklch = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = value.trim();
@@ -3023,7 +3023,7 @@ export const convertColorToOklch = (
   let l, c, h, alpha, x, y, z;
   if (REG_OKLCH.test(value)) {
     [, l, c, h, alpha] = parseOklch(value, {
-      format: VAL_COMP,
+      format: VAL_COMP
     }) as [number, number, number, number, number];
     return [l, c, h, alpha];
   }
@@ -3044,7 +3044,7 @@ export const convertColorToOklch = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
@@ -3052,7 +3052,7 @@ export const convertColorToOklch = (
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   [l, c, h] = convertXyzToOklch([x as number, y as number, z as number], true);
@@ -3072,7 +3072,7 @@ export const resolveColorMix = (
   value: string,
   opt: {
     format?: string;
-  } = {},
+  } = {}
 ): Array<string | number> | (string | null) => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -3087,7 +3087,7 @@ export const resolveColorMix = (
       const items = value.match(REG_MIX_NEST)!;
       for (const item of items) {
         let val = resolveColorMix(item, {
-          format: format === VAL_SPEC ? format : VAL_COMP,
+          format: format === VAL_SPEC ? format : VAL_COMP
         }) as string;
         // computed value
         if (Array.isArray(val)) {
@@ -3134,7 +3134,7 @@ export const resolveColorMix = (
       [, colorSpace, hueArc] = REG_CS_HUE.exec(cs) as unknown as [
         string,
         string,
-        string,
+        string
       ];
     } else {
       colorSpace = cs;
@@ -3164,34 +3164,34 @@ export const resolveColorMix = (
         const [, colorPartA, colorPartB] = value.match(reg) as [
           string,
           string,
-          string,
+          string
         ];
         [, colorA, pctA] = colorPartA.match(regColorPart) as [
           string,
           string,
-          string,
+          string
         ];
         [, colorB, pctB] = colorPartB.match(regItemPart) as [
           string,
           string,
-          string,
+          string
         ];
       } else {
         const reg = new RegExp(`(${itemPart})\\s*,\\s*(${colorPart})\\s*\\)$`);
         const [, colorPartA, colorPartB] = value.match(reg) as [
           string,
           string,
-          string,
+          string
         ];
         [, colorA, pctA] = colorPartA.match(regItemPart) as [
           string,
           string,
-          string,
+          string
         ];
         [, colorB, pctB] = colorPartB.match(regColorPart) as [
           string,
           string,
-          string,
+          string
         ];
       }
     }
@@ -3200,7 +3200,7 @@ export const resolveColorMix = (
       string,
       string,
       string,
-      string,
+      string
     ];
     const reg = new RegExp(`^(${SYN_COLOR_TYPE})(?:\\s+(${PCT}))?$`);
     [, colorA, pctA] = colorPartA.match(reg) as [string, string, string];
@@ -3209,7 +3209,7 @@ export const resolveColorMix = (
       [, colorSpace, hueArc] = REG_CS_HUE.exec(cs) as unknown as [
         string,
         string,
-        string,
+        string
       ];
     } else {
       colorSpace = cs;
@@ -3363,7 +3363,7 @@ export const resolveColorMix = (
       } else {
         rgbA = convertColorToRgb(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3372,7 +3372,7 @@ export const resolveColorMix = (
       } else {
         rgbB = convertColorToRgb(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     } else {
@@ -3381,7 +3381,7 @@ export const resolveColorMix = (
       } else {
         rgbA = convertColorToLinearRgb(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         });
       }
 
@@ -3390,7 +3390,7 @@ export const resolveColorMix = (
       } else {
         rgbB = convertColorToLinearRgb(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         });
       }
     }
@@ -3407,7 +3407,7 @@ export const resolveColorMix = (
     [[rA, gA, bA, alphaA], [rB, gB, bB, alphaB]] = normalizeColorComponents(
       [rA, gA, bA, alphaA],
       [rB, gB, bB, alphaB],
-      true,
+      true
     ) as [[number, number, number, number], [number, number, number, number]];
     const factorA = alphaA * pA;
     const factorB = alphaB * pB;
@@ -3428,7 +3428,7 @@ export const resolveColorMix = (
         rNone ? NONE : roundToPrecision(r, HEX),
         gNone ? NONE : roundToPrecision(g, HEX),
         bNone ? NONE : roundToPrecision(b, HEX),
-        alphaNone ? NONE : alpha * m,
+        alphaNone ? NONE : alpha * m
       ];
     }
     r *= MAX_RGB;
@@ -3444,7 +3444,7 @@ export const resolveColorMix = (
       xyzA = convertColorToXyz(colorA!, {
         colorSpace,
         d50: colorSpace === 'xyz-d50',
-        format: VAL_MIX,
+        format: VAL_MIX
       } as never);
     }
 
@@ -3454,7 +3454,7 @@ export const resolveColorMix = (
       xyzB = convertColorToXyz(colorB!, {
         colorSpace,
         d50: colorSpace === 'xyz-d50',
-        format: VAL_MIX,
+        format: VAL_MIX
       } as never);
     }
 
@@ -3470,7 +3470,7 @@ export const resolveColorMix = (
     [[xA, yA, zA, alphaA], [xB, yB, zB, alphaB]] = normalizeColorComponents(
       [xA, yA, zA, alphaA],
       [xB, yB, zB, alphaB],
-      true,
+      true
     ) as [[number, number, number, number], [number, number, number, number]];
     const factorA = alphaA * pA;
     const factorB = alphaB * pB;
@@ -3492,7 +3492,7 @@ export const resolveColorMix = (
         xNone ? NONE : roundToPrecision(x, HEX),
         yNone ? NONE : roundToPrecision(y, HEX),
         zNone ? NONE : roundToPrecision(z, HEX),
-        alphaNone ? NONE : alpha * m,
+        alphaNone ? NONE : alpha * m
       ];
     }
     if (colorSpace === 'xyz-d50') {
@@ -3509,7 +3509,7 @@ export const resolveColorMix = (
       } else {
         hslA = convertColorToHsl(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3518,7 +3518,7 @@ export const resolveColorMix = (
       } else {
         hslB = convertColorToHsl(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     } else {
@@ -3527,7 +3527,7 @@ export const resolveColorMix = (
       } else {
         hslA = convertColorToHwb(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3536,7 +3536,7 @@ export const resolveColorMix = (
       } else {
         hslB = convertColorToHwb(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     }
@@ -3550,7 +3550,7 @@ export const resolveColorMix = (
     [[hA, sA, lA, alphaA], [hB, sB, lB, alphaB]] = normalizeColorComponents(
       [hA, sA, lA, alphaA],
       [hB, sB, lB, alphaB],
-      true,
+      true
     ) as [[number, number, number, number], [number, number, number, number]];
     if (hueArc) {
       [hA, hB] = interpolateHue(hA, hB, hueArc);
@@ -3578,7 +3578,7 @@ export const resolveColorMix = (
         roundToPrecision(g! / MAX_RGB, HEX),
 
         roundToPrecision(b! / MAX_RGB, HEX),
-        alphaNone ? NONE : alpha * m,
+        alphaNone ? NONE : alpha * m
       ];
     }
     // in lab, oklab
@@ -3590,7 +3590,7 @@ export const resolveColorMix = (
       } else {
         labA = convertColorToLab(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3599,7 +3599,7 @@ export const resolveColorMix = (
       } else {
         labB = convertColorToLab(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     } else {
@@ -3608,7 +3608,7 @@ export const resolveColorMix = (
       } else {
         labA = convertColorToOklab(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3617,7 +3617,7 @@ export const resolveColorMix = (
       } else {
         labB = convertColorToOklab(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     }
@@ -3634,7 +3634,7 @@ export const resolveColorMix = (
     [[lA, aA, bA, alphaA], [lB, aB, bB, alphaB]] = normalizeColorComponents(
       [lA, aA, bA, alphaA],
       [lB, aB, bB, alphaB],
-      true,
+      true
     ) as [[number, number, number, number], [number, number, number, number]];
     const factorA = alphaA * pA;
     const factorB = alphaB * pB;
@@ -3656,14 +3656,14 @@ export const resolveColorMix = (
         lNone ? NONE : roundToPrecision(l, HEX),
         aNone ? NONE : roundToPrecision(aO, HEX),
         bNone ? NONE : roundToPrecision(bO, HEX),
-        alphaNone ? NONE : alpha * m,
+        alphaNone ? NONE : alpha * m
       ];
     }
     [, r, g, b] = resolveColorValue(`${colorSpace}(${l} ${aO} ${bO})`) as [
       number,
       number,
       number,
-      number,
+      number
     ];
     // in lch, oklch
   } else if (/^(?:ok)?lch$/.test(colorSpace)) {
@@ -3674,7 +3674,7 @@ export const resolveColorMix = (
       } else {
         lchA = convertColorToLch(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3683,7 +3683,7 @@ export const resolveColorMix = (
       } else {
         lchB = convertColorToLch(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     } else {
@@ -3692,7 +3692,7 @@ export const resolveColorMix = (
       } else {
         lchA = convertColorToOklch(colorA!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
 
@@ -3701,7 +3701,7 @@ export const resolveColorMix = (
       } else {
         lchB = convertColorToOklch(colorB!, {
           colorSpace,
-          format: VAL_MIX,
+          format: VAL_MIX
         } as never);
       }
     }
@@ -3718,7 +3718,7 @@ export const resolveColorMix = (
     [[lA, cA, hA, alphaA], [lB, cB, hB, alphaB]] = normalizeColorComponents(
       [lA, cA, hA, alphaA],
       [lB, cB, hB, alphaB],
-      true,
+      true
     ) as [[number, number, number, number], [number, number, number, number]];
     if (hueArc) {
       [hA, hB] = interpolateHue(hA, hB, hueArc);
@@ -3742,14 +3742,14 @@ export const resolveColorMix = (
         lNone ? NONE : roundToPrecision(l, HEX),
         cNone ? NONE : roundToPrecision(c, HEX),
         hNone ? NONE : roundToPrecision(h, HEX),
-        alphaNone ? NONE : alpha * m,
+        alphaNone ? NONE : alpha * m
       ];
     }
     [, r, g, b] = resolveColorValue(`${colorSpace}(${l} ${c} ${h})`) as [
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   return [
@@ -3761,6 +3761,6 @@ export const resolveColorMix = (
 
     Math.round(b!),
 
-    parseFloat((alpha! * m).toFixed(3)),
+    parseFloat((alpha! * m).toFixed(3))
   ];
 };

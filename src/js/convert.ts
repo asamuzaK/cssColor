@@ -13,7 +13,7 @@ import {
   convertColorToRgb,
   numberToHexString,
   parseColorFunc,
-  parseColorValue,
+  parseColorValue
 } from './color';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
@@ -27,7 +27,7 @@ import {
   SYN_FN_MATH_CALC,
   SYN_FN_REL,
   SYN_FN_VAR,
-  VAL_COMP,
+  VAL_COMP
 } from './constant.js';
 
 /* regexp */
@@ -37,7 +37,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
 export const cachedResults = new LRUCache({
-  max: 4096,
+  max: 4096
 });
 
 /**
@@ -53,7 +53,7 @@ export const preProcess = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -90,7 +90,7 @@ export const preProcess = (
   }
   if (value && value.startsWith('color-mix')) {
     value = resolve(value, {
-      format: VAL_COMP,
+      format: VAL_COMP
     }) as never;
   }
   if (cacheKey) {
@@ -131,7 +131,7 @@ export const colorToHex = (
     alpha?: boolean;
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): string | undefined => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -181,7 +181,7 @@ export const colorToHsl = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -225,7 +225,7 @@ export const colorToHwb = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -269,7 +269,7 @@ export const colorToLab = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -312,7 +312,7 @@ export const colorToLch = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -355,7 +355,7 @@ export const colorToOklab = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -398,7 +398,7 @@ export const colorToOklch = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -441,7 +441,7 @@ export const colorToRgb = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -486,7 +486,7 @@ export const colorToXyz = (
     customProperty?: object;
     d50?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   if (isString(value)) {
     value = preProcess(value, opt) as never;
@@ -515,14 +515,14 @@ export const colorToXyz = (
       number,
       number,
       number,
-      number,
+      number
     ];
   } else {
     [, ...xyz] = parseColorValue(value, opt as never) as [
       number,
       number,
       number,
-      number,
+      number
     ];
   }
   if (cacheKey) {
@@ -544,7 +544,7 @@ export const colorToXyzD50 = (
   opt: {
     customProperty?: object;
     dimension?: object;
-  } = {},
+  } = {}
 ): Array<number> => {
   (opt as Record<string, boolean>).d50 = true;
   return colorToXyz(value, opt);
@@ -562,5 +562,5 @@ export const convert = {
   colorToRgb,
   colorToXyz,
   colorToXyzD50,
-  numberToHex,
+  numberToHex
 };
