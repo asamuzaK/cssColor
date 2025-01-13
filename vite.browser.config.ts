@@ -1,5 +1,5 @@
-import esbuild from 'esbuild'
-import { defineConfig, Plugin } from 'vite'
+import esbuild from 'esbuild';
+import { defineConfig, Plugin } from 'vite';
 
 const minifyBundle = (): Plugin => ({
   name: 'minify-bundle',
@@ -11,10 +11,10 @@ const minifyBundle = (): Plugin => ({
             minify: true,
             legalComments: 'none',
           })
-        ).code
+        ).code;
     }
   },
-})
+});
 
 export default defineConfig({
   plugins: [minifyBundle()],
@@ -28,8 +28,8 @@ export default defineConfig({
       entry: 'src/index.ts',
       formats: ['es'],
       fileName: () => {
-        return '[name].min.js'
+        return '[name].min.js';
       },
     },
   },
-})
+});

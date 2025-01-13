@@ -15,17 +15,17 @@ npm i @asamuzakjp/css-color
 ## Usage
 
 ```javascript
-import { convert, isColor, resolve } from '@asamuzakjp/css-color'
+import { convert, isColor, resolve } from '@asamuzakjp/css-color';
 
 const resolvedValue = resolve(
   'color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))',
-)
+);
 // 'oklab(0.620754 -0.0931934 -0.00374881)'
 
-const convertedValue = covert.colorToHex('lab(46.2775% -47.5621 48.5837)')
+const convertedValue = covert.colorToHex('lab(46.2775% -47.5621 48.5837)');
 // '#008000'
 
-const result = isColor('green')
+const result = isColor('green');
 // true
 ```
 
@@ -56,7 +56,7 @@ resolves CSS color
           '--some-color': '#008000',
           '--some-length': '16px',
         },
-      }
+      };
       ```
     - and/or `callback` function to get the value of the custom property,
       e.g.
@@ -79,7 +79,7 @@ resolves CSS color
           rem: 16,
           vw: 10.24,
         },
-      }
+      };
       ```
     - and/or `callback` function to get the value as a number in pixels,
       e.g.
@@ -89,17 +89,17 @@ resolves CSS color
           callback: (unit) => {
             switch (unit) {
               case 'em':
-                return 12
+                return 12;
               case 'rem':
-                return 16
+                return 16;
               case 'vw':
-                return 10.24
+                return 10.24;
               default:
-                return
+                return;
             }
           },
         },
-      }
+      };
       ```
   - `opt.format` **[string][133]?**
     - output format, one of below

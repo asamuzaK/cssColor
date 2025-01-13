@@ -1,6 +1,6 @@
-import { defineConfig, mergeConfig } from 'vitest/config'
-import { tanstackViteConfig } from '@tanstack/config/vite'
-import packageJson from './package.json'
+import { defineConfig, mergeConfig } from 'vitest/config';
+import { tanstackViteConfig } from '@tanstack/config/vite';
+import packageJson from './package.json';
 
 const config = defineConfig({
   test: {
@@ -10,7 +10,7 @@ const config = defineConfig({
     coverage: { enabled: true, provider: 'istanbul', include: ['src/**/*'] },
     typecheck: { enabled: true },
   },
-})
+});
 
 export default mergeConfig(
   config,
@@ -18,4 +18,4 @@ export default mergeConfig(
     entry: './src/index.ts',
     srcDir: './src',
   }),
-)
+);

@@ -1,12 +1,7 @@
-// @ts-check
+import neostandard from 'neostandard';
 
-// @ts-ignore Needed due to moduleResolution Node vs Bundler
-import { tanstackConfig } from '@tanstack/config/eslint'
-
-export default [
-  ...tanstackConfig,
-  {
-    name: 'tanstack/temp',
-    rules: {},
-  },
-]
+export default neostandard({
+  noStyle: true,
+  semi: true,
+  ts: true,
+});

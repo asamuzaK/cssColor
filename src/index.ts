@@ -5,7 +5,7 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
-export { convert } from './js/convert'
-export { cssCalc } from './js/css-calc'
-export { resolve } from './js/resolve'
-export { isColor } from './js/util'
+export { convert } from './js/convert';
+export { cssCalc } from './js/css-calc';
+export { resolve } from './js/resolve';
+export { isColor } from './js/util';
