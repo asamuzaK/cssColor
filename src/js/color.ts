@@ -1418,14 +1418,23 @@ export const parseHwb = (
   }
   const factor = (1 - (w as number) - (b as number)) / MAX_RGB;
   let [, rr, gg, bb] = parseHsl(`hsl(${h} 100 50)`) as [
-    number,
-    number,
-    number,
-    number
+    string,
+    number | string,
+    number | string,
+    number | string
   ];
-  rr = roundToPrecision((rr * factor + (w as number)) * MAX_RGB, OCT);
-  gg = roundToPrecision((gg * factor + (w as number)) * MAX_RGB, OCT);
-  bb = roundToPrecision((bb * factor + (w as number)) * MAX_RGB, OCT);
+  rr = roundToPrecision(
+    ((rr as number) * factor + (w as number)) * MAX_RGB,
+    OCT
+  );
+  gg = roundToPrecision(
+    ((gg as number) * factor + (w as number)) * MAX_RGB,
+    OCT
+  );
+  bb = roundToPrecision(
+    ((bb as number) * factor + (w as number)) * MAX_RGB,
+    OCT
+  );
   return [
     'rgb',
     Math.min(Math.max(rr, 0), MAX_RGB),
@@ -1645,16 +1654,16 @@ export const parseLch = (
   const a = (c as number) * Math.cos(((h as number) * Math.PI) / (DEG * HALF));
   const b = (c as number) * Math.sin(((h as number) * Math.PI) / (DEG * HALF));
   const [, x, y, z] = parseLab(`lab(${l} ${a} ${b})`) as [
-    number,
-    number,
-    number,
-    number
+    string,
+    number | string,
+    number | string,
+    number | string
   ];
   return [
     'xyz-d50',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
+    roundToPrecision(x as number, HEX),
+    roundToPrecision(y as number, HEX),
+    roundToPrecision(z as number, HEX),
     alpha
   ];
 };
@@ -1967,13 +1976,21 @@ export const parseColorFunc = (
   if (cs === 'srgb') {
     [x, y, z] = convertRgbToXyz([r * MAX_RGB, g * MAX_RGB, b * MAX_RGB]);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // srgb-linear
   } else if (cs === 'srgb-linear') {
     [x, y, z] = transformMatrix(MATRIX_L_RGB_TO_XYZ, [r, g, b]);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // display-p3
   } else if (cs === 'display-p3') {
@@ -1984,7 +2001,11 @@ export const parseColorFunc = (
     ]);
     [x, y, z] = transformMatrix(MATRIX_P3_TO_XYZ, linearRgb);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // rec2020
   } else if (cs === 'rec2020') {
@@ -2002,7 +2023,11 @@ export const parseColorFunc = (
     });
     [x, y, z] = transformMatrix(MATRIX_REC2020_TO_XYZ, rgb);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // a98-rgb
   } else if (cs === 'a98-rgb') {
@@ -2013,7 +2038,11 @@ export const parseColorFunc = (
     });
     [x, y, z] = transformMatrix(MATRIX_A98_TO_XYZ, rgb);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // prophoto-rgb
   } else if (cs === 'prophoto-rgb') {
@@ -2029,7 +2058,11 @@ export const parseColorFunc = (
     });
     [x, y, z] = transformMatrix(MATRIX_PROPHOTO_TO_XYZ_D50, rgb);
     if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D50_TO_D65,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // xyz, xyz-d50, xyz-d65
   } else if (/^xyz(?:-d(?:50|65))?$/.test(cs)) {
@@ -2121,7 +2154,11 @@ export const parseColorValue = (
       }
       [x, y, z] = convertRgbToXyz([r, g, b], true);
       if (d50) {
-        [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+        [x, y, z] = transformMatrix(
+          MATRIX_D65_TO_D50,
+          [x as number, y as number, z as number],
+          true
+        );
       }
     } else {
       if (format === VAL_COMP) {
@@ -2152,7 +2189,11 @@ export const parseColorValue = (
     }
     [x, y, z, alpha] = convertHexToXyz(value);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // lab()
   } else if (value.startsWith('lab')) {
@@ -2160,14 +2201,18 @@ export const parseColorValue = (
       return parseLab(value, opt);
     }
     [, x, y, z, alpha] = parseLab(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D50_TO_D65,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // lch()
   } else if (value.startsWith('lch')) {
@@ -2175,14 +2220,18 @@ export const parseColorValue = (
       return parseLch(value, opt);
     }
     [, x, y, z, alpha] = parseLch(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D50_TO_D65,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // oklab()
   } else if (value.startsWith('oklab')) {
@@ -2190,14 +2239,18 @@ export const parseColorValue = (
       return parseOklab(value, opt);
     }
     [, x, y, z, alpha] = parseOklab(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
     // oklch()
   } else if (value.startsWith('oklch')) {
@@ -2205,61 +2258,75 @@ export const parseColorValue = (
       return parseOklch(value, opt);
     }
     [, x, y, z, alpha] = parseOklch(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
   } else {
     let r, g, b;
     // hsl()
     if (value.startsWith('hsl')) {
       [, r, g, b, alpha] = parseHsl(value) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
       // hwb()
     } else if (value.startsWith('hwb')) {
       [, r, g, b, alpha] = parseHwb(value) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
       // rgb()
     } else {
       [, r, g, b, alpha] = parseRgb(value, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
     if (REG_SPEC.test(format!)) {
-      return ['rgb', Math.round(r), Math.round(g), Math.round(b), alpha];
+      return [
+        'rgb',
+        Math.round(r as number),
+        Math.round(g as number),
+        Math.round(b as number),
+        alpha
+      ];
     }
-    [x, y, z] = convertRgbToXyz([r, g, b]);
+    [x, y, z] = convertRgbToXyz([r as number, g as number, b as number]);
     if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x!, y!, z!], true);
+      [x, y, z] = transformMatrix(
+        MATRIX_D65_TO_D50,
+        [x as number, y as number, z as number],
+        true
+      );
     }
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
 
-    roundToPrecision(x!, HEX),
+    roundToPrecision(x as number, HEX),
 
-    roundToPrecision(y!, HEX),
+    roundToPrecision(y as number, HEX),
 
-    roundToPrecision(z!, HEX),
+    roundToPrecision(z as number, HEX),
 
     alpha!
   ];
@@ -2352,83 +2419,105 @@ export const resolveColorValue = (
     // rgb()
   } else if (value.startsWith('rgb')) {
     [, r, g, b, alpha] = parseRgb(value, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     // hsl()
   } else if (value.startsWith('hsl')) {
     [, r, g, b, alpha] = parseHsl(value, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     // hwb()
   } else if (value.startsWith('hwb')) {
     [, r, g, b, alpha] = parseHwb(value, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
     // lab(), lch()
   } else if (/^l(?:ab|ch)/.test(value)) {
     let x, y, z;
     if (value.startsWith('lab')) {
       [cs, x, y, z, alpha] = parseLab(value, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     } else {
       [cs, x, y, z, alpha] = parseLch(value, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
     if (REG_SPEC.test(format!)) {
       return [cs, x, y, z, alpha];
     }
-    [r, g, b, alpha] = convertXyzD50ToRgb([x, y, z, alpha]);
+    [r, g, b, alpha] = convertXyzD50ToRgb([
+      x as number,
+      y as number,
+      z as number,
+      alpha as number
+    ]);
     // oklab(), oklch()
   } else if (/^okl(?:ab|ch)/.test(value)) {
     let x, y, z;
     if (value.startsWith('oklab')) {
       [cs, x, y, z, alpha] = parseOklab(value, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     } else {
       [cs, x, y, z, alpha] = parseOklch(value, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
     if (REG_SPEC.test(format!)) {
       return [cs, x, y, z, alpha];
     }
-    [r, g, b, alpha] = convertXyzToRgb([x, y, z, alpha]);
+    [r, g, b, alpha] = convertXyzToRgb([
+      x as number,
+      y as number,
+      z as number,
+      alpha as number
+    ]);
   }
   if (format === VAL_MIX && colorSpace === 'srgb') {
-    return ['srgb', r! / MAX_RGB, g! / MAX_RGB, b! / MAX_RGB, alpha!];
+    return [
+      'srgb',
+      (r as number) / MAX_RGB,
+      (g as number) / MAX_RGB,
+      (b as number) / MAX_RGB,
+      alpha!
+    ];
   }
-  return ['rgb', Math.round(r!), Math.round(g!), Math.round(b!), alpha!];
+  return [
+    'rgb',
+    Math.round(r as number),
+    Math.round(g as number),
+    Math.round(b as number),
+    alpha!
+  ];
 };
 
 /**
@@ -2531,42 +2620,57 @@ export const convertColorToLinearRgb = (
       return [x!, y!, z!, alpha!];
     }
 
-    [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x!, y!, z!], true);
+    [r, g, b] = transformMatrix(
+      MATRIX_XYZ_TO_L_RGB,
+      [x as number, y as number, z as number],
+      true
+    );
   } else if (value.startsWith(FN_COLOR)) {
     const [, val] = value.match(REG_FN_COLOR) as [string, string];
     const [cs] = val.replace('/', ' ').split(/\s+/);
     if (cs === 'srgb-linear') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
         format: VAL_COMP
-      }) as [number, number, number, number, number];
+      }) as [
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
+      ];
     } else {
       [, x, y, z, alpha] = parseColorFunc(value) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
-      [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
+      [r, g, b] = transformMatrix(
+        MATRIX_XYZ_TO_L_RGB,
+        [x as number, y as number, z as number],
+        true
+      );
     }
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
-    [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
+    [r, g, b] = transformMatrix(
+      MATRIX_XYZ_TO_L_RGB,
+      [x as number, y as number, z as number],
+      true
+    );
   }
   return [
-    Math.min(Math.max(r!, 0), 1),
-
-    Math.min(Math.max(g!, 0), 1),
-
-    Math.min(Math.max(b!, 0), 1),
-
-    alpha!
+    Math.min(Math.max(r as number, 0), 1),
+    Math.min(Math.max(g as number, 0), 1),
+    Math.min(Math.max(b as number, 0), 1),
+    alpha as number
   ];
 };
 
@@ -2607,17 +2711,23 @@ export const convertColorToRgb = (
     if (cs === 'srgb') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
         format: VAL_COMP
-      }) as [number, number, number, number, number];
-      r *= MAX_RGB;
-      g *= MAX_RGB;
-      b *= MAX_RGB;
+      }) as [
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
+      ];
+      (r as number) *= MAX_RGB;
+      (g as number) *= MAX_RGB;
+      (b as number) *= MAX_RGB;
     } else {
       [, r, g, b, alpha] = resolveColorFunc(value) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
   } else if (/^(?:ok)?l(?:ab|ch)/.test(value)) {
@@ -2626,7 +2736,13 @@ export const convertColorToRgb = (
   } else {
     [, r, g, b, alpha] = resolveColorValue(value, {
       format: VAL_COMP
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
   }
   return [r as number, g as number, b as number, alpha as number];
 };
@@ -2671,36 +2787,48 @@ export const convertColorToXyz = (
       if (cs === 'xyz-d50') {
         [, x, y, z, alpha] = resolveColorFunc(value, {
           format: VAL_COMP
-        }) as [number, number, number, number, number];
+        }) as [
+          string,
+          number | string,
+          number | string,
+          number | string,
+          number | string
+        ];
       } else {
         [, x, y, z, alpha] = parseColorFunc(value, opt) as [
-          number,
-          number,
-          number,
-          number,
-          number
+          string,
+          number | string,
+          number | string,
+          number | string,
+          number | string
         ];
       }
     } else if (/^xyz(?:-d65)?$/.test(cs!)) {
       [, x, y, z, alpha] = resolveColorFunc(value, {
         format: VAL_COMP
-      }) as [number, number, number, number, number];
+      }) as [
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
+      ];
     } else {
       [, x, y, z, alpha] = parseColorFunc(value) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
   } else {
     [, x, y, z, alpha] = parseColorValue(value, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   return [x as number, y as number, z as number, alpha as number];
@@ -2729,11 +2857,22 @@ export const convertColorToHsl = (
   if (REG_HSL.test(value)) {
     [, h, s, l, alpha] = parseHsl(value, {
       format: 'hsl'
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
     if (format === 'hsl') {
-      return [Math.round(h), Math.round(s), Math.round(l), alpha];
+      return [
+        Math.round(h as number),
+        Math.round(s as number),
+        Math.round(l as number),
+        alpha as number
+      ];
     }
-    return [h, s, l, alpha];
+    return [h as number, s as number, l as number, alpha as number];
   }
   if (format === VAL_MIX) {
     let xyz;
@@ -2748,19 +2887,19 @@ export const convertColorToHsl = (
     [, x, y, z, alpha] = xyz;
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   [h, s, l] = convertXyzToHsl(
@@ -2796,11 +2935,22 @@ export const convertColorToHwb = (
   if (REG_HWB.test(value)) {
     [, h, w, b, alpha] = parseHwb(value, {
       format: 'hwb'
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
     if (format === 'hwb') {
-      return [Math.round(h), Math.round(w), Math.round(b), alpha];
+      return [
+        Math.round(h as number),
+        Math.round(w as number),
+        Math.round(b as number),
+        alpha as number
+      ];
     }
-    return [h, w, b, alpha];
+    return [h as number, w as number, b as number, alpha as number];
   }
   if (format === VAL_MIX) {
     let xyz;
@@ -2815,19 +2965,19 @@ export const convertColorToHwb = (
     [, x, y, z, alpha] = xyz;
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   [h, w, b] = convertXyzToHwb([x as number, y as number, z as number], true);
@@ -2861,8 +3011,14 @@ export const convertColorToLab = (
   if (REG_LAB.test(value)) {
     [, l, a, b, alpha] = parseLab(value, {
       format: VAL_COMP
-    }) as [number, number, number, number, number];
-    return [l, a, b, alpha];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
+    return [l as number, a as number, b as number, alpha as number];
   }
   if (format === VAL_MIX) {
     let xyz;
@@ -2879,11 +3035,23 @@ export const convertColorToLab = (
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value, {
       d50: true
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
   }
   [l, a, b] = convertXyzD50ToLab([x as number, y as number, z as number], true);
 
@@ -2913,8 +3081,14 @@ export const convertColorToLch = (
   if (REG_LCH.test(value)) {
     [, l, c, h, alpha] = parseLch(value, {
       format: VAL_COMP
-    }) as [number, number, number, number, number];
-    return [l, c, h, alpha];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
+    return [l as number, c as number, h as number, alpha as number];
   }
   if (format === VAL_MIX) {
     let xyz;
@@ -2931,11 +3105,23 @@ export const convertColorToLch = (
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value, {
       d50: true
-    }) as [number, number, number, number, number];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
   }
   [l, c, h] = convertXyzD50ToLch([x as number, y as number, z as number], true);
 
@@ -2965,8 +3151,14 @@ export const convertColorToOklab = (
   if (REG_OKLAB.test(value)) {
     [, l, a, b, alpha] = parseOklab(value, {
       format: VAL_COMP
-    }) as [number, number, number, number, number];
-    return [l, a, b, alpha];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
+    return [l as number, a as number, b as number, alpha as number];
   }
   if (format === VAL_MIX) {
     let xyz;
@@ -2981,19 +3173,19 @@ export const convertColorToOklab = (
     [, x, y, z, alpha] = xyz;
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   [l, a, b] = convertXyzToOklab([x as number, y as number, z as number], true);
@@ -3024,8 +3216,14 @@ export const convertColorToOklch = (
   if (REG_OKLCH.test(value)) {
     [, l, c, h, alpha] = parseOklch(value, {
       format: VAL_COMP
-    }) as [number, number, number, number, number];
-    return [l, c, h, alpha];
+    }) as [
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
+    ];
+    return [l as number, c as number, h as number, alpha as number];
   }
   if (format === VAL_MIX) {
     let xyz;
@@ -3040,19 +3238,19 @@ export const convertColorToOklch = (
     [, x, y, z, alpha] = xyz;
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   [l, c, h] = convertXyzToOklch([x as number, y as number, z as number], true);
@@ -3660,10 +3858,10 @@ export const resolveColorMix = (
       ];
     }
     [, r, g, b] = resolveColorValue(`${colorSpace}(${l} ${aO} ${bO})`) as [
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string
     ];
     // in lch, oklch
   } else if (/^(?:ok)?lch$/.test(colorSpace)) {
@@ -3746,21 +3944,17 @@ export const resolveColorMix = (
       ];
     }
     [, r, g, b] = resolveColorValue(`${colorSpace}(${l} ${c} ${h})`) as [
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   return [
     'rgb',
-
-    Math.round(r!),
-
-    Math.round(g!),
-
-    Math.round(b!),
-
+    Math.round(r as number),
+    Math.round(g as number),
+    Math.round(b as number),
     parseFloat((alpha! * m).toFixed(3))
   ];
 };
