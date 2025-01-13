@@ -144,10 +144,10 @@ export function parseTokens(
   tokens: Array<Array<any>>,
   opt: object = {}
 ): Array<Array<any>> | null {
-  const res = [];
+  const res = [] as Array<any>;
   while (tokens.length) {
     const token = tokens.shift();
-    const [type, value] = token as [any, any];
+    const [type, value] = token as [string, string];
     if (value === FN_VAR) {
       const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {

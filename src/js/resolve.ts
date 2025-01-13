@@ -206,26 +206,26 @@ export const resolve = (
       if (currentColor.startsWith(FN_MIX)) {
         [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt) as [
           string,
-          number | string,
-          number | string,
-          number | string,
-          number | string
+          number,
+          number,
+          number,
+          number
         ];
       } else if (currentColor.startsWith(FN_COLOR)) {
         [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt) as [
           string,
-          number | string,
-          number | string,
-          number | string,
-          number | string
+          number,
+          number,
+          number,
+          number
         ];
       } else {
         [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt) as [
           string,
-          number | string,
-          number | string,
-          number | string,
-          number | string
+          number,
+          number,
+          number,
+          number
         ];
       }
     } else if (format === VAL_COMP) {
@@ -245,10 +245,10 @@ export const resolve = (
     } else if (color.startsWith(FN_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
         string,
-        number | string,
-        number | string,
-        number | string,
-        number | string
+        number,
+        number,
+        number,
+        number
       ];
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
@@ -300,10 +300,10 @@ export const resolve = (
     if (color.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
         string,
-        number | string,
-        number | string,
-        number | string,
-        number | string
+        number,
+        number,
+        number,
+        number
       ];
     }
   } else if (/transparent/.test(color)) {
@@ -311,35 +311,35 @@ export const resolve = (
     if (color.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
         string,
-        number | string,
-        number | string,
-        number | string,
-        number | string
+        number,
+        number,
+        number,
+        number
       ];
     }
   } else if (color.startsWith(FN_MIX)) {
     [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
       string,
-      number | string,
-      number | string,
-      number | string,
-      number | string
+      number,
+      number,
+      number,
+      number
     ];
   } else if (color.startsWith(FN_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
       string,
-      number | string,
-      number | string,
-      number | string,
-      number | string
+      number,
+      number,
+      number,
+      number
     ];
   } else if (color) {
     [cs, r, g, b, alpha] = resolveColorValue(color, opt) as [
       string,
-      number | string,
-      number | string,
-      number | string,
-      number | string
+      number,
+      number,
+      number,
+      number
     ];
   }
   switch (format) {

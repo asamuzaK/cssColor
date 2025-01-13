@@ -512,23 +512,23 @@ export const colorToXyz = (
   let xyz;
   if (value.startsWith('color(')) {
     [, ...xyz] = parseColorFunc(value, opt as never) as [
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else {
     [, ...xyz] = parseColorValue(value, opt as never) as [
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   if (cacheKey) {
     cachedResults.set(cacheKey, xyz);
   }
-  return xyz;
+  return xyz as never;
 };
 
 /**
