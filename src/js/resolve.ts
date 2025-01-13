@@ -205,27 +205,27 @@ export const resolve = (
     if (currentColor) {
       if (currentColor.startsWith(FN_MIX)) {
         [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt) as [
-          number,
-          number,
-          number,
-          number,
-          number
+          string,
+          number | string,
+          number | string,
+          number | string,
+          number | string
         ];
       } else if (currentColor.startsWith(FN_COLOR)) {
         [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt) as [
-          number,
-          number,
-          number,
-          number,
-          number
+          string,
+          number | string,
+          number | string,
+          number | string,
+          number | string
         ];
       } else {
         [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt) as [
-          number,
-          number,
-          number,
-          number,
-          number
+          string,
+          number | string,
+          number | string,
+          number | string,
+          number | string
         ];
       }
     } else if (format === VAL_COMP) {
@@ -244,11 +244,11 @@ export const resolve = (
       return res;
     } else if (color.startsWith(FN_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
@@ -299,57 +299,63 @@ export const resolve = (
     }
     if (color.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
     if (color.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
-        number,
-        number,
-        number,
-        number,
-        number
+        string,
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
     }
   } else if (color.startsWith(FN_MIX)) {
     [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else if (color.startsWith(FN_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   } else if (color) {
     [cs, r, g, b, alpha] = resolveColorValue(color, opt) as [
-      number,
-      number,
-      number,
-      number,
-      number
+      string,
+      number | string,
+      number | string,
+      number | string,
+      number | string
     ];
   }
   switch (format) {
     case 'hex': {
       let hex;
 
-      if (isNaN(r!) || isNaN(g!) || isNaN(b!) || isNaN(alpha!) || alpha === 0) {
+      if (
+        isNaN(r as number) ||
+        isNaN(g as number) ||
+        isNaN(b as number) ||
+        isNaN(alpha as number) ||
+        alpha === 0
+      ) {
         hex = null;
       } else {
-        hex = convertRgbToHex([r!, g!, b!]);
+        hex = convertRgbToHex([r as number, g as number, b as number]);
       }
       if (key) {
         res = [key, hex];
@@ -361,10 +367,20 @@ export const resolve = (
     case 'hexAlpha': {
       let hex;
 
-      if (isNaN(r!) || isNaN(g!) || isNaN(b!) || isNaN(alpha!)) {
+      if (
+        isNaN(r as number) ||
+        isNaN(g as number) ||
+        isNaN(b as number) ||
+        isNaN(alpha as number)
+      ) {
         hex = null;
       } else {
-        hex = convertRgbToHex([r!, g!, b!, alpha!]);
+        hex = convertRgbToHex([
+          r as number,
+          g as number,
+          b as number,
+          alpha as number
+        ]);
       }
       if (key) {
         res = [key, hex];
