@@ -369,7 +369,7 @@ export const validateColorComponents = (
  * transform matrix
  * @param {Array.<Array.<number>>} mtx - 3 * 3 matrix
  * @param {Array.<number>} vct - vector
- * @param {boolean} skip - skip alidate
+ * @param {boolean} skip - skip validate
  * @returns {Array.<number>} - [p1, p2, p3]
  */
 export const transformMatrix = (
@@ -1436,7 +1436,7 @@ export const parseHwb = (
 };
 
 /**
- + parse lab()
+ * parse lab()
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format
@@ -1556,7 +1556,7 @@ export const parseLab = (
 };
 
 /**
- + parse lch()
+ * parse lch()
  * @param {string} value - color value
  * @param {object} [opt] - options
  * @param {string} [opt.format] - output format

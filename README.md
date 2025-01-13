@@ -60,7 +60,7 @@ resolves CSS color
       ```
     - and/or `callback` function to get the value of the custom property,
       e.g.
-      ```javascript;
+      ```javascript
       const node = document.getElementById('foo');
       const opt = {
         customProperty: {

@@ -5,13 +5,14 @@ const minifyBundle = (): Plugin => ({
   name: 'minify-bundle',
   async generateBundle(_, bundle) {
     for (const asset of Object.values(bundle)) {
-      if (asset.type == 'chunk')
+      if (asset.type === 'chunk') {
         asset.code = (
           await esbuild.transform(asset.code, {
             minify: true,
-            legalComments: 'none'
+            legalComments: 'eof'
           })
         ).code;
+      }
     }
   }
 });
