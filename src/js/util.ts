@@ -8,7 +8,6 @@ import { resolve } from './resolve';
 /* constants */
 import { NAMED_COLORS } from './color';
 import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant';
-
 const DEC = 10;
 const HEX = 16;
 const DEG = 360;
@@ -37,10 +36,10 @@ export const isColor = (value: string): boolean => {
       } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
         return true;
       } else {
-        value = resolve(value, {
+        const resolvedValue = resolve(value, {
           format: VAL_SPEC
-        }) as never;
-        if (value) {
+        });
+        if (resolvedValue) {
           return true;
         }
         return false;
@@ -125,7 +124,7 @@ export const interpolateHue = (
   hueA: number,
   hueB: number,
   arc: string = 'shorter'
-): Array<any> => {
+): Array<number> => {
   if (!Number.isFinite(hueA)) {
     throw new TypeError(`${hueA} is not a number.`);
   }

@@ -53,6 +53,7 @@ export const preProcess = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): string | null => {
   if (isString(value)) {
@@ -66,32 +67,43 @@ export const preProcess = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string;
+      return cachedResults.get(cacheKey) as string | null;
     }
   }
   if (REG_FN_VAR.test(value)) {
-    value = cssVar(value, opt) as never;
-    if (!value) {
+    const resolvedValue = cssVar(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue as string;
+    } else {
       if (cacheKey) {
-        cachedResults.set(cacheKey, null as never);
+        cachedResults.set(cacheKey, resolvedValue!);
       }
       return null;
     }
   }
   if (REG_FN_REL.test(value)) {
-    value = resolveRelativeColor(value, opt as never) as never;
+    value = resolveRelativeColor(value, opt) as string;
   } else if (REG_FN_MATH_CALC.test(value)) {
-    value = cssCalc(value, opt) as never;
+    const resolvedValue = cssCalc(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue as string;
+    } else {
+      if (cacheKey) {
+        cachedResults.set(cacheKey, resolvedValue!);
+      }
+      return null;
+    }
   }
-  if (value && value.startsWith('color-mix')) {
+  if (value.startsWith('color-mix')) {
     value = resolve(value, {
       format: VAL_COMP
-    }) as never;
+    }) as string;
   }
   if (cacheKey) {
     cachedResults.set(cacheKey, value);
@@ -131,12 +143,13 @@ export const colorToHex = (
     alpha?: boolean;
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
-): string | undefined => {
+): string | null => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return null!;
     }
@@ -146,26 +159,27 @@ export const colorToHex = (
   const { alpha, customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as never;
+      return cachedResults.get(cacheKey) as string | null;
     }
   }
   let hex;
   if (alpha) {
-    (opt as Record<string, string>).format = 'hexAlpha';
-    hex = resolve(value, opt);
+    opt.format = 'hexAlpha';
+    hex = resolve(value, opt) as string | null;
   } else {
-    (opt as Record<string, string>).format = 'hex';
-    hex = resolve(value, opt);
+    opt.format = 'hex';
+    hex = resolve(value, opt) as string | null;
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, hex as never);
+    cachedResults.set(cacheKey, hex!);
   }
-  return hex as never;
+  return hex;
 };
 
 /**
@@ -181,12 +195,13 @@ export const colorToHsl = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -196,16 +211,17 @@ export const colorToHsl = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToHsl:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  (opt as Record<string, string>).format = 'hsl';
-  const hsl = convertColorToHsl(value, opt as never);
+  opt.format = 'hsl';
+  const hsl = convertColorToHsl(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, hsl);
   }
@@ -225,12 +241,13 @@ export const colorToHwb = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -240,16 +257,17 @@ export const colorToHwb = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToHwb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  (opt as Record<string, string>).format = 'hwb';
-  const hwb = convertColorToHwb(value, opt as never);
+  opt.format = 'hwb';
+  const hwb = convertColorToHwb(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, hwb);
   }
@@ -269,12 +287,13 @@ export const colorToLab = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -284,15 +303,16 @@ export const colorToLab = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToLab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  const lab = convertColorToLab(value, opt as never);
+  const lab = convertColorToLab(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, lab);
   }
@@ -312,12 +332,13 @@ export const colorToLch = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -327,15 +348,16 @@ export const colorToLch = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToLch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  const lch = convertColorToLch(value, opt as never);
+  const lch = convertColorToLch(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, lch);
   }
@@ -355,12 +377,13 @@ export const colorToOklab = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -370,15 +393,16 @@ export const colorToOklab = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToOklab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  const lab = convertColorToOklab(value, opt as never);
+  const lab = convertColorToOklab(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, lab);
   }
@@ -398,12 +422,13 @@ export const colorToOklch = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -413,15 +438,16 @@ export const colorToOklch = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToOklch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  const lch = convertColorToOklch(value, opt as never);
+  const lch = convertColorToOklch(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, lch);
   }
@@ -441,12 +467,13 @@ export const colorToRgb = (
   opt: {
     customProperty?: object;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -456,15 +483,16 @@ export const colorToRgb = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToRgb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as Array<number>;
     }
   }
-  const rgb = convertColorToRgb(value, opt as never);
+  const rgb = convertColorToRgb(value, opt) as Array<number>;
   if (cacheKey) {
     cachedResults.set(cacheKey, rgb);
   }
@@ -484,14 +512,15 @@ export const colorToXyz = (
   value: string,
   opt: {
     customProperty?: object;
-    d50?: object;
+    d50?: boolean;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
   if (isString(value)) {
-    value = preProcess(value, opt) as never;
-    if (value) {
-      value = value.toLowerCase();
+    const resolvedValue = preProcess(value, opt) as string | null;
+    if (resolvedValue) {
+      value = resolvedValue.toLowerCase() as string;
     } else {
       return [0, 0, 0, 0];
     }
@@ -501,8 +530,9 @@ export const colorToXyz = (
   const { customProperty } = opt;
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: () => void })?.callback !==
-    'function'
+    typeof (
+      customProperty as { callback?: (item: string) => string }
+    )?.callback !== 'function'
   ) {
     cacheKey = `{colorToXyz:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
@@ -511,24 +541,26 @@ export const colorToXyz = (
   }
   let xyz;
   if (value.startsWith('color(')) {
-    [, ...xyz] = parseColorFunc(value, opt as never) as [
+    [, ...xyz] = parseColorFunc(value, opt) as [
       string,
-      number | string,
-      number | string,
-      number | string
+      number,
+      number,
+      number,
+      number
     ];
   } else {
-    [, ...xyz] = parseColorValue(value, opt as never) as [
+    [, ...xyz] = parseColorValue(value, opt) as [
       string,
-      number | string,
-      number | string,
-      number | string
+      number,
+      number,
+      number,
+      number
     ];
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, xyz);
+    cachedResults.set(cacheKey, xyz as Array<number>);
   }
-  return xyz as never;
+  return xyz as Array<number>;
 };
 
 /**
@@ -543,11 +575,13 @@ export const colorToXyzD50 = (
   value: string,
   opt: {
     customProperty?: object;
+    d50?: boolean;
     dimension?: object;
+    format?: string;
   } = {}
 ): Array<number> => {
-  (opt as Record<string, boolean>).d50 = true;
-  return colorToXyz(value, opt);
+  opt.d50 = true;
+  return colorToXyz(value, opt) as Array<number>;
 };
 
 /* convert */

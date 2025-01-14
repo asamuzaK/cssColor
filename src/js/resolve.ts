@@ -95,19 +95,17 @@ export const resolve = (
   } else {
     throw new TypeError(`${color} is not a string.`);
   }
-  const { currentColor, customProperty, format = VAL_COMP, key } = opt;
+  const { currentColor, customProperty = {}, format = VAL_COMP, key } = opt;
   let cacheKey;
-
-  const _customProperty: {
-    callback: (unit: any) => number;
-  } = customProperty as never;
   if (
     !REG_FN_VAR.test(color) ||
-    typeof _customProperty?.callback !== 'function'
+    typeof (
+      customProperty as { callback?: (value: string) => string }
+    ).callback === 'function'
   ) {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as never;
+      return cachedResults.get(cacheKey) as string | Array<any>;
     }
   }
   let res, cs, r, g, b, alpha;
@@ -118,8 +116,10 @@ export const resolve = (
       }
       return color;
     }
-    color = cssVar(color, opt)!;
-    if (!color) {
+    const resolvedColor = cssVar(color, opt);
+    if (resolvedColor) {
+      color = resolvedColor;
+    } else {
       switch (format) {
         case 'hex':
         case 'hexAlpha': {
@@ -143,27 +143,42 @@ export const resolve = (
   }
   color = color.toLowerCase();
   if (REG_FN_REL.test(color)) {
-    color = resolveRelativeColor(color, opt)!;
+    const resolvedColor = resolveRelativeColor(color, opt) as string | null;
     if (format === VAL_COMP) {
-      res = color || RGB_TRANSPARENT;
+      if (resolvedColor) {
+        res = resolvedColor;
+      } else {
+        res = RGB_TRANSPARENT;
+      }
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
     }
     if (format === VAL_SPEC) {
-      res = color || '';
+      if (resolvedColor) {
+        res = resolvedColor;
+      } else {
+        res = '';
+      }
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
     }
-    if (!color) {
+    if (resolvedColor) {
+      color = resolvedColor;
+    } else {
       color = '';
     }
   }
   if (REG_FN_MATH_CALC.test(color)) {
-    color = cssCalc(color, opt)!;
+    const resolvedColor = cssCalc(color, opt) as string | null;
+    if (resolvedColor) {
+      color = resolvedColor;
+    } else {
+      color = '';
+    }
   }
   if (color === 'transparent') {
     switch (format) {
@@ -239,16 +254,16 @@ export const resolve = (
     if (color.startsWith(FN_MIX)) {
       res = resolveColorMix(color, opt);
       if (cacheKey) {
-        cachedResults.set(cacheKey, res as never);
+        cachedResults.set(cacheKey, res!);
       }
       return res;
     } else if (color.startsWith(FN_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
         string,
-        number,
-        number,
-        number,
-        number
+        number | string,
+        number | string,
+        number | string,
+        number | string
       ];
       if (alpha === 1) {
         res = `color(${cs} ${r} ${g} ${b})`;
@@ -345,7 +360,6 @@ export const resolve = (
   switch (format) {
     case 'hex': {
       let hex;
-
       if (
         isNaN(r as number) ||
         isNaN(g as number) ||
@@ -366,7 +380,6 @@ export const resolve = (
     }
     case 'hexAlpha': {
       let hex;
-
       if (
         isNaN(r as number) ||
         isNaN(g as number) ||
@@ -392,7 +405,7 @@ export const resolve = (
     case VAL_COMP:
     default: {
       let value;
-      switch (cs as never as string) {
+      switch (cs) {
         case 'rgb': {
           if (alpha === 1) {
             value = `${cs}(${r}, ${g}, ${b})`;
@@ -429,7 +442,7 @@ export const resolve = (
     }
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, res as never);
+    cachedResults.set(cacheKey, res!);
   }
   return res;
 };

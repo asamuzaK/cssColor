@@ -18,7 +18,6 @@ import {
   SYN_FN_VAR,
   VAL_SPEC
 } from './constant.js';
-
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
@@ -216,12 +215,12 @@ export class Calculator {
       arr.sort((a, b) => {
         let res;
         if (REG_TYPE_DIM_PCT.test(a) && REG_TYPE_DIM_PCT.test(b)) {
-          const [, valA, unitA] = REG_TYPE_DIM_PCT.exec(a) as unknown as [
+          const [, valA, unitA] = a.match(REG_TYPE_DIM_PCT) as [
             string,
             string,
             string
           ];
-          const [, valB, unitB] = REG_TYPE_DIM_PCT.exec(b) as unknown as [
+          const [, valB, unitB] = b.match(REG_TYPE_DIM_PCT) as [
             string,
             string,
             string
@@ -260,7 +259,7 @@ export class Calculator {
    */
   multiply(): string | null {
     const value = [];
-    let num!: number;
+    let num!: number | string;
     if (this.#hasNum) {
       num = 1;
       for (const i of this.#numMul) {
@@ -278,13 +277,13 @@ export class Calculator {
         num = 1;
       }
       for (const i of this.#pctMul) {
-        num *= i;
+        (num as number) *= i;
         if (num === 0 || !Number.isFinite(num) || Number.isNaN(num)) {
           break;
         }
       }
       if (Number.isFinite(num)) {
-        num = `${num}%` as never;
+        num = `${num}%`;
       }
       if (!this.#hasDim && !this.hasEtc) {
         value.push(num);
@@ -419,7 +418,7 @@ export class Calculator {
       value.push(num);
     }
     if (this.#hasPct) {
-      let num = 0;
+      let num = 0 as number | string;
       for (const i of this.#pctSum) {
         num += i;
         if (!Number.isFinite(num) || Number.isNaN(num)) {
@@ -427,7 +426,7 @@ export class Calculator {
         }
       }
       if (Number.isFinite(num)) {
-        num = `${num}%` as never;
+        num = `${num}%`;
       }
       if (value.length) {
         value.push(`+ ${num}`);
@@ -534,9 +533,12 @@ export class Calculator {
  * sort calc values
  * @param {Array} values - values
  * @param {boolean} finalize - finalize
- * @returns {string} - sorted value
+ * @returns {?string} - sorted value
  */
-export const sortCalcValues = (values = [], finalize = false) => {
+export const sortCalcValues = (
+  values: string[] = [],
+  finalize: boolean = false
+): string | null => {
   if (values.length < 3) {
     return null;
   }
@@ -548,30 +550,31 @@ export const sortCalcValues = (values = [], finalize = false) => {
   }
   const sortedValues = [];
   const cal = new Calculator();
-  let operator!: string;
+  let operator!: string | null;
   for (let i = 0, l = values.length; i < l; i++) {
-    const value = values[i]!;
+    const value = values[i]! as number | string;
     if (value === '*' || value === '/') {
       operator = value;
     } else if (value === '+' || value === '-') {
       const sortedValue = cal.multiply();
       sortedValues.push(sortedValue, value);
       cal.clear();
-      operator = null as never;
+      operator = null;
     } else {
       switch (operator) {
         case '/': {
-          if (Number.isFinite(value * 1)) {
+          const numValue = Number(value) as number;
+          if (Number.isFinite(numValue)) {
             cal.hasNum = true;
-            cal.numMul.push(1 / value);
-          } else if (REG_TYPE_PCT.test(value)) {
-            const [, val] = REG_TYPE_PCT.exec(value) as unknown as [
+            cal.numMul.push(1 / numValue);
+          } else if (REG_TYPE_PCT.test(value as string)) {
+            const [, val] = (value as string).match(REG_TYPE_PCT) as [
               string,
               string
             ];
             cal.hasPct = true;
             cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
-          } else if (REG_TYPE_DIM.test(value)) {
+          } else if (REG_TYPE_DIM.test(value as string)) {
             cal.hasDim = true;
             cal.dimDiv.push(value);
           } else {
@@ -582,17 +585,18 @@ export const sortCalcValues = (values = [], finalize = false) => {
         }
         case '*':
         default: {
-          if (Number.isFinite(value * 1)) {
+          const numValue = Number(value);
+          if (Number.isFinite(numValue)) {
             cal.hasNum = true;
-            cal.numMul.push(value * 1);
-          } else if (REG_TYPE_PCT.test(value)) {
-            const [, val] = REG_TYPE_PCT.exec(value) as unknown as [
+            cal.numMul.push(numValue);
+          } else if (REG_TYPE_PCT.test(value as string)) {
+            const [, val] = (value as string).match(REG_TYPE_PCT) as [
               string,
               string
             ];
             cal.hasPct = true;
             cal.pctMul.push(Number(val));
-          } else if (REG_TYPE_DIM.test(value)) {
+          } else if (REG_TYPE_DIM.test(value as string)) {
             cal.hasDim = true;
             cal.dimMul.push(value);
           } else {
@@ -605,7 +609,7 @@ export const sortCalcValues = (values = [], finalize = false) => {
         const sortedValue = cal.multiply();
         sortedValues.push(sortedValue);
         cal.clear();
-        operator = null as never;
+        operator = null;
       }
     }
   }
@@ -613,25 +617,26 @@ export const sortCalcValues = (values = [], finalize = false) => {
   if (finalize && (sortedValues.includes('+') || sortedValues.includes('-'))) {
     const finalizedValues = [];
     cal.clear();
-    operator = null as never as string;
+    operator = null;
     for (let i = 0, l = sortedValues.length; i < l; i++) {
-      const value = sortedValues[i]!;
+      const value = sortedValues[i] as number | string;
       if (value === '+' || value === '-') {
         operator = value;
       } else {
         switch (operator) {
           case '-': {
-            if (Number.isFinite((value as never as number) * 1)) {
+            const numValue = Number(value) as number;
+            if (Number.isFinite(numValue)) {
               cal.hasNum = true;
-              cal.numSum.push(-1 * (value as never as number));
-            } else if (REG_TYPE_PCT.test(value)) {
-              const [, val] = REG_TYPE_PCT.exec(value) as unknown as [
+              cal.numSum.push(-1 * numValue);
+            } else if (REG_TYPE_PCT.test(value as string)) {
+              const [, val] = (value as string).match(REG_TYPE_PCT) as [
                 string,
                 string
               ];
               cal.hasPct = true;
               cal.pctSum.push(-1 * Number(val));
-            } else if (REG_TYPE_DIM.test(value)) {
+            } else if (REG_TYPE_DIM.test(value as string)) {
               cal.hasDim = true;
               cal.dimSub.push(value);
             } else {
@@ -642,17 +647,18 @@ export const sortCalcValues = (values = [], finalize = false) => {
           }
           case '+':
           default: {
-            if (Number.isFinite((value as never as number) * 1)) {
+            const numValue = Number(value) as number;
+            if (Number.isFinite(numValue)) {
               cal.hasNum = true;
-              cal.numSum.push((value as never as number) * 1);
-            } else if (REG_TYPE_PCT.test(value)) {
-              const [, val] = REG_TYPE_PCT.exec(value) as unknown as [
+              cal.numSum.push(numValue);
+            } else if (REG_TYPE_PCT.test(value as string)) {
+              const [, val] = (value as string).match(REG_TYPE_PCT) as [
                 string,
                 string
               ];
               cal.hasPct = true;
               cal.pctSum.push(Number(val));
-            } else if (REG_TYPE_DIM.test(value)) {
+            } else if (REG_TYPE_DIM.test(value as string)) {
               cal.hasDim = true;
               cal.dimSum.push(value);
             } else {
@@ -665,7 +671,7 @@ export const sortCalcValues = (values = [], finalize = false) => {
           const sortedValue = cal.sum();
           finalizedValues.push(sortedValue);
           cal.clear();
-          operator = null as never;
+          operator = null;
         }
       }
     }
@@ -684,7 +690,7 @@ export const sortCalcValues = (values = [], finalize = false) => {
  * @returns {?string} - resolved value
  */
 export const serializeCalc = (
-  value: Array<any>,
+  value: string,
   opt: {
     format?: string;
   } = {}
@@ -694,42 +700,44 @@ export const serializeCalc = (
     if (!REG_START_MATH_VAR.test(value) || format !== VAL_SPEC) {
       return value;
     }
-    value = value.toLowerCase().trim() as never;
+    value = value.toLowerCase().trim();
   } else {
     throw new TypeError(`${value} is not a string`);
   }
   const cacheKey = `{serializeCalc:${value},opt:${valueToJsonString(opt)}}`;
   if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey) as string;
+    return cachedResults.get(cacheKey) as string | null;
   }
-  const items = tokenize({ css: value as never })
+  const items = tokenize({ css: value })
     .map((token) => {
-      const [type, value] = token;
+      const [type, value] = token as [string, string];
       let res;
       if (type !== W_SPACE && type !== COMMENT) {
         res = value;
       }
       return res;
     })
-    .filter((v: any) => v);
-  let startIndex = items.findLastIndex((item: any) => /\($/.test(item));
+    .filter((v: any) => v) as Array<string>;
+  let startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   while (startIndex) {
     const endIndex = items.findIndex((item: any, index: number) => {
       return item === ')' && index > startIndex;
     });
     const slicedValues = items.slice(startIndex, endIndex + 1);
-    let serializedValue = sortCalcValues(slicedValues as never)!;
+    let serializedValue =
+      sortCalcValues(slicedValues as Array<string>) as string;
     if (REG_START_MATH_VAR.test(serializedValue)) {
       serializedValue = calc(serializedValue, {
         toCanonicalUnits: true
-      });
+      }) as string;
     }
     items.splice(startIndex, endIndex - startIndex + 1, serializedValue);
-    startIndex = items.findLastIndex((item: any) => /\($/.test(item));
+    startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   }
-  const serializedCalc = sortCalcValues(items as never, true)!;
+  const serializedCalc =
+    sortCalcValues(items as Array<string>, true) as string | null;
   if (cacheKey) {
-    cachedResults.set(cacheKey, serializedCalc);
+    cachedResults.set(cacheKey, serializedCalc!);
   }
   return serializedCalc;
 };
@@ -757,25 +765,26 @@ export const resolveDimension = (
     return value;
   }
   let res;
-  if (unit && Number.isFinite(relativeValue)) {
-    let pixelValue;
+  if (unit && Number.isFinite(relativeValue as number)) {
+    let pixelValue!: number | undefined;
     if (Object.hasOwnProperty.call(dimension, unit)) {
       pixelValue = dimension[unit as never];
     } else if (
       typeof (
         dimension as {
-          callback: (unit: any) => number;
+          callback?: (unit: string) => number;
         }
       ).callback === 'function'
     ) {
       pixelValue = (
         dimension as {
-          callback: (unit: any) => number;
+          callback: (unit: string) => number;
         }
       ).callback(unit);
     }
+    pixelValue = Number(pixelValue);
     if (Number.isFinite(pixelValue)) {
-      res = `${relativeValue * pixelValue!}px`;
+      res = `${relativeValue as number * pixelValue as number}px`;
     }
   }
   return res ?? null;
@@ -787,32 +796,38 @@ export const resolveDimension = (
  * @param {object} [opt] - options
  * @returns {Array.<string>} - parsed tokens
  */
-export const parseTokens = (tokens: Array<Array<any>>, opt: object = {}) => {
+export const parseTokens = (
+  tokens: Array<Array<any>>,
+  opt: {
+    dimension?: object;
+    format?: string;
+  } = {}
+): Array<string> => {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
-  const { format } = opt as Record<string, any>;
+  const { format } = opt;
   const mathFunc = new Set();
-  let nest = 0;
-  const res = [];
+  let nest = 0 as number;
+  const res = [] as string[];
   while (tokens.length) {
     const token = tokens.shift();
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type, value] = token;
+    const [type, value] = token as [string, string];
     switch (type) {
       case DIM: {
         let resolvedValue;
         if (format === VAL_SPEC && !mathFunc.has(nest)) {
-          resolvedValue = value;
+          resolvedValue = value as string;
         } else {
-          resolvedValue = resolveDimension(token, opt);
+          resolvedValue = resolveDimension(token, opt) as string | null;
           if (!resolvedValue) {
-            resolvedValue = value;
+            resolvedValue = value as string;
           }
         }
-        res.push(resolvedValue);
+        res.push(resolvedValue as string);
         break;
       }
       case FUNC:
@@ -826,7 +841,7 @@ export const parseTokens = (tokens: Array<Array<any>>, opt: object = {}) => {
       }
       case PAREN_CLOSE: {
         if (res.length) {
-          const lastValue = res[res.length - 1];
+          const lastValue = res[res.length - 1] as string;
           if (lastValue === ' ') {
             res.splice(-1, 1, value);
           } else {
@@ -843,7 +858,7 @@ export const parseTokens = (tokens: Array<Array<any>>, opt: object = {}) => {
       }
       case W_SPACE: {
         if (res.length) {
-          const lastValue = res[res.length - 1];
+          const lastValue = res[res.length - 1] as string;
           if (!lastValue.endsWith('(') && lastValue !== ' ') {
             res.push(value);
           }
@@ -875,7 +890,7 @@ export const cssCalc = (
     format?: string;
   } = {}
 ): string | null => {
-  const { format, dimension } = opt;
+  const { format, dimension = {} } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
@@ -892,13 +907,16 @@ export const cssCalc = (
     throw new TypeError(`${value} is not a string`);
   }
   let cacheKey;
-  const _dimension: {
-    callback: (unit: any) => number;
-  } = dimension as never;
-  if (typeof _dimension?.callback !== 'function') {
+  if (
+    typeof (
+      dimension as {
+        callback?: (unit: string) => number;
+      }
+    ).callback !== 'function'
+  ) {
     cacheKey = `{cssCalc:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string;
+      return cachedResults.get(cacheKey) as string | null;
     }
   }
   let resolvedValue;
@@ -907,15 +925,15 @@ export const cssCalc = (
     const values = parseTokens(tokens, opt);
     resolvedValue = calc(values.join(''), {
       toCanonicalUnits: true
-    });
+    }) as string;
   } else {
     resolvedValue = calc(value, {
       toCanonicalUnits: true
-    });
+    }) as string;
   }
   if (REG_START_MATH_VAR.test(value)) {
     if (REG_TYPE_DIM_PCT.test(resolvedValue)) {
-      const [, val, unit] = REG_TYPE_DIM_PCT.exec(resolvedValue) as unknown as [
+      const [, val, unit] = resolvedValue.match(REG_TYPE_DIM_PCT) as [
         string,
         string,
         string
@@ -925,7 +943,7 @@ export const cssCalc = (
     // wrap with `calc()`
     if (
       resolvedValue &&
-      !REG_START_MATH_VAR.test(resolvedValue) &&
+      !REG_START_MATH_VAR.test(resolvedValue as string) &&
       format === VAL_SPEC
     ) {
       resolvedValue = `calc(${resolvedValue})`;

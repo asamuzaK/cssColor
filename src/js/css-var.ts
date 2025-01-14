@@ -8,9 +8,11 @@ import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { isColor, valueToJsonString } from './util';
 
+/* types */
+import type { CSSToken } from '@csstools/css-tokenizer';
+
 /* constants */
 import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
-
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
@@ -36,11 +38,13 @@ export const cachedResults = new LRUCache({
  * @returns {Array.<string|Array|undefined>} - [tokens, resolvedValue]
  */
 export function resolveCustomProperty(
-  tokens: Array<any>,
+  tokens: Array<CSSToken>,
   opt: {
     customProperty?: object;
+    dimension?: object;
+    format?: string;
   } = {}
-): Array<string | Array<any> | undefined> {
+): Array<string | Array<CSSToken> | undefined> {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
@@ -51,7 +55,7 @@ export function resolveCustomProperty(
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type, value] = token;
+    const [type, value] = token as [string, string];
     // end of var()
     if (type === PAREN_CLOSE) {
       break;
@@ -59,7 +63,7 @@ export function resolveCustomProperty(
     // nested var()
     if (value === FN_VAR) {
       const [restTokens, item] = resolveCustomProperty(tokens, opt) as [
-        Array<any>,
+        Array<CSSToken>,
         string
       ];
       tokens = restTokens;
@@ -71,11 +75,12 @@ export function resolveCustomProperty(
         if (Object.hasOwnProperty.call(customProperty, value)) {
           items.push(customProperty[value as never]);
         } else if (
-          typeof (customProperty as { callback: (value: any) => string })
-            .callback === 'function'
+          typeof (
+            customProperty as { callback?: (value: string) => string }
+          ).callback === 'function'
         ) {
           const item = (
-            customProperty as { callback: (value: any) => string }
+            customProperty as { callback: (value: string) => string }
           ).callback(value);
           if (item) {
             items.push(item);
@@ -89,14 +94,14 @@ export function resolveCustomProperty(
   let resolveAsColor;
   if (items.length > 1) {
     const lastValue = items[items.length - 1];
-    resolveAsColor = isColor(lastValue);
+    resolveAsColor = isColor(lastValue as string) as boolean;
   }
   let resolvedValue;
   for (let item of items) {
-    item = item.trim();
+    item = item.trim() as string;
     if (REG_FN_VAR.test(item)) {
       // recurse cssVar()
-      item = cssVar(item, opt);
+      item = cssVar(item, opt) as string;
       if (item) {
         if (resolveAsColor) {
           if (isColor(item)) {
@@ -107,7 +112,7 @@ export function resolveCustomProperty(
         }
       }
     } else if (REG_FN_MATH_CALC.test(item)) {
-      item = cssCalc(item, opt as never);
+      item = cssCalc(item as string, opt) as string;
       if (resolveAsColor) {
         if (isColor(item)) {
           resolvedValue = item;
@@ -138,13 +143,13 @@ export function resolveCustomProperty(
  * parse tokens
  * @param {Array.<Array>} tokens - tokens
  * @param {object} [opt] - options
- * @returns {?Array.<Array>} - parsed tokens
+ * @returns {?Array.<string>} - parsed tokens
  */
 export function parseTokens(
-  tokens: Array<Array<any>>,
+  tokens: Array<CSSToken>,
   opt: object = {}
-): Array<Array<any>> | null {
-  const res = [] as Array<any>;
+): Array<string> | null {
+  const res = [] as string[];
   while (tokens.length) {
     const token = tokens.shift();
     const [type, value] = token as [string, string];
@@ -153,8 +158,8 @@ export function parseTokens(
       if (!resolvedValue) {
         return null;
       }
-      tokens = restTokens as never;
-      res.push(resolvedValue);
+      tokens = restTokens as Array<CSSToken>;
+      res.push(resolvedValue as string);
     } else {
       switch (type) {
         case PAREN_CLOSE: {
@@ -172,7 +177,7 @@ export function parseTokens(
         }
         case W_SPACE: {
           if (res.length) {
-            const lastValue = res[res.length - 1];
+            const lastValue = res[res.length - 1] as string;
             if (!lastValue.endsWith('(') && lastValue !== ' ') {
               res.push(value);
             }
@@ -201,9 +206,10 @@ export function cssVar(
   value: string,
   opt: {
     customProperty?: object;
+    format?: string;
   } = {}
 ): string | null {
-  const { customProperty, format } = opt as Record<string, any>;
+  const { customProperty = {}, format } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
@@ -213,21 +219,25 @@ export function cssVar(
     throw new TypeError(`${value} is not a string.`);
   }
   let cacheKey;
-  if (typeof customProperty?.callback !== 'function') {
+  if (
+    typeof (
+      customProperty as { callback?: (value: string) => string }
+    ).callback !== 'function'
+  ) {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as never;
+      return cachedResults.get(cacheKey) as string | null;
     }
   }
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
   if (Array.isArray(values)) {
-    let color = values.join('');
-    if (REG_FN_MATH_CALC.test(color)) {
-      color = cssCalc(color, opt as never) as never;
+    let color = values.join('') as string | null;
+    if (REG_FN_MATH_CALC.test(color as string)) {
+      color = cssCalc(color as string, opt) as string | null;
     }
     if (cacheKey) {
-      cachedResults.set(cacheKey, color);
+      cachedResults.set(cacheKey as string, color!);
     }
     return color;
   } else {
