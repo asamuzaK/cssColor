@@ -62,7 +62,6 @@
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
     "test": "pnpm run \"/^test:.*/\" && pnpm run build && pnpm run publint",
-    "test-ci": "pnpm run \"/^test:.*/\" && pnpm run publint",
     "test:eslint": "eslint ./src ./tests",
     "test:knip": "knip",
     "test:lib": "vitest",

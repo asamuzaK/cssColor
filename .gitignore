@@ -9,6 +9,7 @@ yarn.lock
 # builds
 build
 coverage
+dist
 
 # misc
 .DS_Store
