@@ -24,13 +24,14 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: false,
-    outDir: 'dist',
+    outDir: 'dist/browser',
     lib: {
       entry: 'src/index.ts',
       formats: ['es'],
       fileName: () => {
         return '[name].min.js';
       }
-    }
+    },
+    sourcemap: true
   }
 });

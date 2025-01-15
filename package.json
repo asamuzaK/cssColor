@@ -55,9 +55,9 @@
     "vitest": "^2.1.8"
   },
   "scripts": {
-    "build": "pnpm run build:rest && pnpm run build:min",
-    "build:min": "vite build -c vite.browser.config.ts",
-    "build:rest": "vite build",
+    "build": "pnpm run build:prod && pnpm run build:browser",
+    "build:browser": "vite build -c vite.browser.config.ts",
+    "build:prod": "vite build",
     "clean": "rimraf ./dist && rimraf ./coverage",
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
