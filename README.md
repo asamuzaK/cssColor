@@ -86,7 +86,7 @@ resolves CSS color
       ```javascript
       const opt = {
         dimension: {
-          callback: (unit) => {
+          callback: unit => {
             switch (unit) {
               case 'em':
                 return 12;

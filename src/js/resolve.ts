@@ -99,9 +99,8 @@ export const resolve = (
   let cacheKey;
   if (
     !REG_FN_VAR.test(color) ||
-    typeof (
-      customProperty as { callback?: (value: string) => string }
-    ).callback === 'function'
+    typeof (customProperty as { callback?: (value: string) => string })
+      .callback === 'function'
   ) {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {

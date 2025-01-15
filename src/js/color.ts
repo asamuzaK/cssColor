@@ -940,7 +940,7 @@ export const convertXyzToOklab = (
     });
   }
   const lms = transformMatrix(MATRIX_XYZ_TO_LMS, [x, y, z], true);
-  const xyzLms = lms.map((c) => Math.cbrt(c));
+  const xyzLms = lms.map(c => Math.cbrt(c));
   let [l, a, b] = transformMatrix(MATRIX_LMS_TO_OKLAB, xyzLms, true);
   l = Math.min(Math.max(l!, 0), 1);
   const lPct = Math.round(parseFloat(l.toFixed(QUAT)) * MAX_PCT);
@@ -1024,7 +1024,7 @@ export const convertXyzD50ToLab = (
     });
   }
   const xyzD50 = [x, y, z].map((val, i) => val / D50[i]!);
-  const [f0, f1, f2] = xyzD50.map((val) =>
+  const [f0, f1, f2] = xyzD50.map(val =>
     val > LAB_EPSILON ? Math.cbrt(val) : (val * LAB_KAPPA + HEX) / LAB_L
   );
   const l = Math.min(Math.max(LAB_L * f1! - HEX, 0), MAX_PCT);
@@ -1768,7 +1768,7 @@ export const parseOklab = (
     a as number,
     b as number
   ]);
-  const xyzLms = lms.map((c) => Math.pow(c, POW_CUBE));
+  const xyzLms = lms.map(c => Math.pow(c, POW_CUBE));
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
@@ -1876,7 +1876,7 @@ export const parseOklch = (
   const a = (c as number) * Math.cos(((h as number) * Math.PI) / (DEG * HALF));
   const b = (c as number) * Math.sin(((h as number) * Math.PI) / (DEG * HALF));
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [l as number, a, b]);
-  const xyzLms = lms.map((cl) => Math.pow(cl, POW_CUBE));
+  const xyzLms = lms.map(cl => Math.pow(cl, POW_CUBE));
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
@@ -2011,7 +2011,7 @@ export const parseColorFunc = (
     const ALPHA = 1.09929682680944;
     const BETA = 0.018053968510807;
     const REC_COEF = 0.45;
-    const rgb = [r, g, b].map((c) => {
+    const rgb = [r, g, b].map(c => {
       let cl;
       if (c < BETA * REC_COEF * DEC) {
         cl = c / (REC_COEF * DEC);
@@ -2031,7 +2031,7 @@ export const parseColorFunc = (
     // a98-rgb
   } else if (cs === 'a98-rgb') {
     const POW_A98 = 563 / 256;
-    const rgb = [r, g, b].map((c) => {
+    const rgb = [r, g, b].map(c => {
       const cl = Math.pow(c, POW_A98);
       return cl;
     });
@@ -2046,7 +2046,7 @@ export const parseColorFunc = (
     // prophoto-rgb
   } else if (cs === 'prophoto-rgb') {
     const POW_PROPHOTO = 1.8;
-    const rgb = [r, g, b].map((c) => {
+    const rgb = [r, g, b].map(c => {
       let cl;
       if (c > 1 / (HEX * DUO)) {
         cl = Math.pow(c, POW_PROPHOTO);
@@ -2554,15 +2554,13 @@ export const resolveColorFunc = (
     number | string,
     number | string
   ];
-  if (REG_SPEC.test(format!) ||
-      (format === VAL_MIX && cs === colorSpace)) {
+  if (REG_SPEC.test(format!) || (format === VAL_MIX && cs === colorSpace)) {
     return [cs, x, y, z, alpha];
   }
-  const [r, g, b] = convertXyzToRgb([
-    x as number,
-    y as number,
-    z as number
-  ], true) as [number, number, number];
+  const [r, g, b] = convertXyzToRgb(
+    [x as number, y as number, z as number],
+    true
+  ) as [number, number, number];
   return ['rgb', r, g, b, alpha as number];
 };
 
@@ -2598,13 +2596,7 @@ export const convertColorToLinearRgb = (
     if (xyz === null) {
       return xyz!;
     }
-    [cs, x, y, z, alpha] = xyz as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [cs, x, y, z, alpha] = xyz as [string, number, number, number, number];
     if (cs === colorSpace) {
       return [x, y, z, alpha];
     }
@@ -2844,13 +2836,7 @@ export const convertColorToHsl = (
     if (xyz === null) {
       return xyz!;
     }
-    [, x, y, z, alpha] = xyz as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [, x, y, z, alpha] = xyz as [string, number, number, number, number];
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value) as [
       string,
@@ -2899,13 +2885,7 @@ export const convertColorToHwb = (
   if (REG_HWB.test(value)) {
     [, h, w, b, alpha] = parseHwb(value, {
       format: 'hwb'
-    }) as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    }) as [string, number, number, number, number];
     if (format === 'hwb') {
       return [Math.round(h), Math.round(w), Math.round(b), alpha];
     }
@@ -2921,13 +2901,7 @@ export const convertColorToHwb = (
     if (xyz === null) {
       return xyz!;
     }
-    [, x, y, z, alpha] = xyz as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [, x, y, z, alpha] = xyz as [string, number, number, number, number];
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value) as [
       string,
@@ -3042,13 +3016,7 @@ export const convertColorToLch = (
     if (xyz === null) {
       return xyz!;
     }
-    [, x, y, z, alpha] = xyz as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [, x, y, z, alpha] = xyz as [string, number, number, number, number];
   } else if (value.startsWith(FN_COLOR)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
@@ -3257,11 +3225,7 @@ export const resolveColorMix = (
     const regColorSpace = new RegExp(`^color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,`);
     const [, cs] = value.match(regColorSpace) as [string, string];
     if (REG_CS_HUE.test(cs)) {
-      [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as [
-        string,
-        string,
-        string
-      ];
+      [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as [string, string, string];
     } else {
       colorSpace = cs;
     }
@@ -3269,12 +3233,12 @@ export const resolveColorMix = (
       const itemA = nestedItems[0]!.replace(/(?=[()])/g, '\\');
       const regA = new RegExp(`(${itemA})(?:\\s+(${PCT}))?`);
       //if (regA.test(value)) {
-        [, colorA, pctA] = value.match(regA) as [string, string, string];
+      [, colorA, pctA] = value.match(regA) as [string, string, string];
       //}
       const itemB = nestedItems[1]!.replace(/(?=[()])/g, '\\');
       const regB = new RegExp(`(${itemB})(?:\\s+(${PCT}))?`);
       //if (regB.test(value)) {
-        [, colorB, pctB] = value.match(regB) as [string, string, string];
+      [, colorB, pctB] = value.match(regB) as [string, string, string];
       //}
     } else {
       const colorPart = `(?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?`;

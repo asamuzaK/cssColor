@@ -75,9 +75,8 @@ export function resolveCustomProperty(
         if (Object.hasOwnProperty.call(customProperty, value)) {
           items.push(customProperty[value as never]);
         } else if (
-          typeof (
-            customProperty as { callback?: (value: string) => string }
-          ).callback === 'function'
+          typeof (customProperty as { callback?: (value: string) => string })
+            .callback === 'function'
         ) {
           const item = (
             customProperty as { callback: (value: string) => string }
@@ -220,9 +219,8 @@ export function cssVar(
   }
   let cacheKey;
   if (
-    typeof (
-      customProperty as { callback?: (value: string) => string }
-    ).callback !== 'function'
+    typeof (customProperty as { callback?: (value: string) => string })
+      .callback !== 'function'
   ) {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {

@@ -472,7 +472,7 @@ export class Calculator {
     if (this.#hasEtc) {
       if (this.#etcSum.length) {
         const sum = this.sort(this.#etcSum)
-          .map((item) => {
+          .map(item => {
             let res;
             if (
               REG_OPERATOR.test(item) &&
@@ -498,7 +498,7 @@ export class Calculator {
       }
       if (this.#etcSub.length) {
         const sub = this.sort(this.#etcSub)
-          .map((item) => {
+          .map(item => {
             let res;
             if (
               REG_OPERATOR.test(item) &&
@@ -709,7 +709,7 @@ export const serializeCalc = (
     return cachedResults.get(cacheKey) as string | null;
   }
   const items = tokenize({ css: value })
-    .map((token) => {
+    .map(token => {
       const [type, value] = token as [string, string];
       let res;
       if (type !== W_SPACE && type !== COMMENT) {
@@ -724,8 +724,9 @@ export const serializeCalc = (
       return item === ')' && index > startIndex;
     });
     const slicedValues = items.slice(startIndex, endIndex + 1);
-    let serializedValue =
-      sortCalcValues(slicedValues as Array<string>) as string;
+    let serializedValue = sortCalcValues(
+      slicedValues as Array<string>
+    ) as string;
     if (REG_START_MATH_VAR.test(serializedValue)) {
       serializedValue = calc(serializedValue, {
         toCanonicalUnits: true
@@ -734,8 +735,9 @@ export const serializeCalc = (
     items.splice(startIndex, endIndex - startIndex + 1, serializedValue);
     startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   }
-  const serializedCalc =
-    sortCalcValues(items as Array<string>, true) as string | null;
+  const serializedCalc = sortCalcValues(items as Array<string>, true) as
+    | string
+    | null;
   if (cacheKey) {
     cachedResults.set(cacheKey, serializedCalc!);
   }
@@ -784,7 +786,7 @@ export const resolveDimension = (
     }
     pixelValue = Number(pixelValue);
     if (Number.isFinite(pixelValue)) {
-      res = `${relativeValue as number * pixelValue as number}px`;
+      res = `${((relativeValue as number) * pixelValue) as number}px`;
     }
   }
   return res ?? null;

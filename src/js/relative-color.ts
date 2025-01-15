@@ -43,9 +43,7 @@ const {
   Percentage: PCT,
   Whitespace: W_SPACE
 } = TokenType;
-const {
-  HasNoneKeywords: NONE_KEY
-} = SyntaxFlag;
+const { HasNoneKeywords: NONE_KEY } = SyntaxFlag;
 const OCT = 8;
 const DEC = 10;
 const HEX = 16;
@@ -113,9 +111,11 @@ export function resolveColorChannels(
       throw new TypeError(`${token} is not an array.`);
     }
     const [type, value, , , detail = {}] = token;
-    const numValue = (detail as {
-      value?: number;
-    })?.value as number | undefined;
+    const numValue = (
+      detail as {
+        value?: number;
+      }
+    )?.value as number | undefined;
     const channel = channels[i]!;
     switch (type as string) {
       case DIM: {
@@ -296,8 +296,10 @@ export function extractOriginColor(
     }
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue as string });
-      const channelValues =
-        resolveColorChannels(tokens, opt) as Array<string> | null;
+      const channelValues = resolveColorChannels(
+        tokens,
+        opt
+      ) as Array<string> | null;
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
           cachedResults.set(cacheKey, null!);
@@ -320,10 +322,7 @@ export function extractOriginColor(
     }
     // nested relative color
   } else {
-    const [, restValue] = value.split(REG_START_REL) as [
-      string,
-      string
-    ];
+    const [, restValue] = value.split(REG_START_REL) as [string, string];
     if (REG_START_REL.test(restValue)) {
       const tokens = tokenize({ css: restValue });
       const originColor = [] as Array<string>;
@@ -375,8 +374,10 @@ export function extractOriginColor(
         }
         return null;
       }
-      const channelValues =
-        resolveColorChannels(tokens, opt) as Array<string> | null;
+      const channelValues = resolveColorChannels(
+        tokens,
+        opt
+      ) as Array<string> | null;
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
           cachedResults.set(cacheKey, null!);
@@ -474,7 +475,7 @@ export function resolveRelativeColor(
   } = parsedComponents;
   let alpha: number | string;
   if (Number.isNaN(Number(alphaComponent))) {
-    if ((syntaxFlags instanceof Set) && syntaxFlags.has(NONE_KEY)) {
+    if (syntaxFlags instanceof Set && syntaxFlags.has(NONE_KEY)) {
       alpha = NONE;
     } else {
       alpha = 0;
@@ -488,7 +489,7 @@ export function resolveRelativeColor(
   [v1, v2, v3] = channelsComponent;
   let resolvedValue;
   if (REG_CS_CIE.test(colorNotation)) {
-    const hasNone = (syntaxFlags instanceof Set) && syntaxFlags.has(NONE_KEY);
+    const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(NONE_KEY);
     if (Number.isNaN(v1)) {
       if (hasNone) {
         v1 = NONE;
@@ -544,7 +545,7 @@ export function resolveRelativeColor(
     }
   } else {
     const cs = colorNotation === 'rgb' ? 'srgb' : colorNotation;
-    const hasNone = (syntaxFlags instanceof Set) && syntaxFlags.has(NONE_KEY);
+    const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(NONE_KEY);
     if (Number.isNaN(v1)) {
       if (hasNone) {
         v1 = NONE;
