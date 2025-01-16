@@ -177,8 +177,11 @@ describe('transform matrix', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(['foo', [], []]), TypeError,
-      'foo is not an array.');
+    assert.throws(
+      () => func(['foo', [], []]),
+      TypeError,
+      'foo is not an array.'
+    );
   });
 
   it('should throw', () => {
