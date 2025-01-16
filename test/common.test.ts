@@ -1,46 +1,49 @@
 /**
- * common.test.js
+ * common.test
  */
 
-import { describe, expect, it } from 'vitest';
-import * as common from '../src/js/common.js';
+/* api */
+import { assert, describe, it } from 'vitest';
+
+/* test */
+import * as common from '../src/js/common';
 
 describe('get type', () => {
-  const func = common.getType as Function;
+  const func = common.getType;
 
   it('should get Array', () => {
     const res = func([]);
-    expect(res).toBe('Array');
+    assert.deepEqual(res, 'Array');
   });
 
   it('should get Object', () => {
     const res = func({});
-    expect(res).toBe('Object');
+    assert.deepEqual(res, 'Object');
   });
 
   it('should get String', () => {
     const res = func('');
-    expect(res).toBe('String');
+    assert.deepEqual(res, 'String');
   });
 
   it('should get Number', () => {
     const res = func(1);
-    expect(res).toBe('Number');
+    assert.deepEqual(res, 'Number');
   });
 
   it('should get Boolean', () => {
     const res = func(true);
-    expect(res).toBe('Boolean');
+    assert.deepEqual(res, 'Boolean');
   });
 
   it('should get Undefined', () => {
     const res = func();
-    expect(res).toBe('Undefined');
+    assert.deepEqual(res, 'Undefined');
   });
 
   it('should get Null', () => {
     const res = func(null);
-    expect(res).toBe('Null');
+    assert.deepEqual(res, 'Null');
   });
 });
 
@@ -50,14 +53,14 @@ describe('is string', () => {
   it('should get false', () => {
     const items = [[], ['foo'], {}, { foo: 'bar' }, undefined, null, 1, true];
     for (const item of items) {
-      expect(func(item)).toBe(false);
+      assert.strictEqual(func(item), false);
     }
   });
 
   it('should get true', () => {
     const items = ['', 'foo'];
     for (const item of items) {
-      expect(func(item)).toBe(true);
+      assert.strictEqual(func(item), true);
     }
   });
 });

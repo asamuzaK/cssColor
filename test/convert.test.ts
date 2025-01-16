@@ -1,12 +1,15 @@
 /**
- * convert.test.js
+ * convert.test
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+/* api */
+import { afterEach, assert, beforeEach, describe, it } from 'vitest';
+
+/* test */
 import * as convert from '../src/js/convert.js';
 
 describe('pre process', () => {
-  const func = convert.preProcess as Function;
+  const func = convert.preProcess;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -17,22 +20,22 @@ describe('pre process', () => {
 
   it('should get null', () => {
     const res = func();
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func(' ');
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value as is', () => {
     const res = func('foo');
-    expect(res).toBe('foo');
+    assert.strictEqual(res, 'foo', 'result');
   });
 
   it('should get null', () => {
     const res = func('var(--foo)');
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -41,11 +44,11 @@ describe('pre process', () => {
         '--foo': 'red'
       }
     });
-    expect(res).toBe('red');
+    assert.strictEqual(res, 'red', 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -66,36 +69,36 @@ describe('pre process', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toBe('blue');
+    assert.strictEqual(res, 'blue', 'result');
   });
 
   it('should get value', () => {
     const res = func('calc(1 / 2)');
-    expect(res).toBe('0.5');
+    assert.strictEqual(res, '0.5', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple r g b)');
-    expect(res).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
 
     const res2 = func('rgb(from rebeccapurple r g b)');
-    expect(res2).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res2, 'color(srgb 0.4 0.2 0.6)', 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)');
-    expect(res).toBe('oklab(0.573854 0.0422802 0.116761)');
+    assert.strictEqual(res, 'oklab(0.573854 0.0422802 0.116761)', 'result');
 
     const res2 = func('color-mix(in oklab, red, green)');
-    expect(res2).toBe('oklab(0.573854 0.0422802 0.116761)');
+    assert.strictEqual(res2, 'oklab(0.573854 0.0422802 0.116761)', 'result');
 
     const res3 = func('color-mix(in oklab, red, green)');
-    expect(res3).toBe('oklab(0.573854 0.0422802 0.116761)');
+    assert.strictEqual(res3, 'oklab(0.573854 0.0422802 0.116761)', 'result');
   });
 });
 
 describe('convert number to hex string', () => {
-  const func = convert.numberToHex as Function;
+  const func = convert.numberToHex;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -105,69 +108,68 @@ describe('convert number to hex string', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a number.');
+    assert.throws(() => func(), TypeError, 'undefined is not a number.');
   });
 
   it('should get value', () => {
     const res = func(0);
-    expect(res).toBe('00');
+    assert.strictEqual(res, '00', 'result');
 
     const res2 = func(0);
-    expect(res2).toBe('00');
+    assert.strictEqual(res2, '00', 'result');
   });
 
   it('should get value', () => {
     const res = func(2.55);
-    expect(res).toBe('03');
+    assert.strictEqual(res, '03', 'result');
 
     const res2 = func(2.55);
-    expect(res2).toBe('03');
+    assert.strictEqual(res2, '03', 'result');
   });
 
   it('should get value', () => {
     const res = func(9);
-    expect(res).toBe('09');
+    assert.strictEqual(res, '09', 'result');
 
     const res2 = func(9);
-    expect(res2).toBe('09');
+    assert.strictEqual(res2, '09', 'result');
   });
 
   it('should get value', () => {
     const res = func(10);
-    expect(res).toBe('0a');
+    assert.strictEqual(res, '0a', 'result');
 
     const res2 = func(10);
-    expect(res2).toBe('0a');
+    assert.strictEqual(res2, '0a', 'result');
   });
 
   it('should get value', () => {
     const res = func(15);
-    expect(res).toBe('0f');
+    assert.strictEqual(res, '0f', 'result');
 
     const res2 = func(15);
-    expect(res2).toBe('0f');
+    assert.strictEqual(res2, '0f', 'result');
   });
 
   it('should get value', () => {
     const res = func(16);
-    expect(res).toBe('10');
+    assert.strictEqual(res, '10', 'result');
 
     const res2 = func(16);
-    expect(res2).toBe('10');
+    assert.strictEqual(res2, '10', 'result');
   });
 
   it('should get value', () => {
     const res = func(255);
-    expect(res).toBe('ff');
+    assert.strictEqual(res, 'ff', 'result');
 
     const res2 = func(255);
-    expect(res2).toBe('ff');
+    assert.strictEqual(res2, 'ff', 'result');
   });
 });
 
 describe('convert color to hex', () => {
-  const func = convert.colorToHex as Function;
+  const func = convert.colorToHex;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -177,49 +179,48 @@ describe('convert color to hex', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get null', () => {
     const res = func(' ');
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
-    expect(res).toBe('#008000');
+    assert.strictEqual(res, '#008000', 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
-    expect(res2).toBe('#008000');
+    assert.strictEqual(res2, '#008000', 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0 / 0.5)', {
       alpha: true
     });
-    expect(res).toBe('#00800080');
+    assert.strictEqual(res, '#00800080', 'result');
 
     const res2 = func('color(srgb 0 0.5 0 / 0.5)', {
       alpha: true
     });
-    expect(res2).toBe('#00800080');
+    assert.strictEqual(res2, '#00800080', 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)', {
       alpha: true
     });
-    expect(res).toBe('#008000');
+    assert.strictEqual(res, '#008000', 'result');
 
     const res2 = func('color(srgb 0 0.5 0)', {
       alpha: true
     });
-    expect(res2).toBe('#008000');
+    assert.strictEqual(res2, '#008000', 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -240,18 +241,18 @@ describe('convert color to hex', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toBe('#008000');
+    assert.strictEqual(res, '#008000', 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toBe('#008000');
+    assert.strictEqual(res2, '#008000', 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -272,19 +273,19 @@ describe('convert color to hex', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toBe('#ffff00');
+    assert.strictEqual(res, '#ffff00', 'result');
 
     const res2 = func('var(--baz)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toBe('#ffff00');
+    assert.strictEqual(res2, '#ffff00', 'result');
   });
 });
 
 describe('convert color to hsl', () => {
-  const func = convert.colorToHsl as Function;
+  const func = convert.colorToHsl;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -294,27 +295,26 @@ describe('convert color to hsl', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     res[2] = Math.round(res[2]);
-    expect(res).toEqual([120, 100, 25, 1]);
+    assert.deepEqual(res, [120, 100, 25, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[2] = Math.round(res2[2]);
-    expect(res2).toEqual([120, 100, 25, 1]);
+    assert.deepEqual(res2, [120, 100, 25, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -335,18 +335,18 @@ describe('convert color to hsl', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toEqual([120, 100, 25, 1]);
+    assert.deepEqual(res, [120, 100, 25, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toEqual([120, 100, 25, 1]);
+    assert.deepEqual(res2, [120, 100, 25, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -367,19 +367,19 @@ describe('convert color to hsl', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toEqual([60, 100, 50, 1]);
+    assert.deepEqual(res, [60, 100, 50, 1], 'result');
 
     const res2 = func('var(--baz)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toEqual([60, 100, 50, 1]);
+    assert.deepEqual(res2, [60, 100, 50, 1], 'result');
   });
 });
 
 describe('convert color to hwb', () => {
-  const func = convert.colorToHwb as Function;
+  const func = convert.colorToHwb;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -389,27 +389,26 @@ describe('convert color to hwb', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
     res[2] = Math.round(res[2]);
-    expect(res).toEqual([120, 0, 50, 1]);
+    assert.deepEqual(res, [120, 0, 50, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[2] = Math.round(res2[2]);
-    expect(res2).toEqual([120, 0, 50, 1]);
+    assert.deepEqual(res2, [120, 0, 50, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -431,7 +430,7 @@ describe('convert color to hwb', () => {
       }
     });
     res[2] = Math.round(res[2]);
-    expect(res).toEqual([120, 0, 50, 1]);
+    assert.deepEqual(res, [120, 0, 50, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
@@ -439,11 +438,11 @@ describe('convert color to hwb', () => {
       }
     });
     res2[2] = Math.round(res2[2]);
-    expect(res2).toEqual([120, 0, 50, 1]);
+    assert.deepEqual(res2, [120, 0, 50, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -465,7 +464,7 @@ describe('convert color to hwb', () => {
       }
     });
     res[2] = Math.round(res[2]);
-    expect(res).toEqual([60, 0, 0, 1]);
+    assert.deepEqual(res, [60, 0, 0, 1], 'result');
 
     const res2 = func('var(--baz)', {
       customProperty: {
@@ -473,12 +472,12 @@ describe('convert color to hwb', () => {
       }
     });
     res2[2] = Math.round(res2[2]);
-    expect(res2).toEqual([60, 0, 0, 1]);
+    assert.deepEqual(res2, [60, 0, 0, 1], 'result');
   });
 });
 
 describe('convert color to lab', () => {
-  const func = convert.colorToLab as Function;
+  const func = convert.colorToLab;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -488,13 +487,12 @@ describe('convert color to lab', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -502,17 +500,17 @@ describe('convert color to lab', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([46.1022, -47.41821, 48.44932, 1]);
+    assert.deepEqual(res, [46.1022, -47.41821, 48.44932, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([46.1022, -47.41821, 48.44932, 1]);
+    assert.deepEqual(res2, [46.1022, -47.41821, 48.44932, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -536,7 +534,7 @@ describe('convert color to lab', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([46.27776, -47.55263, 48.5864, 1]);
+    assert.deepEqual(res, [46.27776, -47.55263, 48.5864, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
@@ -546,11 +544,11 @@ describe('convert color to lab', () => {
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([46.27776, -47.55263, 48.5864, 1]);
+    assert.deepEqual(res2, [46.27776, -47.55263, 48.5864, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -574,7 +572,7 @@ describe('convert color to lab', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([46.1022, -47.41821, 48.44932, 1]);
+    assert.deepEqual(res, [46.1022, -47.41821, 48.44932, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
@@ -584,12 +582,12 @@ describe('convert color to lab', () => {
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([46.1022, -47.41821, 48.44932, 1]);
+    assert.deepEqual(res2, [46.1022, -47.41821, 48.44932, 1], 'result');
   });
 });
 
 describe('convert color to lch', () => {
-  const func = convert.colorToLch as Function;
+  const func = convert.colorToLch;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -599,13 +597,12 @@ describe('convert color to lch', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -613,17 +610,17 @@ describe('convert color to lch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([46.1022, 67.7925, 134.38377, 1]);
+    assert.deepEqual(res, [46.1022, 67.7925, 134.38377, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([46.1022, 67.7925, 134.38377, 1]);
+    assert.deepEqual(res2, [46.1022, 67.7925, 134.38377, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -647,7 +644,7 @@ describe('convert color to lch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([46.27776, 67.98449, 134.38393, 1]);
+    assert.deepEqual(res, [46.27776, 67.98449, 134.38393, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
@@ -657,12 +654,12 @@ describe('convert color to lch', () => {
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([46.27776, 67.98449, 134.38393, 1]);
+    assert.deepEqual(res2, [46.27776, 67.98449, 134.38393, 1], 'result');
   });
 });
 
 describe('convert color to oklab', () => {
-  const func = convert.colorToOklab as Function;
+  const func = convert.colorToOklab;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -672,13 +669,12 @@ describe('convert color to oklab', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -686,17 +682,17 @@ describe('convert color to oklab', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([0.51829, -0.13991, 0.10737, 1]);
+    assert.deepEqual(res, [0.51829, -0.13991, 0.10737, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([0.51829, -0.13991, 0.10737, 1]);
+    assert.deepEqual(res2, [0.51829, -0.13991, 0.10737, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -720,7 +716,7 @@ describe('convert color to oklab', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([0.51975, -0.1403, 0.10768, 1]);
+    assert.deepEqual(res, [0.51975, -0.1403, 0.10768, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
@@ -730,12 +726,12 @@ describe('convert color to oklab', () => {
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([0.51975, -0.1403, 0.10768, 1]);
+    assert.deepEqual(res2, [0.51975, -0.1403, 0.10768, 1], 'result');
   });
 });
 
 describe('convert color to oklch', () => {
-  const func = convert.colorToOklch as Function;
+  const func = convert.colorToOklch;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -745,13 +741,12 @@ describe('convert color to oklch', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -759,17 +754,17 @@ describe('convert color to oklch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([0.51829, 0.17636, 142.49542, 1]);
+    assert.deepEqual(res, [0.51829, 0.17636, 142.49542, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([0.51829, 0.17636, 142.49542, 1]);
+    assert.deepEqual(res2, [0.51829, 0.17636, 142.49542, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -793,7 +788,7 @@ describe('convert color to oklch', () => {
     res[0] = parseFloat(res[0].toFixed(5));
     res[1] = parseFloat(res[1].toFixed(5));
     res[2] = parseFloat(res[2].toFixed(5));
-    expect(res).toEqual([0.51975, 0.17686, 142.49541, 1]);
+    assert.deepEqual(res, [0.51975, 0.17686, 142.49541, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
@@ -803,12 +798,12 @@ describe('convert color to oklch', () => {
     res2[0] = parseFloat(res2[0].toFixed(5));
     res2[1] = parseFloat(res2[1].toFixed(5));
     res2[2] = parseFloat(res2[2].toFixed(5));
-    expect(res2).toEqual([0.51975, 0.17686, 142.49541, 1]);
+    assert.deepEqual(res2, [0.51975, 0.17686, 142.49541, 1], 'result');
   });
 });
 
 describe('convert color to rgb', () => {
-  const func = convert.colorToRgb as Function;
+  const func = convert.colorToRgb;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -818,25 +813,24 @@ describe('convert color to rgb', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
-    expect(res).toEqual([0, 127.5, 0, 1]);
+    assert.deepEqual(res, [0, 127.5, 0, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
-    expect(res2).toEqual([0, 127.5, 0, 1]);
+    assert.deepEqual(res2, [0, 127.5, 0, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -857,18 +851,18 @@ describe('convert color to rgb', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toEqual([0, 128, 0, 1]);
+    assert.deepEqual(res, [0, 128, 0, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toEqual([0, 128, 0, 1]);
+    assert.deepEqual(res2, [0, 128, 0, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -889,19 +883,19 @@ describe('convert color to rgb', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toEqual([128, 128, 0, 1]);
+    assert.deepEqual(res, [128, 128, 0, 1], 'result');
 
     const res2 = func('var(--baz)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toEqual([128, 128, 0, 1]);
+    assert.deepEqual(res2, [128, 128, 0, 1], 'result');
   });
 });
 
 describe('convert color to xyz', () => {
-  const func = convert.colorToXyz as Function;
+  const func = convert.colorToXyz;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -911,37 +905,36 @@ describe('convert color to xyz', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
-    expect(res).toEqual([0.0765378, 0.153076, 0.0255126, 1]);
+    assert.deepEqual(res, [0.0765378, 0.153076, 0.0255126, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
-    expect(res2).toEqual([0.0765378, 0.153076, 0.0255126, 1]);
+    assert.deepEqual(res2, [0.0765378, 0.153076, 0.0255126, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)', {
       d50: true
     });
-    expect(res).toEqual([0.0824383, 0.153443, 0.0207794, 1]);
+    assert.deepEqual(res, [0.0824383, 0.153443, 0.0207794, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)', {
       d50: true
     });
-    expect(res2).toEqual([0.0824383, 0.153443, 0.0207794, 1]);
+    assert.deepEqual(res2, [0.0824383, 0.153443, 0.0207794, 1], 'result');
   });
 
   it('should get value', () => {
-    const getPropertyValue = (v: string) => {
+    const getPropertyValue = v => {
       let res;
       switch (v) {
         case '--foo':
@@ -962,27 +955,27 @@ describe('convert color to xyz', () => {
         callback: getPropertyValue
       }
     });
-    expect(res).toEqual([0.0771883, 0.154377, 0.0257294, 1]);
+    assert.deepEqual(res, [0.0771883, 0.154377, 0.0257294, 1], 'result');
 
     const res2 = func('var(--bar)', {
       customProperty: {
         callback: getPropertyValue
       }
     });
-    expect(res2).toEqual([0.0771883, 0.154377, 0.0257294, 1]);
+    assert.deepEqual(res2, [0.0771883, 0.154377, 0.0257294, 1], 'result');
   });
 
   it('should get value', () => {
     const res = func('color-mix(in oklab, red, green)');
-    expect(res).toEqual([0.208269, 0.182606, 0.0243384, 1]);
+    assert.deepEqual(res, [0.208269, 0.182606, 0.0243384, 1], 'result');
 
     const res2 = func('color-mix(in oklab, red, green)');
-    expect(res2).toEqual([0.208269, 0.182606, 0.0243384, 1]);
+    assert.deepEqual(res2, [0.208269, 0.182606, 0.0243384, 1], 'result');
   });
 });
 
 describe('convert color to xyz-d50', () => {
-  const func = convert.colorToXyzD50 as Function;
+  const func = convert.colorToXyzD50;
 
   beforeEach(() => {
     convert.cachedResults.clear();
@@ -993,15 +986,15 @@ describe('convert color to xyz-d50', () => {
 
   it('should get value', () => {
     const res = func(' ');
-    expect(res).toEqual([0, 0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
     const res = func('color(srgb 0 0.5 0)');
-    expect(res).toEqual([0.0824383, 0.153443, 0.0207794, 1]);
+    assert.deepEqual(res, [0.0824383, 0.153443, 0.0207794, 1], 'result');
 
     const res2 = func('color(srgb 0 0.5 0)');
-    expect(res2).toEqual([0.0824383, 0.153443, 0.0207794, 1]);
+    assert.deepEqual(res2, [0.0824383, 0.153443, 0.0207794, 1], 'result');
   });
 });
 
@@ -1009,7 +1002,7 @@ describe('convert', () => {
   it('should get functions', () => {
     const keys = Object.keys(convert.convert);
     for (const key of keys) {
-      expect(typeof convert.convert[key as never]).toBe('function');
+      assert.strictEqual(typeof convert.convert[key], 'function');
     }
   });
 });

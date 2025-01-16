@@ -435,7 +435,7 @@ export function resolveRelativeColor(
     }
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`${value} is not a string`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const cacheKey = `{relativeColor:${value},opt:${valueToJsonString(opt)}}`;
   if (cachedResults.has(cacheKey)) {
