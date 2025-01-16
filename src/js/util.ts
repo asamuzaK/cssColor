@@ -68,7 +68,7 @@ export const valueToJsonString = (
       replacedValue = null;
     } else if (typeof val === 'function') {
       if (func) {
-        replacedValue = val.toString();
+        replacedValue = val.toString().replace(/\s/g, '');
       } else {
         replacedValue = val.name;
       }

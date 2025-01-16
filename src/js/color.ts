@@ -748,11 +748,8 @@ export const convertLinearRgbToHex = (
     });
   }
   [r, g, b] = convertLinearRgbToRgb([r, g, b], true);
-
   const rr = numberToHexString(r!);
-
   const gg = numberToHexString(g!);
-
   const bb = numberToHexString(b!);
   const aa = numberToHexString(alpha * MAX_RGB);
   let hex;

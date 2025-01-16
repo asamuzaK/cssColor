@@ -1,18 +1,16 @@
 /**
- * relative-color.test.js
- *
- * NOTE: Some tests do not match WPT results due to workaround limitations
- * wpt: https://github.com/web-platform-tests/wpt/blob/master/css/css-color/parsing/color-valid-relative-color.html
- * see: https://drafts.csswg.org/css-values-4/#calc-serialize
- * see also: https://github.com/w3c/csswg-drafts/issues/10328
+ * relative-color.test
  */
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+/* api */
 import { tokenize } from '@csstools/css-tokenizer';
-import * as relColor from '../src/js/relative-color.js';
+import { afterEach, assert, beforeEach, describe, it } from 'vitest';
+
+/* test */
+import * as relColor from '../src/js/relative-color';
 
 describe('resolve relative color channels', () => {
-  const func = relColor.resolveColorChannels as Function;
+  const func = relColor.resolveColorChannels;
 
   beforeEach(() => {
     relColor.cachedResults.clear();
@@ -22,13 +20,11 @@ describe('resolve relative color channels', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not an array.');
+    assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
   it('should throw', () => {
-    expect(() => func(['foo'])).toThrow(TypeError);
-    expect(() => func(['foo'])).toThrow('foo is not an array.');
+    assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
   });
 
   it('should get null', () => {
@@ -38,7 +34,7 @@ describe('resolve relative color channels', () => {
       colorSpace: 'lab',
       format: 'specifiedValue'
     });
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -48,7 +44,7 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    expect(res).toEqual(['r', 'calc(1 * g)', 'abs(-10)']);
+    assert.deepEqual(res, ['r', 'calc(1 * g)', 'abs(-10)'], 'result');
   });
 
   it('should get value', () => {
@@ -58,7 +54,7 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    expect(res).toEqual(['r', 'calc(1 * g)', 10]);
+    assert.deepEqual(res, ['r', 'calc(1 * g)', 10], 'result');
   });
 
   it('should get value', () => {
@@ -68,7 +64,7 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    expect(res).toEqual(['r', 'calc((0.5 * g) + (0.5 * g))', 10]);
+    assert.deepEqual(res, ['r', 'calc((0.5 * g) + (0.5 * g))', 10], 'result');
   });
 
   it('should get value', () => {
@@ -78,7 +74,7 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    expect(res).toEqual(['r', 'calc((0.5 * g) + (0.5 * g))', 10]);
+    assert.deepEqual(res, ['r', 'calc((0.5 * g) + (0.5 * g))', 10], 'result');
   });
 
   it('should get value', () => {
@@ -88,12 +84,12 @@ describe('resolve relative color channels', () => {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    expect(res).toEqual(['r', 'calc((0.5 * b) - (0.5 * g))', 10]);
+    assert.deepEqual(res, ['r', 'calc((0.5 * b) - (0.5 * g))', 10], 'result');
   });
 });
 
 describe('extract origin color', () => {
-  const func = relColor.extractOriginColor as Function;
+  const func = relColor.extractOriginColor;
 
   beforeEach(() => {
     relColor.cachedResults.clear();
@@ -103,87 +99,97 @@ describe('extract origin color', () => {
   });
 
   it('should get null', () => {
-    expect(func()).toBe(null);
+    const res = func();
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
-    expect(func(' ')).toBe(null);
+    const res = func(' ');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('rgb(from currentColor r g b)');
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'foo'
     });
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null', () => {
     const res = func('rebeccapurple');
-    expect(res).toBe('rebeccapurple');
+    assert.strictEqual(res, 'rebeccapurple', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rebeccapurple'
     });
-    expect(res).toBe('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, 'rgb(from rebeccapurple r g b)', 'result');
 
     const res2 = func('rgb(from currentColor r g b)', {
       currentColor: 'rebeccapurple'
     });
-    expect(res2).toBe('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res2, 'rgb(from rebeccapurple r g b)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: '#639'
     });
-    expect(res).toBe('rgb(from #639 r g b)');
+    assert.strictEqual(res, 'rgb(from #639 r g b)', 'result');
   });
 
   it('should get null', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb(from foo r g b)'
     });
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb(from rebeccapurple r g b)'
     });
-    expect(res).toBe('rgb(from color(srgb 0.4 0.2 0.6) r g b)');
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb( from rebeccapurple r g b )'
     });
-    expect(res).toBe('rgb(from color(srgb 0.4 0.2 0.6) r g b)');
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b)',
+      'result'
+    );
   });
 });
 
 describe('resolve relative color', () => {
-  const func = relColor.resolveRelativeColor as Function;
+  const func = relColor.resolveRelativeColor;
 
   beforeEach(() => {
     relColor.cachedResults.clear();
@@ -193,76 +199,88 @@ describe('resolve relative color', () => {
   });
 
   it('should throw', () => {
-    expect(() => func()).toThrow(TypeError);
-    expect(() => func()).toThrow('undefined is not a string');
-  });
-
-  it('should throw', () => {
-    expect(() => func('var(--foo)')).toThrow(SyntaxError);
-    expect(() => func('var(--foo)')).toThrow('Unexpected token var( found.');
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
   it('should get value', () => {
-    expect(func('')).toBe('');
+    assert.throws(
+      () => func('var(--foo)'),
+      SyntaxError,
+      'Unexpected token var( found.'
+    );
   });
 
   it('should get value', () => {
-    expect(func('foo')).toBe('foo');
+    const res = func('');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo');
+    assert.strictEqual(res, 'foo', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from var(--foo) r g b)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from var(--foo) r g b)');
+    assert.strictEqual(res, 'rgb(from var(--foo) r g b)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple r g b)');
-    expect(res).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
 
     const res2 = func('rgb(from rebeccapurple r g b)');
-    expect(res2).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res2, 'color(srgb 0.4 0.2 0.6)', 'result');
   });
 
   it('should get value', () => {
     const res = func(
       'rgb(from rgb(100 110 120 / 0.8) calc(r + 1) calc(g + 1) calc(b + 1) / calc(alpha + 0.01))'
     );
-    expect(res).toBe('color(srgb 0.39608 0.43529 0.47451 / 0.81)');
+    assert.strictEqual(
+      res,
+      'color(srgb 0.39608 0.43529 0.47451 / 0.81)',
+      'result'
+    );
 
     const res2 = func(
       'rgb(from rgb(100 110 120 / 0.8) calc(r + 1) calc(g + 1) calc(b + 1) / calc(alpha + 0.01))'
     );
-    expect(res2).toBe('color(srgb 0.39608 0.43529 0.47451 / 0.81)');
+    assert.strictEqual(
+      res2,
+      'color(srgb 0.39608 0.43529 0.47451 / 0.81)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple none none none / none)');
-    expect(res).toBe('color(srgb none none none / none)');
+    assert.strictEqual(res, 'color(srgb none none none / none)', 'result');
 
     const res2 = func('rgb(from rebeccapurple none none none / none)');
-    expect(res2).toBe('color(srgb none none none / none)');
+    assert.strictEqual(res2, 'color(srgb none none none / none)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rgb(none none none / none) r g b / alpha)');
-    expect(res).toBe('color(srgb 0 0 0 / 0)');
+    assert.strictEqual(res, 'color(srgb 0 0 0 / 0)', 'result');
 
     const res2 = func('rgb(from rgb(none none none / none) r g b / alpha)');
-    expect(res2).toBe('color(srgb 0 0 0 / 0)');
+    assert.strictEqual(res2, 'color(srgb 0 0 0 / 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'color(srgb 0.4 0.2 0.6)'
     });
-    expect(res).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
 
     const res2 = func('rgb(from currentColor r g b)', {
       currentColor: 'color(srgb 0.4 0.2 0.6)'
     });
-    expect(res2).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res2, 'color(srgb 0.4 0.2 0.6)', 'result');
   });
 
   it('should get value', () => {
@@ -272,7 +290,7 @@ describe('resolve relative color', () => {
         currentColor: 'rebeccapurple'
       }
     );
-    expect(res).toBe('color(srgb 0.7 0.1 0.3)');
+    assert.strictEqual(res, 'color(srgb 0.7 0.1 0.3)', 'result');
 
     const res2 = func(
       'rgb(from color-mix(in srgb, currentColor, red) r g b / alpha)',
@@ -280,69 +298,69 @@ describe('resolve relative color', () => {
         currentColor: 'rebeccapurple'
       }
     );
-    expect(res2).toBe('color(srgb 0.7 0.1 0.3)');
+    assert.strictEqual(res2, 'color(srgb 0.7 0.1 0.3)', 'result');
   });
 
   it('should get value', () => {
     const res = func('hsl(from rebeccapurple h s l)');
-    expect(res).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
 
     const res2 = func('hsl(from rebeccapurple h s l)');
-    expect(res2).toBe('color(srgb 0.4 0.2 0.6)');
+    assert.strictEqual(res2, 'color(srgb 0.4 0.2 0.6)', 'result');
   });
 
   it('should get value', () => {
     const res = func('hsl(from rgb(20%, 40%, 60%, 80%) h s l / alpha)');
-    expect(res).toBe('color(srgb 0.2 0.4 0.6 / 0.8)');
+    assert.strictEqual(res, 'color(srgb 0.2 0.4 0.6 / 0.8)', 'result');
   });
 
   it('should get value', () => {
     const res = func('hsl(from hsl(none none none / none) h s l / alpha)');
-    expect(res).toBe('color(srgb 0 0 0 / 0)');
+    assert.strictEqual(res, 'color(srgb 0 0 0 / 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('hsl(from rebeccapurple none none none / none)');
-    expect(res).toBe('color(srgb 0 0 0 / none)');
+    assert.strictEqual(res, 'color(srgb 0 0 0 / none)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(from lab(25 20 50) l a b)');
-    expect(res).toBe('lab(25 20 50)');
+    assert.strictEqual(res, 'lab(25 20 50)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(from lab(25 20 50 / 40%) l a b / alpha)');
-    expect(res).toBe('lab(25 20 50 / 0.4)');
+    assert.strictEqual(res, 'lab(25 20 50 / 0.4)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(from lab(from lab(25 20 50) l a b) l a b)');
-    expect(res).toBe('lab(25 20 50)');
+    assert.strictEqual(res, 'lab(25 20 50)', 'result');
   });
 
   it('should get value', () => {
     const res = func(
       'lab(from lab(50 5 10 / 0.8) calc(l + 1) calc(a + 1) calc(b + 1) / calc(alpha + 0.01))'
     );
-    expect(res).toBe('lab(51 6 11 / 0.81)');
+    assert.strictEqual(res, 'lab(51 6 11 / 0.81)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(from lab(25 20 50) none none none / none)');
-    expect(res).toBe('lab(none none none / none)');
+    assert.strictEqual(res, 'lab(none none none / none)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(from lab(none none none / none) l a b / alpha)');
-    expect(res).toBe('lab(0 0 0 / 0)');
+    assert.strictEqual(res, 'lab(0 0 0 / 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('lab(from currentColor l a b)', {
       currentColor: 'lab(25 20 50)'
     });
-    expect(res).toBe('lab(25 20 50)');
+    assert.strictEqual(res, 'lab(25 20 50)', 'result');
   });
 
   it('should get value', () => {
@@ -352,49 +370,57 @@ describe('resolve relative color', () => {
         currentColor: 'lab(25 20 50)'
       }
     );
-    expect(res).toBe('lab(25 20 50)');
+    assert.strictEqual(res, 'lab(25 20 50)', 'result');
   });
 
   it('should get value', () => {
     const res = func(
       'color(from color(srgb-linear 0.7 0.5 0.3) srgb-linear r g b)'
     );
-    expect(res).toBe('color(srgb-linear 0.7 0.5 0.3)');
+    assert.strictEqual(res, 'color(srgb-linear 0.7 0.5 0.3)', 'result');
   });
 
   it('should get value', () => {
     const res = func(
       'color(from color(srgb-linear 0.7 0.5 0.3 / 40%) srgb-linear r g b)'
     );
-    expect(res).toBe('color(srgb-linear 0.7 0.5 0.3 / 0.4)');
+    assert.strictEqual(res, 'color(srgb-linear 0.7 0.5 0.3 / 0.4)', 'result');
   });
 
   it('should get value', () => {
     const res = func(
       'color(from color(srgb-linear 0.7 0.5 0.3 / 0.8) srgb-linear calc(r + 0.01) calc(g + 0.01) calc(b + 0.01) / calc(alpha + 0.01))'
     );
-    expect(res).toBe('color(srgb-linear 0.71 0.51 0.31 / 0.81)');
+    assert.strictEqual(
+      res,
+      'color(srgb-linear 0.71 0.51 0.31 / 0.81)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func(
       'color(from color(srgb-linear 0.7 0.5 0.3) srgb-linear none none none / none)'
     );
-    expect(res).toBe('color(srgb-linear none none none / none)');
+    assert.strictEqual(
+      res,
+      'color(srgb-linear none none none / none)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func(
       'color(from color(srgb-linear none none none / none) srgb-linear r g b / alpha)'
     );
-    expect(res).toBe('color(srgb-linear 0 0 0 / 0)');
+    assert.strictEqual(res, 'color(srgb-linear 0 0 0 / 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func('color(from currentColor srgb-linear r g b)', {
       currentColor: 'color(srgb-linear 0.7 0.5 0.3)'
     });
-    expect(res).toBe('color(srgb-linear 0.7 0.5 0.3)');
+    assert.strictEqual(res, 'color(srgb-linear 0.7 0.5 0.3)', 'result');
   });
 
   it('should get value', () => {
@@ -404,26 +430,26 @@ describe('resolve relative color', () => {
         currentColor: 'color(srgb-linear 0.7 0.5 0.3)'
       }
     );
-    expect(res).toBe('color(srgb-linear 0.7 0.5 0.3)');
+    assert.strictEqual(res, 'color(srgb-linear 0.7 0.5 0.3)', 'result');
   });
 
   it('should get value', () => {
     const res = func('color(from color(srgb-linear 0.25 0.5 0.75) srgb r g b)');
-    expect(res).toBe('color(srgb 0.5371 0.73536 0.88083)');
+    assert.strictEqual(res, 'color(srgb 0.5371 0.73536 0.88083)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple r g b)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, 'rgb(from rebeccapurple r g b)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r g b / alpha)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rebeccapurple r g b / alpha)');
+    assert.strictEqual(res, 'rgb(from rebeccapurple r g b / alpha)', 'result');
   });
 
   it('should get value', () => {
@@ -433,8 +459,10 @@ describe('resolve relative color', () => {
         format: 'specifiedValue'
       }
     );
-    expect(res).toBe(
-      'rgb(from rebeccapurple calc(r) calc(g) calc(b) / calc(alpha))'
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple calc(r) calc(g) calc(b) / calc(alpha))',
+      'result'
     );
   });
 
@@ -445,8 +473,10 @@ describe('resolve relative color', () => {
         format: 'specifiedValue'
       }
     );
-    expect(res).toBe(
-      'rgb(from rgb(from rebeccapurple r g b) calc(r) calc(g) calc(b) / calc(alpha))'
+    assert.strictEqual(
+      res,
+      'rgb(from rgb(from rebeccapurple r g b) calc(r) calc(g) calc(b) / calc(alpha))',
+      'result'
     );
   });
 
@@ -454,50 +484,72 @@ describe('resolve relative color', () => {
     const res = func('hsla(from rebeccapurple h s l / alpha)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('hsl(from rebeccapurple h s l / alpha)');
+    assert.strictEqual(res, 'hsl(from rebeccapurple h s l / alpha)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgb(from rgb(20%, 40%, 60%, 80%) r g b / alpha)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rgba(51, 102, 153, 0.8) r g b / alpha)');
+    assert.strictEqual(
+      res,
+      'rgb(from rgba(51, 102, 153, 0.8) r g b / alpha)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgb(from rgb(20%, 40%, 60%, 150%) r g b / alpha)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rgb(51, 102, 153) r g b / alpha)');
+    assert.strictEqual(
+      res,
+      'rgb(from rgb(51, 102, 153) r g b / alpha)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgb(from hsl(120deg 20% 50% / .5) r g b / alpha)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rgba(102, 153, 102, 0.5) r g b / alpha)');
+    assert.strictEqual(
+      res,
+      'rgb(from rgba(102, 153, 102, 0.5) r g b / alpha)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgba(from rgb(from rebeccapurple r g b) r g b)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rgb(from rebeccapurple r g b) r g b)');
+    assert.strictEqual(
+      res,
+      'rgb(from rgb(from rebeccapurple r g b) r g b)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(g * 2) 10)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe('rgb(from rebeccapurple r calc(2 * g) 10)');
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple r calc(2 * g) 10)',
+      'result'
+    );
   });
 
   it('should get value', () => {
     const res = func('rgba(from rebeccapurple r calc(g * .5 + g * .5) 10)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe(
-      'rgb(from rebeccapurple r calc((0.5 * g) + (0.5 * g)) 10)'
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple r calc((0.5 * g) + (0.5 * g)) 10)',
+      'result'
     );
   });
 
@@ -505,8 +557,10 @@ describe('resolve relative color', () => {
     const res = func('rgba(from rebeccapurple r calc(b * 50% - g * .5) 10)', {
       format: 'specifiedValue'
     });
-    expect(res).toBe(
-      'rgb(from rebeccapurple r calc((0.5 * b) - (0.5 * g)) 10)'
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple r calc((0.5 * b) - (0.5 * g)) 10)',
+      'result'
     );
   });
 
@@ -517,13 +571,15 @@ describe('resolve relative color', () => {
         format: 'specifiedValue'
       }
     );
-    expect(res).toBe(
-      'rgb(from rgb(from rebeccapurple r g b) r calc((0.5 * g) + (0.5 * g)) 10)'
+    assert.strictEqual(
+      res,
+      'rgb(from rgb(from rebeccapurple r g b) r calc((0.5 * g) + (0.5 * g)) 10)',
+      'result'
     );
   });
 
   it('should get null', () => {
     const res = func('rgb(from rebeccapurple l a b)');
-    expect(res).toBe(null);
+    assert.strictEqual(res, null, 'result');
   });
 });

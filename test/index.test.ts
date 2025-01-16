@@ -1,8 +1,11 @@
 /**
- * index.test.js
+ * index.test
  */
 
-import { describe, expect, it } from 'vitest';
+/* api */
+import { assert, describe, it } from 'vitest';
+
+/* test */
 import * as api from '../src/index.js';
 
 describe('resolve CSS color', () => {
@@ -10,28 +13,28 @@ describe('resolve CSS color', () => {
 
   it('should get value', () => {
     const res = func('green');
-    expect(res).toBe('rgb(0, 128, 0)');
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
   });
 
   it('should get value', () => {
     const res = func(
       'color-mix(in oklab, rgb(255 0 0), color(srgb 0 0.5 0 / 0.5))'
     );
-    expect(res).toBe('oklab(0.5914 0.103273 0.119688 / 0.75)');
+    assert.strictEqual(res, 'oklab(0.5914 0.103273 0.119688 / 0.75)', 'result');
   });
 
   it('should get value', () => {
     const res = func('currentColor', {
       currentColor: 'color-mix(in srgb, blue, red)'
     });
-    expect(res).toBe('color(srgb 0.5 0 0.5)');
+    assert.strictEqual(res, 'color(srgb 0.5 0 0.5)', 'result');
   });
 
   it('should get value', () => {
     const res = func('rgba(0% 50% 0% / 0.5)', {
       format: 'hexAlpha'
     });
-    expect(res).toBe('#00800080');
+    assert.strictEqual(res, '#00800080', 'result');
   });
 });
 
@@ -40,7 +43,7 @@ describe('convert', () => {
 
   it('should get value', () => {
     const hex = convert.colorToHex('lab(46.2775% -47.5621 48.5837)');
-    expect(hex).toBe('#008000');
+    assert.strictEqual(hex, '#008000', 'result');
   });
 });
 
@@ -49,16 +52,16 @@ describe('isColor', () => {
 
   it('should get value', () => {
     const res = isColor('foo');
-    expect(res).toBe(false);
+    assert.strictEqual(res, false, 'result');
   });
 
   it('should get value', () => {
     const res = isColor('green');
-    expect(res).toBe(true);
+    assert.strictEqual(res, true, 'result');
   });
 
   it('should get value', () => {
     const res = isColor('lab(46.2775% -47.5621 48.5837)');
-    expect(res).toBe(true);
+    assert.strictEqual(res, true, 'result');
   });
 });

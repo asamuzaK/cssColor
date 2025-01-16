@@ -5,7 +5,7 @@ import packageJson from './package.json';
 const config = defineConfig({
   test: {
     name: packageJson.name,
-    dir: './tests',
+    dir: './test',
     watch: false,
     coverage: { enabled: true, provider: 'istanbul', include: ['src/**/*'] },
     typecheck: { enabled: true }

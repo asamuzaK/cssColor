@@ -702,7 +702,7 @@ export const serializeCalc = (
     }
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`${value} is not a string`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const cacheKey = `{serializeCalc:${value},opt:${valueToJsonString(opt)}}`;
   if (cachedResults.has(cacheKey)) {
@@ -906,7 +906,7 @@ export const cssCalc = (
     }
     value = value.toLowerCase().trim();
   } else {
-    throw new TypeError(`${value} is not a string`);
+    throw new TypeError(`${value} is not a string.`);
   }
   let cacheKey;
   if (
