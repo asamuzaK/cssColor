@@ -4,12 +4,10 @@
 
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
+import type { CSSToken } from '@csstools/css-tokenizer';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { isColor, valueToJsonString } from './util';
-
-/* types */
-import type { CSSToken } from '@csstools/css-tokenizer';
 
 /* constants */
 import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';

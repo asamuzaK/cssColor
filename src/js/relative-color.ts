@@ -6,15 +6,13 @@ import { SyntaxFlag, color as colorParser } from '@csstools/css-color-parser';
 import { parseComponentValue } from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
+import type { ComponentValue } from '@csstools/css-parser-algorithms';
+import type { CSSToken } from '@csstools/css-tokenizer';
 import { isString } from './common';
 import { colorToRgb } from './convert';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
 import { roundToPrecision, valueToJsonString } from './util';
-
-/* types */
-import type { ComponentValue } from '@csstools/css-parser-algorithms';
-import type { CSSToken } from '@csstools/css-tokenizer';
 
 /* constants */
 import {
