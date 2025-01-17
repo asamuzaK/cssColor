@@ -7,7 +7,11 @@ const config = defineConfig({
     name: packageJson.name,
     dir: './test',
     watch: false,
-    coverage: { enabled: true, provider: 'istanbul', include: ['src/**/*'] },
+    coverage: {
+      enabled: true,
+      provider: 'istanbul',
+      include: ['src/**/*']
+    },
     typecheck: { enabled: true }
   }
 });
