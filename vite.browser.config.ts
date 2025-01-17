@@ -23,7 +23,7 @@ export default defineConfig({
     noExternal: true
   },
   build: {
-    emptyOutDir: false,
+    emptyOutDir: true,
     outDir: 'dist/browser',
     lib: {
       entry: 'src/index.ts',
