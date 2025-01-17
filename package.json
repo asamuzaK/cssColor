@@ -64,11 +64,11 @@
     "clean": "rimraf ./dist && rimraf ./coverage",
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
-    "test": "pnpm run \"/^test:.*/\" && pnpm run build && pnpm run publint",
+    "test": "pnpm run --stream \"/^test:.*/\" && pnpm run build && pnpm run publint",
     "test:eslint": "eslint ./src ./test --fix",
     "test:knip": "knip",
-    "test:lib": "vitest",
-    "test:types": "tsc"
+    "test:types": "tsc",
+    "test:unit": "vitest"
   },
   "version": "3.0.0"
 }
