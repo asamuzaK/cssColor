@@ -10,7 +10,7 @@ import { cssCalc } from './css-calc';
 import { isColor, valueToJsonString } from './util';
 
 /* constants */
-import { FN_VAR, SYN_FN_MATH_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
+import { FN_VAR, SYN_FN_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
@@ -20,7 +20,7 @@ const {
 } = TokenType;
 
 /* regexp */
-const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /* cached results */
@@ -108,7 +108,7 @@ export function resolveCustomProperty(
           resolvedValue = item;
         }
       }
-    } else if (REG_FN_MATH_CALC.test(item)) {
+    } else if (REG_FN_CALC.test(item)) {
       item = cssCalc(item as string, opt) as string;
       if (resolveAsColor) {
         if (isColor(item)) {
@@ -229,7 +229,7 @@ export function cssVar(
   const values = parseTokens(tokens, opt);
   if (Array.isArray(values)) {
     let color = values.join('') as string | null;
-    if (REG_FN_MATH_CALC.test(color as string)) {
+    if (REG_FN_CALC.test(color as string)) {
       color = cssCalc(color as string, opt) as string | null;
     }
     if (cacheKey) {

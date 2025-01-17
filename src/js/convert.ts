@@ -23,15 +23,10 @@ import { resolve } from './resolve';
 import { valueToJsonString } from './util';
 
 /* constants */
-import {
-  SYN_FN_MATH_CALC,
-  SYN_FN_REL,
-  SYN_FN_VAR,
-  VAL_COMP
-} from './constant.js';
+import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant.js';
 
 /* regexp */
-const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
@@ -88,7 +83,7 @@ export const preProcess = (
   }
   if (REG_FN_REL.test(value)) {
     value = resolveRelativeColor(value, opt) as string;
-  } else if (REG_FN_MATH_CALC.test(value)) {
+  } else if (REG_FN_CALC.test(value)) {
     const resolvedValue = cssCalc(value, opt) as string | null;
     if (resolvedValue) {
       value = resolvedValue as string;

@@ -2,28 +2,24 @@
  * constant.js
  */
 
-/* constants */
-export const VAL_COMP = 'computedValue';
-export const VAL_SPEC = 'specifiedValue';
-
 /* values and units */
 const _DIGIT = '(?:0|[1-9]\\d*)';
-const _COMP = 'clamp|max|min';
+const _COMPARE = 'clamp|max|min';
+const _EXPO = 'exp|hypot|log|pow|sqrt';
+const _SIGN = 'abs|sign';
 const _STEP = 'mod|rem|round';
 const _TRIG = 'a?(?:cos|sin|tan)|atan2';
-const _EXP = 'exp|hypot|log|pow|sqrt';
-const _SIGN = 'abs|sign';
-const _MATH = `${_COMP}|${_STEP}|${_TRIG}|${_EXP}|${_SIGN}`;
+const _MATH = `${_COMPARE}|${_EXPO}|${_SIGN}|${_STEP}|${_TRIG}`;
 const _CALC = `calc|${_MATH}`;
 const _VAR = `var|${_CALC}`;
 export const ANGLE = 'deg|g?rad|turn';
 export const NUM = `[+-]?(?:${_DIGIT}(?:\\.\\d*)?|\\.\\d+)(?:e-?${_DIGIT})?`;
 export const NONE = 'none';
 export const PCT = `${NUM}%`;
-export const SYN_FN_MATH = `^(?:${_MATH})\\($`;
-export const SYN_FN_MATH_CALC = `^(?:${_CALC})\\(|(?<=[*\\/\\s\\(])(?:${_CALC})\\(`;
-export const SYN_FN_MATH_VAR = `^(?:${_VAR})\\(`;
+export const SYN_FN_CALC = `^(?:${_CALC})\\(|(?<=[*\\/\\s\\(])(?:${_CALC})\\(`;
+export const SYN_FN_MATH_START = `^(?:${_MATH})\\($`;
 export const SYN_FN_VAR = '^var\\(|(?<=[*\\/\\s\\(])var\\(';
+export const SYN_FN_VAR_START = `^(?:${_VAR})\\(`;
 
 /* colors */
 const _ALPHA = `(?:\\s*\\/\\s*(?:${NUM}|${PCT}|${NONE}))?`;
@@ -59,3 +55,7 @@ export const SYN_COLOR_TYPE = `${_COLOR_KEY}|hsla?\\(\\s*${SYN_HSL_LV3}\\s*\\)|r
 export const SYN_MIX_PART = `(?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?`;
 export const SYN_MIX = `color-mix\\(\\s*in\\s+(?:${CS_MIX})\\s*,\\s*${SYN_MIX_PART}\\s*,\\s*${SYN_MIX_PART}\\s*\\)`;
 export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MIX_PART})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)`;
+
+/* formats */
+export const VAL_COMP = 'computedValue';
+export const VAL_SPEC = 'specifiedValue';

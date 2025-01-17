@@ -15,6 +15,7 @@ import { resolve } from './resolve';
 import { roundToPrecision, valueToJsonString } from './util';
 
 /* constants */
+import { NAMED_COLORS } from './color';
 import {
   CS_LAB,
   CS_LCH,
@@ -23,12 +24,11 @@ import {
   FN_VAR,
   NONE,
   SYN_COLOR_TYPE,
-  SYN_FN_MATH,
+  SYN_FN_MATH_START,
   SYN_FN_VAR,
   SYN_MIX,
   VAL_SPEC
 } from './constant';
-import { NAMED_COLORS } from './color';
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
@@ -41,7 +41,7 @@ const {
   Percentage: PCT,
   Whitespace: W_SPACE
 } = TokenType;
-const { HasNoneKeywords: NONE_KEY } = SyntaxFlag;
+const { HasNoneKeywords: KEY_NONE } = SyntaxFlag;
 const OCT = 8;
 const DEC = 10;
 const HEX = 16;
@@ -54,11 +54,11 @@ const REG_COLOR_CAPT = new RegExp(
 );
 const REG_CS_HSL = /(?:hsla?|hwb)$/;
 const REG_CS_CIE = new RegExp(`^(?:${CS_LAB}|${CS_LCH})$`);
+const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
+const REG_FN_REL = new RegExp(FN_REL);
+const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
+const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-const REG_REL = new RegExp(FN_REL);
-const REG_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
-const REG_START_MATH = new RegExp(SYN_FN_MATH);
-const REG_START_REL = new RegExp(`^${FN_REL}`);
 
 /* cached results */
 export const cachedResults = new LRUCache({
@@ -128,7 +128,7 @@ export function resolveColorChannels(
         channel.push(value);
         func = true;
         nest++;
-        if (REG_START_MATH.test(value)) {
+        if (REG_FN_MATH_START.test(value)) {
           mathFunc.add(nest);
         }
         break;
@@ -246,7 +246,7 @@ export function extractOriginColor(
     if (!value) {
       return null;
     }
-    if (!REG_START_REL.test(value)) {
+    if (!REG_FN_REL_START.test(value)) {
       return value;
     }
   } else {
@@ -267,7 +267,7 @@ export function extractOriginColor(
       return null;
     }
   }
-  const cs = value.match(REG_REL_CAPT);
+  const cs = value.match(REG_FN_REL_CAPT);
   let colorSpace: string;
   if (cs) {
     [, colorSpace] = cs as [string, string];
@@ -320,8 +320,8 @@ export function extractOriginColor(
     }
     // nested relative color
   } else {
-    const [, restValue] = value.split(REG_START_REL) as [string, string];
-    if (REG_START_REL.test(restValue)) {
+    const [, restValue] = value.split(REG_FN_REL_START) as [string, string];
+    if (REG_FN_REL_START.test(restValue)) {
       const tokens = tokenize({ css: restValue });
       const originColor = [] as Array<string>;
       let nest = 0;
@@ -428,7 +428,7 @@ export function resolveRelativeColor(
       } else {
         throw new SyntaxError(`Unexpected token ${FN_VAR} found.`);
       }
-    } else if (!REG_REL.test(value)) {
+    } else if (!REG_FN_REL.test(value)) {
       return value;
     }
     value = value.toLowerCase().trim();
@@ -473,7 +473,7 @@ export function resolveRelativeColor(
   } = parsedComponents;
   let alpha: number | string;
   if (Number.isNaN(Number(alphaComponent))) {
-    if (syntaxFlags instanceof Set && syntaxFlags.has(NONE_KEY)) {
+    if (syntaxFlags instanceof Set && syntaxFlags.has(KEY_NONE)) {
       alpha = NONE;
     } else {
       alpha = 0;
@@ -487,7 +487,7 @@ export function resolveRelativeColor(
   [v1, v2, v3] = channelsComponent;
   let resolvedValue;
   if (REG_CS_CIE.test(colorNotation)) {
-    const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(NONE_KEY);
+    const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(KEY_NONE);
     if (Number.isNaN(v1)) {
       if (hasNone) {
         v1 = NONE;
@@ -543,7 +543,7 @@ export function resolveRelativeColor(
     }
   } else {
     const cs = colorNotation === 'rgb' ? 'srgb' : colorNotation;
-    const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(NONE_KEY);
+    const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(KEY_NONE);
     if (Number.isNaN(v1)) {
       if (hasNone) {
         v1 = NONE;

@@ -12,10 +12,10 @@ import { roundToPrecision, valueToJsonString } from './util';
 import {
   FN_VAR,
   NUM,
-  SYN_FN_MATH,
-  SYN_FN_MATH_CALC,
-  SYN_FN_MATH_VAR,
+  SYN_FN_CALC,
+  SYN_FN_MATH_START,
   SYN_FN_VAR,
+  SYN_FN_VAR_START,
   VAL_SPEC
 } from './constant.js';
 const {
@@ -31,11 +31,11 @@ const HEX = 16;
 const MAX_PCT = 100;
 
 /* regexp */
-const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_CALC = new RegExp(SYN_FN_CALC);
+const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
+const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
 const REG_OPERATOR = /\s[*+/-]\s/;
-const REG_START_MATH = new RegExp(SYN_FN_MATH);
-const REG_START_MATH_VAR = new RegExp(SYN_FN_MATH_VAR);
 const REG_TYPE_DIM = new RegExp(`^(${NUM})([a-z]+)$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})([a-z]+|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
@@ -697,7 +697,7 @@ export const serializeCalc = (
 ): string | null => {
   const { format } = opt;
   if (isString(value)) {
-    if (!REG_START_MATH_VAR.test(value) || format !== VAL_SPEC) {
+    if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
       return value;
     }
     value = value.toLowerCase().trim();
@@ -727,7 +727,7 @@ export const serializeCalc = (
     let serializedValue = sortCalcValues(
       slicedValues as Array<string>
     ) as string;
-    if (REG_START_MATH_VAR.test(serializedValue)) {
+    if (REG_FN_VAR_START.test(serializedValue)) {
       serializedValue = calc(serializedValue, {
         toCanonicalUnits: true
       }) as string;
@@ -836,7 +836,7 @@ export const parseTokens = (
       case PAREN_OPEN: {
         res.push(value);
         nest++;
-        if (REG_START_MATH.test(value)) {
+        if (REG_FN_MATH_START.test(value)) {
           mathFunc.add(nest);
         }
         break;
@@ -901,7 +901,7 @@ export const cssCalc = (
       } else {
         throw new SyntaxError(`Unexpected token ${FN_VAR} found.`);
       }
-    } else if (!REG_FN_MATH_CALC.test(value)) {
+    } else if (!REG_FN_CALC.test(value)) {
       return value;
     }
     value = value.toLowerCase().trim();
@@ -933,7 +933,7 @@ export const cssCalc = (
       toCanonicalUnits: true
     }) as string;
   }
-  if (REG_START_MATH_VAR.test(value)) {
+  if (REG_FN_VAR_START.test(value)) {
     if (REG_TYPE_DIM_PCT.test(resolvedValue)) {
       const [, val, unit] = resolvedValue.match(REG_TYPE_DIM_PCT) as [
         string,
@@ -945,7 +945,7 @@ export const cssCalc = (
     // wrap with `calc()`
     if (
       resolvedValue &&
-      !REG_START_MATH_VAR.test(resolvedValue as string) &&
+      !REG_FN_VAR_START.test(resolvedValue as string) &&
       format === VAL_SPEC
     ) {
       resolvedValue = `calc(${resolvedValue})`;

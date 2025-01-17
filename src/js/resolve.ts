@@ -19,7 +19,7 @@ import { valueToJsonString } from './util';
 import {
   FN_COLOR,
   FN_MIX,
-  SYN_FN_MATH_CALC,
+  SYN_FN_CALC,
   SYN_FN_REL,
   SYN_FN_VAR,
   VAL_COMP,
@@ -29,7 +29,7 @@ import {
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
-const REG_FN_MATH_CALC = new RegExp(SYN_FN_MATH_CALC);
+const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
@@ -171,7 +171,7 @@ export const resolve = (
       color = '';
     }
   }
-  if (REG_FN_MATH_CALC.test(color)) {
+  if (REG_FN_CALC.test(color)) {
     const resolvedColor = cssCalc(color, opt) as string | null;
     if (resolvedColor) {
       color = resolvedColor;
