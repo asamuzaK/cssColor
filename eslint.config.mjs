@@ -29,20 +29,26 @@ export default [
       regexp
     },
     rules: {
-      'import-x/order': ['error', {
-        alphabetize: {
-          order: 'ignore',
-          caseInsensitive: false
+      'import-x/order': [
+        'error',
+        {
+          alphabetize: {
+            order: 'ignore',
+            caseInsensitive: false
+          }
         }
-      }],
+      ],
       'no-await-in-loop': 'error',
       'no-loss-of-precision': 'off',
-      'no-use-before-define': ['error', {
-        allowNamedExports: false,
-        classes: true,
-        functions: false,
-        variables: true
-      }]
+      'no-use-before-define': [
+        'error',
+        {
+          allowNamedExports: false,
+          classes: true,
+          functions: false,
+          variables: true
+        }
+      ]
     }
   }
 ];
