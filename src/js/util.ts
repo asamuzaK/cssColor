@@ -68,7 +68,7 @@ export const valueToJsonString = (
       replacedValue = null;
     } else if (typeof val === 'function') {
       if (func) {
-        replacedValue = val.toString().replace(/\s/g, '');
+        replacedValue = val.toString().replace(/\s/g, '').substring(0, HEX);
       } else {
         replacedValue = val.name;
       }
@@ -92,10 +92,10 @@ export const valueToJsonString = (
  */
 export const roundToPrecision = (value: number, bit: number = 0): number => {
   if (!Number.isFinite(value)) {
-    throw new TypeError(`${value} is not a number.`);
+    throw new TypeError(`${value} is not a finite number.`);
   }
   if (!Number.isFinite(bit)) {
-    throw new TypeError(`${bit} is not a number.`);
+    throw new TypeError(`${bit} is not a finite number.`);
   } else if (bit < 0 || bit > HEX) {
     throw new RangeError(`${bit} is not between 0 and ${HEX}.`);
   }
@@ -124,12 +124,12 @@ export const interpolateHue = (
   hueA: number,
   hueB: number,
   arc: string = 'shorter'
-): Array<number> => {
+): [number, number] => {
   if (!Number.isFinite(hueA)) {
-    throw new TypeError(`${hueA} is not a number.`);
+    throw new TypeError(`${hueA} is not a finite number.`);
   }
   if (!Number.isFinite(hueB)) {
-    throw new TypeError(`${hueB} is not a number.`);
+    throw new TypeError(`${hueB} is not a finite number.`);
   }
   switch (arc) {
     case 'decreasing': {

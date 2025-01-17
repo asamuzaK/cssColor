@@ -125,6 +125,26 @@ describe('value to JSON string', () => {
   });
 
   it('should get result', () => {
+    const res = func(
+      {
+        foo: 'bar',
+        func: () => {
+          const l = 100;
+          for (let i = 0; i < l; i++) {
+            i++;
+          }
+        }
+      },
+      true
+    );
+    assert.strictEqual(
+      res,
+      '{"foo":"bar","func":"()=>{constl=100;"}',
+      'result'
+    );
+  });
+
+  it('should get result', () => {
     const myCallback = () => {};
     const res = func({
       foo: 'bar',
@@ -177,14 +197,22 @@ describe('round to specified precision', () => {
   const func = util.roundToPrecision;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a number.');
+    assert.throws(() => func(), TypeError, 'undefined is not a finite number.');
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func(Infinity),
+      TypeError,
+      'Infinity is not a finite number.'
+    );
   });
 
   it('should throw', () => {
     assert.throws(
       () => func(1.23456789, 'foo'),
       TypeError,
-      'foo is not a number.'
+      'foo is not a finite number.'
     );
   });
 
@@ -269,11 +297,15 @@ describe('interpolate hue', () => {
   const func = util.interpolateHue;
 
   it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a number.');
+    assert.throws(() => func(), TypeError, 'undefined is not a finite number.');
   });
 
   it('should throw', () => {
-    assert.throws(() => func(90), TypeError, 'undefined is not a number.');
+    assert.throws(
+      () => func(90),
+      TypeError,
+      'undefined is not a finite number.'
+    );
   });
 
   it('should get value', () => {
