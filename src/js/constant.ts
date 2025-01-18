@@ -1,5 +1,5 @@
 /**
- * constant.js
+ * constant
  */
 
 /* values and units */
@@ -58,4 +58,5 @@ export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MI
 
 /* formats */
 export const VAL_COMP = 'computedValue';
+export const VAL_MIX = 'mixValue';
 export const VAL_SPEC = 'specifiedValue';

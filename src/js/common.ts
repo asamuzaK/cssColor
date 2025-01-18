@@ -1,5 +1,5 @@
 /**
- * common.js
+ * common
  */
 
 /* constants */

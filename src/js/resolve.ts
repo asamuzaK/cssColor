@@ -1,5 +1,5 @@
 /**
- * resolve.js
+ * resolve
  */
 
 import { LRUCache } from 'lru-cache';
@@ -14,6 +14,7 @@ import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { valueToJsonString } from './util';
+import type { IOptions } from './util';
 
 /* constants */
 import {
@@ -42,7 +43,7 @@ export const cachedResults = new LRUCache({
  * resolve CSS color
  * @param {string} color - color value
  *   - system colors are not supported
- * @param {object} [opt] - options
+ * @param {Ioptions} [opt] - options
  * @param {string} [opt.currentColor]
  *   - color to use for `currentcolor` keyword
  *   - if omitted, it will be treated as a missing color
@@ -82,32 +83,36 @@ export const cachedResults = new LRUCache({
  */
 export const resolve = (
   color: string,
-  opt: {
-    currentColor?: string;
-    customProperty?: object;
-    dimension?: object;
-    format?: string;
-    key?: any;
-  } = {}
-): (string | Array<any>) | null => {
+  opt: IOptions = {}
+): string | [any, string | null] | null => {
   if (isString(color)) {
     color = color.trim();
   } else {
     throw new TypeError(`${color} is not a string.`);
   }
-  const { currentColor, customProperty = {}, format = VAL_COMP, key } = opt;
+  const {
+    currentColor,
+    customProperty = {},
+    dimension = {},
+    format = VAL_COMP,
+    key
+  } = opt;
   let cacheKey;
   if (
-    !REG_FN_VAR.test(color) ||
-    typeof (customProperty as { callback?: (value: string) => string })
-      .callback === 'function'
+    !REG_FN_VAR.test(color) &&
+    typeof customProperty.callback !== 'function' &&
+    typeof dimension.callback !== 'function'
   ) {
     cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string | Array<any>;
+      return cachedResults.get(cacheKey) as
+        | string
+        | [any, string | null]
+        | null;
     }
   }
-  let res, cs, r, g, b, alpha;
+  let cs, r, g, b, alpha;
+  let res = '';
   if (REG_FN_VAR.test(color)) {
     if (format === VAL_SPEC) {
       if (cacheKey) {
@@ -251,9 +256,14 @@ export const resolve = (
     }
   } else if (format === VAL_SPEC) {
     if (color.startsWith(FN_MIX)) {
-      res = resolveColorMix(color, opt);
+      const resolvedValue = resolveColorMix(color, opt) as string | null;
+      if (resolvedValue) {
+        res = resolvedValue;
+      } else {
+        res = '';
+      }
       if (cacheKey) {
-        cachedResults.set(cacheKey, res!);
+        cachedResults.set(cacheKey, res);
       }
       return res;
     } else if (color.startsWith(FN_COLOR)) {
@@ -358,7 +368,7 @@ export const resolve = (
   }
   switch (format) {
     case 'hex': {
-      let hex;
+      let hex: string | null;
       if (
         isNaN(r as number) ||
         isNaN(g as number) ||
@@ -368,17 +378,20 @@ export const resolve = (
       ) {
         hex = null;
       } else {
-        hex = convertRgbToHex([r as number, g as number, b as number]);
+        hex = convertRgbToHex([r as number, g as number, b as number, 1]);
       }
       if (key) {
-        res = [key, hex];
-      } else {
-        res = hex;
+        const arr = [key, hex] as [any, string | null];
+        if (cacheKey) {
+          cachedResults.set(cacheKey, arr);
+        }
+        return arr;
       }
+      res = hex as string;
       break;
     }
     case 'hexAlpha': {
-      let hex;
+      let hex: string | null;
       if (
         isNaN(r as number) ||
         isNaN(g as number) ||
@@ -395,15 +408,18 @@ export const resolve = (
         ]);
       }
       if (key) {
-        res = [key, hex];
-      } else {
-        res = hex;
+        const arr = [key, hex] as [any, string | null];
+        if (cacheKey) {
+          cachedResults.set(cacheKey, arr);
+        }
+        return arr;
       }
+      res = hex as string;
       break;
     }
     case VAL_COMP:
     default: {
-      let value;
+      let value: string;
       switch (cs) {
         case 'rgb': {
           if (alpha === 1) {
@@ -434,14 +450,17 @@ export const resolve = (
         }
       }
       if (key) {
-        res = [key, value];
-      } else {
-        res = value;
+        const arr = [key, value] as [any, string | null];
+        if (cacheKey) {
+          cachedResults.set(cacheKey, arr);
+        }
+        return arr;
       }
+      res = value;
     }
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, res!);
+    cachedResults.set(cacheKey, res);
   }
   return res;
 };

@@ -31,7 +31,7 @@ describe('resolve CSS variable', () => {
       ['ident-token', '--foo'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, [[], undefined], 'result');
+    assert.deepEqual(res, [[], ''], 'result');
   });
 
   it('should get value', () => {

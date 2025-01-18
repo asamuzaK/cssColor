@@ -1,5 +1,5 @@
 /**
- * util.js
+ * util
  */
 
 import { isString } from './common';
@@ -16,6 +16,41 @@ const DEG_HALF = 180;
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_MIX = new RegExp(`${SYN_MIX}`);
+
+/* type definitions */
+/**
+ * @typedef IOptions
+ */
+export interface IOptions {
+  alpha?: boolean;
+  colorSpace?: string;
+  currentColor?: string;
+  customProperty?: Record<string, string | ((key: string) => string)>;
+  d50?: boolean;
+  dimension?: Record<string, number | ((key: string) => number)>;
+  format?: string;
+  key?: any;
+}
+
+/**
+ * @typedef ColorChannels
+ */
+export type ColorChannels = [number, number, number, number];
+
+/**
+ * @typedef ComputedColorChannels
+ */
+//export type ComputedColorChannels = [string, number, number, number, number];
+
+/**
+ * @typedef NoneColorChannels
+ */
+//type NoneColorChannels = [string, string, string, string, string];
+
+/**
+ * @typedef SpecifiedColorChannels
+ */
+//export type SpecifiedColorChannels = ComputedColorChannels & NoneColorChannels;
 
 /**
  * is color

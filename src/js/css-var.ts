@@ -1,13 +1,14 @@
 /**
- * css-var.js
+ * css-var
  */
 
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
-import { LRUCache } from 'lru-cache';
 import type { CSSToken } from '@csstools/css-tokenizer';
+import { LRUCache } from 'lru-cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { isColor, valueToJsonString } from './util';
+import type { IOptions } from './util';
 
 /* constants */
 import { FN_VAR, SYN_FN_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
@@ -31,23 +32,18 @@ export const cachedResults = new LRUCache({
 /**
  * resolve custom property
  * @param {Array.<Array>} tokens - tokens
- * @param {object} [opt] - options
- * @param {object} [opt.customProperty] - custom properties
- * @returns {Array.<string|Array|undefined>} - [tokens, resolvedValue]
+ * @param {IOptions} [opt] - options
+ * @returns {Array.<string|Array>} - [tokens, resolvedValue]
  */
 export function resolveCustomProperty(
-  tokens: Array<CSSToken>,
-  opt: {
-    customProperty?: object;
-    dimension?: object;
-    format?: string;
-  } = {}
-): Array<string | Array<CSSToken> | undefined> {
+  tokens: CSSToken[],
+  opt: IOptions = {}
+): [CSSToken[], string] {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
   const { customProperty = {} } = opt;
-  const items = [];
+  const items: string[] = [];
   while (tokens.length) {
     const token = tokens.shift();
     if (!Array.isArray(token)) {
@@ -60,56 +56,49 @@ export function resolveCustomProperty(
     }
     // nested var()
     if (value === FN_VAR) {
-      const [restTokens, item] = resolveCustomProperty(tokens, opt) as [
-        Array<CSSToken>,
-        string
-      ];
+      const [restTokens, item] = resolveCustomProperty(tokens, opt);
       tokens = restTokens;
       if (item) {
         items.push(item);
       }
     } else if (type === IDENT) {
       if (value.startsWith('--')) {
+        let item;
         if (Object.hasOwnProperty.call(customProperty, value)) {
-          items.push(customProperty[value as never]);
-        } else if (
-          typeof (customProperty as { callback?: (value: string) => string })
-            .callback === 'function'
-        ) {
-          const item = (
-            customProperty as { callback: (value: string) => string }
-          ).callback(value);
-          if (item) {
-            items.push(item);
-          }
+          item = customProperty[value] as string;
+        } else if (typeof customProperty.callback === 'function') {
+          item = customProperty.callback(value);
+        }
+        if (item) {
+          items.push(item);
         }
       } else if (value) {
         items.push(value);
       }
     }
   }
-  let resolveAsColor;
+  let resolveAsColor = false;
   if (items.length > 1) {
     const lastValue = items[items.length - 1];
-    resolveAsColor = isColor(lastValue as string) as boolean;
+    resolveAsColor = isColor(lastValue as string);
   }
-  let resolvedValue;
+  let resolvedValue = '';
   for (let item of items) {
-    item = item.trim() as string;
+    item = item.trim();
     if (REG_FN_VAR.test(item)) {
       // recurse cssVar()
-      item = cssVar(item, opt) as string;
-      if (item) {
+      const resolvedItem = cssVar(item, opt);
+      if (resolvedItem) {
         if (resolveAsColor) {
-          if (isColor(item)) {
-            resolvedValue = item;
+          if (isColor(resolvedItem)) {
+            resolvedValue = resolvedItem;
           }
         } else {
-          resolvedValue = item;
+          resolvedValue = resolvedItem;
         }
       }
     } else if (REG_FN_CALC.test(item)) {
-      item = cssCalc(item as string, opt) as string;
+      item = cssCalc(item, opt);
       if (resolveAsColor) {
         if (isColor(item)) {
           resolvedValue = item;
@@ -139,14 +128,14 @@ export function resolveCustomProperty(
 /**
  * parse tokens
  * @param {Array.<Array>} tokens - tokens
- * @param {object} [opt] - options
+ * @param {IOptions} [opt] - options
  * @returns {?Array.<string>} - parsed tokens
  */
 export function parseTokens(
-  tokens: Array<CSSToken>,
-  opt: object = {}
-): Array<string> | null {
-  const res = [] as string[];
+  tokens: CSSToken[],
+  opt: IOptions = {}
+): string[] | null {
+  const res: string[] = [];
   while (tokens.length) {
     const token = tokens.shift();
     const [type, value] = token as [string, string];
@@ -155,8 +144,8 @@ export function parseTokens(
       if (!resolvedValue) {
         return null;
       }
-      tokens = restTokens as Array<CSSToken>;
-      res.push(resolvedValue as string);
+      tokens = restTokens;
+      res.push(resolvedValue);
     } else {
       switch (type) {
         case PAREN_CLOSE: {
@@ -195,18 +184,11 @@ export function parseTokens(
 /**
  * resolve CSS var()
  * @param {string} value - color value including var()
- * @param {object} [opt] - options
- * @param {object} [opt.customProperty] - custom properties
+ * @param {IOptions} [opt] - options
  * @returns {?string} - value
  */
-export function cssVar(
-  value: string,
-  opt: {
-    customProperty?: object;
-    format?: string;
-  } = {}
-): string | null {
-  const { customProperty = {}, format } = opt;
+export function cssVar(value: string, opt: IOptions = {}): string | null {
+  const { dimension = {}, customProperty = {}, format } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
@@ -217,8 +199,8 @@ export function cssVar(
   }
   let cacheKey;
   if (
-    typeof (customProperty as { callback?: (value: string) => string })
-      .callback !== 'function'
+    typeof customProperty.callback !== 'function' &&
+    typeof dimension.callback === 'function'
   ) {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
@@ -228,12 +210,12 @@ export function cssVar(
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
   if (Array.isArray(values)) {
-    let color = values.join('') as string | null;
-    if (REG_FN_CALC.test(color as string)) {
-      color = cssCalc(color as string, opt) as string | null;
+    let color = values.join('');
+    if (REG_FN_CALC.test(color)) {
+      color = cssCalc(color, opt);
     }
     if (cacheKey) {
-      cachedResults.set(cacheKey as string, color!);
+      cachedResults.set(cacheKey, color);
     }
     return color;
   } else {

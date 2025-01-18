@@ -1,18 +1,19 @@
 /**
- * relative-color.js
+ * relative-color
  */
 
 import { SyntaxFlag, color as colorParser } from '@csstools/css-color-parser';
 import { parseComponentValue } from '@csstools/css-parser-algorithms';
-import { TokenType, tokenize } from '@csstools/css-tokenizer';
-import { LRUCache } from 'lru-cache';
 import type { ComponentValue } from '@csstools/css-parser-algorithms';
+import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import type { CSSToken } from '@csstools/css-tokenizer';
+import { LRUCache } from 'lru-cache';
 import { isString } from './common';
 import { colorToRgb } from './convert';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
 import { roundToPrecision, valueToJsonString } from './util';
+import type { ColorChannels, IOptions } from './util';
 
 /* constants */
 import { NAMED_COLORS } from './color';
@@ -68,19 +69,13 @@ export const cachedResults = new LRUCache({
 /**
  * resolve relative color channels
  * @param {Array.<Array>} tokens - tokens
- * @param {object} [opt] - options
- * @param {string} [opt.colorSpace] - color space
+ * @param {IOptions} [opt] - options
  * @returns {?Array.<string>} - resolved channels
  */
 export function resolveColorChannels(
-  tokens: Array<CSSToken>,
-  opt: {
-    colorSpace?: string;
-    currentColor?: string;
-    dimension?: object;
-    format?: string;
-  } = {}
-): Array<string> | null {
+  tokens: CSSToken[],
+  opt: IOptions = {}
+): string[] | null {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
@@ -99,7 +94,12 @@ export function resolveColorChannels(
   ]);
   const colorChannel = colorChannels.get(colorSpace as string);
   const mathFunc = new Set();
-  const channels = [[], [], [], []] as Array<Array<string | number>>;
+  const channels = [[], [], [], []] as [
+    (number | string)[],
+    (number | string)[],
+    (number | string)[],
+    (number | string)[]
+  ];
   let i = 0;
   let nest = 0;
   let func = false;
@@ -109,19 +109,17 @@ export function resolveColorChannels(
       throw new TypeError(`${token} is not an array.`);
     }
     const [type, value, , , detail = {}] = token;
-    const numValue = (
-      detail as {
-        value?: number;
-      }
-    )?.value as number | undefined;
-    const channel = channels[i]!;
+    const { value: detailValue } = detail as {
+      value: number;
+    };
+    const channel = channels[i] as (number | string)[];
     switch (type as string) {
       case DIM: {
-        let resolvedValue = resolveDimension(token, opt) as string | null;
+        let resolvedValue = resolveDimension(token, opt);
         if (!resolvedValue) {
-          resolvedValue = value as string;
+          resolvedValue = value;
         }
-        channel.push(resolvedValue as string);
+        channel.push(resolvedValue);
         break;
       }
       case FUNC: {
@@ -145,8 +143,7 @@ export function resolveColorChannels(
         break;
       }
       case NUM: {
-        const n = numValue ?? parseFloat(value);
-        channel.push(n);
+        channel.push(detailValue);
         if (!func) {
           i++;
         }
@@ -177,8 +174,7 @@ export function resolveColorChannels(
         break;
       }
       case PCT: {
-        const n = numValue ?? parseFloat(value);
-        channel.push(n / MAX_PCT);
+        channel.push(detailValue / MAX_PCT);
         if (!func) {
           i++;
         }
@@ -206,7 +202,7 @@ export function resolveColorChannels(
       }
     }
   }
-  const channelValues = [];
+  const channelValues: string[] = [];
   for (const channel of channels) {
     if (channel.length === 1) {
       const [resolvedValue] = channel;
@@ -228,18 +224,12 @@ export function resolveColorChannels(
 /**
  * extract origin color
  * @param {string} value - color value
- * @param {object} [opt] - options
- * @param {string} [opt.currentColor] - current color value
+ * @param {IOptions} [opt] - options
  * @returns {?string} - value
  */
 export function extractOriginColor(
   value: string,
-  opt: {
-    colorSpace?: string;
-    currentColor?: string;
-    dimension?: object;
-    format?: string;
-  } = {}
+  opt: IOptions = {}
 ): string | null {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -294,10 +284,9 @@ export function extractOriginColor(
     }
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue as string });
-      const channelValues = resolveColorChannels(
-        tokens,
-        opt
-      ) as Array<string> | null;
+      const channelValues = resolveColorChannels(tokens, opt) as
+        | string[]
+        | null;
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
           cachedResults.set(cacheKey, null!);
@@ -323,7 +312,7 @@ export function extractOriginColor(
     const [, restValue] = value.split(REG_FN_REL_START) as [string, string];
     if (REG_FN_REL_START.test(restValue)) {
       const tokens = tokenize({ css: restValue });
-      const originColor = [] as Array<string>;
+      const originColor: string[] = [];
       let nest = 0;
       while (tokens.length) {
         const token = tokens.shift();
@@ -372,10 +361,9 @@ export function extractOriginColor(
         }
         return null;
       }
-      const channelValues = resolveColorChannels(
-        tokens,
-        opt
-      ) as Array<string> | null;
+      const channelValues = resolveColorChannels(tokens, opt) as
+        | string[]
+        | null;
       if (!Array.isArray(channelValues)) {
         if (cacheKey) {
           cachedResults.set(cacheKey, null!);
@@ -406,18 +394,12 @@ export function extractOriginColor(
 /**
  * resolve relative color
  * @param {string} value - relative color value
- * @param {object} [opt] - options
- * @param {string} [opt.format] - output format
+ * @param {IOptions} [opt] - options
  * @returns {?string} - value
  */
 export function resolveRelativeColor(
   value: string,
-  opt: {
-    colorSpace?: string;
-    currentColor?: string;
-    dimension?: object;
-    format?: string;
-  } = {}
+  opt: IOptions = {}
 ): string | null {
   const { format } = opt;
   if (isString(value)) {
@@ -457,8 +439,8 @@ export function resolveRelativeColor(
     return value;
   }
   const tokens = tokenize({ css: value });
-  const components = parseComponentValue(tokens);
-  const parsedComponents = colorParser(components as ComponentValue);
+  const components = parseComponentValue(tokens) as ComponentValue;
+  const parsedComponents = colorParser(components);
   if (!parsedComponents) {
     if (cacheKey) {
       cachedResults.set(cacheKey, null!);
@@ -532,7 +514,7 @@ export function resolveRelativeColor(
     }
     let [r, g, b] = colorToRgb(
       `${colorNotation}(${v1} ${v2} ${v3} / ${alpha})`
-    ) as [number, number, number];
+    ) as ColorChannels;
     r = roundToPrecision(r / MAX_RGB, DEC);
     g = roundToPrecision(g / MAX_RGB, DEC);
     b = roundToPrecision(b / MAX_RGB, DEC);
