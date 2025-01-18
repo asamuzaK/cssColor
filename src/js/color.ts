@@ -2774,19 +2774,20 @@ export const convertColorToXyz = (
  * convert color value to hsl
  * @param {string} value - color value
  * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [h, s, l, alpha]
+ * @returns {Array.<number|string>} - [h, s, l, alpha]
  */
 export const convertColorToHsl = (
   value: string,
   opt: IOptions = {}
-): ColorChannels => {
+): ColorChannels | [number | string, number, number, number] => {
   if (isString(value)) {
     value = value.trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
   const { format = '' } = opt;
-  let h, s, l, alpha, x, y, z;
+  let h: number | string;
+  let s, l, alpha, x, y, z;
   if (REG_HSL.test(value)) {
     [, h, s, l, alpha] = parseHsl(value, {
       format: 'hsl'
@@ -2828,6 +2829,11 @@ export const convertColorToHsl = (
   if (format === 'hsl') {
     return [Math.round(h), Math.round(s), Math.round(l), alpha];
   }
+  if (format === VAL_MIX) {
+    if (s === 0) {
+      h = NONE;
+    }
+  }
   return [h, s, l, alpha];
 };
 
@@ -2835,19 +2841,20 @@ export const convertColorToHsl = (
  * convert color value to hwb
  * @param {string} value - color value
  * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [h, w, b, alpha]
+ * @returns {Array.<number|string>} - [h, w, b, alpha]
  */
 export const convertColorToHwb = (
   value: string,
   opt: IOptions = {}
-): ColorChannels => {
+): ColorChannels | [number | string, number, number, number] => {
   if (isString(value)) {
     value = value.trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
   const { format = '' } = opt;
-  let h, w, b, alpha, x, y, z;
+  let h: number | string;
+  let w, b, alpha, x, y, z;
   if (REG_HWB.test(value)) {
     [, h, w, b, alpha] = parseHwb(value, {
       format: 'hwb'
@@ -2888,6 +2895,11 @@ export const convertColorToHwb = (
   [h, w, b] = transformXyzToHwb([x, y, z], true) as TriColorChannels;
   if (format === 'hwb') {
     return [Math.round(h), Math.round(w), Math.round(b), alpha];
+  }
+  if (format === VAL_MIX) {
+    if (w + b >= 100) {
+      h = NONE;
+    }
   }
   return [h, w, b, alpha];
 };
@@ -2944,19 +2956,20 @@ export const convertColorToLab = (
  * convert color value to lch
  * @param {string} value - color value
  * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [l, c, h, alpha]
+ * @returns {Array.<number|string>} - [l, c, h, alpha]
  */
 export const convertColorToLch = (
   value: string,
   opt: IOptions = {}
-): ColorChannels => {
+): ColorChannels | [number, number, number | string, number] => {
   if (isString(value)) {
     value = value.trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
   const { format = '' } = opt;
-  let l, c, h, alpha, x, y, z;
+  let h: number | string;
+  let l, c, alpha, x, y, z;
   if (REG_LCH.test(value)) {
     [, l, c, h, alpha] = parseLch(value, {
       format: VAL_COMP
@@ -2985,6 +2998,11 @@ export const convertColorToLch = (
     }) as [string, number, number, number, number];
   }
   [l, c, h] = transformXyzD50ToLch([x, y, z], true) as TriColorChannels;
+  if (format === VAL_MIX) {
+    if (c === 0) {
+      h = NONE;
+    }
+  }
   return [l, c, h, alpha];
 };
 
@@ -3047,19 +3065,20 @@ export const convertColorToOklab = (
  * convert color value to oklch
  * @param {string} value - color value
  * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [l, c, h, alpha]
+ * @returns {Array.<number|string>} - [l, c, h, alpha]
  */
 export const convertColorToOklch = (
   value: string,
   opt: IOptions = {}
-): ColorChannels => {
+): ColorChannels | [number, number, number | string, number] => {
   if (isString(value)) {
     value = value.trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
   const { format = '' } = opt;
-  let l, c, h, alpha, x, y, z;
+  let h: number | string;
+  let l, c, alpha, x, y, z;
   if (REG_OKLCH.test(value)) {
     [, l, c, h, alpha] = parseOklch(value, {
       format: VAL_COMP
@@ -3095,6 +3114,11 @@ export const convertColorToOklch = (
     ];
   }
   [l, c, h] = transformXyzToOklch([x, y, z], true) as TriColorChannels;
+  if (format === VAL_MIX) {
+    if (c === 0) {
+      h = NONE;
+    }
+  }
   return [l, c, h, alpha];
 };
 

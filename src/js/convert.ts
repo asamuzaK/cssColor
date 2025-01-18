@@ -195,7 +195,7 @@ export const colorToHsl = (
     }
   }
   opt.format = 'hsl';
-  const hsl = convertColorToHsl(value, opt);
+  const hsl = convertColorToHsl(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, hsl);
   }
@@ -234,7 +234,7 @@ export const colorToHwb = (
     }
   }
   opt.format = 'hwb';
-  const hwb = convertColorToHwb(value, opt);
+  const hwb = convertColorToHwb(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, hwb);
   }
@@ -310,7 +310,7 @@ export const colorToLch = (
       return cachedResults.get(cacheKey) as ColorChannels;
     }
   }
-  const lch = convertColorToLch(value, opt);
+  const lch = convertColorToLch(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, lch);
   }
@@ -386,7 +386,7 @@ export const colorToOklch = (
       return cachedResults.get(cacheKey) as ColorChannels;
     }
   }
-  const lch = convertColorToOklch(value, opt);
+  const lch = convertColorToOklch(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, lch);
   }

@@ -5671,6 +5671,11 @@ describe('convert color value to hsl', () => {
     res[2] = Math.round(res[2]);
     assert.deepEqual(res, [120, 100, 25, 1], 'result');
   });
+
+  it('should get value', () => {
+    const res = func('white');
+    assert.deepEqual(res, [0, 0, 100, 1], 'result');
+  });
 });
 
 describe('convert color value to hwb', () => {
@@ -6710,12 +6715,9 @@ describe('resolve color-mix()', () => {
     assert.deepEqual(res, ['rgb', 0, 192, 192, 1], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in hsl, white, green)');
-    // color(srgb 0.438235 0.812745 0.438235)
-    // ['rgb', 112, 207, 112, 1]
-    assert.deepEqual(res, ['rgb', 64, 255, 64, 1], 'result');
+    assert.deepEqual(res, ['rgb', 112, 207, 112, 1], 'result');
   });
 
   it('should get value', () => {
@@ -6877,11 +6879,8 @@ describe('resolve color-mix()', () => {
     assert.deepEqual(res, ['rgb', 0, 192, 192, 1], 'result');
   });
 
-  // FIXME:
-  it.skip('should get value', () => {
+  it('should get value', () => {
     const res = func('color-mix(in hwb, white, green)');
-    // color(srgb 0.5 0.75098 0.5)
-    // ['rgb', 128, 192, 128, 1]
     assert.deepEqual(res, ['rgb', 128, 192, 128, 1], 'result');
   });
 
@@ -7114,6 +7113,14 @@ describe('resolve color-mix()', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in lch, black, green)', {
+      format: 'computedValue'
+    });
+    res[2] = parseFloat(res[2].toFixed(3));
+    assert.deepEqual(res, ['lch', 23.1389, 33.992, 134.384, 1], 'result');
+  });
+
+  it('should get value', () => {
     const res = func(
       'color-mix(in lch, color(srgb 1 0 0 / 0.5), color(srgb 0 0.5 0))'
     );
@@ -7275,6 +7282,14 @@ describe('resolve color-mix()', () => {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['oklch', 0.573854, 0.217271, 85.8646, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in oklch, black, green)', {
+      format: 'computedValue'
+    });
+    res[2] = parseFloat(res[2].toFixed(6));
+    assert.deepEqual(res, ['oklch', 0.259876, 0.088429, 142.495, 1], 'result');
   });
 
   it('should get value', () => {
