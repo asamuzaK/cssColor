@@ -6,7 +6,7 @@ import { calc } from '@csstools/css-calc';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import type { CSSToken } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { isString } from './common';
+import { isString, isStringOrNumber } from './common';
 import { roundToPrecision, valueToJsonString } from './util';
 import type { IOptions } from './util';
 
@@ -29,6 +29,7 @@ const {
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
+const TRIA = 3;
 const HEX = 16;
 const MAX_PCT = 100;
 
@@ -211,14 +212,18 @@ export class Calculator {
    * @param {Array} values - values
    * @returns {Array} - sorted values
    */
-  sort(values: Array<any> = []): Array<any> {
+  sort(values: string[] = []): string[] {
     const arr = [...values];
     if (arr.length > 1) {
       arr.sort((a, b) => {
         let res;
         if (REG_TYPE_DIM_PCT.test(a) && REG_TYPE_DIM_PCT.test(b)) {
-          const [, valA, unitA] = a.match(REG_TYPE_DIM_PCT);
-          const [, valB, unitB] = b.match(REG_TYPE_DIM_PCT);
+          const [, valA = '', unitA = ''] = a.match(
+            REG_TYPE_DIM_PCT
+          ) as RegExpExecArray;
+          const [, valB = '', unitB = ''] = b.match(
+            REG_TYPE_DIM_PCT
+          ) as RegExpExecArray;
           if (unitA === unitB) {
             if (Number(valA) === Number(valB)) {
               res = 0;
@@ -253,7 +258,7 @@ export class Calculator {
    */
   multiply(): string | null {
     const value = [];
-    let num!: number | string;
+    let num;
     if (this.#hasNum) {
       num = 1;
       for (const i of this.#numMul) {
@@ -521,22 +526,22 @@ export class Calculator {
         }
       }
     }
-    return value.join(' ') || null;
+    return value.join(' ');
   }
 }
 
 /**
  * sort calc values
- * @param {Array.<string>} values - values
+ * @param {Array.<number|string>} values - values
  * @param {boolean} finalize - finalize
- * @returns {?string} - sorted value
+ * @returns {string} - sorted value
  */
 export const sortCalcValues = (
-  values: string[] = [],
+  values: (number | string)[] = [],
   finalize: boolean = false
-): string | null => {
-  if (values.length < 3) {
-    return null;
+): string => {
+  if (values.length < TRIA) {
+    throw new Error(`Unexpected array length ${values.length}.`);
   }
   const start = values.shift();
   const end = values.pop();
@@ -547,118 +552,132 @@ export const sortCalcValues = (
   const sortedValues = [];
   const cal = new Calculator();
   let operator: string = '';
-  for (let i = 0, l = values.length; i < l; i++) {
-    let value: number | string = values[i] as number | string;
-    if (value === '*' || value === '/') {
-      operator = value;
-    } else if (value === '+' || value === '-') {
-      const sortedValue = cal.multiply();
-      sortedValues.push(sortedValue, value);
-      cal.clear();
-      operator = '';
-    } else {
-      value = `${value}`;
-      switch (operator) {
-        case '/': {
-          const numValue = Number(value);
-          if (Number.isFinite(numValue)) {
-            cal.hasNum = true;
-            cal.numMul.push(1 / numValue);
-          } else if (REG_TYPE_PCT.test(value)) {
-            const [, val] = value.match(REG_TYPE_PCT) as [string, string];
-            cal.hasPct = true;
-            cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
-          } else if (REG_TYPE_DIM.test(value)) {
-            cal.hasDim = true;
-            cal.dimDiv.push(value);
-          } else {
-            cal.hasEtc = true;
-            cal.etcDiv.push(value);
-          }
-          break;
-        }
-        case '*':
-        default: {
-          const numValue = Number(value);
-          if (Number.isFinite(numValue)) {
-            cal.hasNum = true;
-            cal.numMul.push(numValue);
-          } else if (REG_TYPE_PCT.test(value)) {
-            const [, val] = value.match(REG_TYPE_PCT) as [string, string];
-            cal.hasPct = true;
-            cal.pctMul.push(Number(val));
-          } else if (REG_TYPE_DIM.test(value)) {
-            cal.hasDim = true;
-            cal.dimMul.push(value);
-          } else {
-            cal.hasEtc = true;
-            cal.etcMul.push(value);
-          }
-        }
-      }
-      if (i === l - 1) {
+  const l = values.length;
+  for (let i = 0; i < l; i++) {
+    const value = values[i];
+    if (isStringOrNumber(value)) {
+      if (value === '*' || value === '/') {
+        operator = value;
+      } else if (value === '+' || value === '-') {
         const sortedValue = cal.multiply();
-        sortedValues.push(sortedValue);
+        if (sortedValue) {
+          sortedValues.push(sortedValue, value);
+        }
         cal.clear();
         operator = '';
+      } else {
+        const numValue = Number(value);
+        const strValue = `${value}`;
+        switch (operator) {
+          case '/': {
+            if (Number.isFinite(numValue)) {
+              cal.hasNum = true;
+              cal.numMul.push(1 / numValue);
+            } else if (REG_TYPE_PCT.test(strValue)) {
+              const [, val = ''] = strValue.match(
+                REG_TYPE_PCT
+              ) as RegExpExecArray;
+              cal.hasPct = true;
+              cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
+            } else if (REG_TYPE_DIM.test(strValue)) {
+              cal.hasDim = true;
+              cal.dimDiv.push(strValue);
+            } else {
+              cal.hasEtc = true;
+              cal.etcDiv.push(strValue);
+            }
+            break;
+          }
+          case '*':
+          default: {
+            if (Number.isFinite(numValue)) {
+              cal.hasNum = true;
+              cal.numMul.push(numValue);
+            } else if (REG_TYPE_PCT.test(strValue)) {
+              const [, val = ''] = strValue.match(
+                REG_TYPE_PCT
+              ) as RegExpExecArray;
+              cal.hasPct = true;
+              cal.pctMul.push(Number(val));
+            } else if (REG_TYPE_DIM.test(strValue)) {
+              cal.hasDim = true;
+              cal.dimMul.push(strValue);
+            } else {
+              cal.hasEtc = true;
+              cal.etcMul.push(strValue);
+            }
+          }
+        }
       }
     }
+    if (i === l - 1) {
+      const sortedValue = cal.multiply();
+      sortedValues.push(sortedValue);
+      cal.clear();
+      operator = '';
+    }
   }
-  let resolvedValue;
+  let resolvedValue = '';
   if (finalize && (sortedValues.includes('+') || sortedValues.includes('-'))) {
     const finalizedValues = [];
     cal.clear();
     operator = '';
-    for (let i = 0, l = sortedValues.length; i < l; i++) {
-      let value = sortedValues[i] as number | string;
-      if (value === '+' || value === '-') {
-        operator = value;
-      } else {
-        value = `${value}`;
-        switch (operator) {
-          case '-': {
-            const numValue = Number(value);
-            if (Number.isFinite(numValue)) {
-              cal.hasNum = true;
-              cal.numSum.push(-1 * numValue);
-            } else if (REG_TYPE_PCT.test(value)) {
-              const [, val] = value.match(REG_TYPE_PCT) as [string, string];
-              cal.hasPct = true;
-              cal.pctSum.push(-1 * Number(val));
-            } else if (REG_TYPE_DIM.test(value)) {
-              cal.hasDim = true;
-              cal.dimSub.push(value);
-            } else {
-              cal.hasEtc = true;
-              cal.etcSub.push(value);
+    const l = sortedValues.length;
+    for (let i = 0; i < l; i++) {
+      const value = sortedValues[i];
+      if (isStringOrNumber(value)) {
+        if (value === '+' || value === '-') {
+          operator = value;
+        } else {
+          const numValue = Number(value);
+          const strValue = `${value}`;
+          switch (operator) {
+            case '-': {
+              if (Number.isFinite(numValue)) {
+                cal.hasNum = true;
+                cal.numSum.push(-1 * numValue);
+              } else if (REG_TYPE_PCT.test(strValue)) {
+                const [, val = ''] = strValue.match(
+                  REG_TYPE_PCT
+                ) as RegExpExecArray;
+                cal.hasPct = true;
+                cal.pctSum.push(-1 * Number(val));
+              } else if (REG_TYPE_DIM.test(strValue)) {
+                cal.hasDim = true;
+                cal.dimSub.push(strValue);
+              } else {
+                cal.hasEtc = true;
+                cal.etcSub.push(strValue);
+              }
+              break;
             }
-            break;
-          }
-          case '+':
-          default: {
-            const numValue = Number(value);
-            if (Number.isFinite(numValue)) {
-              cal.hasNum = true;
-              cal.numSum.push(numValue);
-            } else if (REG_TYPE_PCT.test(value)) {
-              const [, val] = value.match(REG_TYPE_PCT) as [string, string];
-              cal.hasPct = true;
-              cal.pctSum.push(Number(val));
-            } else if (REG_TYPE_DIM.test(value)) {
-              cal.hasDim = true;
-              cal.dimSum.push(value);
-            } else {
-              cal.hasEtc = true;
-              cal.etcSum.push(value);
+            case '+':
+            default: {
+              if (Number.isFinite(numValue)) {
+                cal.hasNum = true;
+                cal.numSum.push(numValue);
+              } else if (REG_TYPE_PCT.test(strValue)) {
+                const [, val = ''] = strValue.match(
+                  REG_TYPE_PCT
+                ) as RegExpExecArray;
+                cal.hasPct = true;
+                cal.pctSum.push(Number(val));
+              } else if (REG_TYPE_DIM.test(strValue)) {
+                cal.hasDim = true;
+                cal.dimSum.push(strValue);
+              } else {
+                cal.hasEtc = true;
+                cal.etcSum.push(strValue);
+              }
             }
           }
         }
-        if (i === l - 1) {
-          const sortedValue = cal.sum();
-          finalizedValues.push(sortedValue);
-          cal.clear();
-          operator = '';
-        }
+      }
+      if (i === l - 1) {
+        const sortedValue = cal.sum();
+        finalizedValues.push(sortedValue);
+        cal.clear();
+        operator = '';
       }
     }
     resolvedValue = finalizedValues.join(' ');
@@ -672,13 +691,10 @@ export const sortCalcValues = (
  * serialize calc
  * @param {string} value - value
  * @param {IOptions} [opt] - options
- * @returns {?string} - resolved value
+ * @returns {string} - resolved value
  */
-export const serializeCalc = (
-  value: string,
-  opt: IOptions = {}
-): string | null => {
-  const { format } = opt;
+export const serializeCalc = (value: string, opt: IOptions = {}): string => {
+  const { customProperty = {}, dimension = {}, format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
       return value;
@@ -687,27 +703,33 @@ export const serializeCalc = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const cacheKey = `{serializeCalc:${value},opt:${valueToJsonString(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey) as string | null;
+  let cacheKey = '';
+  if (
+    typeof customProperty.callback !== 'function' &&
+    typeof dimension.callback !== 'function'
+  ) {
+    cacheKey = `{serializeCalc:${value},opt:${valueToJsonString(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey) as string;
+    }
   }
-  const items = tokenize({ css: value })
-    .map((token: CSSToken): string | undefined => {
+  const items: string[] = tokenize({ css: value })
+    .map((token: CSSToken): string => {
       const [type, value] = token as [string, string];
-      let res;
+      let res = '';
       if (type !== W_SPACE && type !== COMMENT) {
         res = value;
       }
       return res;
     })
-    .filter((v: string | undefined) => v) as string[];
+    .filter(v => v);
   let startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   while (startIndex) {
     const endIndex = items.findIndex((item: any, index: number) => {
       return item === ')' && index > startIndex;
     });
-    const slicedValues = items.slice(startIndex, endIndex + 1) as string[];
-    let serializedValue = sortCalcValues(slicedValues) as string;
+    const slicedValues: string[] = items.slice(startIndex, endIndex + 1);
+    let serializedValue: string = sortCalcValues(slicedValues);
     if (REG_FN_VAR_START.test(serializedValue)) {
       serializedValue = calc(serializedValue, {
         toCanonicalUnits: true
@@ -716,9 +738,9 @@ export const serializeCalc = (
     items.splice(startIndex, endIndex - startIndex + 1, serializedValue);
     startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   }
-  const serializedCalc: string | null = sortCalcValues(items, true);
+  const serializedCalc = sortCalcValues(items, true);
   if (cacheKey) {
-    cachedResults.set(cacheKey, serializedCalc!);
+    cachedResults.set(cacheKey, serializedCalc);
   }
   return serializedCalc;
 };
@@ -727,7 +749,7 @@ export const serializeCalc = (
  * resolve dimension
  * @param {Array} token - token
  * @param {IOptions} [opt] - options
- * @returns {?string} - resolved value
+ * @returns {string} - resolved value
  */
 export const resolveDimension = (
   token: CSSToken,
@@ -736,16 +758,16 @@ export const resolveDimension = (
   if (!Array.isArray(token)) {
     throw new TypeError(`${token} is not an array.`);
   }
-  const [, value, , , detail = {}] = token;
-  const { unit, value: detailValue } = detail as {
+  const [, , , , detail = {}] = token;
+  const { unit, value } = detail as {
     unit: string;
     value: number;
   };
   const { dimension = {} } = opt;
   if (unit === 'px') {
-    return value;
+    return `${value}${unit}`;
   }
-  const relativeValue = Number(detailValue);
+  const relativeValue = Number(value);
   if (unit && Number.isFinite(relativeValue)) {
     let pixelValue;
     if (Object.hasOwnProperty.call(dimension, unit)) {
@@ -774,7 +796,7 @@ export const parseTokens = (
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
-  const { format } = opt;
+  const { format = '' } = opt;
   const mathFunc = new Set();
   let nest = 0;
   const res: string[] = [];
@@ -790,12 +812,9 @@ export const parseTokens = (
         if (format === VAL_SPEC && !mathFunc.has(nest)) {
           resolvedValue = value;
         } else {
-          resolvedValue = resolveDimension(token, opt);
-          if (!resolvedValue) {
-            resolvedValue = value;
-          }
+          resolvedValue = resolveDimension(token, opt) ?? value;
         }
-        res.push(resolvedValue as string);
+        res.push(resolvedValue);
         break;
       }
       case FUNC:
@@ -809,7 +828,7 @@ export const parseTokens = (
       }
       case PAREN_CLOSE: {
         if (res.length) {
-          const lastValue = res[res.length - 1] as string;
+          const lastValue = res[res.length - 1];
           if (lastValue === ' ') {
             res.splice(-1, 1, value);
           } else {
@@ -826,8 +845,12 @@ export const parseTokens = (
       }
       case W_SPACE: {
         if (res.length) {
-          const lastValue = res[res.length - 1] as string;
-          if (!lastValue.endsWith('(') && lastValue !== ' ') {
+          const lastValue = res[res.length - 1];
+          if (
+            isString(lastValue) &&
+            !lastValue.endsWith('(') &&
+            lastValue !== ' '
+          ) {
             res.push(value);
           }
         }
@@ -850,7 +873,7 @@ export const parseTokens = (
  * @returns {string} - value
  */
 export const cssCalc = (value: string, opt: IOptions = {}): string => {
-  const { customProperty = {}, dimension = {}, format } = opt;
+  const { customProperty = {}, dimension = {}, format = '' } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
@@ -866,7 +889,7 @@ export const cssCalc = (value: string, opt: IOptions = {}): string => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -876,25 +899,16 @@ export const cssCalc = (value: string, opt: IOptions = {}): string => {
       return cachedResults.get(cacheKey) as string;
     }
   }
-  let resolvedValue: string;
-  if (dimension) {
-    const tokens = tokenize({ css: value });
-    const values = parseTokens(tokens, opt);
-    resolvedValue = calc(values.join(''), {
-      toCanonicalUnits: true
-    });
-  } else {
-    resolvedValue = calc(value, {
-      toCanonicalUnits: true
-    });
-  }
+  const tokens = tokenize({ css: value });
+  const values = parseTokens(tokens, opt);
+  let resolvedValue: string = calc(values.join(''), {
+    toCanonicalUnits: true
+  });
   if (REG_FN_VAR_START.test(value)) {
     if (REG_TYPE_DIM_PCT.test(resolvedValue)) {
-      const [, val, unit] = resolvedValue.match(REG_TYPE_DIM_PCT) as [
-        string,
-        string,
-        string
-      ];
+      const [, val = '', unit = ''] = resolvedValue.match(
+        REG_TYPE_DIM_PCT
+      ) as RegExpExecArray;
       resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
     }
     // wrap with `calc()`

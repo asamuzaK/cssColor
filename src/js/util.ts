@@ -54,10 +54,10 @@ export type ColorChannels = [number, number, number, number];
 
 /**
  * is color
- * @param {string} value - value
+ * @param {*} value - value
  * @returns {boolean} - result
  */
-export const isColor = (value: string): boolean => {
+export const isColor = (value: any): boolean => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (value) {

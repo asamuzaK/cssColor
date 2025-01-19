@@ -36,6 +36,25 @@ describe('pre process', () => {
   it('should get null', () => {
     const res = func('var(--foo)');
     assert.strictEqual(res, null, 'result');
+
+    const res2 = func('var(--foo)');
+    assert.strictEqual(res2, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('var(--foo)', {
+      customProperty: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, null, 'result');
+
+    const res2 = func('var(--foo)', {
+      customProperty: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {

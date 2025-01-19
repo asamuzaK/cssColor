@@ -123,20 +123,23 @@ describe('extract origin color', () => {
   });
 
   it('should get null', () => {
-    const res = func('rgb(from currentColor r g b)');
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get null', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'foo'
     });
     assert.strictEqual(res, null, 'result');
   });
 
-  it('should get null', () => {
+  it('should get value', () => {
     const res = func('rebeccapurple');
     assert.strictEqual(res, 'rebeccapurple', 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('rgb(from currentColor r g b)');
+    assert.strictEqual(res, null, 'result');
+
+    const res2 = func('rgb(from currentColor r g b)');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {

@@ -21,3 +21,11 @@ export const getType = (o: any): string =>
  */
 export const isString = (o: any): o is string =>
   typeof o === 'string' || o instanceof String;
+
+/**
+ * is string or number
+ * @param {*} o - object to check
+ * @returns {boolean} - result
+ */
+export const isStringOrNumber = (o: any): boolean =>
+  isString(o) || typeof o === 'number';

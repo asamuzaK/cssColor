@@ -484,10 +484,10 @@ describe('calculator', () => {
     assert.strictEqual(res, '1 / r', 'result');
   });
 
-  it('should get null', () => {
+  it('should get empty string', () => {
     const cal = new Calculator();
     const res = cal.sum();
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should sum values', () => {
@@ -630,14 +630,16 @@ describe('calculator', () => {
 describe('sort calc values', () => {
   const func = csscalc.sortCalcValues;
 
-  it('should get null', () => {
-    const res = func();
-    assert.strictEqual(res, null, 'result');
+  it('should throw', () => {
+    assert.throws(() => func(), Error, 'Unexpected array length 0.');
   });
 
-  it('should get null', () => {
-    const res = func(['calc(', ')']);
-    assert.strictEqual(res, null, 'result');
+  it('should throw', () => {
+    assert.throws(
+      () => func(['calc(', ')']),
+      Error,
+      'Unexpected array length 2.'
+    );
   });
 
   it('should get value', () => {
