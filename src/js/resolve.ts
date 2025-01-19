@@ -91,15 +91,14 @@ export const resolve = (
     throw new TypeError(`${color} is not a string.`);
   }
   const {
-    currentColor,
+    currentColor = '',
     customProperty = {},
     dimension = {},
     format = VAL_COMP,
-    key
+    key = ''
   } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
-    !REG_FN_VAR.test(color) &&
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
   ) {
@@ -147,7 +146,7 @@ export const resolve = (
   }
   color = color.toLowerCase();
   if (REG_FN_REL.test(color)) {
-    const resolvedColor = resolveRelativeColor(color, opt) as string | null;
+    const resolvedColor = resolveRelativeColor(color, opt);
     if (format === VAL_COMP) {
       if (resolvedColor) {
         res = resolvedColor;
@@ -177,12 +176,7 @@ export const resolve = (
     }
   }
   if (REG_FN_CALC.test(color)) {
-    const resolvedColor = cssCalc(color, opt) as string | null;
-    if (resolvedColor) {
-      color = resolvedColor;
-    } else {
-      color = '';
-    }
+    color = cssCalc(color, opt);
   }
   if (color === 'transparent') {
     switch (format) {
@@ -256,16 +250,11 @@ export const resolve = (
     }
   } else if (format === VAL_SPEC) {
     if (color.startsWith(FN_MIX)) {
-      const resolvedValue = resolveColorMix(color, opt) as string | null;
-      if (resolvedValue) {
-        res = resolvedValue;
-      } else {
-        res = '';
-      }
+      const resolvedValue = resolveColorMix(color, opt) as string;
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, resolvedValue);
       }
-      return res;
+      return resolvedValue;
     } else if (color.startsWith(FN_COLOR)) {
       [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
         string,

@@ -69,6 +69,13 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgb(0, 0, 255)', 'result');
   });
 
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
   it('should get null', () => {
     const res = func('var(--foo)', {
       format: 'hex'
@@ -86,6 +93,9 @@ describe('resolve CSS color', () => {
   it('should get value', () => {
     const res = func('var(--foo)');
     assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+
+    const res2 = func('var(--foo)');
+    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
   });
 
   it('should get value', () => {
@@ -842,6 +852,13 @@ describe('resolve CSS color', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple r g b)', {
+      format: 'hex'
+    });
+    assert.strictEqual(res, '#663399', 'result');
   });
 
   it('should get null', () => {

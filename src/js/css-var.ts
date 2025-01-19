@@ -80,7 +80,7 @@ export function resolveCustomProperty(
   let resolveAsColor = false;
   if (items.length > 1) {
     const lastValue = items[items.length - 1];
-    resolveAsColor = isColor(lastValue as string);
+    resolveAsColor = isColor(lastValue);
   }
   let resolvedValue = '';
   for (let item of items) {
@@ -188,7 +188,7 @@ export function parseTokens(
  * @returns {?string} - value
  */
 export function cssVar(value: string, opt: IOptions = {}): string | null {
-  const { dimension = {}, customProperty = {}, format } = opt;
+  const { dimension = {}, customProperty = {}, format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
@@ -197,10 +197,10 @@ export function cssVar(value: string, opt: IOptions = {}): string | null {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback === 'function'
+    typeof dimension.callback !== 'function'
   ) {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {

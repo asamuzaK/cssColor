@@ -647,7 +647,7 @@ describe('parse alpha', () => {
   });
 
   it('should get value', () => {
-    const res = func();
+    const res = func(1);
     assert.strictEqual(res, 1, 'result');
   });
 
@@ -3404,6 +3404,20 @@ describe('parse oklab()', () => {
   it('should get value', () => {
     const res = func('oklab(none none none / none)');
     assert.deepEqual(res, ['xyz-d65', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('oklab(none none none / none)', {
+      format: 'hex'
+    });
+    assert.deepEqual(res, ['xyz-d65', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('oklab(none none none / none)', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, ['oklab', 'none', 'none', 'none', 'none'], 'result');
   });
 
   it('should get value', () => {

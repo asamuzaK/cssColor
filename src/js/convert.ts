@@ -55,7 +55,7 @@ export const preProcess = (
     return null;
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -79,15 +79,7 @@ export const preProcess = (
   if (REG_FN_REL.test(value)) {
     value = resolveRelativeColor(value, opt) as string;
   } else if (REG_FN_CALC.test(value)) {
-    const resolvedValue = cssCalc(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue;
-    } else {
-      if (cacheKey) {
-        cachedResults.set(cacheKey, null!);
-      }
-      return null;
-    }
+    value = cssCalc(value, opt);
   }
   if (value.startsWith('color-mix')) {
     value = resolve(value, {
@@ -138,8 +130,8 @@ export const colorToHex = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { alpha, customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  const { alpha = false, customProperty = {}, dimension = {} } = opt;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -184,7 +176,7 @@ export const colorToHsl = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -223,7 +215,7 @@ export const colorToHwb = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -262,7 +254,7 @@ export const colorToLab = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -300,7 +292,7 @@ export const colorToLch = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -338,7 +330,7 @@ export const colorToOklab = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -376,7 +368,7 @@ export const colorToOklch = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -414,7 +406,7 @@ export const colorToRgb = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
@@ -453,7 +445,7 @@ export const colorToXyz = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey;
+  let cacheKey = '';
   if (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'

@@ -64,3 +64,21 @@ describe('is string', () => {
     }
   });
 });
+
+describe('is string or number', () => {
+  const func = common.isStringOrNumber;
+
+  it('should get false', () => {
+    const items = [[], ['foo'], {}, { foo: 'bar' }, undefined, null, true];
+    for (const item of items) {
+      assert.strictEqual(func(item), false);
+    }
+  });
+
+  it('should get true', () => {
+    const items = ['', 'foo', 0, 1, NaN, Infinity, -Infinity];
+    for (const item of items) {
+      assert.strictEqual(func(item), true);
+    }
+  });
+});

@@ -8,7 +8,7 @@ import type { ComponentValue } from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import type { CSSToken } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
-import { isString } from './common';
+import { isString, isStringOrNumber } from './common';
 import { colorToRgb } from './convert';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
@@ -75,11 +75,11 @@ export const cachedResults = new LRUCache({
 export function resolveColorChannels(
   tokens: CSSToken[],
   opt: IOptions = {}
-): string[] | null {
+): (number | string)[] | null {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
-  const { colorSpace, format } = opt;
+  const { colorSpace = '', format = '' } = opt;
   const colorChannels = new Map([
     ['color', ['r', 'g', 'b', 'alpha']],
     ['hsl', ['h', 's', 'l', 'alpha']],
@@ -108,17 +108,14 @@ export function resolveColorChannels(
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type, value, , , detail = {}] = token;
+    const [type = '', value = '', , , detail = {}] = token;
     const { value: detailValue } = detail as {
       value: number;
     };
     const channel = channels[i] as (number | string)[];
-    switch (type as string) {
+    switch (type) {
       case DIM: {
-        let resolvedValue = resolveDimension(token, opt);
-        if (!resolvedValue) {
-          resolvedValue = value;
-        }
+        const resolvedValue = resolveDimension(token, opt) ?? value;
         channel.push(resolvedValue);
         break;
       }
@@ -156,7 +153,7 @@ export function resolveColorChannels(
       }
       case PAREN_CLOSE: {
         if (func) {
-          const lastValue = channel[channel.length - 1] as string | number;
+          const lastValue = channel[channel.length - 1];
           if (lastValue === ' ') {
             channel.splice(-1, 1, value);
           } else {
@@ -182,7 +179,7 @@ export function resolveColorChannels(
       }
       case W_SPACE: {
         if (channel.length && func) {
-          const lastValue = channel[channel.length - 1] as string | number;
+          const lastValue = channel[channel.length - 1];
           if (typeof lastValue === 'number') {
             channel.push(value);
           } else if (
@@ -202,20 +199,21 @@ export function resolveColorChannels(
       }
     }
   }
-  const channelValues: string[] = [];
+  const channelValues: (number | string)[] = [];
   for (const channel of channels) {
     if (channel.length === 1) {
       const [resolvedValue] = channel;
-      channelValues.push(resolvedValue as string);
+      if (
+        isStringOrNumber(resolvedValue) &&
+        typeof resolvedValue !== 'undefined'
+      ) {
+        channelValues.push(resolvedValue);
+      }
     } else if (channel.length) {
       const resolvedValue = serializeCalc(channel.join(''), {
         format
       });
-      if (resolvedValue) {
-        channelValues.push(resolvedValue);
-      } else {
-        return null;
-      }
+      channelValues.push(resolvedValue);
     }
   }
   return channelValues;
@@ -231,6 +229,12 @@ export function extractOriginColor(
   value: string,
   opt: IOptions = {}
 ): string | null {
+  const {
+    currentColor = '',
+    customProperty = {},
+    dimension = {},
+    format = ''
+  } = opt;
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (!value) {
@@ -242,10 +246,15 @@ export function extractOriginColor(
   } else {
     return null;
   }
-  const { currentColor, format } = opt;
-  const cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey) as string | null;
+  let cacheKey = '';
+  if (
+    typeof customProperty.callback !== 'function' &&
+    typeof dimension.callback !== 'function'
+  ) {
+    cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey) as string | null;
+    }
   }
   if (/currentcolor/.test(value)) {
     if (currentColor) {
@@ -257,17 +266,14 @@ export function extractOriginColor(
       return null;
     }
   }
-  const cs = value.match(REG_FN_REL_CAPT);
-  let colorSpace: string;
-  if (cs) {
-    [, colorSpace] = cs as [string, string];
-  } else {
-    return null;
+  let colorSpace = '';
+  if (REG_FN_REL_CAPT.test(value)) {
+    [, colorSpace = ''] = value.match(REG_FN_REL_CAPT) as RegExpExecArray;
   }
   opt.colorSpace = colorSpace;
   if (REG_COLOR_CAPT.test(value)) {
-    const [, originColor] = value.match(REG_COLOR_CAPT) as [string, string];
-    const [, restValue] = value.split(originColor);
+    const [, originColor = ''] = value.match(REG_COLOR_CAPT) as RegExpExecArray;
+    const [, restValue = ''] = value.split(originColor);
     if (/^[a-z]+$/.test(originColor)) {
       if (
         !/^transparent$/.test(originColor) &&
@@ -279,11 +285,13 @@ export function extractOriginColor(
         return null;
       }
     } else if (format === VAL_SPEC) {
-      const resolvedOriginColor = resolve(originColor, opt) as string;
-      value = value.replace(originColor, resolvedOriginColor);
+      const resolvedOriginColor = resolve(originColor, opt);
+      if (isString(resolvedOriginColor)) {
+        value = value.replace(originColor, resolvedOriginColor);
+      }
     }
     if (format === VAL_SPEC) {
-      const tokens = tokenize({ css: restValue as string });
+      const tokens = tokenize({ css: restValue });
       const channelValues = resolveColorChannels(tokens, opt) as
         | string[]
         | null;
@@ -297,26 +305,21 @@ export function extractOriginColor(
       if (channelValues.length === 3) {
         channelValue = ` ${channelValues.join(' ')})`;
       } else {
-        const [v1, v2, v3, v4] = channelValues as [
-          string,
-          string,
-          string,
-          string
-        ];
+        const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
         channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
       }
       value = value.replace(restValue!, channelValue);
     }
     // nested relative color
   } else {
-    const [, restValue] = value.split(REG_FN_REL_START) as [string, string];
+    const [, restValue = ''] = value.split(REG_FN_REL_START);
     if (REG_FN_REL_START.test(restValue)) {
       const tokens = tokenize({ css: restValue });
       const originColor: string[] = [];
       let nest = 0;
       while (tokens.length) {
         const token = tokens.shift();
-        const [type, tokenValue] = token as [TokenType, string];
+        const [type = '', tokenValue = ''] = token as [TokenType, string];
         switch (type) {
           case FUNC:
           case PAREN_OPEN: {
@@ -325,7 +328,7 @@ export function extractOriginColor(
             break;
           }
           case PAREN_CLOSE: {
-            const lastValue = originColor[originColor.length - 1] as string;
+            const lastValue = originColor[originColor.length - 1] ?? '';
             if (lastValue === ' ') {
               originColor.splice(-1, 1, tokenValue);
             } else {
@@ -335,7 +338,7 @@ export function extractOriginColor(
             break;
           }
           case W_SPACE: {
-            const lastValue = originColor[originColor.length - 1] as string;
+            const lastValue = originColor[originColor.length - 1] ?? '';
             if (!lastValue.endsWith('(') && lastValue !== ' ') {
               originColor.push(tokenValue);
             }
@@ -354,7 +357,7 @@ export function extractOriginColor(
       const resolvedOriginColor = resolveRelativeColor(
         originColor.join('').trim(),
         opt
-      ) as string | null;
+      );
       if (!resolvedOriginColor) {
         if (cacheKey) {
           cachedResults.set(cacheKey, null!);
@@ -370,16 +373,11 @@ export function extractOriginColor(
         }
         return null;
       }
-      let channelValue;
+      let channelValue: string;
       if (channelValues.length === 3) {
         channelValue = ` ${channelValues.join(' ')})`;
       } else {
-        const [v1, v2, v3, v4] = channelValues as [
-          string,
-          string,
-          string,
-          string
-        ];
+        const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
         channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
       }
       value = value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
@@ -401,7 +399,7 @@ export function resolveRelativeColor(
   value: string,
   opt: IOptions = {}
 ): string | null {
-  const { format } = opt;
+  const { customProperty = {}, dimension = {}, format = '' } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
@@ -417,9 +415,15 @@ export function resolveRelativeColor(
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const cacheKey = `{relativeColor:${value},opt:${valueToJsonString(opt)}}`;
-  if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey) as string | null;
+  let cacheKey = '';
+  if (
+    typeof customProperty.callback !== 'function' &&
+    typeof dimension.callback !== 'function'
+  ) {
+    cacheKey = `{relativeColor:${value},opt:${valueToJsonString(opt)}}`;
+    if (cachedResults.has(cacheKey)) {
+      return cachedResults.get(cacheKey) as string | null;
+    }
   }
   const originColor = extractOriginColor(value, opt);
   if (originColor) {
@@ -461,7 +465,7 @@ export function resolveRelativeColor(
       alpha = 0;
     }
   } else {
-    alpha = roundToPrecision(alphaComponent as number, OCT);
+    alpha = roundToPrecision(Number(alphaComponent), OCT);
   }
   let v1: number | string;
   let v2: number | string;
