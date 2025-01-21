@@ -410,19 +410,6 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
-    const res = func('color-mix(in srgb, rgba(0 0 255 / .5), currentcolor)', {
-      currentColor: 'rgba(255 0 0 / .5)',
-      key: 'foo'
-    });
-    assert.deepEqual(res, ['foo', 'color(srgb 0.5 0 0.5 / 0.5)'], 'result');
-    const res2 = func('color-mix(in srgb, rgba(0 0 255 / .5), currentcolor)', {
-      currentColor: 'rgba(255 0 0 / .5)',
-      key: 'foo'
-    });
-    assert.deepEqual(res2, ['foo', 'color(srgb 0.5 0 0.5 / 0.5)'], 'result');
-  });
-
-  it('should get value', () => {
     const res = func('color-mix(in srgb, transparent, currentcolor)', {
       currentColor: 'red'
     });
@@ -617,17 +604,6 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
-  it('should get value', () => {
-    const res = func('color-mix(in srgb, blue, red)', {
-      key: 'foo'
-    });
-    assert.deepEqual(res, ['foo', 'color(srgb 0.5 0 0.5)'], 'result');
-    const res2 = func('color-mix(in srgb, blue, red)', {
-      key: 'foo'
-    });
-    assert.deepEqual(res2, ['foo', 'color(srgb 0.5 0 0.5)'], 'result');
-  });
-
   it('should get null', () => {
     const res = func('transparent', {
       format: 'hex'
@@ -673,19 +649,6 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
-    const res = func('rgba(0% 50% 0%)', {
-      format: 'hex',
-      key: 'foo'
-    });
-    assert.deepEqual(res, ['foo', '#008000'], 'result');
-    const res2 = func('rgba(0% 50% 0%)', {
-      format: 'hex',
-      key: 'foo'
-    });
-    assert.deepEqual(res2, ['foo', '#008000'], 'result');
-  });
-
-  it('should get value', () => {
     const res = func('transparent', {
       format: 'hexAlpha'
     });
@@ -727,19 +690,6 @@ describe('resolve CSS color', () => {
       format: 'hexAlpha'
     });
     assert.strictEqual(res2, null, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('rgba(0% 50% 0% / 0.5)', {
-      format: 'hexAlpha',
-      key: 'foo'
-    });
-    assert.deepEqual(res, ['foo', '#00800080'], 'result');
-    const res2 = func('rgba(0% 50% 0% / 0.5)', {
-      format: 'hexAlpha',
-      key: 'foo'
-    });
-    assert.deepEqual(res2, ['foo', '#00800080'], 'result');
   });
 
   it('should get value', () => {

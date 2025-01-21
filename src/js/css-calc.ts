@@ -8,7 +8,7 @@ import type { CSSToken } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { isString, isStringOrNumber } from './common';
 import { roundToPrecision, valueToJsonString } from './util';
-import type { IOptions } from './util';
+import type { IOptions } from './typedef';
 
 /* constants */
 import {
@@ -19,7 +19,7 @@ import {
   SYN_FN_VAR,
   SYN_FN_VAR_START,
   VAL_SPEC
-} from './constant.js';
+} from './constant';
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
@@ -182,7 +182,7 @@ export class Calculator {
 
   /**
    * clear values
-   * @returns {void}
+   * @returns void
    */
   clear() {
     // number
@@ -209,8 +209,8 @@ export class Calculator {
 
   /**
    * sort values
-   * @param {Array} values - values
-   * @returns {Array} - sorted values
+   * @param values - values
+   * @returns sorted values
    */
   sort(values: string[] = []): string[] {
     const arr = [...values];
@@ -254,7 +254,7 @@ export class Calculator {
 
   /**
    * multiply values
-   * @returns {?string} - resolved value
+   * @returns resolved value
    */
   multiply(): string | null {
     const value = [];
@@ -404,7 +404,7 @@ export class Calculator {
 
   /**
    * sum values
-   * @returns {?string} - resolved value
+   * @returns resolved value
    */
   sum(): string | null {
     const value = [];
@@ -532,9 +532,9 @@ export class Calculator {
 
 /**
  * sort calc values
- * @param {Array.<number|string>} values - values
- * @param {boolean} finalize - finalize
- * @returns {string} - sorted value
+ * @param values - values to sort
+ * @param [finalize] - finalize values
+ * @returns sorted values
  */
 export const sortCalcValues = (
   values: (number | string)[] = [],
@@ -689,9 +689,9 @@ export const sortCalcValues = (
 
 /**
  * serialize calc
- * @param {string} value - value
- * @param {IOptions} [opt] - options
- * @returns {string} - resolved value
+ * @param value - value to serialize
+ * @param [opt] - options
+ * @returns serialized value
  */
 export const serializeCalc = (value: string, opt: IOptions = {}): string => {
   const { customProperty = {}, dimension = {}, format = '' } = opt;
@@ -715,7 +715,7 @@ export const serializeCalc = (value: string, opt: IOptions = {}): string => {
   }
   const items: string[] = tokenize({ css: value })
     .map((token: CSSToken): string => {
-      const [type, value] = token as [string, string];
+      const [type = '', value = ''] = token as [TokenType, string];
       let res = '';
       if (type !== W_SPACE && type !== COMMENT) {
         res = value;
@@ -747,9 +747,9 @@ export const serializeCalc = (value: string, opt: IOptions = {}): string => {
 
 /**
  * resolve dimension
- * @param {Array} token - token
- * @param {IOptions} [opt] - options
- * @returns {string} - resolved value
+ * @param token - CSS token
+ * @param [opt] - options
+ * @returns resolved value
  */
 export const resolveDimension = (
   token: CSSToken,
@@ -785,9 +785,9 @@ export const resolveDimension = (
 
 /**
  * parse tokens
- * @param {Array.<Array>} tokens - tokens
- * @param {object} [opt] - options
- * @returns {Array.<string>} - parsed tokens
+ * @param tokens - CSS tokens
+ * @param [opt] - options
+ * @returns parsed tokens
  */
 export const parseTokens = (
   tokens: CSSToken[],
@@ -805,7 +805,7 @@ export const parseTokens = (
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type, value] = token as [string, string];
+    const [type = '', value = ''] = token as [TokenType, string];
     switch (type) {
       case DIM: {
         let resolvedValue;
@@ -868,9 +868,9 @@ export const parseTokens = (
 
 /**
  * resolve CSS calc()
- * @param {string} value - color value including calc()
- * @param {IOptions} [opt] - options
- * @returns {string} - value
+ * @param value - color value including calc()
+ * @param [opt] - options
+ * @returns resolved value
  */
 export const cssCalc = (value: string, opt: IOptions = {}): string => {
   const { customProperty = {}, dimension = {}, format = '' } = opt;

@@ -21,10 +21,10 @@ import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolve } from './resolve';
 import { valueToJsonString } from './util';
-import type { ColorChannels, IOptions } from './util';
+import type { ColorChannels, ComputedColorChannels, IOptions } from './typedef';
 
 /* constants */
-import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant.js';
+import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant';
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
@@ -38,9 +38,9 @@ export const cachedResults = new LRUCache({
 
 /**
  * pre process
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {?string} - value
+ * @param value - color value
+ * @param [opt] - options
+ * @returns value
  */
 export const preProcess = (
   value: string,
@@ -94,27 +94,25 @@ export const preProcess = (
 
 /**
  * convert number to hex string
- * @param {number} value - color value
- * @returns {string} - hex string: 00..ff
+ * @param value - color value
+ * @returns hex string: 00..ff
  */
 export const numberToHex = (value: number): string => {
-  const cacheKey = typeof value === 'number' && `{numberToHex:${value}}`;
-  if (cacheKey && cachedResults.has(cacheKey)) {
+  const cacheKey = `{numberToHex:${value}}`;
+  if (cachedResults.has(cacheKey)) {
     return cachedResults.get(cacheKey) as string;
   }
   const hex = numberToHexString(value);
-  if (cacheKey) {
-    cachedResults.set(cacheKey, hex);
-  }
+  cachedResults.set(cacheKey, hex);
   return hex;
 };
 
 /**
  * convert color to hex
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @param {boolean} [opt.alpha] - enable alpha channel
- * @returns {?string} - #rrggbb | #rrggbbaa | null
+ * @param value - color value
+ * @param [opt] - options
+ * @param [opt.alpha] - enable alpha channel
+ * @returns #rrggbb | #rrggbbaa | null
  */
 export const colorToHex = (
   value: string,
@@ -157,9 +155,9 @@ export const colorToHex = (
 
 /**
  * convert color to hsl
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [h, s, l, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [h, s, l, alpha]
  */
 export const colorToHsl = (
   value: string,
@@ -196,9 +194,9 @@ export const colorToHsl = (
 
 /**
  * convert color to hwb
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [h, w, b, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [h, w, b, alpha]
  */
 export const colorToHwb = (
   value: string,
@@ -235,9 +233,9 @@ export const colorToHwb = (
 
 /**
  * convert color to lab
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [l, a, b, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [l, a, b, alpha]
  */
 export const colorToLab = (
   value: string,
@@ -273,9 +271,9 @@ export const colorToLab = (
 
 /**
  * convert color to lch
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [l, c, h, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [l, c, h, alpha]
  */
 export const colorToLch = (
   value: string,
@@ -311,9 +309,9 @@ export const colorToLch = (
 
 /**
  * convert color to oklab
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [l, a, b, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [l, a, b, alpha]
  */
 export const colorToOklab = (
   value: string,
@@ -349,9 +347,9 @@ export const colorToOklab = (
 
 /**
  * convert color to oklch
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [l, c, h, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [l, c, h, alpha]
  */
 export const colorToOklch = (
   value: string,
@@ -387,9 +385,9 @@ export const colorToOklch = (
 
 /**
  * convert color to rgb
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [r, g, b, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [r, g, b, alpha]
  */
 export const colorToRgb = (
   value: string,
@@ -425,10 +423,9 @@ export const colorToRgb = (
 
 /**
  * convert color to xyz
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @param {object} [opt.d50] - white poin in d50
- * @returns {Array.<number>} - [x, y, z, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [x, y, z, alpha]
  */
 export const colorToXyz = (
   value: string,
@@ -457,21 +454,9 @@ export const colorToXyz = (
   }
   let xyz;
   if (value.startsWith('color(')) {
-    [, ...xyz] = parseColorFunc(value, opt) as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [, ...xyz] = parseColorFunc(value, opt) as ComputedColorChannels;
   } else {
-    [, ...xyz] = parseColorValue(value, opt) as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [, ...xyz] = parseColorValue(value, opt) as ComputedColorChannels;
   }
   if (cacheKey) {
     cachedResults.set(cacheKey, xyz);
@@ -481,9 +466,9 @@ export const colorToXyz = (
 
 /**
  * convert color to xyz-d50
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {Array.<number>} - [x, y, z, alpha]
+ * @param value - color value
+ * @param [opt] - options
+ * @returns ColorChannels - [x, y, z, alpha]
  */
 export const colorToXyzD50 = (
   value: string,
