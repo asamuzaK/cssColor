@@ -13,7 +13,7 @@ import { colorToRgb } from './convert';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
 import { roundToPrecision, valueToJsonString } from './util';
-import type { ColorChannels, IOptions } from './util';
+import type { ColorChannels, IOptions } from './typedef';
 
 /* constants */
 import { NAMED_COLORS } from './color';
@@ -49,6 +49,12 @@ const HEX = 16;
 const MAX_PCT = 100;
 const MAX_RGB = 255;
 
+/* type definitions */
+/**
+ * @type ColorChannel - color channel
+ */
+type ColorChannel = (number | string)[];
+
 /* regexp */
 const REG_COLOR_CAPT = new RegExp(
   `^${FN_REL}(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
@@ -68,14 +74,14 @@ export const cachedResults = new LRUCache({
 
 /**
  * resolve relative color channels
- * @param {Array.<Array>} tokens - tokens
- * @param {IOptions} [opt] - options
- * @returns {?Array.<string>} - resolved channels
+ * @param tokens - CSS tokens
+ * @param [opt] - options
+ * @returns resolved color channels
  */
 export function resolveColorChannels(
   tokens: CSSToken[],
   opt: IOptions = {}
-): (number | string)[] | null {
+): ColorChannel | null {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
@@ -92,13 +98,13 @@ export function resolveColorChannels(
     ['rgb', ['r', 'g', 'b', 'alpha']],
     ['rgba', ['r', 'g', 'b', 'alpha']]
   ]);
-  const colorChannel = colorChannels.get(colorSpace as string);
+  const colorChannel = colorChannels.get(colorSpace);
   const mathFunc = new Set();
-  const channels = [[], [], [], []] as [
-    (number | string)[],
-    (number | string)[],
-    (number | string)[],
-    (number | string)[]
+  const channels: [ColorChannel, ColorChannel, ColorChannel, ColorChannel] = [
+    [],
+    [],
+    [],
+    []
   ];
   let i = 0;
   let nest = 0;
@@ -112,7 +118,7 @@ export function resolveColorChannels(
     const { value: detailValue } = detail as {
       value: number;
     };
-    const channel = channels[i] as (number | string)[];
+    const channel = channels[i] as ColorChannel;
     switch (type) {
       case DIM: {
         const resolvedValue = resolveDimension(token, opt) ?? value;
@@ -199,7 +205,7 @@ export function resolveColorChannels(
       }
     }
   }
-  const channelValues: (number | string)[] = [];
+  const channelValues: ColorChannel = [];
   for (const channel of channels) {
     if (channel.length === 1) {
       const [resolvedValue] = channel;
@@ -221,9 +227,9 @@ export function resolveColorChannels(
 
 /**
  * extract origin color
- * @param {string} value - color value
- * @param {IOptions} [opt] - options
- * @returns {?string} - value
+ * @param value - color value
+ * @param [opt] - options
+ * @returns origin color value
  */
 export function extractOriginColor(
   value: string,
@@ -391,9 +397,9 @@ export function extractOriginColor(
 
 /**
  * resolve relative color
- * @param {string} value - relative color value
- * @param {IOptions} [opt] - options
- * @returns {?string} - value
+ * @param value - relative color value
+ * @param [opt] - options
+ * @returns resolved value
  */
 export function resolveRelativeColor(
   value: string,

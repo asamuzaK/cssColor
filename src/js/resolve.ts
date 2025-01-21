@@ -14,7 +14,11 @@ import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { valueToJsonString } from './util';
-import type { IOptions } from './util';
+import type {
+  ComputedColorChannels,
+  IOptions,
+  SpecifiedColorChannels
+} from './typedef';
 
 /* constants */
 import {
@@ -25,8 +29,7 @@ import {
   SYN_FN_VAR,
   VAL_COMP,
   VAL_SPEC
-} from './constant.js';
-
+} from './constant';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
@@ -41,37 +44,37 @@ export const cachedResults = new LRUCache({
 
 /**
  * resolve CSS color
- * @param {string} color - color value
+ * @param color
+ *   - color value
  *   - system colors are not supported
- * @param {Ioptions} [opt] - options
- * @param {string} [opt.currentColor]
+ * @param [opt] - options
+ * @param [opt.currentColor]
  *   - color to use for `currentcolor` keyword
  *   - if omitted, it will be treated as a missing color
  *     i.e. `rgb(none none none / none)`
- * @param {object} [opt.customProperty]
+ * @param [opt.customProperty]
  *   - custom properties
  *   - pair of `--` prefixed property name and value,
  *     e.g. `customProperty: { '--some-color': '#0000ff' }`
  *   - and/or `callback` function to get the value of the custom property,
  *     e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
- * @param {object} [opt.dimension]
+ * @param [opt.dimension]
  *   - dimension, convert relative length to pixels
  *   - pair of unit and it's value as a number in pixels,
  *     e.g. `dimension: { em: 12, rem: 16, vw: 10.26 }`
  *   - and/or `callback` function to get the value as a number in pixels,
  *     e.g. `dimension: { callback: convertUnitToPixel }`
- * @param {string} [opt.format]
+ * @param [opt.format]
  *   - output format, one of below
  *   - `computedValue` (default), [computed value][139] of the color
  *   - `specifiedValue`, [specified value][140] of the color
  *   - `hex`, hex color notation, i.e. `rrggbb`
  *   - `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
- * @param {*} [opt.key] - key e.g. CSS property `background-color`
- * @returns {?string|Array}
+ * @returns
  *   - one of rgba?(), #rrggbb(aa)?, color-name, '(empty-string)',
  *     color(color-space r g b / alpha), color(color-space x y z / alpha),
  *     lab(l a b / alpha), lch(l c h / alpha), oklab(l a b / alpha),
- *     oklch(l c h / alpha), null or [key, rgba?()] etc. if `key` is specified
+ *     oklch(l c h / alpha), null
  *   - in `computedValue`, values are numbers, however `rgb()` values are
  *     integers
  *   - in `specifiedValue`, returns `empty string` for unknown and/or invalid
@@ -94,8 +97,7 @@ export const resolve = (
     currentColor = '',
     customProperty = {},
     dimension = {},
-    format = VAL_COMP,
-    key = ''
+    format = VAL_COMP
   } = opt;
   let cacheKey = '';
   if (
@@ -110,8 +112,6 @@ export const resolve = (
         | null;
     }
   }
-  let cs, r, g, b, alpha;
-  let res = '';
   if (REG_FN_VAR.test(color)) {
     if (format === VAL_SPEC) {
       if (cacheKey) {
@@ -132,7 +132,7 @@ export const resolve = (
           return null;
         }
         default: {
-          res = RGB_TRANSPARENT;
+          const res = RGB_TRANSPARENT;
           if (cacheKey) {
             cachedResults.set(cacheKey, res);
           }
@@ -148,6 +148,7 @@ export const resolve = (
   if (REG_FN_REL.test(color)) {
     const resolvedColor = resolveRelativeColor(color, opt);
     if (format === VAL_COMP) {
+      let res = '';
       if (resolvedColor) {
         res = resolvedColor;
       } else {
@@ -159,6 +160,7 @@ export const resolve = (
       return res;
     }
     if (format === VAL_SPEC) {
+      let res = '';
       if (resolvedColor) {
         res = resolvedColor;
       } else {
@@ -178,6 +180,11 @@ export const resolve = (
   if (REG_FN_CALC.test(color)) {
     color = cssCalc(color, opt);
   }
+  let cs = '';
+  let r = NaN;
+  let g = NaN;
+  let b = NaN;
+  let alpha = NaN;
   if (color === 'transparent') {
     switch (format) {
       case VAL_SPEC: {
@@ -193,7 +200,7 @@ export const resolve = (
         return null;
       }
       case 'hexAlpha': {
-        res = '#00000000';
+        const res = '#00000000';
         if (cacheKey) {
           cachedResults.set(cacheKey, res);
         }
@@ -201,7 +208,7 @@ export const resolve = (
       }
       case VAL_COMP:
       default: {
-        res = RGB_TRANSPARENT;
+        const res = RGB_TRANSPARENT;
         if (cacheKey) {
           cachedResults.set(cacheKey, res);
         }
@@ -217,32 +224,23 @@ export const resolve = (
     }
     if (currentColor) {
       if (currentColor.startsWith(FN_MIX)) {
-        [cs, r, g, b, alpha] = resolveColorMix(currentColor, opt) as [
-          string,
-          number,
-          number,
-          number,
-          number
-        ];
+        [cs, r, g, b, alpha] = resolveColorMix(
+          currentColor,
+          opt
+        ) as ComputedColorChannels;
       } else if (currentColor.startsWith(FN_COLOR)) {
-        [cs, r, g, b, alpha] = resolveColorFunc(currentColor, opt) as [
-          string,
-          number,
-          number,
-          number,
-          number
-        ];
+        [cs, r, g, b, alpha] = resolveColorFunc(
+          currentColor,
+          opt
+        ) as ComputedColorChannels;
       } else {
-        [cs, r, g, b, alpha] = resolveColorValue(currentColor, opt) as [
-          string,
-          number,
-          number,
-          number,
-          number
-        ];
+        [cs, r, g, b, alpha] = resolveColorValue(
+          currentColor,
+          opt
+        ) as ComputedColorChannels;
       }
     } else if (format === VAL_COMP) {
-      res = RGB_TRANSPARENT;
+      const res = RGB_TRANSPARENT;
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
@@ -250,23 +248,21 @@ export const resolve = (
     }
   } else if (format === VAL_SPEC) {
     if (color.startsWith(FN_MIX)) {
-      const resolvedValue = resolveColorMix(color, opt) as string;
+      const res = resolveColorMix(color, opt) as string;
       if (cacheKey) {
-        cachedResults.set(cacheKey, resolvedValue);
+        cachedResults.set(cacheKey, res);
       }
-      return resolvedValue;
+      return res;
     } else if (color.startsWith(FN_COLOR)) {
-      [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
-        string,
-        number | string,
-        number | string,
-        number | string,
-        number | string
-      ];
-      if (alpha === 1) {
-        res = `color(${cs} ${r} ${g} ${b})`;
+      const [scs, rr, gg, bb, aa] = resolveColorFunc(
+        color,
+        opt
+      ) as SpecifiedColorChannels;
+      let res = '';
+      if (aa === 1) {
+        res = `color(${scs} ${rr} ${gg} ${bb})`;
       } else {
-        res = `color(${cs} ${r} ${g} ${b} / ${alpha})`;
+        res = `color(${scs} ${rr} ${gg} ${bb} / ${aa})`;
       }
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
@@ -275,28 +271,24 @@ export const resolve = (
     } else {
       const rgb = resolveColorValue(color, opt);
       if (!rgb) {
-        res = '';
+        const res = '';
         if (cacheKey) {
           cachedResults.set(cacheKey, res);
         }
         return res;
       }
-      [cs, r, g, b, alpha] = rgb;
-      if (cs === 'rgb') {
-        if (alpha === 1) {
-          res = `${cs}(${r}, ${g}, ${b})`;
+      const [scs, rr, gg, bb, aa] = rgb as SpecifiedColorChannels;
+      let res = '';
+      if (scs === 'rgb') {
+        if (aa === 1) {
+          res = `${scs}(${rr}, ${gg}, ${bb})`;
         } else {
-          res = `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
+          res = `${scs}a(${rr}, ${gg}, ${bb}, ${aa})`;
         }
-        if (cacheKey) {
-          cachedResults.set(cacheKey, res);
-        }
-        return res;
-      }
-      if (alpha === 1) {
-        res = `${cs}(${r} ${g} ${b})`;
+      } else if (aa === 1) {
+        res = `${scs}(${rr} ${gg} ${bb})`;
       } else {
-        res = `${cs}(${r} ${g} ${b} / ${alpha})`;
+        res = `${scs}(${rr} ${gg} ${bb} / ${aa})`;
       }
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
@@ -311,110 +303,73 @@ export const resolve = (
       color = color.replace(/transparent/g, RGB_TRANSPARENT);
     }
     if (color.startsWith(FN_MIX)) {
-      [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
-        string,
-        number,
-        number,
-        number,
-        number
-      ];
+      [cs, r, g, b, alpha] = resolveColorMix(
+        color,
+        opt
+      ) as ComputedColorChannels;
     }
   } else if (/transparent/.test(color)) {
     color = color.replace(/transparent/g, RGB_TRANSPARENT);
     if (color.startsWith(FN_MIX)) {
-      [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
-        string,
-        number,
-        number,
-        number,
-        number
-      ];
+      [cs, r, g, b, alpha] = resolveColorMix(
+        color,
+        opt
+      ) as ComputedColorChannels;
     }
   } else if (color.startsWith(FN_MIX)) {
-    [cs, r, g, b, alpha] = resolveColorMix(color, opt) as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [cs, r, g, b, alpha] = resolveColorMix(color, opt) as ComputedColorChannels;
   } else if (color.startsWith(FN_COLOR)) {
-    [cs, r, g, b, alpha] = resolveColorFunc(color, opt) as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [cs, r, g, b, alpha] = resolveColorFunc(
+      color,
+      opt
+    ) as ComputedColorChannels;
   } else if (color) {
-    [cs, r, g, b, alpha] = resolveColorValue(color, opt) as [
-      string,
-      number,
-      number,
-      number,
-      number
-    ];
+    [cs, r, g, b, alpha] = resolveColorValue(
+      color,
+      opt
+    ) as ComputedColorChannels;
   }
+  let res = '';
   switch (format) {
     case 'hex': {
-      let hex: string | null;
       if (
-        isNaN(r as number) ||
-        isNaN(g as number) ||
-        isNaN(b as number) ||
-        isNaN(alpha as number) ||
+        Number.isNaN(r) ||
+        Number.isNaN(g) ||
+        Number.isNaN(b) ||
+        Number.isNaN(alpha) ||
         alpha === 0
       ) {
-        hex = null;
-      } else {
-        hex = convertRgbToHex([r as number, g as number, b as number, 1]);
-      }
-      if (key) {
-        const arr = [key, hex] as [any, string | null];
         if (cacheKey) {
-          cachedResults.set(cacheKey, arr);
+          cachedResults.set(cacheKey, null!);
         }
-        return arr;
+        return null;
       }
-      res = hex as string;
+      res = convertRgbToHex([r, g, b, 1]);
       break;
     }
     case 'hexAlpha': {
-      let hex: string | null;
       if (
-        isNaN(r as number) ||
-        isNaN(g as number) ||
-        isNaN(b as number) ||
-        isNaN(alpha as number)
+        Number.isNaN(r) ||
+        Number.isNaN(g) ||
+        Number.isNaN(b) ||
+        Number.isNaN(alpha)
       ) {
-        hex = null;
-      } else {
-        hex = convertRgbToHex([
-          r as number,
-          g as number,
-          b as number,
-          alpha as number
-        ]);
-      }
-      if (key) {
-        const arr = [key, hex] as [any, string | null];
         if (cacheKey) {
-          cachedResults.set(cacheKey, arr);
+          cachedResults.set(cacheKey, null!);
         }
-        return arr;
+        return null;
       }
-      res = hex as string;
+      res = convertRgbToHex([r, g, b, alpha]);
       break;
     }
     case VAL_COMP:
     default: {
-      let value: string;
       switch (cs) {
         case 'rgb': {
           if (alpha === 1) {
-            value = `${cs}(${r}, ${g}, ${b})`;
+            res = `${cs}(${r}, ${g}, ${b})`;
           } else {
-            value = `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
+            res = `${cs}a(${r}, ${g}, ${b}, ${alpha})`;
           }
           break;
         }
@@ -423,29 +378,21 @@ export const resolve = (
         case 'oklab':
         case 'oklch': {
           if (alpha === 1) {
-            value = `${cs}(${r} ${g} ${b})`;
+            res = `${cs}(${r} ${g} ${b})`;
           } else {
-            value = `${cs}(${r} ${g} ${b} / ${alpha})`;
+            res = `${cs}(${r} ${g} ${b} / ${alpha})`;
           }
           break;
         }
         // color()
         default: {
           if (alpha === 1) {
-            value = `color(${cs} ${r} ${g} ${b})`;
+            res = `color(${cs} ${r} ${g} ${b})`;
           } else {
-            value = `color(${cs} ${r} ${g} ${b} / ${alpha})`;
+            res = `color(${cs} ${r} ${g} ${b} / ${alpha})`;
           }
         }
       }
-      if (key) {
-        const arr = [key, value] as [any, string | null];
-        if (cacheKey) {
-          cachedResults.set(cacheKey, arr);
-        }
-        return arr;
-      }
-      res = value;
     }
   }
   if (cacheKey) {

@@ -8,7 +8,7 @@ import { LRUCache } from 'lru-cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { isColor, valueToJsonString } from './util';
-import type { IOptions } from './util';
+import type { IOptions } from './typedef';
 
 /* constants */
 import { FN_VAR, SYN_FN_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
@@ -31,9 +31,9 @@ export const cachedResults = new LRUCache({
 
 /**
  * resolve custom property
- * @param {Array.<Array>} tokens - tokens
- * @param {IOptions} [opt] - options
- * @returns {Array.<string|Array>} - [tokens, resolvedValue]
+ * @param tokens - CSS tokens
+ * @param [opt] - options
+ * @returns result - [tokens, resolvedValue]
  */
 export function resolveCustomProperty(
   tokens: CSSToken[],
@@ -49,7 +49,7 @@ export function resolveCustomProperty(
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type, value] = token as [string, string];
+    const [type = '', value = ''] = token as [TokenType, string];
     // end of var()
     if (type === PAREN_CLOSE) {
       break;
@@ -127,9 +127,9 @@ export function resolveCustomProperty(
 
 /**
  * parse tokens
- * @param {Array.<Array>} tokens - tokens
- * @param {IOptions} [opt] - options
- * @returns {?Array.<string>} - parsed tokens
+ * @param tokens - CSS tokens
+ * @param [opt] - options
+ * @returns parsed tokens
  */
 export function parseTokens(
   tokens: CSSToken[],
@@ -138,7 +138,7 @@ export function parseTokens(
   const res: string[] = [];
   while (tokens.length) {
     const token = tokens.shift();
-    const [type, value] = token as [string, string];
+    const [type = '', value = ''] = token as [TokenType, string];
     if (value === FN_VAR) {
       const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
@@ -163,8 +163,12 @@ export function parseTokens(
         }
         case W_SPACE: {
           if (res.length) {
-            const lastValue = res[res.length - 1] as string;
-            if (!lastValue.endsWith('(') && lastValue !== ' ') {
+            const lastValue = res[res.length - 1];
+            if (
+              isString(lastValue) &&
+              !lastValue.endsWith('(') &&
+              lastValue !== ' '
+            ) {
               res.push(value);
             }
           }
@@ -183,9 +187,9 @@ export function parseTokens(
 
 /**
  * resolve CSS var()
- * @param {string} value - color value including var()
- * @param {IOptions} [opt] - options
- * @returns {?string} - value
+ * @param value - color value including var()
+ * @param [opt] - options
+ * @returns resolved value
  */
 export function cssVar(value: string, opt: IOptions = {}): string | null {
   const { dimension = {}, customProperty = {}, format = '' } = opt;

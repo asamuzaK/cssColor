@@ -107,10 +107,8 @@ resolves CSS color
       - `specifiedValue`, [specified value][140] of the color
       - `hex`, hex color notation, i.e. `#rrggbb`
       - `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
-  - `opt.key` **any?**
-    - key to return with the value, e.g. CSS property `background-color`
 
-Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `(ok)?lab(l a b / alpha)`, `(ok)?lch(l c h / alpha)`, `'(empty-string)'`, `null`, or `[key, rgba?()]` etc. if `key` is specified
+Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `(ok)?lab(l a b / alpha)`, `(ok)?lch(l c h / alpha)`, `'(empty-string)'`, `null`
 
 - in `computedValue`, values are numbers, however `rgb()` values are integers
 - in `specifiedValue`, returns `empty string` for unknown and/or invalid color

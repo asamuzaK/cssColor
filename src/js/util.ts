@@ -17,45 +17,10 @@ const DEG_HALF = 180;
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_MIX = new RegExp(`${SYN_MIX}`);
 
-/* type definitions */
-/**
- * @typedef IOptions
- */
-export interface IOptions {
-  alpha?: boolean;
-  colorSpace?: string;
-  currentColor?: string;
-  customProperty?: Record<string, string | ((key: string) => string)>;
-  d50?: boolean;
-  dimension?: Record<string, number | ((key: string) => number)>;
-  format?: string;
-  key?: any;
-}
-
-/**
- * @typedef ColorChannels
- */
-export type ColorChannels = [number, number, number, number];
-
-/**
- * @typedef ComputedColorChannels
- */
-//export type ComputedColorChannels = [string, number, number, number, number];
-
-/**
- * @typedef NoneColorChannels
- */
-//type NoneColorChannels = [string, string, string, string, string];
-
-/**
- * @typedef SpecifiedColorChannels
- */
-//export type SpecifiedColorChannels = ComputedColorChannels & NoneColorChannels;
-
 /**
  * is color
- * @param {*} value - value
- * @returns {boolean} - result
+ * @param value
+ * @returns result
  */
 export const isColor = (value: any): boolean => {
   if (isString(value)) {
@@ -86,9 +51,9 @@ export const isColor = (value: any): boolean => {
 
 /**
  * value to JSON string
- * @param {*} value - value
- * @param {boolean} func - stringify function
- * @returns {string} - stringified value in JSON notation
+ * @param value
+ * @param [func] - stringify function
+ * @returns stringified value in JSON notation
  */
 export const valueToJsonString = (
   value: any,
@@ -121,9 +86,9 @@ export const valueToJsonString = (
 
 /**
  * round to specified precision
- * @param {number} value - value
- * @param {number} bit - minimum bits
- * @returns {number} - rounded value
+ * @param value
+ * @param bit - minimum bits
+ * @returns rounded value
  */
 export const roundToPrecision = (value: number, bit: number = 0): number => {
   if (!Number.isFinite(value)) {
@@ -150,10 +115,10 @@ export const roundToPrecision = (value: number, bit: number = 0): number => {
 
 /**
  * interpolate hue
- * @param {number} hueA - hue
- * @param {number} hueB - hue
- * @param {string} arc - arc
- * @returns {Array} - [hueA, hueB]
+ * @param hueA - hue value
+ * @param hueB - hue value
+ * @param arc - shorter | longer | increasing | decreasing
+ * @returns result - [hueA, hueB]
  */
 export const interpolateHue = (
   hueA: number,
