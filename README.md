@@ -108,7 +108,7 @@ resolves CSS color
       - `hex`, hex color notation, i.e. `#rrggbb`
       - `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
 
-Returns **([string][133]? | [Array][137])** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `(ok)?lab(l a b / alpha)`, `(ok)?lch(l c h / alpha)`, `'(empty-string)'`, `null`
+Returns **[string][133]?** one of `rgba?()`, `#rrggbb(aa)?`, `color-name`, `color(color-space r g b / alpha)`, `color(color-space x y z / alpha)`, `(ok)?lab(l a b / alpha)`, `(ok)?lch(l c h / alpha)`, `'(empty-string)'`, `null`
 
 - in `computedValue`, values are numbers, however `rgb()` values are integers
 - in `specifiedValue`, returns `empty string` for unknown and/or invalid color
