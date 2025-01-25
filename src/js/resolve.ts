@@ -85,13 +85,13 @@ export const cachedResults = new LRUCache({
  *     however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
  */
 export const resolve = (
-  color: string,
+  value: string,
   opt: IOptions = {}
-): string | [any, string | null] | null => {
-  if (isString(color)) {
-    color = color.trim();
+): string | [unknown, string | null] | null => {
+  if (isString(value)) {
+    value = value.trim();
   } else {
-    throw new TypeError(`${color} is not a string.`);
+    throw new TypeError(`${value} is not a string.`);
   }
   const {
     currentColor = '',
@@ -104,24 +104,24 @@ export const resolve = (
     typeof customProperty.callback !== 'function' &&
     typeof dimension.callback !== 'function'
   ) {
-    cacheKey = `{resolve:${color},opt:${valueToJsonString(opt)}}`;
+    cacheKey = `{resolve:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
       return cachedResults.get(cacheKey) as
         | string
-        | [any, string | null]
+        | [unknown, string | null]
         | null;
     }
   }
-  if (REG_FN_VAR.test(color)) {
+  if (REG_FN_VAR.test(value)) {
     if (format === VAL_SPEC) {
       if (cacheKey) {
-        cachedResults.set(cacheKey, color);
+        cachedResults.set(cacheKey, value);
       }
-      return color;
+      return value;
     }
-    const resolvedColor = cssVar(color, opt);
-    if (resolvedColor) {
-      color = resolvedColor;
+    const resolvedValue = cssVar(value, opt);
+    if (resolvedValue) {
+      value = resolvedValue;
     } else {
       switch (format) {
         case 'hex':
@@ -144,13 +144,13 @@ export const resolve = (
   if (opt.format !== format) {
     opt.format = format;
   }
-  color = color.toLowerCase();
-  if (REG_FN_REL.test(color)) {
-    const resolvedColor = resolveRelativeColor(color, opt);
+  value = value.toLowerCase();
+  if (REG_FN_REL.test(value)) {
+    const resolvedValue = resolveRelativeColor(value, opt);
     if (format === VAL_COMP) {
       let res = '';
-      if (resolvedColor) {
-        res = resolvedColor;
+      if (resolvedValue) {
+        res = resolvedValue;
       } else {
         res = RGB_TRANSPARENT;
       }
@@ -161,8 +161,8 @@ export const resolve = (
     }
     if (format === VAL_SPEC) {
       let res = '';
-      if (resolvedColor) {
-        res = resolvedColor;
+      if (resolvedValue) {
+        res = resolvedValue;
       } else {
         res = '';
       }
@@ -171,27 +171,27 @@ export const resolve = (
       }
       return res;
     }
-    if (resolvedColor) {
-      color = resolvedColor;
+    if (resolvedValue) {
+      value = resolvedValue;
     } else {
-      color = '';
+      value = '';
     }
   }
-  if (REG_FN_CALC.test(color)) {
-    color = cssCalc(color, opt);
+  if (REG_FN_CALC.test(value)) {
+    value = cssCalc(value, opt);
   }
   let cs = '';
   let r = NaN;
   let g = NaN;
   let b = NaN;
   let alpha = NaN;
-  if (color === 'transparent') {
+  if (value === 'transparent') {
     switch (format) {
       case VAL_SPEC: {
         if (cacheKey) {
-          cachedResults.set(cacheKey, color);
+          cachedResults.set(cacheKey, value);
         }
-        return color;
+        return value;
       }
       case 'hex': {
         if (cacheKey) {
@@ -215,12 +215,12 @@ export const resolve = (
         return res;
       }
     }
-  } else if (color === 'currentcolor') {
+  } else if (value === 'currentcolor') {
     if (format === VAL_SPEC) {
       if (cacheKey) {
-        cachedResults.set(cacheKey, color);
+        cachedResults.set(cacheKey, value);
       }
-      return color;
+      return value;
     }
     if (currentColor) {
       if (currentColor.startsWith(FN_MIX)) {
@@ -247,15 +247,15 @@ export const resolve = (
       return res;
     }
   } else if (format === VAL_SPEC) {
-    if (color.startsWith(FN_MIX)) {
-      const res = resolveColorMix(color, opt) as string;
+    if (value.startsWith(FN_MIX)) {
+      const res = resolveColorMix(value, opt) as string;
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
-    } else if (color.startsWith(FN_COLOR)) {
+    } else if (value.startsWith(FN_COLOR)) {
       const [scs, rr, gg, bb, aa] = resolveColorFunc(
-        color,
+        value,
         opt
       ) as SpecifiedColorChannels;
       let res = '';
@@ -269,7 +269,7 @@ export const resolve = (
       }
       return res;
     } else {
-      const rgb = resolveColorValue(color, opt);
+      const rgb = resolveColorValue(value, opt);
       if (!rgb) {
         const res = '';
         if (cacheKey) {
@@ -295,37 +295,37 @@ export const resolve = (
       }
       return res;
     }
-  } else if (/currentcolor/.test(color)) {
+  } else if (/currentcolor/.test(value)) {
     if (currentColor) {
-      color = color.replace(/currentcolor/g, currentColor);
+      value = value.replace(/currentcolor/g, currentColor);
     }
-    if (/transparent/.test(color)) {
-      color = color.replace(/transparent/g, RGB_TRANSPARENT);
+    if (/transparent/.test(value)) {
+      value = value.replace(/transparent/g, RGB_TRANSPARENT);
     }
-    if (color.startsWith(FN_MIX)) {
+    if (value.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(
-        color,
+        value,
         opt
       ) as ComputedColorChannels;
     }
-  } else if (/transparent/.test(color)) {
-    color = color.replace(/transparent/g, RGB_TRANSPARENT);
-    if (color.startsWith(FN_MIX)) {
+  } else if (/transparent/.test(value)) {
+    value = value.replace(/transparent/g, RGB_TRANSPARENT);
+    if (value.startsWith(FN_MIX)) {
       [cs, r, g, b, alpha] = resolveColorMix(
-        color,
+        value,
         opt
       ) as ComputedColorChannels;
     }
-  } else if (color.startsWith(FN_MIX)) {
-    [cs, r, g, b, alpha] = resolveColorMix(color, opt) as ComputedColorChannels;
-  } else if (color.startsWith(FN_COLOR)) {
+  } else if (value.startsWith(FN_MIX)) {
+    [cs, r, g, b, alpha] = resolveColorMix(value, opt) as ComputedColorChannels;
+  } else if (value.startsWith(FN_COLOR)) {
     [cs, r, g, b, alpha] = resolveColorFunc(
-      color,
+      value,
       opt
     ) as ComputedColorChannels;
-  } else if (color) {
+  } else if (value) {
     [cs, r, g, b, alpha] = resolveColorValue(
-      color,
+      value,
       opt
     ) as ComputedColorChannels;
   }

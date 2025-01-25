@@ -314,80 +314,84 @@ export function extractOriginColor(
         const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
         channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
       }
-      value = value.replace(restValue!, channelValue);
+      if (restValue !== channelValue) {
+        value = value.replace(restValue, channelValue);
+      }
     }
     // nested relative color
   } else {
     const [, restValue = ''] = value.split(REG_FN_REL_START);
-    if (REG_FN_REL_START.test(restValue)) {
-      const tokens = tokenize({ css: restValue });
-      const originColor: string[] = [];
-      let nest = 0;
-      while (tokens.length) {
-        const token = tokens.shift();
-        const [type = '', tokenValue = ''] = token as [TokenType, string];
-        switch (type) {
-          case FUNC:
-          case PAREN_OPEN: {
-            originColor.push(tokenValue);
-            nest++;
-            break;
-          }
-          case PAREN_CLOSE: {
-            const lastValue = originColor[originColor.length - 1] ?? '';
-            if (lastValue === ' ') {
-              originColor.splice(-1, 1, tokenValue);
-            } else {
-              originColor.push(tokenValue);
-            }
-            nest--;
-            break;
-          }
-          case W_SPACE: {
-            const lastValue = originColor[originColor.length - 1] ?? '';
-            if (!lastValue.endsWith('(') && lastValue !== ' ') {
-              originColor.push(tokenValue);
-            }
-            break;
-          }
-          default: {
-            if (type !== COMMENT && type !== EOF) {
-              originColor.push(tokenValue);
-            }
-          }
-        }
-        if (nest === 0) {
+    const tokens = tokenize({ css: restValue });
+    const originColor: string[] = [];
+    let nest = 0;
+    while (tokens.length) {
+      const [type = '', tokenValue = ''] = tokens.shift() as [
+        TokenType,
+        string
+      ];
+      switch (type) {
+        case FUNC:
+        case PAREN_OPEN: {
+          originColor.push(tokenValue);
+          nest++;
           break;
         }
-      }
-      const resolvedOriginColor = resolveRelativeColor(
-        originColor.join('').trim(),
-        opt
-      );
-      if (!resolvedOriginColor) {
-        if (cacheKey) {
-          cachedResults.set(cacheKey, null!);
+        case PAREN_CLOSE: {
+          const lastValue = originColor[originColor.length - 1];
+          if (lastValue === ' ') {
+            originColor.splice(-1, 1, tokenValue);
+          } else if (isString(lastValue)) {
+            originColor.push(tokenValue);
+          }
+          nest--;
+          break;
         }
-        return null;
-      }
-      const channelValues = resolveColorChannels(tokens, opt) as
-        | string[]
-        | null;
-      if (!Array.isArray(channelValues)) {
-        if (cacheKey) {
-          cachedResults.set(cacheKey, null!);
+        case W_SPACE: {
+          const lastValue = originColor[originColor.length - 1];
+          if (
+            isString(lastValue) &&
+            !lastValue.endsWith('(') &&
+            lastValue !== ' '
+          ) {
+            originColor.push(tokenValue);
+          }
+          break;
         }
-        return null;
+        default: {
+          if (type !== COMMENT && type !== EOF) {
+            originColor.push(tokenValue);
+          }
+        }
       }
-      let channelValue: string;
-      if (channelValues.length === 3) {
-        channelValue = ` ${channelValues.join(' ')})`;
-      } else {
-        const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
-        channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
+      if (nest === 0) {
+        break;
       }
-      value = value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
     }
+    const resolvedOriginColor = resolveRelativeColor(
+      originColor.join('').trim(),
+      opt
+    );
+    if (!resolvedOriginColor) {
+      if (cacheKey) {
+        cachedResults.set(cacheKey, null!);
+      }
+      return null;
+    }
+    const channelValues = resolveColorChannels(tokens, opt) as string[] | null;
+    if (!Array.isArray(channelValues)) {
+      if (cacheKey) {
+        cachedResults.set(cacheKey, null!);
+      }
+      return null;
+    }
+    let channelValue: string;
+    if (channelValues.length === 3) {
+      channelValue = ` ${channelValues.join(' ')})`;
+    } else {
+      const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
+      channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
+    }
+    value = value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
   }
   if (cacheKey) {
     cachedResults.set(cacheKey, value);
