@@ -26,7 +26,7 @@ export default defineConfig({
     emptyOutDir: true,
     lib: {
       entry: 'src/index.ts',
-      fileName: () => '[name].min.js',
+      fileName: 'css-color.min.js',
       formats: ['es']
     },
     outDir: 'dist/browser',
