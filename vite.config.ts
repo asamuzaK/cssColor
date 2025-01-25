@@ -1,18 +1,20 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
 import { tanstackViteConfig } from '@tanstack/config/vite';
+import { defineConfig, mergeConfig } from 'vitest/config';
 import packageJson from './package.json';
 
 const config = defineConfig({
   test: {
-    name: packageJson.name,
-    dir: './test',
-    watch: false,
     coverage: {
       enabled: true,
       provider: 'istanbul',
       include: ['src/**/*']
     },
-    typecheck: { enabled: true }
+    dir: './test',
+    name: packageJson.name,
+    typecheck: {
+      enabled: true
+    },
+    watch: false
   }
 });
 

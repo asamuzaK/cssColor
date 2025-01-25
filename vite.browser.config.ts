@@ -1,5 +1,5 @@
 import esbuild from 'esbuild';
-import { defineConfig, Plugin } from 'vite';
+import { Plugin, defineConfig } from 'vite';
 
 const minifyBundle = (): Plugin => ({
   name: 'minify-bundle',
@@ -24,14 +24,12 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: true,
-    outDir: 'dist/browser',
     lib: {
       entry: 'src/index.ts',
-      formats: ['es'],
-      fileName: () => {
-        return '[name].min.js';
-      }
+      fileName: () => '[name].min.js',
+      formats: ['es']
     },
+    outDir: 'dist/browser',
     sourcemap: true
   }
 });
