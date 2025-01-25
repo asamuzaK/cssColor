@@ -13,7 +13,7 @@ import { colorToRgb } from './convert';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
 import { roundToPrecision, valueToJsonString } from './util';
-import type { ColorChannels, IOptions } from './typedef';
+import type { ColorChannels, Options } from './typedef';
 
 /* constants */
 import { NAMED_COLORS } from './color';
@@ -80,7 +80,7 @@ export const cachedResults = new LRUCache({
  */
 export function resolveColorChannels(
   tokens: CSSToken[],
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannel | null {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
@@ -233,7 +233,7 @@ export function resolveColorChannels(
  */
 export function extractOriginColor(
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): string | null {
   const {
     currentColor = '',
@@ -407,7 +407,7 @@ export function extractOriginColor(
  */
 export function resolveRelativeColor(
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): string | null {
   const { customProperty = {}, dimension = {}, format = '' } = opt;
   if (isString(value)) {

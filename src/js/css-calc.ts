@@ -8,7 +8,7 @@ import type { CSSToken } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { isString, isStringOrNumber } from './common';
 import { roundToPrecision, valueToJsonString } from './util';
-import type { IOptions } from './typedef';
+import type { Options } from './typedef';
 
 /* constants */
 import {
@@ -704,7 +704,7 @@ export const sortCalcValues = (
  * @param [opt] - options
  * @returns serialized value
  */
-export const serializeCalc = (value: string, opt: IOptions = {}): string => {
+export const serializeCalc = (value: string, opt: Options = {}): string => {
   const { customProperty = {}, dimension = {}, format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
@@ -764,7 +764,7 @@ export const serializeCalc = (value: string, opt: IOptions = {}): string => {
  */
 export const resolveDimension = (
   token: CSSToken,
-  opt: IOptions = {}
+  opt: Options = {}
 ): string | null => {
   if (!Array.isArray(token)) {
     throw new TypeError(`${token} is not an array.`);
@@ -802,7 +802,7 @@ export const resolveDimension = (
  */
 export const parseTokens = (
   tokens: CSSToken[],
-  opt: IOptions = {}
+  opt: Options = {}
 ): string[] => {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
@@ -883,7 +883,7 @@ export const parseTokens = (
  * @param [opt] - options
  * @returns resolved value
  */
-export const cssCalc = (value: string, opt: IOptions = {}): string => {
+export const cssCalc = (value: string, opt: Options = {}): string => {
   const { customProperty = {}, dimension = {}, format = '' } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {

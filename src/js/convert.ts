@@ -21,7 +21,7 @@ import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolve } from './resolve';
 import { valueToJsonString } from './util';
-import type { ColorChannels, ComputedColorChannels, IOptions } from './typedef';
+import type { ColorChannels, ComputedColorChannels, Options } from './typedef';
 
 /* constants */
 import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant';
@@ -44,7 +44,7 @@ export const cachedResults = new LRUCache({
  */
 export const preProcess = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -116,7 +116,7 @@ export const numberToHex = (value: number): string => {
  */
 export const colorToHex = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): string | null => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -161,7 +161,7 @@ export const colorToHex = (
  */
 export const colorToHsl = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -200,7 +200,7 @@ export const colorToHsl = (
  */
 export const colorToHwb = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -239,7 +239,7 @@ export const colorToHwb = (
  */
 export const colorToLab = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -277,7 +277,7 @@ export const colorToLab = (
  */
 export const colorToLch = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -315,7 +315,7 @@ export const colorToLch = (
  */
 export const colorToOklab = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -353,7 +353,7 @@ export const colorToOklab = (
  */
 export const colorToOklch = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -391,7 +391,7 @@ export const colorToOklch = (
  */
 export const colorToRgb = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -429,7 +429,7 @@ export const colorToRgb = (
  */
 export const colorToXyz = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
@@ -472,7 +472,7 @@ export const colorToXyz = (
  */
 export const colorToXyzD50 = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   opt.d50 = true;
   return colorToXyz(value, opt);

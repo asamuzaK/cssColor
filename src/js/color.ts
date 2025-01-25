@@ -11,7 +11,7 @@ import { interpolateHue, roundToPrecision } from './util';
 import type {
   ComputedColorChannels,
   ColorChannels,
-  IOptions,
+  Options,
   SpecifiedColorChannels
 } from './typedef';
 
@@ -1187,7 +1187,7 @@ export const convertHexToXyz = (value: string): ColorChannels => {
  */
 export const parseRgb = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -1256,7 +1256,7 @@ export const parseRgb = (
  */
 export const parseHsl = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1334,7 +1334,7 @@ export const parseHsl = (
  */
 export const parseHwb = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1413,7 +1413,7 @@ export const parseHwb = (
  */
 export const parseLab = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1508,7 +1508,7 @@ export const parseLab = (
  */
 export const parseLch = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1584,7 +1584,7 @@ export const parseLch = (
  */
 export const parseOklab = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1664,7 +1664,7 @@ export const parseOklab = (
  */
 export const parseOklch = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1749,7 +1749,7 @@ export const parseOklch = (
  */
 export const parseColorFunc = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.trim();
@@ -1904,7 +1904,7 @@ export const parseColorFunc = (
  */
 export const parseColorValue = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2056,7 +2056,7 @@ export const parseColorValue = (
  */
 export const resolveColorValue = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2163,7 +2163,7 @@ export const resolveColorValue = (
  */
 export const resolveColorFunc = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2266,7 +2266,7 @@ export const convertColorToLinearRgb = (
  */
 export const convertColorToRgb = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     value = value.trim();
@@ -2318,7 +2318,7 @@ export const convertColorToRgb = (
  */
 export const convertColorToXyz = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     value = value.trim();
@@ -2373,7 +2373,7 @@ export const convertColorToXyz = (
  */
 export const convertColorToHsl = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels | [number | string, number, number, number] => {
   if (isString(value)) {
     value = value.trim();
@@ -2423,7 +2423,7 @@ export const convertColorToHsl = (
  */
 export const convertColorToHwb = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels | [number | string, number, number, number] => {
   if (isString(value)) {
     value = value.trim();
@@ -2473,7 +2473,7 @@ export const convertColorToHwb = (
  */
 export const convertColorToLab = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     value = value.trim();
@@ -2522,7 +2522,7 @@ export const convertColorToLab = (
  */
 export const convertColorToLch = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels | [number, number, number | string, number] => {
   if (isString(value)) {
     value = value.trim();
@@ -2571,7 +2571,7 @@ export const convertColorToLch = (
  */
 export const convertColorToOklab = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels => {
   if (isString(value)) {
     value = value.trim();
@@ -2615,7 +2615,7 @@ export const convertColorToOklab = (
  */
 export const convertColorToOklch = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): ColorChannels | [number, number, number | string, number] => {
   if (isString(value)) {
     value = value.trim();
@@ -2659,7 +2659,7 @@ export const convertColorToOklch = (
  */
 export const resolveColorMix = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.toLowerCase().trim();

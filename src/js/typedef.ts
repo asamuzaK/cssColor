@@ -4,7 +4,7 @@
 
 /* type definitions */
 /**
- * @typedef IOptions - options
+ * @typedef Options - options
  * @property [alpha] - enable alpha
  * @property [colorSpace] - color space
  * @property [currentColor] - color for currentcolor
@@ -14,7 +14,7 @@
  * @property [format] - output format
  * @property [key] - key
  */
-export interface IOptions {
+export interface Options {
   alpha?: boolean;
   colorSpace?: string;
   currentColor?: string;

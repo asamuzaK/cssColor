@@ -16,7 +16,7 @@ import { resolveRelativeColor } from './relative-color';
 import { valueToJsonString } from './util';
 import type {
   ComputedColorChannels,
-  IOptions,
+  Options,
   SpecifiedColorChannels
 } from './typedef';
 
@@ -86,7 +86,7 @@ export const cachedResults = new LRUCache({
  */
 export const resolve = (
   value: string,
-  opt: IOptions = {}
+  opt: Options = {}
 ): string | [unknown, string | null] | null => {
   if (isString(value)) {
     value = value.trim();

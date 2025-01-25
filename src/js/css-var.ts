@@ -8,7 +8,7 @@ import { LRUCache } from 'lru-cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { isColor, valueToJsonString } from './util';
-import type { IOptions } from './typedef';
+import type { Options } from './typedef';
 
 /* constants */
 import { FN_VAR, SYN_FN_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
@@ -37,7 +37,7 @@ export const cachedResults = new LRUCache({
  */
 export function resolveCustomProperty(
   tokens: CSSToken[],
-  opt: IOptions = {}
+  opt: Options = {}
 ): [CSSToken[], string] {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
@@ -133,7 +133,7 @@ export function resolveCustomProperty(
  */
 export function parseTokens(
   tokens: CSSToken[],
-  opt: IOptions = {}
+  opt: Options = {}
 ): string[] | null {
   const res: string[] = [];
   while (tokens.length) {
@@ -191,7 +191,7 @@ export function parseTokens(
  * @param [opt] - options
  * @returns resolved value
  */
-export function cssVar(value: string, opt: IOptions = {}): string | null {
+export function cssVar(value: string, opt: Options = {}): string | null {
   const { dimension = {}, customProperty = {}, format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
