@@ -268,6 +268,9 @@ export class Calculator {
         }
       }
       if (!this.#hasPct && !this.#hasDim && !this.hasEtc) {
+        if (Number.isFinite(num)) {
+          num = roundToPrecision(num, HEX);
+        }
         value.push(num);
       }
     }
@@ -282,7 +285,7 @@ export class Calculator {
         }
       }
       if (Number.isFinite(num)) {
-        num = `${num}%`;
+        num = `${roundToPrecision(num, HEX)}%`;
       }
       if (!this.#hasDim && !this.hasEtc) {
         value.push(num);
@@ -323,16 +326,14 @@ export class Calculator {
               toCanonicalUnits: true
             });
           }
-        } else if (div) {
-          if (div.includes('*')) {
-            dim = calc(`calc(${num} / (${div}))`, {
-              toCanonicalUnits: true
-            });
-          } else {
-            dim = calc(`calc(${num} / ${div})`, {
-              toCanonicalUnits: true
-            });
-          }
+        } else if (div.includes('*')) {
+          dim = calc(`calc(${num} / (${div}))`, {
+            toCanonicalUnits: true
+          });
+        } else {
+          dim = calc(`calc(${num} / ${div})`, {
+            toCanonicalUnits: true
+          });
         }
         value.push(dim.replace(/^calc/, ''));
       } else {
@@ -544,9 +545,18 @@ export const sortCalcValues = (
     throw new Error(`Unexpected array length ${values.length}.`);
   }
   const start = values.shift();
+  if (!isString(start) || !start.endsWith('(')) {
+    throw new Error(`Unexpected token ${start}.`);
+  }
   const end = values.pop();
+  if (end !== ')') {
+    throw new Error(`Unexpected token ${end}.`);
+  }
   if (values.length === 1) {
     const [value] = values;
+    if (!isStringOrNumber(value)) {
+      throw new Error(`Unexpected token ${value}.`);
+    }
     return `${start}${value}${end}`;
   }
   const sortedValues = [];
@@ -555,57 +565,58 @@ export const sortCalcValues = (
   const l = values.length;
   for (let i = 0; i < l; i++) {
     const value = values[i];
-    if (isStringOrNumber(value)) {
-      if (value === '*' || value === '/') {
-        operator = value;
-      } else if (value === '+' || value === '-') {
-        const sortedValue = cal.multiply();
-        if (sortedValue) {
-          sortedValues.push(sortedValue, value);
-        }
-        cal.clear();
-        operator = '';
-      } else {
-        const numValue = Number(value);
-        const strValue = `${value}`;
-        switch (operator) {
-          case '/': {
-            if (Number.isFinite(numValue)) {
-              cal.hasNum = true;
-              cal.numMul.push(1 / numValue);
-            } else if (REG_TYPE_PCT.test(strValue)) {
-              const [, val = ''] = strValue.match(
-                REG_TYPE_PCT
-              ) as RegExpExecArray;
-              cal.hasPct = true;
-              cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
-            } else if (REG_TYPE_DIM.test(strValue)) {
-              cal.hasDim = true;
-              cal.dimDiv.push(strValue);
-            } else {
-              cal.hasEtc = true;
-              cal.etcDiv.push(strValue);
-            }
-            break;
+    if (!isStringOrNumber(value)) {
+      throw new Error(`Unexpected token ${value}.`);
+    }
+    if (value === '*' || value === '/') {
+      operator = value;
+    } else if (value === '+' || value === '-') {
+      const sortedValue = cal.multiply();
+      if (sortedValue) {
+        sortedValues.push(sortedValue, value);
+      }
+      cal.clear();
+      operator = '';
+    } else {
+      const numValue = Number(value);
+      const strValue = `${value}`;
+      switch (operator) {
+        case '/': {
+          if (Number.isFinite(numValue)) {
+            cal.hasNum = true;
+            cal.numMul.push(1 / numValue);
+          } else if (REG_TYPE_PCT.test(strValue)) {
+            const [, val = ''] = strValue.match(
+              REG_TYPE_PCT
+            ) as RegExpExecArray;
+            cal.hasPct = true;
+            cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
+          } else if (REG_TYPE_DIM.test(strValue)) {
+            cal.hasDim = true;
+            cal.dimDiv.push(strValue);
+          } else {
+            cal.hasEtc = true;
+            cal.etcDiv.push(strValue);
           }
-          case '*':
-          default: {
-            if (Number.isFinite(numValue)) {
-              cal.hasNum = true;
-              cal.numMul.push(numValue);
-            } else if (REG_TYPE_PCT.test(strValue)) {
-              const [, val = ''] = strValue.match(
-                REG_TYPE_PCT
-              ) as RegExpExecArray;
-              cal.hasPct = true;
-              cal.pctMul.push(Number(val));
-            } else if (REG_TYPE_DIM.test(strValue)) {
-              cal.hasDim = true;
-              cal.dimMul.push(strValue);
-            } else {
-              cal.hasEtc = true;
-              cal.etcMul.push(strValue);
-            }
+          break;
+        }
+        case '*':
+        default: {
+          if (Number.isFinite(numValue)) {
+            cal.hasNum = true;
+            cal.numMul.push(numValue);
+          } else if (REG_TYPE_PCT.test(strValue)) {
+            const [, val = ''] = strValue.match(
+              REG_TYPE_PCT
+            ) as RegExpExecArray;
+            cal.hasPct = true;
+            cal.pctMul.push(Number(val));
+          } else if (REG_TYPE_DIM.test(strValue)) {
+            cal.hasDim = true;
+            cal.dimMul.push(strValue);
+          } else {
+            cal.hasEtc = true;
+            cal.etcMul.push(strValue);
           }
         }
       }
@@ -725,7 +736,7 @@ export const serializeCalc = (value: string, opt: IOptions = {}): string => {
     .filter(v => v);
   let startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   while (startIndex) {
-    const endIndex = items.findIndex((item: any, index: number) => {
+    const endIndex = items.findIndex((item: unknown, index: number) => {
       return item === ')' && index > startIndex;
     });
     const slicedValues: string[] = items.slice(startIndex, endIndex + 1);

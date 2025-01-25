@@ -27,6 +27,11 @@ describe('resolve CSS variable', () => {
   });
 
   it('should get value', () => {
+    const res = func([[]]);
+    assert.deepEqual(res, [[], ''], 'result');
+  });
+
+  it('should get value', () => {
     const res = func([
       ['ident-token', '--foo'],
       [')-token', ')']
@@ -249,6 +254,26 @@ describe('resolve CSS variable', () => {
       {
         customProperty: {
           '--foo': 'var(--bar)',
+          '--bar': 'bar'
+        }
+      }
+    );
+    assert.deepEqual(res, [[[')-token', ')']], 'red'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      [
+        ['ident-token', '--foo'],
+        ['comma-token', ','],
+        ['whitespace-token', ' '],
+        ['ident-token', 'red'],
+        [')-token', ')'],
+        [')-token', ')']
+      ],
+      {
+        customProperty: {
+          '--foo': 'var(--bar)',
           '--bar': 'initial'
         }
       }
@@ -438,6 +463,11 @@ describe('parse tokens', () => {
   });
 
   it('should get value', () => {
+    const res = func([[]]);
+    assert.deepEqual(res, [''], 'result');
+  });
+
+  it('should get value', () => {
     const res = func([
       ['function-token', 'var('],
       ['ident-token', '--foo'],
@@ -451,6 +481,23 @@ describe('parse tokens', () => {
 
   it('should get value', () => {
     const res = func([
+      ['function-token', 'calc('],
+      ['whitespace-token', ' '],
+      ['function-token', 'var('],
+      ['ident-token', '--foo'],
+      ['comma-token', ','],
+      ['whitespace-token', ' '],
+      ['ident-token', 'red'],
+      [')-token', ')'],
+      ['whitespace-token', ' '],
+      [')-token', ')']
+    ]);
+    assert.deepEqual(res, ['calc(', 'red', ')'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func([
+      ['whitespace-token', ' '],
       ['function-token', 'calc('],
       ['whitespace-token', ' '],
       ['function-token', 'var('],

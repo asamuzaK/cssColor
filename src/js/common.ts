@@ -11,7 +11,7 @@ const TYPE_TO = -1;
  * @param o - object to check
  * @returns type of object
  */
-export const getType = (o: any): string =>
+export const getType = (o: unknown): string =>
   Object.prototype.toString.call(o).slice(TYPE_FROM, TYPE_TO);
 
 /**
@@ -19,7 +19,7 @@ export const getType = (o: any): string =>
  * @param o - object to check
  * @returns result
  */
-export const isString = (o: any): o is string =>
+export const isString = (o: unknown): o is string =>
   typeof o === 'string' || o instanceof String;
 
 /**
@@ -27,5 +27,5 @@ export const isString = (o: any): o is string =>
  * @param o - object to check
  * @returns result
  */
-export const isStringOrNumber = (o: any): boolean =>
+export const isStringOrNumber = (o: unknown): boolean =>
   isString(o) || typeof o === 'number';

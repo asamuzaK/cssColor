@@ -111,6 +111,12 @@ describe('calculator', () => {
 
   it('should sort values', () => {
     const cal = new Calculator();
+    const res = cal.sort();
+    assert.deepEqual(res, [], 'result');
+  });
+
+  it('should sort values', () => {
+    const cal = new Calculator();
     const res = cal.sort([1, -1, 3, 5, 2, 2, 4]);
     assert.deepEqual(res, [-1, 1, 2, 2, 3, 4, 5], 'result');
   });
@@ -149,6 +155,14 @@ describe('calculator', () => {
       '100% * (-10px * 10px / (-10px * 10px)) * alpha * b * g * r / (alpha * b * g * r)',
       'result'
     );
+  });
+
+  it('should multiply values', () => {
+    const cal = new Calculator();
+    cal.hasNum = true;
+    cal.numMul.push(10, 2, 1 / 3);
+    const res = cal.multiply();
+    assert.strictEqual(res, '6.66667', 'result');
   });
 
   it('should multiply values', () => {
@@ -642,6 +656,39 @@ describe('sort calc values', () => {
     );
   });
 
+  it('should throw', () => {
+    assert.throws(() => func(Array(3)), Error, 'Unexpected token undefined.');
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func(['(', null, null]),
+      Error,
+      'Unexpected token null.'
+    );
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func(['(', null, ')']),
+      Error,
+      'Unexpected token null.'
+    );
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func(['(', 1, null, ')']),
+      Error,
+      'Unexpected token null.'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func(['calc(', '', ')']);
+    assert.strictEqual(res, 'calc()', 'result');
+  });
+
   it('should get value', () => {
     const res = func(['calc(', 1, ')']);
     assert.strictEqual(res, 'calc(1)', 'result');
@@ -755,6 +802,27 @@ describe('serialize calc', () => {
   it('should get value', () => {
     const res = func('calc(1)');
     assert.strictEqual(res, 'calc(1)', 'result');
+
+    const res2 = func('calc(1)');
+    assert.strictEqual(res2, 'calc(1)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(1)', {
+      customProperty: {
+        callback: () => {}
+      },
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(1)', 'result');
+
+    const res2 = func('calc(1)', {
+      customProperty: {
+        callback: () => {}
+      },
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc(1)', 'result');
   });
 
   it('should get value', () => {
@@ -1225,6 +1293,12 @@ describe('parse tokens', () => {
   });
 
   it('should get value', () => {
+    const tokens = [[]];
+    const res = func(tokens);
+    assert.deepEqual(res, [''], 'result');
+  });
+
+  it('should get value', () => {
     const tokens = [
       ['whitespace-token', ' ', 12, 12, undefined],
       [')-token', ')', 66, 66, undefined],
@@ -1273,6 +1347,11 @@ describe('resolve CSS calc()', () => {
   it('should get value', () => {
     const res = func('foo');
     assert.strictEqual(res, 'foo', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc()');
+    assert.strictEqual(res, 'calc()', 'result');
   });
 
   it('should get value', () => {
@@ -1625,6 +1704,9 @@ describe('resolve CSS calc()', () => {
   it('should get value', () => {
     const res = func('min(1px, 2px)');
     assert.strictEqual(res, '1px', 'result');
+
+    const res2 = func('min(1px, 2px)');
+    assert.strictEqual(res2, '1px', 'result');
   });
 
   it('should get value', () => {
@@ -1632,5 +1714,26 @@ describe('resolve CSS calc()', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, 'calc(1px)', 'result');
+
+    const res2 = func('min(1px, 2px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc(1px)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('min(1px, 2px)', {
+      customProperty: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, '1px', 'result');
+
+    const res2 = func('min(1px, 2px)', {
+      customProperty: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, '1px', 'result');
   });
 });

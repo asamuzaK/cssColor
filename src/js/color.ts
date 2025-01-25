@@ -2843,11 +2843,11 @@ export const resolveColorMix = (
     } else if (colorA.startsWith(FN_COLOR)) {
       valueA = parseColorFunc(colorA, opt);
       if (Array.isArray(valueA)) {
-        const [v1, v2, v3, v4, v5] = [...valueA];
-        if (v5 === 1) {
-          valueA = `color(${v1} ${v2} ${v3} ${v4})`;
+        const [cs, v1, v2, v3, v4] = valueA;
+        if (v4 === 1) {
+          valueA = `color(${cs} ${v1} ${v2} ${v3})`;
         } else {
-          valueA = `color(${v1} ${v2} ${v3} ${v4} / ${v5})`;
+          valueA = `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
         }
       }
     } else {
@@ -2856,17 +2856,17 @@ export const resolveColorMix = (
         return valueA;
       }
       if (Array.isArray(valueA)) {
-        const [v1, v2, v3, v4, v5] = [...valueA];
-        if (v5 === 1) {
-          if (v1 === 'rgb') {
-            valueA = `${v1}(${v2}, ${v3}, ${v4})`;
+        const [cs, v1, v2, v3, v4] = valueA;
+        if (v4 === 1) {
+          if (cs === 'rgb') {
+            valueA = `${cs}(${v1}, ${v2}, ${v3})`;
           } else {
-            valueA = `${v1}(${v2} ${v3} ${v4})`;
+            valueA = `${cs}(${v1} ${v2} ${v3})`;
           }
-        } else if (v1 === 'rgb') {
-          valueA = `${v1}a(${v2}, ${v3}, ${v4}, ${v5})`;
+        } else if (cs === 'rgb') {
+          valueA = `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`;
         } else {
-          valueA = `${v1}(${v2} ${v3} ${v4} / ${v5})`;
+          valueA = `${cs}(${v1} ${v2} ${v3} / ${v4})`;
         }
       }
     }
@@ -2875,11 +2875,11 @@ export const resolveColorMix = (
     } else if (colorB.startsWith(FN_COLOR)) {
       valueB = parseColorFunc(colorB, opt);
       if (Array.isArray(valueB)) {
-        const [v1, v2, v3, v4, v5] = [...valueB];
-        if (v5 === 1) {
-          valueB = `color(${v1} ${v2} ${v3} ${v4})`;
+        const [cs, v1, v2, v3, v4] = valueB;
+        if (v4 === 1) {
+          valueB = `color(${cs} ${v1} ${v2} ${v3})`;
         } else {
-          valueB = `color(${v1} ${v2} ${v3} ${v4} / ${v5})`;
+          valueB = `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
         }
       }
     } else {
@@ -2888,17 +2888,17 @@ export const resolveColorMix = (
         return valueB;
       }
       if (Array.isArray(valueB)) {
-        const [v1, v2, v3, v4, v5] = [...valueB];
-        if (v5 === 1) {
-          if (v1 === 'rgb') {
-            valueB = `${v1}(${v2}, ${v3}, ${v4})`;
+        const [cs, v1, v2, v3, v4] = [...valueB];
+        if (v4 === 1) {
+          if (cs === 'rgb') {
+            valueB = `${cs}(${v1}, ${v2}, ${v3})`;
           } else {
-            valueB = `${v1}(${v2} ${v3} ${v4})`;
+            valueB = `${cs}(${v1} ${v2} ${v3})`;
           }
-        } else if (v1 === 'rgb') {
-          valueB = `${v1}a(${v2}, ${v3}, ${v4}, ${v5})`;
+        } else if (cs === 'rgb') {
+          valueB = `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`;
         } else {
-          valueB = `${v1}(${v2} ${v3} ${v4} / ${v5})`;
+          valueB = `${cs}(${v1} ${v2} ${v3} / ${v4})`;
         }
       }
     }
@@ -3145,85 +3145,6 @@ export const resolveColorMix = (
         alphaNone ? NONE : alpha * m
       ];
     }
-    // in lab, oklab
-  } else if (/^(?:ok)?lab$/.test(colorSpace)) {
-    let labA, labB;
-    if (colorSpace === 'lab') {
-      if (REG_CURRENT.test(colorA)) {
-        labA = [NONE, NONE, NONE, NONE];
-      } else {
-        labA = convertColorToLab(colorA, {
-          colorSpace,
-          format: VAL_MIX
-        });
-      }
-      if (REG_CURRENT.test(colorB)) {
-        labB = [NONE, NONE, NONE, NONE];
-      } else {
-        labB = convertColorToLab(colorB, {
-          colorSpace,
-          format: VAL_MIX
-        });
-      }
-    } else {
-      if (REG_CURRENT.test(colorA)) {
-        labA = [NONE, NONE, NONE, NONE];
-      } else {
-        labA = convertColorToOklab(colorA, {
-          colorSpace,
-          format: VAL_MIX
-        });
-      }
-      if (REG_CURRENT.test(colorB)) {
-        labB = [NONE, NONE, NONE, NONE];
-      } else {
-        labB = convertColorToOklab(colorB, {
-          colorSpace,
-          format: VAL_MIX
-        });
-      }
-    }
-    if (labA === null || labB === null) {
-      return ['rgb', 0, 0, 0, 0];
-    }
-    const [llA, aaA, bbA, alA] = labA;
-    const [llB, aaB, bbB, alB] = labB;
-    const lNone = llA === NONE && llB === NONE;
-    const aNone = aaA === NONE && aaB === NONE;
-    const bNone = bbA === NONE && bbB === NONE;
-    const alphaNone = alA === NONE && alB === NONE;
-    const [[lA, aA, bA, alphaA], [lB, aB, bB, alphaB]] =
-      normalizeColorComponents(
-        [llA, aaA, bbA, alA],
-        [llB, aaB, bbB, alB],
-        true
-      );
-    const factorA = alphaA * pA;
-    const factorB = alphaB * pB;
-    alpha = factorA + factorB;
-    let l, aO, bO;
-    if (alpha === 0) {
-      l = lA * pA + lB * pB;
-      aO = aA * pA + aB * pB;
-      bO = bA * pA + bB * pB;
-    } else {
-      l = (lA * factorA + lB * factorB) / alpha;
-      aO = (aA * factorA + aB * factorB) / alpha;
-      bO = (bA * factorA + bB * factorB) / alpha;
-      alpha = parseFloat(alpha.toFixed(3));
-    }
-    if (format === VAL_COMP) {
-      return [
-        colorSpace,
-        lNone ? NONE : roundToPrecision(l, HEX),
-        aNone ? NONE : roundToPrecision(aO, HEX),
-        bNone ? NONE : roundToPrecision(bO, HEX),
-        alphaNone ? NONE : alpha * m
-      ];
-    }
-    [, r, g, b] = resolveColorValue(
-      `${colorSpace}(${l} ${aO} ${bO})`
-    ) as ComputedColorChannels;
     // in lch, oklch
   } else if (/^(?:ok)?lch$/.test(colorSpace)) {
     let lchA, lchB;
@@ -3303,6 +3224,85 @@ export const resolveColorMix = (
     }
     [, r, g, b] = resolveColorValue(
       `${colorSpace}(${l} ${c} ${h})`
+    ) as ComputedColorChannels;
+    // in lab, oklab
+  } else {
+    let labA, labB;
+    if (colorSpace === 'lab') {
+      if (REG_CURRENT.test(colorA)) {
+        labA = [NONE, NONE, NONE, NONE];
+      } else {
+        labA = convertColorToLab(colorA, {
+          colorSpace,
+          format: VAL_MIX
+        });
+      }
+      if (REG_CURRENT.test(colorB)) {
+        labB = [NONE, NONE, NONE, NONE];
+      } else {
+        labB = convertColorToLab(colorB, {
+          colorSpace,
+          format: VAL_MIX
+        });
+      }
+    } else {
+      if (REG_CURRENT.test(colorA)) {
+        labA = [NONE, NONE, NONE, NONE];
+      } else {
+        labA = convertColorToOklab(colorA, {
+          colorSpace,
+          format: VAL_MIX
+        });
+      }
+      if (REG_CURRENT.test(colorB)) {
+        labB = [NONE, NONE, NONE, NONE];
+      } else {
+        labB = convertColorToOklab(colorB, {
+          colorSpace,
+          format: VAL_MIX
+        });
+      }
+    }
+    if (labA === null || labB === null) {
+      return ['rgb', 0, 0, 0, 0];
+    }
+    const [llA, aaA, bbA, alA] = labA;
+    const [llB, aaB, bbB, alB] = labB;
+    const lNone = llA === NONE && llB === NONE;
+    const aNone = aaA === NONE && aaB === NONE;
+    const bNone = bbA === NONE && bbB === NONE;
+    const alphaNone = alA === NONE && alB === NONE;
+    const [[lA, aA, bA, alphaA], [lB, aB, bB, alphaB]] =
+      normalizeColorComponents(
+        [llA, aaA, bbA, alA],
+        [llB, aaB, bbB, alB],
+        true
+      );
+    const factorA = alphaA * pA;
+    const factorB = alphaB * pB;
+    alpha = factorA + factorB;
+    let l, aO, bO;
+    if (alpha === 0) {
+      l = lA * pA + lB * pB;
+      aO = aA * pA + aB * pB;
+      bO = bA * pA + bB * pB;
+    } else {
+      l = (lA * factorA + lB * factorB) / alpha;
+      aO = (aA * factorA + aB * factorB) / alpha;
+      bO = (bA * factorA + bB * factorB) / alpha;
+      alpha = parseFloat(alpha.toFixed(3));
+    }
+    if (format === VAL_COMP) {
+      return [
+        colorSpace,
+        lNone ? NONE : roundToPrecision(l, HEX),
+        aNone ? NONE : roundToPrecision(aO, HEX),
+        bNone ? NONE : roundToPrecision(bO, HEX),
+        alphaNone ? NONE : alpha * m
+      ];
+    }
+    [, r, g, b] = resolveColorValue(
+      `${colorSpace}(${l} ${aO} ${bO})`
     ) as ComputedColorChannels;
   }
   return [

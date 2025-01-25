@@ -22,10 +22,10 @@ const REG_MIX = new RegExp(`${SYN_MIX}`);
  * @param value
  * @returns result
  */
-export const isColor = (value: any): boolean => {
+export const isColor = (value: unknown): boolean => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
-    if (value) {
+    if (value && isString(value)) {
       if (/^[a-z]+$/.test(value)) {
         if (
           /^(?:currentcolor|transparent)$/.test(value) ||
@@ -56,7 +56,7 @@ export const isColor = (value: any): boolean => {
  * @returns stringified value in JSON notation
  */
 export const valueToJsonString = (
-  value: any,
+  value: unknown,
   func: boolean = false
 ): string => {
   if (typeof value === 'undefined') {
