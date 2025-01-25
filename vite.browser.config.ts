@@ -9,7 +9,7 @@ const minifyBundle = (): Plugin => ({
         asset.code = (
           await esbuild.transform(asset.code, {
             minify: true,
-            legalComments: 'eof'
+            legalComments: 'inline'
           })
         ).code;
       }
