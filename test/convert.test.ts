@@ -18,14 +18,14 @@ describe('pre process', () => {
     convert.cachedResults.clear();
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func();
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func(' ');
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
   it('should get value as is', () => {
@@ -33,28 +33,28 @@ describe('pre process', () => {
     assert.strictEqual(res, 'foo', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)');
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)');
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)', {
       customProperty: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)', {
       customProperty: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {

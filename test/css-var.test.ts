@@ -453,13 +453,13 @@ describe('parse tokens', () => {
     custom.cachedResults.clear();
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func([
       ['function-token', 'var('],
       ['ident-token', '--foo'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res, null, 'result');
+    assert.deepEqual(res.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -559,12 +559,12 @@ describe('resolve CSS var()', () => {
     assert.strictEqual(res, 'var(--foo)', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)');
-    assert.deepEqual(res, null, 'result');
+    assert.deepEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)');
-    assert.deepEqual(res2, null, 'result');
+    assert.deepEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {

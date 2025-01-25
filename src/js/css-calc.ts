@@ -7,7 +7,7 @@ import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import type { CSSToken } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { isString, isStringOrNumber } from './common';
-import { roundToPrecision, valueToJsonString } from './util';
+import { NullObject, roundToPrecision, valueToJsonString } from './util';
 import type { Options } from './typedef';
 
 /* constants */
@@ -256,7 +256,7 @@ export class Calculator {
    * multiply values
    * @returns resolved value
    */
-  multiply(): string | null {
+  multiply(): string | NullObject {
     const value = [];
     let num;
     if (this.#hasNum) {
@@ -400,14 +400,14 @@ export class Calculator {
         }
       }
     }
-    return value.join(' ') || null;
+    return value.join(' ') || new NullObject();
   }
 
   /**
    * sum values
    * @returns resolved value
    */
-  sum(): string | null {
+  sum(): string | NullObject {
     const value = [];
     if (this.#hasNum) {
       let num = 0;
@@ -765,7 +765,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
 export const resolveDimension = (
   token: CSSToken,
   opt: Options = {}
-): string | null => {
+): string | NullObject => {
   if (!Array.isArray(token)) {
     throw new TypeError(`${token} is not an array.`);
   }
@@ -791,7 +791,7 @@ export const resolveDimension = (
       return `${relativeValue * pixelValue}px`;
     }
   }
-  return null;
+  return new NullObject();
 };
 
 /**
@@ -819,13 +819,16 @@ export const parseTokens = (
     const [type = '', value = ''] = token as [TokenType, string];
     switch (type) {
       case DIM: {
-        let resolvedValue;
         if (format === VAL_SPEC && !mathFunc.has(nest)) {
-          resolvedValue = value;
+          res.push(value);
         } else {
-          resolvedValue = resolveDimension(token, opt) ?? value;
+          const resolvedValue = resolveDimension(token, opt);
+          if (isString(resolvedValue)) {
+            res.push(resolvedValue);
+          } else {
+            res.push(value);
+          }
         }
-        res.push(resolvedValue);
         break;
       }
       case FUNC:

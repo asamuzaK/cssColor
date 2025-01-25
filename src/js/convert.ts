@@ -20,7 +20,7 @@ import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolve } from './resolve';
-import { valueToJsonString } from './util';
+import { NullObject, valueToJsonString } from './util';
 import type { ColorChannels, ComputedColorChannels, Options } from './typedef';
 
 /* constants */
@@ -45,14 +45,14 @@ export const cachedResults = new LRUCache({
 export const preProcess = (
   value: string,
   opt: Options = {}
-): string | null => {
+): string | NullObject => {
   if (isString(value)) {
     value = value.trim();
     if (!value) {
-      return null;
+      return new NullObject();
     }
   } else {
-    return null;
+    return new NullObject();
   }
   const { customProperty = {}, dimension = {} } = opt;
   let cacheKey = '';
@@ -62,19 +62,18 @@ export const preProcess = (
   ) {
     cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string | null;
+      return cachedResults.get(cacheKey) as string | NullObject;
     }
   }
   if (REG_FN_VAR.test(value)) {
     const resolvedValue = cssVar(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue;
-    } else {
+    if (resolvedValue instanceof NullObject) {
       if (cacheKey) {
-        cachedResults.set(cacheKey, null!);
+        cachedResults.set(cacheKey, resolvedValue);
       }
-      return null;
+      return resolvedValue;
     }
+    value = resolvedValue;
   }
   if (REG_FN_REL.test(value)) {
     value = resolveRelativeColor(value, opt) as string;
@@ -114,17 +113,13 @@ export const numberToHex = (value: number): string => {
  * @param [opt.alpha] - enable alpha channel
  * @returns #rrggbb | #rrggbbaa | null
  */
-export const colorToHex = (
-  value: string,
-  opt: Options = {}
-): string | null => {
+export const colorToHex = (value: string, opt: Options = {}): string | null => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
-      return null!;
+    if (resolvedValue instanceof NullObject) {
+      return null;
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -136,7 +131,11 @@ export const colorToHex = (
   ) {
     cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string | null;
+      const res = cachedResults.get(cacheKey);
+      if (isString(res)) {
+        return res;
+      }
+      return null;
     }
   }
   let hex;
@@ -147,10 +146,17 @@ export const colorToHex = (
     opt.format = 'hex';
     hex = resolve(value, opt);
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, hex!);
+  if (isString(hex)) {
+    if (cacheKey) {
+      cachedResults.set(cacheKey, hex);
+    }
+    return hex;
   }
-  return hex as string | null;
+  const nullObj = new NullObject();
+  if (cacheKey) {
+    cachedResults.set(cacheKey, nullObj);
+  }
+  return null;
 };
 
 /**
@@ -159,17 +165,13 @@ export const colorToHex = (
  * @param [opt] - options
  * @returns ColorChannels - [h, s, l, alpha]
  */
-export const colorToHsl = (
-  value: string,
-  opt: Options = {}
-): ColorChannels => {
+export const colorToHsl = (value: string, opt: Options = {}): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -198,17 +200,13 @@ export const colorToHsl = (
  * @param [opt] - options
  * @returns ColorChannels - [h, w, b, alpha]
  */
-export const colorToHwb = (
-  value: string,
-  opt: Options = {}
-): ColorChannels => {
+export const colorToHwb = (value: string, opt: Options = {}): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -237,17 +235,13 @@ export const colorToHwb = (
  * @param [opt] - options
  * @returns ColorChannels - [l, a, b, alpha]
  */
-export const colorToLab = (
-  value: string,
-  opt: Options = {}
-): ColorChannels => {
+export const colorToLab = (value: string, opt: Options = {}): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -262,7 +256,7 @@ export const colorToLab = (
       return cachedResults.get(cacheKey) as ColorChannels;
     }
   }
-  const lab = convertColorToLab(value, opt);
+  const lab = convertColorToLab(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, lab);
   }
@@ -275,17 +269,13 @@ export const colorToLab = (
  * @param [opt] - options
  * @returns ColorChannels - [l, c, h, alpha]
  */
-export const colorToLch = (
-  value: string,
-  opt: Options = {}
-): ColorChannels => {
+export const colorToLch = (value: string, opt: Options = {}): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -319,11 +309,10 @@ export const colorToOklab = (
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -338,7 +327,7 @@ export const colorToOklab = (
       return cachedResults.get(cacheKey) as ColorChannels;
     }
   }
-  const lab = convertColorToOklab(value, opt);
+  const lab = convertColorToOklab(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, lab);
   }
@@ -357,11 +346,10 @@ export const colorToOklch = (
 ): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -389,17 +377,13 @@ export const colorToOklch = (
  * @param [opt] - options
  * @returns ColorChannels - [r, g, b, alpha]
  */
-export const colorToRgb = (
-  value: string,
-  opt: Options = {}
-): ColorChannels => {
+export const colorToRgb = (value: string, opt: Options = {}): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -414,7 +398,7 @@ export const colorToRgb = (
       return cachedResults.get(cacheKey) as ColorChannels;
     }
   }
-  const rgb = convertColorToRgb(value, opt);
+  const rgb = convertColorToRgb(value, opt) as ColorChannels;
   if (cacheKey) {
     cachedResults.set(cacheKey, rgb);
   }
@@ -427,17 +411,13 @@ export const colorToRgb = (
  * @param [opt] - options
  * @returns ColorChannels - [x, y, z, alpha]
  */
-export const colorToXyz = (
-  value: string,
-  opt: Options = {}
-): ColorChannels => {
+export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   if (isString(value)) {
     const resolvedValue = preProcess(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue.toLowerCase();
-    } else {
+    if (resolvedValue instanceof NullObject) {
       return [0, 0, 0, 0];
     }
+    value = resolvedValue.toLowerCase();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }

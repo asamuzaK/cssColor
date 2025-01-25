@@ -27,14 +27,14 @@ describe('resolve relative color channels', () => {
     assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const css = ' r g b / alpha)';
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'lab',
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -98,36 +98,36 @@ describe('extract origin color', () => {
     relColor.cachedResults.clear();
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func();
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func(' ');
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue',
@@ -135,29 +135,29 @@ describe('extract origin color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
       format: 'specifiedValue',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
       format: 'specifiedValue',
@@ -165,14 +165,14 @@ describe('extract origin color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'foo'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -180,28 +180,28 @@ describe('extract origin color', () => {
     assert.strictEqual(res, 'rebeccapurple', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from currentColor r g b)');
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from currentColor r g b)');
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from currentColor r g b)', {
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from currentColor r g b)', {
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -234,26 +234,26 @@ describe('extract origin color', () => {
     assert.strictEqual(res2, 'rgb(from rebeccapurple r g b)', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb(from foo r g b)'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb(from foo r g b)'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb(from foo r g b)',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from currentColor r g b)', {
       currentColor: 'rgb(from foo r g b)',
@@ -261,7 +261,7 @@ describe('extract origin color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -707,27 +707,27 @@ describe('resolve relative color', () => {
     );
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)');
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from rebeccapurple l a b)');
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('rgb(from rebeccapurple l a b)', {
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 });

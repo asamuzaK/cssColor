@@ -13,7 +13,7 @@ import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
-import { valueToJsonString } from './util';
+import { NullObject, valueToJsonString } from './util';
 import type {
   ComputedColorChannels,
   Options,
@@ -84,10 +84,7 @@ export const cachedResults = new LRUCache({
  *   - in `hexAlpha`, returns `#00000000` for `transparent`,
  *     however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
  */
-export const resolve = (
-  value: string,
-  opt: Options = {}
-): string | [unknown, string | null] | null => {
+export const resolve = (value: string, opt: Options = {}): string | null => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -106,10 +103,11 @@ export const resolve = (
   ) {
     cacheKey = `{resolve:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as
-        | string
-        | [unknown, string | null]
-        | null;
+      const res = cachedResults.get(cacheKey);
+      if (isString(res)) {
+        return res;
+      }
+      return null;
     }
   }
   if (REG_FN_VAR.test(value)) {
@@ -120,14 +118,13 @@ export const resolve = (
       return value;
     }
     const resolvedValue = cssVar(value, opt);
-    if (resolvedValue) {
-      value = resolvedValue;
-    } else {
+    if (resolvedValue instanceof NullObject) {
       switch (format) {
         case 'hex':
         case 'hexAlpha': {
+          const nullObj = new NullObject();
           if (cacheKey) {
-            cachedResults.set(cacheKey, null!);
+            cachedResults.set(cacheKey, nullObj);
           }
           return null;
         }
@@ -139,6 +136,8 @@ export const resolve = (
           return res;
         }
       }
+    } else {
+      value = resolvedValue;
     }
   }
   if (opt.format !== format) {
@@ -149,10 +148,10 @@ export const resolve = (
     const resolvedValue = resolveRelativeColor(value, opt);
     if (format === VAL_COMP) {
       let res = '';
-      if (resolvedValue) {
-        res = resolvedValue;
-      } else {
+      if (resolvedValue instanceof NullObject) {
         res = RGB_TRANSPARENT;
+      } else {
+        res = resolvedValue;
       }
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
@@ -161,20 +160,20 @@ export const resolve = (
     }
     if (format === VAL_SPEC) {
       let res = '';
-      if (resolvedValue) {
-        res = resolvedValue;
-      } else {
+      if (resolvedValue instanceof NullObject) {
         res = '';
+      } else {
+        res = resolvedValue;
       }
       if (cacheKey) {
         cachedResults.set(cacheKey, res);
       }
       return res;
     }
-    if (resolvedValue) {
-      value = resolvedValue;
-    } else {
+    if (resolvedValue instanceof NullObject) {
       value = '';
+    } else {
+      value = resolvedValue;
     }
   }
   if (REG_FN_CALC.test(value)) {
@@ -194,8 +193,9 @@ export const resolve = (
         return value;
       }
       case 'hex': {
+        const nullObj = new NullObject();
         if (cacheKey) {
-          cachedResults.set(cacheKey, null!);
+          cachedResults.set(cacheKey, nullObj);
         }
         return null;
       }
@@ -339,8 +339,9 @@ export const resolve = (
         Number.isNaN(alpha) ||
         alpha === 0
       ) {
+        const nullObj = new NullObject();
         if (cacheKey) {
-          cachedResults.set(cacheKey, null!);
+          cachedResults.set(cacheKey, nullObj);
         }
         return null;
       }
@@ -354,8 +355,9 @@ export const resolve = (
         Number.isNaN(b) ||
         Number.isNaN(alpha)
       ) {
+        const nullObj = new NullObject();
         if (cacheKey) {
-          cachedResults.set(cacheKey, null!);
+          cachedResults.set(cacheKey, nullObj);
         }
         return null;
       }

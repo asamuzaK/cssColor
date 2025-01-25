@@ -7,7 +7,7 @@ import type { CSSToken } from '@csstools/css-tokenizer';
 import { LRUCache } from 'lru-cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
-import { isColor, valueToJsonString } from './util';
+import { NullObject, isColor, valueToJsonString } from './util';
 import type { Options } from './typedef';
 
 /* constants */
@@ -88,7 +88,7 @@ export function resolveCustomProperty(
     if (REG_FN_VAR.test(item)) {
       // recurse cssVar()
       const resolvedItem = cssVar(item, opt);
-      if (resolvedItem) {
+      if (isString(resolvedItem)) {
         if (resolveAsColor) {
           if (isColor(resolvedItem)) {
             resolvedValue = resolvedItem;
@@ -134,7 +134,7 @@ export function resolveCustomProperty(
 export function parseTokens(
   tokens: CSSToken[],
   opt: Options = {}
-): string[] | null {
+): string[] | NullObject {
   const res: string[] = [];
   while (tokens.length) {
     const token = tokens.shift();
@@ -142,7 +142,7 @@ export function parseTokens(
     if (value === FN_VAR) {
       const [restTokens, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
-        return null;
+        return new NullObject();
       }
       tokens = restTokens;
       res.push(resolvedValue);
@@ -191,7 +191,7 @@ export function parseTokens(
  * @param [opt] - options
  * @returns resolved value
  */
-export function cssVar(value: string, opt: Options = {}): string | null {
+export function cssVar(value: string, opt: Options = {}): string | NullObject {
   const { dimension = {}, customProperty = {}, format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
@@ -208,7 +208,7 @@ export function cssVar(value: string, opt: Options = {}): string | null {
   ) {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string | null;
+      return cachedResults.get(cacheKey) as string | NullObject;
     }
   }
   const tokens = tokenize({ css: value });
@@ -223,9 +223,10 @@ export function cssVar(value: string, opt: Options = {}): string | null {
     }
     return color;
   } else {
+    const nullObj = new NullObject();
     if (cacheKey) {
-      cachedResults.set(cacheKey, null!);
+      cachedResults.set(cacheKey, nullObj);
     }
-    return null;
+    return nullObj;
   }
 }

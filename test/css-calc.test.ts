@@ -131,10 +131,10 @@ describe('calculator', () => {
     );
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const cal = new Calculator();
     const res = cal.multiply();
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
   it('should multiply values', () => {
@@ -888,12 +888,12 @@ describe('resolve dimension', () => {
     assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func([]);
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100em',
@@ -907,10 +907,10 @@ describe('resolve dimension', () => {
       }
     ];
     const res = func(token);
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100em',
@@ -924,10 +924,10 @@ describe('resolve dimension', () => {
       }
     ];
     const res = func(token);
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100em',
@@ -941,7 +941,7 @@ describe('resolve dimension', () => {
       }
     ];
     const res = func(token);
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -1009,7 +1009,7 @@ describe('resolve dimension', () => {
     assert.strictEqual(res, '1200px', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100ch',
@@ -1029,10 +1029,10 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100ex',
@@ -1052,10 +1052,10 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100lh',
@@ -1075,10 +1075,10 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '10rch',
@@ -1098,10 +1098,10 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '10rex',
@@ -1121,10 +1121,10 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100rlh',
@@ -1144,10 +1144,10 @@ describe('resolve dimension', () => {
         vw: 10.26
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const token = [
       'dimension-token',
       '100em',
@@ -1163,7 +1163,7 @@ describe('resolve dimension', () => {
     const res = func(token, {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
   });
 });
 

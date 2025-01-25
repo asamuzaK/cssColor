@@ -7,7 +7,7 @@
  */
 
 import { isString } from './common';
-import { interpolateHue, roundToPrecision } from './util';
+import { NullObject, interpolateHue, roundToPrecision } from './util';
 import type {
   ComputedColorChannels,
   ColorChannels,
@@ -1183,12 +1183,12 @@ export const convertHexToXyz = (value: string): ColorChannels => {
  * parse rgb()
  * @param value - color value
  * @param [opt] - options
- * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
+ * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', NullObject
  */
 export const parseRgb = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
@@ -1199,7 +1199,7 @@ export const parseRgb = (
   if (!reg.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1252,12 +1252,12 @@ export const parseRgb = (
  * parse hsl()
  * @param value - color value
  * @param [opt] - options
- * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
+ * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', NullObject
  */
 export const parseHsl = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1268,7 +1268,7 @@ export const parseHsl = (
     switch (format) {
       case 'hsl':
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1330,12 +1330,12 @@ export const parseHsl = (
  * parse hwb()
  * @param value - color value
  * @param [opt] - options
- * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
+ * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', NullObject
  */
 export const parseHwb = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1346,7 +1346,7 @@ export const parseHwb = (
     switch (format) {
       case 'hwb':
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1409,12 +1409,12 @@ export const parseHwb = (
  * @param value - color value
  * @param [opt] - options
  * @returns parsed color
- *   - [xyz-d50, x, y, z, alpha], ['lab', l, a, b, alpha], '(empty)', null
+ *   - [xyz-d50, x, y, z, alpha], ['lab', l, a, b, alpha], '(empty)', NullObject
  */
 export const parseLab = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1424,7 +1424,7 @@ export const parseLab = (
   if (!REG_LAB.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1504,12 +1504,13 @@ export const parseLab = (
  * @param value - color value
  * @param [opt] - options
  * @returns parsed color
- *   - ['xyz-d50', x, y, z, alpha], ['lch', l, c, h, alpha], '(empty)', null
+ *   - ['xyz-d50', x, y, z, alpha], ['lch', l, c, h, alpha]
+ *   - '(empty)', NullObject
  */
 export const parseLch = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1519,7 +1520,7 @@ export const parseLch = (
   if (!REG_LCH.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1580,12 +1581,13 @@ export const parseLch = (
  * @param value - color value
  * @param [opt] - options
  * @returns parsed color
- *   - ['xyz-d65', x, y, z, alpha], ['oklab', l, a, b, alpha], '(empty)', null
+ *   - ['xyz-d65', x, y, z, alpha], ['oklab', l, a, b, alpha]
+ *   - '(empty)', NullObject
  */
 export const parseOklab = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1595,7 +1597,7 @@ export const parseOklab = (
   if (!REG_OKLAB.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1660,12 +1662,13 @@ export const parseOklab = (
  * @param value - color value
  * @param [opt] - options
  * @returns parsed color
- *   - ['xyz-d65', x, y, z, alpha], ['oklch', l, c, h, alpha], '(empty)', null
+ *   - ['xyz-d65', x, y, z, alpha], ['oklch', l, c, h, alpha]
+ *   - '(empty)', NullObject
  */
 export const parseOklch = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1675,7 +1678,7 @@ export const parseOklch = (
   if (!REG_OKLCH.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1745,12 +1748,13 @@ export const parseOklch = (
  * @param value - color value
  * @param [opt] - options
  * @returns parsed color
- *   - ['xyz-(d50|d65)', x, y, z, alpha], [cs, r, g, b, alpha], '(empty)', null
+ *   - ['xyz-(d50|d65)', x, y, z, alpha], [cs, r, g, b, alpha]
+ *   - '(empty)', NullObject
  */
 export const parseColorFunc = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -1760,7 +1764,7 @@ export const parseColorFunc = (
   if (!REG_FN_COLOR.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1900,12 +1904,12 @@ export const parseColorFunc = (
  * @param [opt] - options
  * @returns parsed color
  *   - ['xyz-(d50|d65)', x, y, z, alpha], ['rgb', r, g, b, alpha]
- *   - value, '(empty)', null
+ *   - value, '(empty)', NullObject
  */
 export const parseColorValue = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
@@ -1916,7 +1920,7 @@ export const parseColorValue = (
   if (!REG_COLOR.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -1969,7 +1973,7 @@ export const parseColorValue = (
         if (value === 'transparent') {
           return ['rgb', 0, 0, 0, 0];
         }
-        return null;
+        return new NullObject();
       }
     }
     // hex-color
@@ -2052,12 +2056,12 @@ export const parseColorValue = (
  * @param value - color value
  * @param [opt] - options
  * @returns resolved color
- *   - [cs, v1, v2, v3, alpha], value, '(empty)', null
+ *   - [cs, v1, v2, v3, alpha], value, '(empty)', NullObject
  */
 export const resolveColorValue = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
@@ -2068,7 +2072,7 @@ export const resolveColorValue = (
   if (!REG_COLOR.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -2109,7 +2113,7 @@ export const resolveColorValue = (
         if (value === 'transparent') {
           return ['rgb', 0, 0, 0, 0];
         }
-        return null;
+        return new NullObject();
       }
     }
     // hex-color
@@ -2159,12 +2163,12 @@ export const resolveColorValue = (
  * resolve color()
  * @param value - color value
  * @param [opt] - options
- * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', null
+ * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', NullObject
  */
 export const resolveColorFunc = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
@@ -2174,7 +2178,7 @@ export const resolveColorFunc = (
   if (!REG_FN_COLOR.test(value)) {
     switch (format) {
       case VAL_MIX: {
-        return null;
+        return new NullObject();
       }
       case VAL_SPEC: {
         return '';
@@ -2203,7 +2207,7 @@ export const resolveColorFunc = (
  * convert color value to linear rgb
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [r, g, b, alpha] r|g|b|alpha: 0..1
+ * @returns ColorChannels | NullObject - [r, g, b, alpha] r|g|b|alpha: 0..1
  */
 export const convertColorToLinearRgb = (
   value: string,
@@ -2211,7 +2215,7 @@ export const convertColorToLinearRgb = (
     colorSpace?: string;
     format?: string;
   } = {}
-): ColorChannels => {
+): ColorChannels | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2227,8 +2231,8 @@ export const convertColorToLinearRgb = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [cs, x, y, z, alpha] = xyz as ComputedColorChannels;
     if (cs === colorSpace) {
@@ -2262,12 +2266,13 @@ export const convertColorToLinearRgb = (
  * convert color value to rgb
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [r, g, b, alpha] r|g|b: 0..255 alpha: 0..1
+ * @returns ColorChannels | NullObject
+ *   - [r, g, b, alpha] r|g|b: 0..255 alpha: 0..1
  */
 export const convertColorToRgb = (
   value: string,
   opt: Options = {}
-): ColorChannels => {
+): ColorChannels | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2282,8 +2287,8 @@ export const convertColorToRgb = (
     } else {
       rgb = resolveColorValue(value, opt);
     }
-    if (rgb === null) {
-      return null!;
+    if (rgb instanceof NullObject) {
+      return rgb;
     }
     [, r, g, b, alpha] = rgb as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2300,7 +2305,7 @@ export const convertColorToRgb = (
       [, r, g, b, alpha] = resolveColorFunc(value) as ComputedColorChannels;
     }
   } else if (/^(?:ok)?l(?:ab|ch)/.test(value)) {
-    [r, g, b, alpha] = convertColorToLinearRgb(value);
+    [r, g, b, alpha] = convertColorToLinearRgb(value) as ColorChannels;
     [r, g, b] = transformLinearRgbToRgb([r, g, b]);
   } else {
     [, r, g, b, alpha] = resolveColorValue(value, {
@@ -2314,12 +2319,12 @@ export const convertColorToRgb = (
  * convert color value to xyz
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [x, y, z, alpha]
+ * @returns ColorChannels | NullObject - [x, y, z, alpha]
  */
 export const convertColorToXyz = (
   value: string,
   opt: Options = {}
-): ColorChannels => {
+): ColorChannels | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2334,8 +2339,8 @@ export const convertColorToXyz = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2369,12 +2374,12 @@ export const convertColorToXyz = (
  * convert color value to hsl
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [h, s, l, alpha], hue may be powerless
+ * @returns ColorChannels | NullObject - [h, s, l, alpha], hue may be powerless
  */
 export const convertColorToHsl = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number | string, number, number, number] => {
+): ColorChannels | [number | string, number, number, number] | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2399,8 +2404,8 @@ export const convertColorToHsl = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2419,12 +2424,12 @@ export const convertColorToHsl = (
  * convert color value to hwb
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [h, w, b, alpha], hue may be powerless
+ * @returns ColorChannels | NullObject - [h, w, b, alpha], hue may be powerless
  */
 export const convertColorToHwb = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number | string, number, number, number] => {
+): ColorChannels | [number | string, number, number, number] | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2449,8 +2454,8 @@ export const convertColorToHwb = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2469,12 +2474,12 @@ export const convertColorToHwb = (
  * convert color value to lab
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [l, a, b, alpha]
+ * @returns ColorChannels | NullObject - [l, a, b, alpha]
  */
 export const convertColorToLab = (
   value: string,
   opt: Options = {}
-): ColorChannels => {
+): ColorChannels | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2497,8 +2502,8 @@ export const convertColorToLab = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2518,12 +2523,12 @@ export const convertColorToLab = (
  * convert color value to lch
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [l, c, h, alpha], hue may be powerless
+ * @returns ColorChannels | NullObject - [l, c, h, alpha], hue may be powerless
  */
 export const convertColorToLch = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number, number, number | string, number] => {
+): ColorChannels | [number, number, number | string, number] | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2546,8 +2551,8 @@ export const convertColorToLch = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2567,12 +2572,12 @@ export const convertColorToLch = (
  * convert color value to oklab
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [l, a, b, alpha]
+ * @returns ColorChannels | NullObject - [l, a, b, alpha]
  */
 export const convertColorToOklab = (
   value: string,
   opt: Options = {}
-): ColorChannels => {
+): ColorChannels | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2594,8 +2599,8 @@ export const convertColorToOklab = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2611,12 +2616,12 @@ export const convertColorToOklab = (
  * convert color value to oklch
  * @param value - color value
  * @param [opt] - options
- * @returns ColorChannels - [l, c, h, alpha], hue may be powerless
+ * @returns ColorChannels | NullObject - [l, c, h, alpha], hue may be powerless
  */
 export const convertColorToOklch = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number, number, number | string, number] => {
+): ColorChannels | [number, number, number | string, number] | NullObject => {
   if (isString(value)) {
     value = value.trim();
   } else {
@@ -2638,8 +2643,8 @@ export const convertColorToOklch = (
     } else {
       xyz = parseColorValue(value, opt);
     }
-    if (xyz === null) {
-      return null!;
+    if (xyz instanceof NullObject) {
+      return xyz;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
@@ -2655,12 +2660,12 @@ export const convertColorToOklch = (
  * resolve color-mix()
  * @param value - color value
  * @param [opt] - options
- * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', null
+ * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', NullObject
  */
 export const resolveColorMix = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | null => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
@@ -2964,7 +2969,7 @@ export const resolveColorMix = (
         });
       }
     }
-    if (rgbA === null || rgbB === null) {
+    if (rgbA instanceof NullObject || rgbB instanceof NullObject) {
       return ['rgb', 0, 0, 0, 0];
     }
     const [rrA, ggA, bbA, aaA] = rgbA as NumStrColorChannels;
@@ -3025,7 +3030,7 @@ export const resolveColorMix = (
         format: VAL_MIX
       });
     }
-    if (xyzA === null || xyzB === null) {
+    if (xyzA instanceof NullObject || xyzB instanceof NullObject) {
       return ['rgb', 0, 0, 0, 0];
     }
     const [xxA, yyA, zzA, aaA] = xyzA;
@@ -3106,7 +3111,7 @@ export const resolveColorMix = (
         });
       }
     }
-    if (hslA === null || hslB === null) {
+    if (hslA instanceof NullObject || hslB instanceof NullObject) {
       return ['rgb', 0, 0, 0, 0];
     }
     const [hhA, ssA, llA, aaA] = hslA;
@@ -3183,7 +3188,7 @@ export const resolveColorMix = (
         });
       }
     }
-    if (lchA === null || lchB === null) {
+    if (lchA instanceof NullObject || lchB instanceof NullObject) {
       return ['rgb', 0, 0, 0, 0];
     }
     const [llA, ccA, hhA, aaA] = lchA;
@@ -3263,7 +3268,7 @@ export const resolveColorMix = (
         });
       }
     }
-    if (labA === null || labB === null) {
+    if (labA instanceof NullObject || labB instanceof NullObject) {
       return ['rgb', 0, 0, 0, 0];
     }
     const [llA, aaA, bbA, alA] = labA;
