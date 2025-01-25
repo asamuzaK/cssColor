@@ -10,18 +10,18 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2023"],
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "esnext"],
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": false, // TODO enable
+    "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2020"
+    "target": "es2022"
   },
   "include": ["src", "tests", "eslint.config.js", "vite.config.ts"]
 }
