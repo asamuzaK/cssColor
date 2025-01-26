@@ -8,7 +8,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 /* test */
 import * as csscalc from '../src/js/css-calc';
 
-describe('calculator', () => {
+describe('Calculator', () => {
   const { Calculator } = csscalc;
 
   it('should create instance', () => {
@@ -131,10 +131,10 @@ describe('calculator', () => {
     );
   });
 
-  it('should get null object', () => {
+  it('should get empty string', () => {
     const cal = new Calculator();
     const res = cal.multiply();
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should multiply values', () => {

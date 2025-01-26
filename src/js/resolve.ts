@@ -2,7 +2,7 @@
  * resolve
  */
 
-import { LRUCache } from 'lru-cache';
+import { CacheItem, LRUCache, NullObject } from './cache';
 import {
   convertRgbToHex,
   resolveColorFunc,
@@ -13,8 +13,8 @@ import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
-import { NullObject, valueToJsonString } from './util';
-import type {
+import { valueToJsonString } from './util';
+import {
   ComputedColorChannels,
   Options,
   SpecifiedColorChannels
@@ -103,17 +103,17 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
   ) {
     cacheKey = `{resolve:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      const res = cachedResults.get(cacheKey);
-      if (isString(res)) {
-        return res;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      if (cachedResult.isNull) {
+        return null;
       }
-      return null;
+      return cachedResult.item as string;
     }
   }
   if (REG_FN_VAR.test(value)) {
     if (format === VAL_SPEC) {
       if (cacheKey) {
-        cachedResults.set(cacheKey, value);
+        cachedResults.set(cacheKey, new CacheItem(value));
       }
       return value;
     }
@@ -122,16 +122,15 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
       switch (format) {
         case 'hex':
         case 'hexAlpha': {
-          const nullObj = new NullObject();
           if (cacheKey) {
-            cachedResults.set(cacheKey, nullObj);
+            cachedResults.set(cacheKey, resolvedValue);
           }
           return null;
         }
         default: {
           const res = RGB_TRANSPARENT;
           if (cacheKey) {
-            cachedResults.set(cacheKey, res);
+            cachedResults.set(cacheKey, new CacheItem(res));
           }
           return res;
         }
@@ -154,7 +153,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
         res = resolvedValue;
       }
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, new CacheItem(res));
       }
       return res;
     }
@@ -166,7 +165,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
         res = resolvedValue;
       }
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, new CacheItem(res));
       }
       return res;
     }
@@ -188,21 +187,20 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
     switch (format) {
       case VAL_SPEC: {
         if (cacheKey) {
-          cachedResults.set(cacheKey, value);
+          cachedResults.set(cacheKey, new CacheItem(value));
         }
         return value;
       }
       case 'hex': {
-        const nullObj = new NullObject();
         if (cacheKey) {
-          cachedResults.set(cacheKey, nullObj);
+          cachedResults.set(cacheKey, new NullObject());
         }
         return null;
       }
       case 'hexAlpha': {
         const res = '#00000000';
         if (cacheKey) {
-          cachedResults.set(cacheKey, res);
+          cachedResults.set(cacheKey, new CacheItem(res));
         }
         return res;
       }
@@ -210,7 +208,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
       default: {
         const res = RGB_TRANSPARENT;
         if (cacheKey) {
-          cachedResults.set(cacheKey, res);
+          cachedResults.set(cacheKey, new CacheItem(res));
         }
         return res;
       }
@@ -218,7 +216,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
   } else if (value === 'currentcolor') {
     if (format === VAL_SPEC) {
       if (cacheKey) {
-        cachedResults.set(cacheKey, value);
+        cachedResults.set(cacheKey, new CacheItem(value));
       }
       return value;
     }
@@ -242,7 +240,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
     } else if (format === VAL_COMP) {
       const res = RGB_TRANSPARENT;
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, new CacheItem(res));
       }
       return res;
     }
@@ -250,7 +248,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
     if (value.startsWith(FN_MIX)) {
       const res = resolveColorMix(value, opt) as string;
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, new CacheItem(res));
       }
       return res;
     } else if (value.startsWith(FN_COLOR)) {
@@ -265,7 +263,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
         res = `color(${scs} ${rr} ${gg} ${bb} / ${aa})`;
       }
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, new CacheItem(res));
       }
       return res;
     } else {
@@ -273,7 +271,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
       if (!rgb) {
         const res = '';
         if (cacheKey) {
-          cachedResults.set(cacheKey, res);
+          cachedResults.set(cacheKey, new CacheItem(res));
         }
         return res;
       }
@@ -291,7 +289,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
         res = `${scs}(${rr} ${gg} ${bb} / ${aa})`;
       }
       if (cacheKey) {
-        cachedResults.set(cacheKey, res);
+        cachedResults.set(cacheKey, new CacheItem(res));
       }
       return res;
     }
@@ -339,9 +337,8 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
         Number.isNaN(alpha) ||
         alpha === 0
       ) {
-        const nullObj = new NullObject();
         if (cacheKey) {
-          cachedResults.set(cacheKey, nullObj);
+          cachedResults.set(cacheKey, new NullObject());
         }
         return null;
       }
@@ -355,9 +352,8 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
         Number.isNaN(b) ||
         Number.isNaN(alpha)
       ) {
-        const nullObj = new NullObject();
         if (cacheKey) {
-          cachedResults.set(cacheKey, nullObj);
+          cachedResults.set(cacheKey, new NullObject());
         }
         return null;
       }
@@ -398,7 +394,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
     }
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, res);
+    cachedResults.set(cacheKey, new CacheItem(res));
   }
   return res;
 };

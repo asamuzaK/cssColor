@@ -18,25 +18,6 @@ const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_MIX = new RegExp(`${SYN_MIX}`);
 
 /**
- * null object
- */
-export class NullObject {
-  /* private */
-  #isNull;
-
-  /**
-   * constructor
-   */
-  constructor() {
-    this.#isNull = true;
-  }
-
-  get isNull() {
-    return !!this.#isNull;
-  }
-}
-
-/**
  * is color
  * @param value
  * @returns result
