@@ -2,13 +2,12 @@
  * css-var
  */
 
-import { TokenType, tokenize } from '@csstools/css-tokenizer';
-import type { CSSToken } from '@csstools/css-tokenizer';
-import { LRUCache } from 'lru-cache';
+import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
+import { CacheItem, LRUCache, NullObject } from './cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
-import { NullObject, isColor, valueToJsonString } from './util';
-import type { Options } from './typedef';
+import { isColor, valueToJsonString } from './util';
+import { Options } from './typedef';
 
 /* constants */
 import { FN_VAR, SYN_FN_CALC, SYN_FN_VAR, VAL_SPEC } from './constant';
@@ -208,7 +207,11 @@ export function cssVar(value: string, opt: Options = {}): string | NullObject {
   ) {
     cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string | NullObject;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      if (cachedResult.isNull) {
+        return cachedResult as NullObject;
+      }
+      return cachedResult.item as string;
     }
   }
   const tokens = tokenize({ css: value });
@@ -219,7 +222,7 @@ export function cssVar(value: string, opt: Options = {}): string | NullObject {
       color = cssCalc(color, opt);
     }
     if (cacheKey) {
-      cachedResults.set(cacheKey, color);
+      cachedResults.set(cacheKey, new CacheItem(color));
     }
     return color;
   } else {

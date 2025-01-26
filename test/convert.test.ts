@@ -91,9 +91,28 @@ describe('pre process', () => {
     assert.strictEqual(res, 'blue', 'result');
   });
 
-  it('should get value', () => {
-    const res = func('calc(1 / 2)');
-    assert.strictEqual(res, '0.5', 'result');
+  it('should get null', () => {
+    const res = func('rgb(from rebeccapurple l a b)');
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('rgb(from rebeccapurple l a b)');
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('rgb(from rebeccapurple l a b)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('rgb(from rebeccapurple l a b)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -113,6 +132,11 @@ describe('pre process', () => {
 
     const res3 = func('color-mix(in oklab, red, green)');
     assert.strictEqual(res3, 'oklab(0.573854 0.0422802 0.116761)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(1 / 2)');
+    assert.strictEqual(res, '0.5', 'result');
   });
 });
 
@@ -204,6 +228,30 @@ describe('convert color to hex', () => {
   it('should get null', () => {
     const res = func(' ');
     assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo');
+    assert.strictEqual(res, null, 'result');
+
+    const res2 = func('foo');
+    assert.strictEqual(res2, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, null, 'result');
+
+    const res2 = func('foo', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {

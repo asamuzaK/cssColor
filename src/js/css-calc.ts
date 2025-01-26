@@ -3,12 +3,11 @@
  */
 
 import { calc } from '@csstools/css-calc';
-import { TokenType, tokenize } from '@csstools/css-tokenizer';
-import type { CSSToken } from '@csstools/css-tokenizer';
-import { LRUCache } from 'lru-cache';
+import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
+import { CacheItem, LRUCache, NullObject } from './cache';
 import { isString, isStringOrNumber } from './common';
-import { NullObject, roundToPrecision, valueToJsonString } from './util';
-import type { Options } from './typedef';
+import { roundToPrecision, valueToJsonString } from './util';
+import { Options } from './typedef';
 
 /* constants */
 import {
@@ -49,7 +48,7 @@ export const cachedResults = new LRUCache({
 });
 
 /**
- * calclator
+ * Calclator
  */
 export class Calculator {
   /* private */
@@ -256,7 +255,7 @@ export class Calculator {
    * multiply values
    * @returns resolved value
    */
-  multiply(): string | NullObject {
+  multiply(): string {
     const value = [];
     let num;
     if (this.#hasNum) {
@@ -400,14 +399,17 @@ export class Calculator {
         }
       }
     }
-    return value.join(' ') || new NullObject();
+    if (value.length) {
+      return value.join(' ');
+    }
+    return '';
   }
 
   /**
    * sum values
    * @returns resolved value
    */
-  sum(): string | NullObject {
+  sum(): string {
     const value = [];
     if (this.#hasNum) {
       let num = 0;
@@ -527,7 +529,10 @@ export class Calculator {
         }
       }
     }
-    return value.join(' ');
+    if (value.length) {
+      return value.join(' ');
+    }
+    return '';
   }
 }
 
@@ -623,7 +628,9 @@ export const sortCalcValues = (
     }
     if (i === l - 1) {
       const sortedValue = cal.multiply();
-      sortedValues.push(sortedValue);
+      if (sortedValue) {
+        sortedValues.push(sortedValue);
+      }
       cal.clear();
       operator = '';
     }
@@ -686,7 +693,9 @@ export const sortCalcValues = (
       }
       if (i === l - 1) {
         const sortedValue = cal.sum();
-        finalizedValues.push(sortedValue);
+        if (sortedValue) {
+          finalizedValues.push(sortedValue);
+        }
         cal.clear();
         operator = '';
       }
@@ -721,7 +730,8 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   ) {
     cacheKey = `{serializeCalc:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as string;
     }
   }
   const items: string[] = tokenize({ css: value })
@@ -751,7 +761,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   }
   const serializedCalc = sortCalcValues(items, true);
   if (cacheKey) {
-    cachedResults.set(cacheKey, serializedCalc);
+    cachedResults.set(cacheKey, new CacheItem(serializedCalc));
   }
   return serializedCalc;
 };
@@ -910,7 +920,8 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   ) {
     cacheKey = `{cssCalc:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as string;
     }
   }
   const tokens = tokenize({ css: value });
@@ -935,7 +946,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     }
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, resolvedValue);
+    cachedResults.set(cacheKey, new CacheItem(resolvedValue));
   }
   return resolvedValue;
 };

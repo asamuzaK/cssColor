@@ -6,11 +6,12 @@
  *      https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
  */
 
+import { NullObject } from './cache';
 import { isString } from './common';
-import { NullObject, interpolateHue, roundToPrecision } from './util';
-import type {
-  ComputedColorChannels,
+import { interpolateHue, roundToPrecision } from './util';
+import {
   ColorChannels,
+  ComputedColorChannels,
   Options,
   SpecifiedColorChannels
 } from './typedef';

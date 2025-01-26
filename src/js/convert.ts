@@ -2,7 +2,7 @@
  * convert
  */
 
-import { LRUCache } from 'lru-cache';
+import { CacheItem, LRUCache, NullObject } from './cache';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -20,8 +20,8 @@ import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolve } from './resolve';
-import { NullObject, valueToJsonString } from './util';
-import type { ColorChannels, ComputedColorChannels, Options } from './typedef';
+import { valueToJsonString } from './util';
+import { ColorChannels, ComputedColorChannels, Options } from './typedef';
 
 /* constants */
 import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant';
@@ -62,21 +62,36 @@ export const preProcess = (
   ) {
     cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as string | NullObject;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      if (cachedResult.isNull) {
+        return cachedResult as NullObject;
+      }
+      return cachedResult.item as string;
     }
   }
   if (REG_FN_VAR.test(value)) {
     const resolvedValue = cssVar(value, opt);
-    if (resolvedValue instanceof NullObject) {
+    if (isString(resolvedValue)) {
+      value = resolvedValue;
+    } else {
+      const nullObj = new NullObject();
       if (cacheKey) {
-        cachedResults.set(cacheKey, resolvedValue);
+        cachedResults.set(cacheKey, nullObj);
       }
-      return resolvedValue;
+      return nullObj;
     }
-    value = resolvedValue;
   }
   if (REG_FN_REL.test(value)) {
-    value = resolveRelativeColor(value, opt) as string;
+    const resolvedValue = resolveRelativeColor(value, opt);
+    if (isString(resolvedValue)) {
+      value = resolvedValue;
+    } else {
+      const nullObj = new NullObject();
+      if (cacheKey) {
+        cachedResults.set(cacheKey, nullObj);
+      }
+      return nullObj;
+    }
   } else if (REG_FN_CALC.test(value)) {
     value = cssCalc(value, opt);
   }
@@ -86,7 +101,7 @@ export const preProcess = (
     }) as string;
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, value);
+    cachedResults.set(cacheKey, new CacheItem(value));
   }
   return value;
 };
@@ -99,10 +114,11 @@ export const preProcess = (
 export const numberToHex = (value: number): string => {
   const cacheKey = `{numberToHex:${value}}`;
   if (cachedResults.has(cacheKey)) {
-    return cachedResults.get(cacheKey) as string;
+    const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+    return cachedResult.item as string;
   }
   const hex = numberToHexString(value);
-  cachedResults.set(cacheKey, hex);
+  cachedResults.set(cacheKey, new CacheItem(hex));
   return hex;
 };
 
@@ -131,11 +147,11 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
   ) {
     cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      const res = cachedResults.get(cacheKey);
-      if (isString(res)) {
-        return res;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      if (cachedResult.isNull) {
+        return null;
       }
-      return null;
+      return cachedResult.item as string;
     }
   }
   let hex;
@@ -148,13 +164,12 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
   }
   if (isString(hex)) {
     if (cacheKey) {
-      cachedResults.set(cacheKey, hex);
+      cachedResults.set(cacheKey, new CacheItem(hex));
     }
     return hex;
   }
-  const nullObj = new NullObject();
   if (cacheKey) {
-    cachedResults.set(cacheKey, nullObj);
+    cachedResults.set(cacheKey, new NullObject());
   }
   return null;
 };
@@ -183,13 +198,14 @@ export const colorToHsl = (value: string, opt: Options = {}): ColorChannels => {
   ) {
     cacheKey = `{colorToHsl:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   opt.format = 'hsl';
   const hsl = convertColorToHsl(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, hsl);
+    cachedResults.set(cacheKey, new CacheItem(hsl));
   }
   return hsl;
 };
@@ -218,13 +234,14 @@ export const colorToHwb = (value: string, opt: Options = {}): ColorChannels => {
   ) {
     cacheKey = `{colorToHwb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   opt.format = 'hwb';
   const hwb = convertColorToHwb(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, hwb);
+    cachedResults.set(cacheKey, new CacheItem(hwb));
   }
   return hwb;
 };
@@ -253,12 +270,13 @@ export const colorToLab = (value: string, opt: Options = {}): ColorChannels => {
   ) {
     cacheKey = `{colorToLab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   const lab = convertColorToLab(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, lab);
+    cachedResults.set(cacheKey, new CacheItem(lab));
   }
   return lab;
 };
@@ -287,12 +305,13 @@ export const colorToLch = (value: string, opt: Options = {}): ColorChannels => {
   ) {
     cacheKey = `{colorToLch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   const lch = convertColorToLch(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, lch);
+    cachedResults.set(cacheKey, new CacheItem(lch));
   }
   return lch;
 };
@@ -324,12 +343,13 @@ export const colorToOklab = (
   ) {
     cacheKey = `{colorToOklab:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   const lab = convertColorToOklab(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, lab);
+    cachedResults.set(cacheKey, new CacheItem(lab));
   }
   return lab;
 };
@@ -361,12 +381,13 @@ export const colorToOklch = (
   ) {
     cacheKey = `{colorToOklch:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   const lch = convertColorToOklch(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, lch);
+    cachedResults.set(cacheKey, new CacheItem(lch));
   }
   return lch;
 };
@@ -395,12 +416,13 @@ export const colorToRgb = (value: string, opt: Options = {}): ColorChannels => {
   ) {
     cacheKey = `{colorToRgb:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   const rgb = convertColorToRgb(value, opt) as ColorChannels;
   if (cacheKey) {
-    cachedResults.set(cacheKey, rgb);
+    cachedResults.set(cacheKey, new CacheItem(rgb));
   }
   return rgb;
 };
@@ -429,7 +451,8 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   ) {
     cacheKey = `{colorToXyz:${value},opt:${valueToJsonString(opt)}}`;
     if (cachedResults.has(cacheKey)) {
-      return cachedResults.get(cacheKey) as ColorChannels;
+      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
+      return cachedResult.item as ColorChannels;
     }
   }
   let xyz;
@@ -439,7 +462,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
     [, ...xyz] = parseColorValue(value, opt) as ComputedColorChannels;
   }
   if (cacheKey) {
-    cachedResults.set(cacheKey, xyz);
+    cachedResults.set(cacheKey, new CacheItem(xyz));
   }
   return xyz as ColorChannels;
 };

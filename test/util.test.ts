@@ -8,16 +8,6 @@ import { assert, describe, it } from 'vitest';
 /* test */
 import * as util from '../src/js/util';
 
-describe('null object', () => {
-  const { NullObject } = util;
-
-  it('should create instance', () => {
-    const nullObj = new NullObject();
-    assert.strictEqual(nullObj instanceof NullObject, true, 'instance');
-    assert.strictEqual(nullObj.isNull, true, 'is null');
-  });
-});
-
 describe('is color', () => {
   const func = util.isColor;
 
