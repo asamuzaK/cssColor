@@ -58,15 +58,15 @@
     "vitest": "^3.0.4"
   },
   "scripts": {
-    "build": "pnpm run build:prod && pnpm run build:browser",
+    "build": "pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:browser && pnpm run publint",
     "build:browser": "vite build -c vite.browser.config.ts",
     "build:prod": "vite build",
     "clean": "rimraf ./dist && rimraf ./coverage",
+    "knip": "knip",
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
-    "test": "pnpm run prettier && pnpm run --stream \"/^test:.*/\" && pnpm run build && pnpm run publint",
+    "test": "pnpm run prettier && pnpm run --stream \"/^test:.*/\"",
     "test:eslint": "eslint ./src ./test --fix",
-    "test:knip": "knip",
     "test:types": "tsc",
     "test:unit": "vitest"
   },
