@@ -6,7 +6,13 @@
  *      https://w3c.github.io/csswg-drafts/css-color-4/#color-conversion-code
  */
 
-import { NullObject } from './cache';
+import {
+  CacheItem,
+  NullObject,
+  createCacheKey,
+  getCache,
+  setCache
+} from './cache';
 import { isString } from './common';
 import { interpolateHue, roundToPrecision } from './util';
 import {
@@ -42,6 +48,7 @@ import {
   VAL_MIX,
   VAL_SPEC
 } from './constant';
+const NAMESPACE = 'color';
 
 /* numeric constants */
 const PPTH = 0.001;
@@ -331,6 +338,29 @@ export const NAMED_COLORS = {
   yellow: [0xff, 0xff, 0x00],
   yellowgreen: [0x9a, 0xcd, 0x32]
 } as const;
+
+/**
+ * resolve invalid color value
+ * @param format - output format
+ * @returns resolved value
+ */
+export const resolveInvalidColorValue = (
+  format: string
+): SpecifiedColorChannels | string | NullObject => {
+  switch (format) {
+    case 'hsl':
+    case 'hwb':
+    case VAL_MIX: {
+      return new NullObject();
+    }
+    case VAL_SPEC: {
+      return '';
+    }
+    default: {
+      return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
+    }
+  }
+};
 
 /**
  * validate color components
@@ -670,18 +700,15 @@ export const transformRgbToXyz = (
   rgb: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  let r, g, b;
-  if (skip) {
-    [r, g, b] = rgb;
-  } else {
-    [r, g, b] = validateColorComponents(rgb, {
+  if (!skip) {
+    rgb = validateColorComponents(rgb, {
       maxLength: TRIA,
       maxRange: MAX_RGB
-    });
+    }) as TriColorChannels;
   }
-  const [rr, gg, bb] = transformRgbToLinearRgb([r, g, b], true);
-  const [x, y, z] = transformMatrix(MATRIX_L_RGB_TO_XYZ, [rr, gg, bb], true);
-  return [x, y, z];
+  rgb = transformRgbToLinearRgb(rgb, true);
+  const xyz = transformMatrix(MATRIX_L_RGB_TO_XYZ, rgb, true);
+  return xyz;
 };
 
 /**
@@ -692,9 +719,9 @@ export const transformRgbToXyz = (
 export const transformRgbToXyzD50 = (
   rgb: TriColorChannels
 ): TriColorChannels => {
-  const [xx, yy, zz] = transformRgbToXyz(rgb);
-  const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz], true);
-  return [x, y, z];
+  let xyz = transformRgbToXyz(rgb);
+  xyz = transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+  return xyz;
 };
 
 /**
@@ -746,16 +773,13 @@ export const transformXyzToRgb = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  let x, y, z;
-  if (skip) {
-    [x, y, z] = xyz;
-  } else {
-    [x, y, z] = validateColorComponents(xyz, {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
-    });
+    }) as TriColorChannels;
   }
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, xyz, true);
   [r, g, b] = transformLinearRgbToRgb(
     [
       Math.min(Math.max(r, 0), 1),
@@ -775,12 +799,12 @@ export const transformXyzToRgb = (
 export const transformXyzToXyzD50 = (
   xyz: TriColorChannels
 ): TriColorChannels => {
-  const [xx, yy, zz] = validateColorComponents(xyz, {
+  xyz = validateColorComponents(xyz, {
     maxLength: TRIA,
     validateRange: false
-  });
-  const [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [xx, yy, zz], true);
-  return [x, y, z];
+  }) as TriColorChannels;
+  xyz = transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+  return xyz;
 };
 
 /**
@@ -842,15 +866,15 @@ export const transformXyzToHwb = (
   skip: boolean = false
 ): TriColorChannels => {
   const [r, g, b] = transformXyzToRgb(xyz, skip);
-  const w = Math.min(r, g, b) / MAX_RGB;
+  const wh = Math.min(r, g, b) / MAX_RGB;
   const bk = 1 - Math.max(r, g, b) / MAX_RGB;
   let h;
-  if (w + bk === 1) {
+  if (wh + bk === 1) {
     h = 0;
   } else {
     [h] = transformXyzToHsl(xyz);
   }
-  return [h, w * MAX_PCT, bk * MAX_PCT];
+  return [h, wh * MAX_PCT, bk * MAX_PCT];
 };
 
 /**
@@ -863,16 +887,13 @@ export const transformXyzToOklab = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  let x, y, z;
-  if (skip) {
-    [x, y, z] = xyz;
-  } else {
-    [x, y, z] = validateColorComponents(xyz, {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
-    });
+    }) as TriColorChannels;
   }
-  const lms = transformMatrix(MATRIX_XYZ_TO_LMS, [x, y, z], true);
+  const lms = transformMatrix(MATRIX_XYZ_TO_LMS, xyz, true);
   const xyzLms = lms.map(c => Math.cbrt(c)) as TriColorChannels;
   let [l, a, b] = transformMatrix(MATRIX_LMS_TO_OKLAB, xyzLms, true);
   l = Math.min(Math.max(l, 0), 1);
@@ -924,18 +945,15 @@ export const transformXyzD50ToRgb = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  let x, y, z;
-  if (skip) {
-    [x, y, z] = xyz;
-  } else {
-    [x, y, z] = validateColorComponents(xyz, {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
-    });
+    }) as TriColorChannels;
   }
-  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
-  const [r, g, b] = transformXyzToRgb(xyzD65, true);
-  return [r, g, b];
+  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, xyz, true);
+  const rgb = transformXyzToRgb(xyzD65, true);
+  return rgb;
 };
 
 /**
@@ -948,16 +966,13 @@ export const transformXyzD50ToLab = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  let x, y, z;
-  if (skip) {
-    [x, y, z] = xyz;
-  } else {
-    [x, y, z] = validateColorComponents(xyz, {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
-    });
+    }) as TriColorChannels;
   }
-  const xyzD50 = [x, y, z].map((val, i) => val / (D50[i] as number));
+  const xyzD50 = xyz.map((val, i) => val / (D50[i] as number));
   const [f0, f1, f2] = xyzD50.map(val =>
     val > LAB_EPSILON ? Math.cbrt(val) : (val * LAB_KAPPA + HEX) / LAB_L
   ) as TriColorChannels;
@@ -1118,7 +1133,7 @@ export const convertHexToRgb = (value: string): ColorChannels => {
   ) {
     throw new SyntaxError(`Invalid property value: ${value}`);
   }
-  const arr = [];
+  const arr: number[] = [];
   if (/^#[\da-f]{6}$/.test(value)) {
     const [, r = '', g = '', b = ''] = value.match(
       /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
@@ -1198,17 +1213,14 @@ export const parseRgb = (
   const { format = '' } = opt;
   const reg = new RegExp(`^rgba?\\(\\s*(${SYN_MOD}|${SYN_RGB_LV3})\\s*\\)$`);
   if (!reg.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const [, val = ''] = value.match(reg) as RegExpExecArray;
   const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
@@ -1266,18 +1278,14 @@ export const parseHsl = (
   }
   const { format = '' } = opt;
   if (!REG_HSL.test(value)) {
-    switch (format) {
-      case 'hsl':
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const [, val = ''] = value.match(REG_HSL) as RegExpExecArray;
   const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
@@ -1344,18 +1352,14 @@ export const parseHwb = (
   }
   const { format = '' } = opt;
   if (!REG_HWB.test(value)) {
-    switch (format) {
-      case 'hwb':
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const [, val = ''] = value.match(REG_HWB) as RegExpExecArray;
   const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
@@ -1423,17 +1427,14 @@ export const parseLab = (
   }
   const { format = '' } = opt;
   if (!REG_LAB.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 1.25;
   const COND_POW = 8;
@@ -1519,17 +1520,14 @@ export const parseLch = (
   }
   const { format = '' } = opt;
   if (!REG_LCH.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 1.5;
   const [, val = ''] = value.match(REG_LCH) as RegExpExecArray;
@@ -1596,17 +1594,14 @@ export const parseOklab = (
   }
   const { format = '' } = opt;
   if (!REG_OKLAB.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 0.4;
   const [, val = ''] = value.match(REG_OKLAB) as RegExpExecArray;
@@ -1677,17 +1672,14 @@ export const parseOklch = (
   }
   const { format = '' } = opt;
   if (!REG_OKLCH.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 0.4;
   const [, val = ''] = value.match(REG_OKLCH) as RegExpExecArray;
@@ -1763,17 +1755,14 @@ export const parseColorFunc = (
   }
   const { colorSpace = '', d50 = false, format = '' } = opt;
   if (!REG_FN_COLOR.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const [, val = ''] = value.match(REG_FN_COLOR) as RegExpExecArray;
   let [cs = '', v1 = '', v2 = '', v3 = '', v4 = ''] = val
@@ -1811,14 +1800,8 @@ export const parseColorFunc = (
   let x = 0;
   let y = 0;
   let z = 0;
-  // srgb
-  if (cs === 'srgb') {
-    [x, y, z] = transformRgbToXyz([r * MAX_RGB, g * MAX_RGB, b * MAX_RGB]);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-    // srgb-linear
-  } else if (cs === 'srgb-linear') {
+  // srgb-linear
+  if (cs === 'srgb-linear') {
     [x, y, z] = transformMatrix(MATRIX_L_RGB_TO_XYZ, [r, g, b]);
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
@@ -1889,6 +1872,12 @@ export const parseColorFunc = (
     } else if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
+    // srgb
+  } else {
+    [x, y, z] = transformRgbToXyz([r * MAX_RGB, g * MAX_RGB, b * MAX_RGB]);
+    if (d50) {
+      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
+    }
   }
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
@@ -1917,19 +1906,15 @@ export const parseColorValue = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { d50 = false, format = '' } = opt;
-  // unknown color and/or invalid color
   if (!REG_COLOR.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      return res;
     }
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   let x = 0;
   let y = 0;
@@ -2069,19 +2054,36 @@ export const resolveColorValue = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { colorSpace = '', format = '' } = opt;
-  // unknown color and/or invalid color
-  if (!REG_COLOR.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'resolveColorValue',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
     }
+    const cachedItem = cachedResult.item;
+    if (isString(cachedItem)) {
+      return cachedItem as string;
+    }
+    return cachedItem as SpecifiedColorChannels;
+  }
+  if (!REG_COLOR.test(value)) {
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      setCache(cacheKey, null);
+      return res;
+    }
+    setCache(cacheKey, res);
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   let cs = '';
   let r = 0;
@@ -2091,12 +2093,14 @@ export const resolveColorValue = (
   // complement currentcolor as a missing color
   if (REG_CURRENT.test(value)) {
     if (format === VAL_SPEC) {
+      setCache(cacheKey, value);
       return value;
     }
     // named-color
   } else if (/^[a-z]+$/.test(value)) {
     if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
       if (format === VAL_SPEC) {
+        setCache(cacheKey, value);
         return value;
       }
       [r, g, b] = NAMED_COLORS[
@@ -2106,23 +2110,26 @@ export const resolveColorValue = (
     } else {
       if (format === VAL_SPEC) {
         if (value === 'transparent') {
+          setCache(cacheKey, value);
           return value;
         }
-        return '';
+        const res = '';
+        setCache(cacheKey, res);
+        return res;
       }
       if (format === VAL_MIX) {
         if (value === 'transparent') {
-          return ['rgb', 0, 0, 0, 0];
+          const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+          setCache(cacheKey, res);
+          return res;
         }
+        setCache(cacheKey, null);
         return new NullObject();
       }
     }
     // hex-color
   } else if (value[0] === '#') {
     [r, g, b, alpha] = convertHexToRgb(value);
-    // rgb()
-  } else if (value.startsWith('rgb')) {
-    [, r, g, b, alpha] = parseRgb(value, opt) as ComputedColorChannels;
     // hsl()
   } else if (value.startsWith('hsl')) {
     [, r, g, b, alpha] = parseHsl(value, opt) as ComputedColorChannels;
@@ -2138,7 +2145,9 @@ export const resolveColorValue = (
       [cs, x, y, z, alpha] = parseLch(value, opt) as ComputedColorChannels;
     }
     if (REG_SPEC.test(format)) {
-      return [cs, x, y, z, alpha];
+      const res: SpecifiedColorChannels = [cs, x, y, z, alpha];
+      setCache(cacheKey, res);
+      return res;
     }
     [r, g, b] = transformXyzD50ToRgb([x, y, z]);
     // oklab(), oklch()
@@ -2150,14 +2159,35 @@ export const resolveColorValue = (
       [cs, x, y, z, alpha] = parseOklch(value, opt) as ComputedColorChannels;
     }
     if (REG_SPEC.test(format)) {
-      return [cs, x, y, z, alpha];
+      const res: SpecifiedColorChannels = [cs, x, y, z, alpha];
+      setCache(cacheKey, res);
+      return res;
     }
     [r, g, b] = transformXyzToRgb([x, y, z]);
+    // rgb()
+  } else {
+    [, r, g, b, alpha] = parseRgb(value, opt) as ComputedColorChannels;
   }
   if (format === VAL_MIX && colorSpace === 'srgb') {
-    return ['srgb', r / MAX_RGB, g / MAX_RGB, b / MAX_RGB, alpha];
+    const res: SpecifiedColorChannels = [
+      'srgb',
+      r / MAX_RGB,
+      g / MAX_RGB,
+      b / MAX_RGB,
+      alpha
+    ];
+    setCache(cacheKey, res);
+    return res;
   }
-  return ['rgb', Math.round(r), Math.round(g), Math.round(b), alpha];
+  const res: SpecifiedColorChannels = [
+    'rgb',
+    Math.round(r),
+    Math.round(g),
+    Math.round(b),
+    alpha
+  ];
+  setCache(cacheKey, res);
+  return res;
 };
 
 /**
@@ -2176,32 +2206,54 @@ export const resolveColorFunc = (
     throw new TypeError(`${value} is not a string.`);
   }
   const { colorSpace = '', format = '' } = opt;
-  if (!REG_FN_COLOR.test(value)) {
-    switch (format) {
-      case VAL_MIX: {
-        return new NullObject();
-      }
-      case VAL_SPEC: {
-        return '';
-      }
-      default: {
-        return ['rgb', 0, 0, 0, 0];
-      }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'resolveColorFunc',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
     }
+    const cachedItem = cachedResult.item;
+    if (isString(cachedItem)) {
+      return cachedItem as string;
+    }
+    return cachedItem as SpecifiedColorChannels;
+  }
+  if (!REG_FN_COLOR.test(value)) {
+    const res = resolveInvalidColorValue(format);
+    if (res instanceof NullObject) {
+      setCache(cacheKey, null);
+      return res;
+    }
+    setCache(cacheKey, res);
+    if (isString(res)) {
+      return res as string;
+    }
+    return res as SpecifiedColorChannels;
   }
   const [cs = '', v1 = '', v2 = '', v3 = '', v4 = ''] = parseColorFunc(
     value,
     opt
   ) as SpecifiedColorChannels;
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
-    return [cs, v1, v2, v3, v4];
+    const res: SpecifiedColorChannels = [cs, v1, v2, v3, v4];
+    setCache(cacheKey, res);
+    return res;
   }
   const x = parseFloat(`${v1}`);
   const y = parseFloat(`${v2}`);
   const z = parseFloat(`${v3}`);
   const alpha = parseAlpha(`${v4}`);
   const [r, g, b] = transformXyzToRgb([x, y, z], true);
-  return ['rgb', r, g, b, alpha];
+  const res: SpecifiedColorChannels = ['rgb', r, g, b, alpha];
+  setCache(cacheKey, res);
+  return res;
 };
 
 /**
@@ -2661,18 +2713,34 @@ export const convertColorToOklch = (
  * resolve color-mix()
  * @param value - color value
  * @param [opt] - options
- * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', NullObject
+ * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)'
  */
 export const resolveColorMix = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string | NullObject => {
+): SpecifiedColorChannels | string => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
   const { format = '' } = opt;
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'resolveColorMix',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    const cachedItem = cachedResult.item;
+    if (isString(cachedItem)) {
+      return cachedItem as string;
+    }
+    return cachedItem as SpecifiedColorChannels;
+  }
   const nestedItems = [];
   if (!REG_MIX.test(value)) {
     if (value.startsWith(FN_MIX) && REG_MIX_NEST.test(value)) {
@@ -2711,14 +2779,22 @@ export const resolveColorMix = (
       }
       if (!value) {
         if (format === VAL_SPEC) {
-          return '';
+          const res = '';
+          setCache(cacheKey, res);
+          return res;
         }
-        return ['rgb', 0, 0, 0, 0];
+        const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+        setCache(cacheKey, res);
+        return res;
       }
     } else if (format === VAL_SPEC) {
-      return '';
+      const res = '';
+      setCache(cacheKey, res);
+      return res;
     } else {
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
   }
   let colorSpace, hueArc, colorA, pctA, colorB, pctB;
@@ -2799,16 +2875,24 @@ export const resolveColorMix = (
     const p2 = parseFloat(pctB) / MAX_PCT;
     if (p1 < 0 || p1 > 1 || p2 < 0 || p2 > 1) {
       if (format === VAL_SPEC) {
-        return '';
+        const res = '';
+        setCache(cacheKey, res);
+        return res;
       }
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     const factor = p1 + p2;
     if (factor === 0) {
       if (format === VAL_SPEC) {
-        return '';
+        const res = '';
+        setCache(cacheKey, res);
+        return res;
       }
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     pA = p1 / factor;
     pB = p2 / factor;
@@ -2818,18 +2902,26 @@ export const resolveColorMix = (
       pA = parseFloat(pctA) / MAX_PCT;
       if (pA < 0 || pA > 1) {
         if (format === VAL_SPEC) {
-          return '';
+          const res = '';
+          setCache(cacheKey, res);
+          return res;
         }
-        return ['rgb', 0, 0, 0, 0];
+        const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+        setCache(cacheKey, res);
+        return res;
       }
       pB = 1 - pA;
     } else if (pctB) {
       pB = parseFloat(pctB) / MAX_PCT;
       if (pB < 0 || pB > 1) {
         if (format === VAL_SPEC) {
-          return '';
+          const res = '';
+          setCache(cacheKey, res);
+          return res;
         }
-        return ['rgb', 0, 0, 0, 0];
+        const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+        setCache(cacheKey, res);
+        return res;
       }
       pA = 1 - pB;
     } else {
@@ -2859,6 +2951,7 @@ export const resolveColorMix = (
     } else {
       valueA = parseColorValue(colorA, opt);
       if (valueA === '') {
+        setCache(cacheKey, valueA);
         return valueA;
       }
       if (Array.isArray(valueA)) {
@@ -2891,6 +2984,7 @@ export const resolveColorMix = (
     } else {
       valueB = parseColorValue(colorB, opt);
       if (valueB === '') {
+        setCache(cacheKey, valueB);
         return valueB;
       }
       if (Array.isArray(valueB)) {
@@ -2923,9 +3017,13 @@ export const resolveColorMix = (
       }
     }
     if (hueArc) {
-      return `color-mix(in ${colorSpace} ${hueArc} hue, ${valueA}, ${valueB})`;
+      const res = `color-mix(in ${colorSpace} ${hueArc} hue, ${valueA}, ${valueB})`;
+      setCache(cacheKey, res);
+      return res;
     } else {
-      return `color-mix(in ${colorSpace}, ${valueA}, ${valueB})`;
+      const res = `color-mix(in ${colorSpace}, ${valueA}, ${valueB})`;
+      setCache(cacheKey, res);
+      return res;
     }
   }
   let r = 0;
@@ -2971,7 +3069,9 @@ export const resolveColorMix = (
       }
     }
     if (rgbA instanceof NullObject || rgbB instanceof NullObject) {
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     const [rrA, ggA, bbA, aaA] = rgbA as NumStrColorChannels;
     const [rrB, ggB, bbB, aaB] = rgbB as NumStrColorChannels;
@@ -2999,13 +3099,15 @@ export const resolveColorMix = (
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
-      return [
+      const res: SpecifiedColorChannels = [
         colorSpace,
         rNone ? NONE : roundToPrecision(r, HEX),
         gNone ? NONE : roundToPrecision(g, HEX),
         bNone ? NONE : roundToPrecision(b, HEX),
         alphaNone ? NONE : alpha * m
       ];
+      setCache(cacheKey, res);
+      return res;
     }
     r *= MAX_RGB;
     g *= MAX_RGB;
@@ -3032,7 +3134,9 @@ export const resolveColorMix = (
       });
     }
     if (xyzA instanceof NullObject || xyzB instanceof NullObject) {
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     const [xxA, yyA, zzA, aaA] = xyzA;
     const [xxB, yyB, zzB, aaB] = xyzB;
@@ -3061,13 +3165,15 @@ export const resolveColorMix = (
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
-      return [
+      const res: SpecifiedColorChannels = [
         colorSpace,
         xNone ? NONE : roundToPrecision(x, HEX),
         yNone ? NONE : roundToPrecision(y, HEX),
         zNone ? NONE : roundToPrecision(z, HEX),
         alphaNone ? NONE : alpha * m
       ];
+      setCache(cacheKey, res);
+      return res;
     }
     if (colorSpace === 'xyz-d50') {
       [r, g, b] = transformXyzD50ToRgb([x, y, z], true);
@@ -3113,7 +3219,9 @@ export const resolveColorMix = (
       }
     }
     if (hslA instanceof NullObject || hslB instanceof NullObject) {
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     const [hhA, ssA, llA, aaA] = hslA;
     const [hhB, ssB, llB, aaB] = hslB;
@@ -3143,13 +3251,15 @@ export const resolveColorMix = (
       `${colorSpace}(${h} ${s} ${l})`
     ) as ColorChannels;
     if (format === VAL_COMP) {
-      return [
+      const res: SpecifiedColorChannels = [
         'srgb',
         roundToPrecision(r / MAX_RGB, HEX),
         roundToPrecision(g / MAX_RGB, HEX),
         roundToPrecision(b / MAX_RGB, HEX),
         alphaNone ? NONE : alpha * m
       ];
+      setCache(cacheKey, res);
+      return res;
     }
     // in lch, oklch
   } else if (/^(?:ok)?lch$/.test(colorSpace)) {
@@ -3190,7 +3300,9 @@ export const resolveColorMix = (
       }
     }
     if (lchA instanceof NullObject || lchB instanceof NullObject) {
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     const [llA, ccA, hhA, aaA] = lchA;
     const [llB, ccB, hhB, aaB] = lchB;
@@ -3220,13 +3332,15 @@ export const resolveColorMix = (
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
-      return [
+      const res: SpecifiedColorChannels = [
         colorSpace,
         lNone ? NONE : roundToPrecision(l, HEX),
         cNone ? NONE : roundToPrecision(c, HEX),
         hNone ? NONE : roundToPrecision(h, HEX),
         alphaNone ? NONE : alpha * m
       ];
+      setCache(cacheKey, res);
+      return res;
     }
     [, r, g, b] = resolveColorValue(
       `${colorSpace}(${l} ${c} ${h})`
@@ -3270,7 +3384,9 @@ export const resolveColorMix = (
       }
     }
     if (labA instanceof NullObject || labB instanceof NullObject) {
-      return ['rgb', 0, 0, 0, 0];
+      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+      setCache(cacheKey, res);
+      return res;
     }
     const [llA, aaA, bbA, alA] = labA;
     const [llB, aaB, bbB, alB] = labB;
@@ -3299,23 +3415,27 @@ export const resolveColorMix = (
       alpha = parseFloat(alpha.toFixed(3));
     }
     if (format === VAL_COMP) {
-      return [
+      const res: SpecifiedColorChannels = [
         colorSpace,
         lNone ? NONE : roundToPrecision(l, HEX),
         aNone ? NONE : roundToPrecision(aO, HEX),
         bNone ? NONE : roundToPrecision(bO, HEX),
         alphaNone ? NONE : alpha * m
       ];
+      setCache(cacheKey, res);
+      return res;
     }
     [, r, g, b] = resolveColorValue(
       `${colorSpace}(${l} ${aO} ${bO})`
     ) as ComputedColorChannels;
   }
-  return [
+  const res: SpecifiedColorChannels = [
     'rgb',
     Math.round(r),
     Math.round(g),
     Math.round(b),
     parseFloat((alpha * m).toFixed(3))
   ];
+  setCache(cacheKey, res);
+  return res;
 };

@@ -2,7 +2,13 @@
  * convert
  */
 
-import { CacheItem, LRUCache, NullObject } from './cache';
+import {
+  CacheItem,
+  NullObject,
+  createCacheKey,
+  getCache,
+  setCache
+} from './cache';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -20,21 +26,16 @@ import { cssCalc } from './css-calc';
 import { cssVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolve } from './resolve';
-import { valueToJsonString } from './util';
 import { ColorChannels, ComputedColorChannels, Options } from './typedef';
 
 /* constants */
 import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant';
+const NAMESPACE = 'convert';
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-
-/* cached results */
-export const cachedResults = new LRUCache({
-  max: 4096
-});
 
 /**
  * pre process
@@ -54,31 +55,28 @@ export const preProcess = (
   } else {
     return new NullObject();
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      if (cachedResult.isNull) {
-        return cachedResult as NullObject;
-      }
-      return cachedResult.item as string;
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'preProcess',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
     }
+    return cachedResult.item as string;
   }
   if (REG_FN_VAR.test(value)) {
     const resolvedValue = cssVar(value, opt);
     if (isString(resolvedValue)) {
       value = resolvedValue;
     } else {
-      const nullObj = new NullObject();
-      if (cacheKey) {
-        cachedResults.set(cacheKey, nullObj);
-      }
-      return nullObj;
+      setCache(cacheKey, null);
+      return new NullObject();
     }
   }
   if (REG_FN_REL.test(value)) {
@@ -86,11 +84,8 @@ export const preProcess = (
     if (isString(resolvedValue)) {
       value = resolvedValue;
     } else {
-      const nullObj = new NullObject();
-      if (cacheKey) {
-        cachedResults.set(cacheKey, nullObj);
-      }
-      return nullObj;
+      setCache(cacheKey, null);
+      return new NullObject();
     }
   } else if (REG_FN_CALC.test(value)) {
     value = cssCalc(value, opt);
@@ -100,9 +95,7 @@ export const preProcess = (
       format: VAL_COMP
     }) as string;
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(value));
-  }
+  setCache(cacheKey, value);
   return value;
 };
 
@@ -112,13 +105,7 @@ export const preProcess = (
  * @returns hex string: 00..ff
  */
 export const numberToHex = (value: number): string => {
-  const cacheKey = `{numberToHex:${value}}`;
-  if (cachedResults.has(cacheKey)) {
-    const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-    return cachedResult.item as string;
-  }
   const hex = numberToHexString(value);
-  cachedResults.set(cacheKey, new CacheItem(hex));
   return hex;
 };
 
@@ -139,20 +126,21 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { alpha = false, customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToHex:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      if (cachedResult.isNull) {
-        return null;
-      }
-      return cachedResult.item as string;
+  const { alpha = false } = opt;
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToHex',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return null;
     }
+    return cachedResult.item as string;
   }
   let hex;
   if (alpha) {
@@ -163,14 +151,10 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
     hex = resolve(value, opt);
   }
   if (isString(hex)) {
-    if (cacheKey) {
-      cachedResults.set(cacheKey, new CacheItem(hex));
-    }
+    setCache(cacheKey, hex);
     return hex;
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new NullObject());
-  }
+  setCache(cacheKey, null);
   return null;
 };
 
@@ -190,23 +174,21 @@ export const colorToHsl = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToHsl:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToHsl',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   opt.format = 'hsl';
   const hsl = convertColorToHsl(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(hsl));
-  }
+  setCache(cacheKey, hsl);
   return hsl;
 };
 
@@ -226,23 +208,21 @@ export const colorToHwb = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToHwb:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToHwb',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   opt.format = 'hwb';
   const hwb = convertColorToHwb(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(hwb));
-  }
+  setCache(cacheKey, hwb);
   return hwb;
 };
 
@@ -262,22 +242,20 @@ export const colorToLab = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToLab:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToLab',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   const lab = convertColorToLab(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(lab));
-  }
+  setCache(cacheKey, lab);
   return lab;
 };
 
@@ -297,22 +275,20 @@ export const colorToLch = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToLch:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToLch',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   const lch = convertColorToLch(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(lch));
-  }
+  setCache(cacheKey, lch);
   return lch;
 };
 
@@ -335,22 +311,20 @@ export const colorToOklab = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToOklab:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToOklab',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   const lab = convertColorToOklab(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(lab));
-  }
+  setCache(cacheKey, lab);
   return lab;
 };
 
@@ -373,22 +347,20 @@ export const colorToOklch = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToOklch:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToOklch',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   const lch = convertColorToOklch(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(lch));
-  }
+  setCache(cacheKey, lch);
   return lch;
 };
 
@@ -408,22 +380,20 @@ export const colorToRgb = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToRgb:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToRgb',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   const rgb = convertColorToRgb(value, opt) as ColorChannels;
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(rgb));
-  }
+  setCache(cacheKey, rgb);
   return rgb;
 };
 
@@ -443,17 +413,17 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{colorToXyz:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as ColorChannels;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'colorToXyz',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as ColorChannels;
   }
   let xyz;
   if (value.startsWith('color(')) {
@@ -461,9 +431,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   } else {
     [, ...xyz] = parseColorValue(value, opt) as ComputedColorChannels;
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(xyz));
-  }
+  setCache(cacheKey, xyz);
   return xyz as ColorChannels;
 };
 

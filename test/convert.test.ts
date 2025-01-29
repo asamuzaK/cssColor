@@ -7,16 +7,18 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import * as convert from '../src/js/convert.js';
+import { lruCache } from '../src/js/cache.js';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+
+afterEach(() => {
+  lruCache.clear();
+});
 
 describe('pre process', () => {
   const func = convert.preProcess;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should get null object', () => {
     const res = func();
@@ -143,13 +145,6 @@ describe('pre process', () => {
 describe('convert number to hex string', () => {
   const func = convert.numberToHex;
 
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a number.');
   });
@@ -213,13 +208,6 @@ describe('convert number to hex string', () => {
 
 describe('convert color to hex', () => {
   const func = convert.colorToHex;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -354,13 +342,6 @@ describe('convert color to hex', () => {
 describe('convert color to hsl', () => {
   const func = convert.colorToHsl;
 
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
@@ -447,13 +428,6 @@ describe('convert color to hsl', () => {
 
 describe('convert color to hwb', () => {
   const func = convert.colorToHwb;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -545,13 +519,6 @@ describe('convert color to hwb', () => {
 
 describe('convert color to lab', () => {
   const func = convert.colorToLab;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -656,13 +623,6 @@ describe('convert color to lab', () => {
 describe('convert color to lch', () => {
   const func = convert.colorToLch;
 
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
@@ -727,13 +687,6 @@ describe('convert color to lch', () => {
 
 describe('convert color to oklab', () => {
   const func = convert.colorToOklab;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -800,13 +753,6 @@ describe('convert color to oklab', () => {
 describe('convert color to oklch', () => {
   const func = convert.colorToOklch;
 
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
@@ -871,13 +817,6 @@ describe('convert color to oklch', () => {
 
 describe('convert color to rgb', () => {
   const func = convert.colorToRgb;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -964,13 +903,6 @@ describe('convert color to rgb', () => {
 describe('convert color to xyz', () => {
   const func = convert.colorToXyz;
 
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
@@ -1043,13 +975,6 @@ describe('convert color to xyz', () => {
 
 describe('convert color to xyz-d50', () => {
   const func = convert.colorToXyzD50;
-
-  beforeEach(() => {
-    convert.cachedResults.clear();
-  });
-  afterEach(() => {
-    convert.cachedResults.clear();
-  });
 
   it('should get value', () => {
     const res = func(' ');

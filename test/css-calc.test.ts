@@ -6,7 +6,16 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
+import { lruCache } from '../src/js/cache';
 import * as csscalc from '../src/js/css-calc';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+
+afterEach(() => {
+  lruCache.clear();
+});
 
 describe('Calculator', () => {
   const { Calculator } = csscalc;
@@ -783,13 +792,6 @@ describe('sort calc values', () => {
 describe('serialize calc', () => {
   const func = csscalc.serializeCalc;
 
-  beforeEach(() => {
-    csscalc.cachedResults.clear();
-  });
-  afterEach(() => {
-    csscalc.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
@@ -876,13 +878,6 @@ describe('serialize calc', () => {
 
 describe('resolve dimension', () => {
   const func = csscalc.resolveDimension;
-
-  beforeEach(() => {
-    csscalc.cachedResults.clear();
-  });
-  afterEach(() => {
-    csscalc.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not an array.');
@@ -1170,13 +1165,6 @@ describe('resolve dimension', () => {
 describe('parse tokens', () => {
   const func = csscalc.parseTokens;
 
-  beforeEach(() => {
-    csscalc.cachedResults.clear();
-  });
-  afterEach(() => {
-    csscalc.cachedResults.clear();
-  });
-
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not an array.');
   });
@@ -1312,13 +1300,6 @@ describe('parse tokens', () => {
 
 describe('resolve CSS calc()', () => {
   const func = csscalc.cssCalc;
-
-  beforeEach(() => {
-    csscalc.cachedResults.clear();
-  });
-  afterEach(() => {
-    csscalc.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');

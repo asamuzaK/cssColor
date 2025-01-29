@@ -3,10 +3,16 @@
  */
 
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import { CacheItem, LRUCache, NullObject } from './cache';
+import {
+  CacheItem,
+  NullObject,
+  createCacheKey,
+  getCache,
+  setCache
+} from './cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
-import { isColor, valueToJsonString } from './util';
+import { isColor } from './util';
 import { Options } from './typedef';
 
 /* constants */
@@ -18,15 +24,11 @@ const {
   Ident: IDENT,
   Whitespace: W_SPACE
 } = TokenType;
+const NAMESPACE = 'css-var';
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-
-/* cached results */
-export const cachedResults = new LRUCache({
-  max: 4096
-});
 
 /**
  * resolve custom property
@@ -191,7 +193,7 @@ export function parseTokens(
  * @returns resolved value
  */
 export function cssVar(value: string, opt: Options = {}): string | NullObject {
-  const { dimension = {}, customProperty = {}, format = '' } = opt;
+  const { format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
@@ -200,19 +202,20 @@ export function cssVar(value: string, opt: Options = {}): string | NullObject {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{cssVar:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      if (cachedResult.isNull) {
-        return cachedResult as NullObject;
-      }
-      return cachedResult.item as string;
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'cssVar',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
     }
+    return cachedResult.item as string;
   }
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
@@ -221,15 +224,10 @@ export function cssVar(value: string, opt: Options = {}): string | NullObject {
     if (REG_FN_CALC.test(color)) {
       color = cssCalc(color, opt);
     }
-    if (cacheKey) {
-      cachedResults.set(cacheKey, new CacheItem(color));
-    }
+    setCache(cacheKey, color);
     return color;
   } else {
-    const nullObj = new NullObject();
-    if (cacheKey) {
-      cachedResults.set(cacheKey, nullObj);
-    }
-    return nullObj;
+    setCache(cacheKey, null);
+    return new NullObject();
   }
 }

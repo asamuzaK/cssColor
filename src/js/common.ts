@@ -2,7 +2,7 @@
  * common
  */
 
-/* constants */
+/* numeric constants */
 const TYPE_FROM = 8;
 const TYPE_TO = -1;
 
