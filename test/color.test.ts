@@ -3,10 +3,55 @@
  */
 
 /* api */
-import { assert, describe, it } from 'vitest';
+import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
+import { NullObject, lruCache } from '../src/js/cache';
 import * as color from '../src/js/color';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+afterEach(() => {
+  lruCache.clear();
+});
+
+describe('resolve invalid color value', () => {
+  const func = color.resolveInvalidColorValue;
+
+  it('should get value', () => {
+    const res = func();
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('hsl');
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('hwb');
+    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res instanceof NullObject, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('mixValue');
+    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res instanceof NullObject, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('mixValue');
+    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res instanceof NullObject, true, 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('specifiedValue');
+    assert.strictEqual(res, '', 'result');
+  });
+});
 
 describe('validate color components', () => {
   const func = color.validateColorComponents;
@@ -4320,6 +4365,29 @@ describe('parse color value', () => {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['lab', 46.28, -47.57, 48.58, 1], 'result');
+
+    const res2 = func('lab(46.28% -47.57 48.58)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res2, ['lab', 46.28, -47.57, 48.58, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lab(46.28% -47.57 48.58)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['lab', 46.28, -47.57, 48.58, 1], 'result');
+
+    const res2 = func('lab(46.28% -47.57 48.58)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['lab', 46.28, -47.57, 48.58, 1], 'result');
   });
 
   it('should get value', () => {
@@ -4523,6 +4591,25 @@ describe('resolve color value', () => {
   it('should get value', () => {
     const res = func('#12345');
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('#12345');
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('#12345', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('#12345', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
   });
 
   it('should get empty string', () => {
@@ -4530,6 +4617,11 @@ describe('resolve color value', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, '', 'result');
+
+    const res2 = func('#12345', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, '', 'result');
   });
 
   it('should get null object', () => {
@@ -4537,6 +4629,29 @@ describe('resolve color value', () => {
       format: 'mixValue'
     });
     assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('#12345', {
+      format: 'mixValue'
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('#12345', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('#12345', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -4575,6 +4690,29 @@ describe('resolve color value', () => {
       format: 'mixValue'
     });
     assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('foo', {
+      format: 'mixValue'
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('foo', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('foo', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -4587,6 +4725,29 @@ describe('resolve color value', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, 'currentcolor', 'result');
+
+    const res2 = func('currentColor', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'currentcolor', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('currentColor', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, 'currentcolor', 'result');
+
+    const res2 = func('currentColor', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, 'currentcolor', 'result');
   });
 
   it('should get value', () => {
@@ -4599,6 +4760,29 @@ describe('resolve color value', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, 'transparent', 'result');
+
+    const res2 = func('transparent', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'transparent', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('transparent', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, 'transparent', 'result');
+
+    const res2 = func('transparent', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, 'transparent', 'result');
   });
 
   it('should get value', () => {
@@ -4606,6 +4790,29 @@ describe('resolve color value', () => {
       format: 'mixValue'
     });
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('transparent', {
+      format: 'mixValue'
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('transparent', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('transparent', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
   });
 
   it('should get value', () => {
@@ -4616,6 +4823,70 @@ describe('resolve color value', () => {
   it('should get value', () => {
     const res = func('green');
     assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, 'green', 'result');
+
+    const res2 = func('green', {
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res2, 'green', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, 'green', 'result');
+
+    const res2 = func('green', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, 'green', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(0 50% 0)', {
+      format: 'mixValue',
+      colorSpace: 'srgb'
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.5, 0, 1], 'result');
+
+    const res2 = func('rgb(0 50% 0)', {
+      format: 'mixValue',
+      colorSpace: 'srgb'
+    });
+    assert.deepEqual(res2, ['srgb', 0, 0.5, 0, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(0 50% 0)', {
+      format: 'mixValue',
+      colorSpace: 'srgb',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.5, 0, 1], 'result');
+
+    const res2 = func('rgb(0 50% 0)', {
+      format: 'mixValue',
+      colorSpace: 'srgb',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['srgb', 0, 0.5, 0, 1], 'result');
   });
 
   it('should get value', () => {
@@ -4774,6 +5045,29 @@ describe('resolve color value', () => {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['lch', 44.36, 69.13, 301.43, 1], 'result');
+
+    const res2 = func('lch(44.36% 69.13 301.43 / 1)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res2, ['lch', 44.36, 69.13, 301.43, 1], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('lch(44.36% 69.13 301.43 / 1)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['lch', 44.36, 69.13, 301.43, 1], 'result');
+
+    const res2 = func('lch(44.36% 69.13 301.43 / 1)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['lch', 44.36, 69.13, 301.43, 1], 'result');
   });
 
   it('should get value', () => {
@@ -4798,6 +5092,37 @@ describe('resolve color value', () => {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['oklab', 0.54432, 0.06817, -0.16567, 0.5], 'result');
+
+    const res2 = func('oklab(0.54432 0.06817 -0.16567 / 0.5)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(
+      res2,
+      ['oklab', 0.54432, 0.06817, -0.16567, 0.5],
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func('oklab(0.54432 0.06817 -0.16567 / 0.5)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['oklab', 0.54432, 0.06817, -0.16567, 0.5], 'result');
+
+    const res2 = func('oklab(0.54432 0.06817 -0.16567 / 0.5)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(
+      res2,
+      ['oklab', 0.54432, 0.06817, -0.16567, 0.5],
+      'result'
+    );
   });
 
   it('should get value', () => {
@@ -4849,6 +5174,25 @@ describe('resolve color()', () => {
   it('should get value', () => {
     const res = func('color(in foo, 1 1 1)');
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('color(in foo, 1 1 1)');
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(in foo, 1 1 1)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('color(in foo, 1 1 1)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
   });
 
   it('should get empty string', () => {
@@ -4856,6 +5200,29 @@ describe('resolve color()', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, '', 'result');
+
+    const res2 = func('color(in foo, 1 1 1)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, '', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('color(in foo, 1 1 1)', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, '', 'result');
+
+    const res2 = func('color(in foo, 1 1 1)', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, '', 'result');
   });
 
   it('should get null object', () => {
@@ -4863,6 +5230,29 @@ describe('resolve color()', () => {
       format: 'mixValue'
     });
     assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color(in foo, 1 1 1)', {
+      format: 'mixValue'
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('color(in foo, 1 1 1)', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color(in foo, 1 1 1)', {
+      format: 'mixValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -4902,6 +5292,25 @@ describe('resolve color()', () => {
   it('should get value', () => {
     const res = func('color(srgb 0 0.6 0 / 0.5)');
     assert.deepEqual(res, ['rgb', 0, 153, 0, 0.5], 'result');
+
+    const res2 = func('color(srgb 0 0.6 0 / 0.5)');
+    assert.deepEqual(res2, ['rgb', 0, 153, 0, 0.5], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.6 0 / 0.5)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['rgb', 0, 153, 0, 0.5], 'result');
+
+    const res2 = func('color(srgb 0 0.6 0 / 0.5)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['rgb', 0, 153, 0, 0.5], 'result');
   });
 
   it('should get value', () => {
@@ -4909,6 +5318,29 @@ describe('resolve color()', () => {
       format: 'computedValue'
     });
     assert.deepEqual(res, ['srgb', 0, 0.6, 0, 0.5], 'result');
+
+    const res2 = func('color(srgb 0 0.6 0 / 0.5)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res2, ['srgb', 0, 0.6, 0, 0.5], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(srgb 0 0.6 0 / 0.5)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['srgb', 0, 0.6, 0, 0.5], 'result');
+
+    const res2 = func('color(srgb 0 0.6 0 / 0.5)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['srgb', 0, 0.6, 0, 0.5], 'result');
   });
 
   it('should get value', () => {
@@ -6009,6 +6441,25 @@ describe('resolve color-mix()', () => {
   it('should get value', () => {
     const res = func('color-mix(in foo, blue, red)');
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)');
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in foo, blue, red)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
   });
 
   it('should get empty string', () => {
@@ -6016,6 +6467,29 @@ describe('resolve color-mix()', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, '', 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, '', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('color-mix(in foo, blue, red)', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res, '', 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      format: 'specifiedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.strictEqual(res2, '', 'result');
   });
 
   it('should get value', () => {

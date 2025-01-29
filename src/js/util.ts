@@ -8,6 +8,8 @@ import { resolve } from './resolve';
 /* constants */
 import { NAMED_COLORS } from './color';
 import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant';
+
+/* numeric constants */
 const DEC = 10;
 const HEX = 16;
 const DEG = 360;

@@ -8,16 +8,21 @@ import {
   parseComponentValue
 } from '@csstools/css-parser-algorithms';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import { CacheItem, LRUCache, NullObject } from './cache';
+import {
+  CacheItem,
+  NullObject,
+  createCacheKey,
+  getCache,
+  setCache
+} from './cache';
+import { NAMED_COLORS, convertColorToRgb } from './color';
 import { isString, isStringOrNumber } from './common';
-import { colorToRgb } from './convert';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
-import { roundToPrecision, valueToJsonString } from './util';
+import { roundToPrecision } from './util';
 import { ColorChannels, Options } from './typedef';
 
 /* constants */
-import { NAMED_COLORS } from './color';
 import {
   CS_LAB,
   CS_LCH,
@@ -44,6 +49,9 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 const { HasNoneKeywords: KEY_NONE } = SyntaxFlag;
+const NAMESPACE = 'relative-color';
+
+/* numeric constants */
 const OCT = 8;
 const DEC = 10;
 const HEX = 16;
@@ -72,11 +80,6 @@ const REG_FN_REL = new RegExp(FN_REL);
 const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
 const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-
-/* cached results */
-export const cachedResults = new LRUCache({
-  max: 4096
-});
 
 /**
  * resolve relative color channels
@@ -245,12 +248,7 @@ export function extractOriginColor(
   value: string,
   opt: Options = {}
 ): string | NullObject {
-  const {
-    currentColor = '',
-    customProperty = {},
-    dimension = {},
-    format = ''
-  } = opt;
+  const { currentColor = '', format = '' } = opt;
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (!value) {
@@ -262,29 +260,27 @@ export function extractOriginColor(
   } else {
     return new NullObject();
   }
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{preProcess:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      if (cachedResult.isNull) {
-        return cachedResult as NullObject;
-      }
-      return cachedResult.item as string;
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'extractOriginColor',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
     }
+    return cachedResult.item as string;
   }
   if (/currentcolor/.test(value)) {
     if (currentColor) {
       value = value.replace(/currentcolor/g, currentColor);
     } else {
-      const nullObj = new NullObject();
-      if (cacheKey) {
-        cachedResults.set(cacheKey, nullObj);
-      }
-      return nullObj;
+      setCache(cacheKey, null);
+      return new NullObject();
     }
   }
   let colorSpace = '';
@@ -300,11 +296,8 @@ export function extractOriginColor(
         !/^transparent$/.test(originColor) &&
         !Object.prototype.hasOwnProperty.call(NAMED_COLORS, originColor)
       ) {
-        const nullObj = new NullObject();
-        if (cacheKey) {
-          cachedResults.set(cacheKey, nullObj);
-        }
-        return nullObj;
+        setCache(cacheKey, null);
+        return new NullObject();
       }
     } else if (format === VAL_SPEC) {
       const resolvedOriginColor = resolve(originColor, opt);
@@ -319,9 +312,7 @@ export function extractOriginColor(
         opt
       ) as StringColorChannel;
       if (channelValues instanceof NullObject) {
-        if (cacheKey) {
-          cachedResults.set(cacheKey, new CacheItem(channelValues));
-        }
+        setCache(cacheKey, null);
         return channelValues;
       }
       let channelValue;
@@ -389,9 +380,7 @@ export function extractOriginColor(
       opt
     );
     if (resolvedOriginColor instanceof NullObject) {
-      if (cacheKey) {
-        cachedResults.set(cacheKey, new CacheItem(resolvedOriginColor));
-      }
+      setCache(cacheKey, null);
       return resolvedOriginColor;
     }
     const channelValues = resolveColorChannels(
@@ -399,9 +388,7 @@ export function extractOriginColor(
       opt
     ) as StringColorChannel;
     if (channelValues instanceof NullObject) {
-      if (cacheKey) {
-        cachedResults.set(cacheKey, new CacheItem(channelValues));
-      }
+      setCache(cacheKey, null);
       return channelValues;
     }
     let channelValue: string;
@@ -413,9 +400,7 @@ export function extractOriginColor(
     }
     value = value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(value));
-  }
+  setCache(cacheKey, value);
   return value;
 }
 
@@ -429,7 +414,7 @@ export function resolveRelativeColor(
   value: string,
   opt: Options = {}
 ): string | NullObject {
-  const { customProperty = {}, dimension = {}, format = '' } = opt;
+  const { format = '' } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
@@ -445,25 +430,24 @@ export function resolveRelativeColor(
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{relativeColor:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      if (cachedResult.isNull) {
-        return cachedResult as NullObject;
-      }
-      return cachedResult.item as string;
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'resolveRelativeColor',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
     }
+    return cachedResult.item as string;
   }
   const originColor = extractOriginColor(value, opt);
   if (originColor instanceof NullObject) {
-    if (cacheKey) {
-      cachedResults.set(cacheKey, originColor);
-    }
+    setCache(cacheKey, null);
     return originColor;
   }
   value = originColor;
@@ -479,11 +463,8 @@ export function resolveRelativeColor(
   const components = parseComponentValue(tokens) as ComponentValue;
   const parsedComponents = colorParser(components);
   if (!parsedComponents) {
-    const nullObj = new NullObject();
-    if (cacheKey) {
-      cachedResults.set(cacheKey, nullObj);
-    }
-    return nullObj;
+    setCache(cacheKey, null);
+    return new NullObject();
   }
   const {
     alpha: alphaComponent,
@@ -550,7 +531,7 @@ export function resolveRelativeColor(
     if (Number.isNaN(v3)) {
       v3 = 0;
     }
-    let [r, g, b] = colorToRgb(
+    let [r, g, b] = convertColorToRgb(
       `${colorNotation}(${v1} ${v2} ${v3} / ${alpha})`
     ) as ColorChannels;
     r = roundToPrecision(r / MAX_RGB, DEC);
@@ -597,8 +578,6 @@ export function resolveRelativeColor(
       resolvedValue = `color(${cs} ${v1} ${v2} ${v3} / ${alpha})`;
     }
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(resolvedValue));
-  }
+  setCache(cacheKey, resolvedValue);
   return resolvedValue;
 }

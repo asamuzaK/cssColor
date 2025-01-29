@@ -6,17 +6,19 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
+import { lruCache } from '../src/js/cache';
 import * as custom from '../src/js/css-var';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+
+afterEach(() => {
+  lruCache.clear();
+});
 
 describe('resolve CSS variable', () => {
   const func = custom.resolveCustomProperty;
-
-  beforeEach(() => {
-    custom.cachedResults.clear();
-  });
-  afterEach(() => {
-    custom.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not an array.');
@@ -446,13 +448,6 @@ describe('resolve CSS variable', () => {
 describe('parse tokens', () => {
   const func = custom.parseTokens;
 
-  beforeEach(() => {
-    custom.cachedResults.clear();
-  });
-  afterEach(() => {
-    custom.cachedResults.clear();
-  });
-
   it('should get null object', () => {
     const res = func([
       ['function-token', 'var('],
@@ -530,13 +525,6 @@ describe('parse tokens', () => {
 
 describe('resolve CSS var()', () => {
   const func = custom.cssVar;
-
-  beforeEach(() => {
-    custom.cachedResults.clear();
-  });
-  afterEach(() => {
-    custom.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');

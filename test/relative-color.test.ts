@@ -7,17 +7,19 @@ import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
+import { lruCache } from '../src/js/cache';
 import * as relColor from '../src/js/relative-color';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+
+afterEach(() => {
+  lruCache.clear();
+});
 
 describe('resolve relative color channels', () => {
   const func = relColor.resolveColorChannels;
-
-  beforeEach(() => {
-    relColor.cachedResults.clear();
-  });
-  afterEach(() => {
-    relColor.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not an array.');
@@ -90,13 +92,6 @@ describe('resolve relative color channels', () => {
 
 describe('extract origin color', () => {
   const func = relColor.extractOriginColor;
-
-  beforeEach(() => {
-    relColor.cachedResults.clear();
-  });
-  afterEach(() => {
-    relColor.cachedResults.clear();
-  });
 
   it('should get null object', () => {
     const res = func();
@@ -289,13 +284,6 @@ describe('extract origin color', () => {
 
 describe('resolve relative color', () => {
   const func = relColor.resolveRelativeColor;
-
-  beforeEach(() => {
-    relColor.cachedResults.clear();
-  });
-  afterEach(() => {
-    relColor.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');

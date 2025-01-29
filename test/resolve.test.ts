@@ -7,17 +7,19 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import * as api from '../src/js/resolve';
+import { lruCache } from '../src/js/cache';
 import { parseColorValue } from '../src/js/color';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+
+afterEach(() => {
+  lruCache.clear();
+});
 
 describe('resolve CSS color', () => {
   const func = api.resolve;
-
-  beforeEach(() => {
-    api.cachedResults.clear();
-  });
-  afterEach(() => {
-    api.cachedResults.clear();
-  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');

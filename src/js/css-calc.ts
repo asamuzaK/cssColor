@@ -4,9 +4,15 @@
 
 import { calc } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import { CacheItem, LRUCache, NullObject } from './cache';
+import {
+  CacheItem,
+  NullObject,
+  createCacheKey,
+  getCache,
+  setCache
+} from './cache';
 import { isString, isStringOrNumber } from './common';
-import { roundToPrecision, valueToJsonString } from './util';
+import { roundToPrecision } from './util';
 import { Options } from './typedef';
 
 /* constants */
@@ -28,6 +34,9 @@ const {
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
+const NAMESPACE = 'css-calc';
+
+/* numeric constants */
 const TRIA = 3;
 const HEX = 16;
 const MAX_PCT = 100;
@@ -41,11 +50,6 @@ const REG_OPERATOR = /\s[*+/-]\s/;
 const REG_TYPE_DIM = new RegExp(`^(${NUM})([a-z]+)$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})([a-z]+|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
-
-/* cached results */
-export const cachedResults = new LRUCache({
-  max: 4096
-});
 
 /**
  * Calclator
@@ -714,7 +718,7 @@ export const sortCalcValues = (
  * @returns serialized value
  */
 export const serializeCalc = (value: string, opt: Options = {}): string => {
-  const { customProperty = {}, dimension = {}, format = '' } = opt;
+  const { format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
       return value;
@@ -723,16 +727,17 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{serializeCalc:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as string;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'serializeCalc',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as string;
   }
   const items: string[] = tokenize({ css: value })
     .map((token: CSSToken): string => {
@@ -760,9 +765,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
     startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   }
   const serializedCalc = sortCalcValues(items, true);
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(serializedCalc));
-  }
+  setCache(cacheKey, serializedCalc);
   return serializedCalc;
 };
 
@@ -897,7 +900,7 @@ export const parseTokens = (
  * @returns resolved value
  */
 export const cssCalc = (value: string, opt: Options = {}): string => {
-  const { customProperty = {}, dimension = {}, format = '' } = opt;
+  const { format = '' } = opt;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
@@ -913,16 +916,17 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  let cacheKey = '';
-  if (
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
-  ) {
-    cacheKey = `{cssCalc:${value},opt:${valueToJsonString(opt)}}`;
-    if (cachedResults.has(cacheKey)) {
-      const cachedResult = cachedResults.get(cacheKey) as CacheItem;
-      return cachedResult.item as string;
-    }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'serializeCalc',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as string;
   }
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
@@ -945,8 +949,6 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
       resolvedValue = `calc(${resolvedValue})`;
     }
   }
-  if (cacheKey) {
-    cachedResults.set(cacheKey, new CacheItem(resolvedValue));
-  }
+  setCache(cacheKey, resolvedValue);
   return resolvedValue;
 };
