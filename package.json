@@ -41,14 +41,14 @@
     "lru-cache": "^10.4.3"
   },
   "devDependencies": {
-    "@tanstack/config": "^0.16.0",
+    "@tanstack/config": "^0.16.1",
     "@vitest/coverage-istanbul": "^3.0.4",
     "esbuild": "^0.24.2",
     "eslint": "^9.19.0",
     "eslint-plugin-import-x": "^4.6.1",
     "eslint-plugin-regexp": "^2.7.0",
     "globals": "^15.14.0",
-    "knip": "^5.43.3",
+    "knip": "^5.43.6",
     "neostandard": "^0.12.0",
     "prettier": "^3.4.2",
     "publint": "^0.3.2",
@@ -58,10 +58,10 @@
     "vitest": "^3.0.4"
   },
   "scripts": {
-    "build": "pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:browser && pnpm run publint",
+    "build": "pnpm run clean && pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:browser && pnpm run publint",
     "build:browser": "vite build -c vite.browser.config.ts",
     "build:prod": "vite build",
-    "clean": "rimraf ./dist && rimraf ./coverage",
+    "clean": "rimraf ./coverage ./dist",
     "knip": "knip",
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
@@ -70,5 +70,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "3.0.5"
+  "version": "3.0.6"
 }
