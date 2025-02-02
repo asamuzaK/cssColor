@@ -17,7 +17,7 @@ import {
 } from './color';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
-import { cssVar } from './css-var';
+import { resolveVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import {
   ComputedColorChannels,
@@ -112,7 +112,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
       setCache(cacheKey, value);
       return value;
     }
-    const resolvedValue = cssVar(value, opt);
+    const resolvedValue = resolveVar(value, opt);
     if (resolvedValue instanceof NullObject) {
       switch (format) {
         case 'hex':

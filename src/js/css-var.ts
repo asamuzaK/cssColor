@@ -87,8 +87,8 @@ export function resolveCustomProperty(
   for (let item of items) {
     item = item.trim();
     if (REG_FN_VAR.test(item)) {
-      // recurse cssVar()
-      const resolvedItem = cssVar(item, opt);
+      // recurse resolveVar()
+      const resolvedItem = resolveVar(item, opt);
       if (isString(resolvedItem)) {
         if (resolveAsColor) {
           if (isColor(resolvedItem)) {
@@ -192,7 +192,10 @@ export function parseTokens(
  * @param [opt] - options
  * @returns resolved value
  */
-export function cssVar(value: string, opt: Options = {}): string | NullObject {
+export function resolveVar(
+  value: string,
+  opt: Options = {}
+): string | NullObject {
   const { format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
@@ -205,7 +208,7 @@ export function cssVar(value: string, opt: Options = {}): string | NullObject {
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
-      name: 'cssVar',
+      name: 'resolveVar',
       value
     },
     opt
@@ -231,3 +234,17 @@ export function cssVar(value: string, opt: Options = {}): string | NullObject {
     return new NullObject();
   }
 }
+
+/**
+ * CSS var()
+ * @param value - color value including var()
+ * @param [opt] - options
+ * @returns resolved value
+ */
+export const cssVar = (value: string, opt: Options = {}): string => {
+  const resolvedValue = resolveVar(value, opt);
+  if (isString(resolvedValue)) {
+    return resolvedValue;
+  }
+  return '';
+};

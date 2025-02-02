@@ -524,7 +524,7 @@ describe('parse tokens', () => {
 });
 
 describe('resolve CSS var()', () => {
-  const func = custom.cssVar;
+  const func = custom.resolveVar;
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -653,5 +653,96 @@ describe('resolve CSS var()', () => {
       }
     });
     assert.strictEqual(res2, 'rgb(0 127.5 0)', 'result');
+  });
+});
+
+describe('CSS var()', () => {
+  const func = custom.cssVar;
+
+  it('should get value', () => {
+    const res = func('');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'var(--foo)', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      customProperty: {
+        '--foo': 'red'
+      }
+    });
+    assert.strictEqual(res, 'red', 'result');
+  });
+
+  it('should get value', () => {
+    const getPropertyValue = v => {
+      let res;
+      switch (v) {
+        case '--foo':
+          res = 'blue';
+          break;
+        case '--bar':
+          res = 'green';
+          break;
+        case '--baz':
+          res = 'yellow';
+          break;
+        default:
+      }
+      return res;
+    };
+    const res = func('var(--foo)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, 'blue', 'result');
+  });
+
+  it('should get value', () => {
+    const colorMap = {
+      '--foo': 'blue',
+      '--bar': 'green',
+      '--baz': 'yellow'
+    };
+    const getPropertyValue = v => {
+      const res = colorMap[v];
+      return res;
+    };
+    const res = func('var(--qux, red)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res, 'red', 'result');
+
+    colorMap['--qux'] = 'teal';
+    const res2 = func('var(--qux, red)', {
+      customProperty: {
+        callback: getPropertyValue
+      }
+    });
+    assert.strictEqual(res2, 'teal', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb( 0 calc( var( --max-rgb ) * var( --half ) ) 0 )', {
+      customProperty: {
+        '--half': '.5',
+        '--max-rgb': '255'
+      }
+    });
+    assert.strictEqual(res, 'rgb(0 127.5 0)', 'result');
   });
 });

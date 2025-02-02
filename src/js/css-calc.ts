@@ -12,12 +12,12 @@ import {
   setCache
 } from './cache';
 import { isString, isStringOrNumber } from './common';
+import { resolveVar } from './css-var';
 import { roundToPrecision } from './util';
 import { Options } from './typedef';
 
 /* constants */
 import {
-  FN_VAR,
   NUM,
   SYN_FN_CALC,
   SYN_FN_MATH_START,
@@ -894,7 +894,7 @@ export const parseTokens = (
 };
 
 /**
- * resolve CSS calc()
+ * CSS calc()
  * @param value - color value including calc()
  * @param [opt] - options
  * @returns resolved value
@@ -905,9 +905,13 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
         return value;
-        // var() must be resolved before cssCalc()
       } else {
-        throw new SyntaxError(`Unexpected token ${FN_VAR} found.`);
+        const resolvedValue = resolveVar(value, opt);
+        if (isString(resolvedValue)) {
+          return resolvedValue;
+        } else {
+          return '';
+        }
       }
     } else if (!REG_FN_CALC.test(value)) {
       return value;

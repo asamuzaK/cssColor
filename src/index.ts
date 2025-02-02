@@ -7,5 +7,6 @@
 
 export { convert } from './js/convert';
 export { cssCalc } from './js/css-calc';
+export { cssVar } from './js/css-var';
 export { resolve } from './js/resolve';
 export { isColor } from './js/util';
