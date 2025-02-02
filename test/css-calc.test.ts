@@ -1298,19 +1298,16 @@ describe('parse tokens', () => {
   });
 });
 
-describe('resolve CSS calc()', () => {
+describe('CSS calc()', () => {
   const func = csscalc.cssCalc;
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func('var(--foo)'),
-      SyntaxError,
-      'Unexpected token var( found.'
-    );
+  it('should get value', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, '', 'result');
   });
 
   it('should get value', () => {
@@ -1318,6 +1315,25 @@ describe('resolve CSS calc()', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, 'var(--foo)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      customProperty: {
+        '--foo': '20px'
+      },
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, '20px', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(var(--foo))', {
+      customProperty: {
+        '--foo': '20px'
+      }
+    });
+    assert.strictEqual(res, '20px', 'result');
   });
 
   it('should get value', () => {

@@ -23,7 +23,7 @@ import {
 } from './color';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
-import { cssVar } from './css-var';
+import { resolveVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolve } from './resolve';
 import { ColorChannels, ComputedColorChannels, Options } from './typedef';
@@ -71,7 +71,7 @@ export const preProcess = (
     return cachedResult.item as string;
   }
   if (REG_FN_VAR.test(value)) {
-    const resolvedValue = cssVar(value, opt);
+    const resolvedValue = resolveVar(value, opt);
     if (isString(resolvedValue)) {
       value = resolvedValue;
     } else {
