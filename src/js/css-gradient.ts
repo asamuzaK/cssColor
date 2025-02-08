@@ -69,7 +69,7 @@ const REG_GRAD = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
  * @property colorStopList
  * @property [gradientLine]
  */
-export interface Gradient {
+interface Gradient {
   value: string;
   type: string;
   colorStopList: string[];
@@ -223,7 +223,7 @@ export const parseGradient = (
     if (type) {
       const gradientValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
       const [gradientLineOrColorStop, ...colorStopList] = gradientValue.split(
-        /\s*,\s*/
+        /\s{0,255},\s{0,255}/
       ) as [string, ...string[]];
       const isConic = /^(?:repeating-)?conic-gradient$/.test(type);
       const dimension = isConic ? ANGLE_PCT : LENGTH_PCT;
