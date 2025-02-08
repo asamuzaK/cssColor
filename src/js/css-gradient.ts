@@ -18,10 +18,12 @@ import {
   PCT
 } from './constant';
 const NAMESPACE = 'css-gradient';
-const ANGLE_PCT = `${NUM}(?:${ANGLE})|${PCT}`;
-const LENGTH_PCT = `${NUM}(?:${LENGTH})|${PCT}|0`;
-const LENGTH_PCT_POSITIVE = `${NUM_POSITIVE}(?:${LENGTH}|%)|0`;
-const LENGTH_POSITIVE = `${NUM_POSITIVE}(?:${LENGTH})|0`;
+const DIM_ANGLE = `${NUM}(?:${ANGLE})`;
+const DIM_ANGLE_PCT = `${DIM_ANGLE}|${PCT}`;
+const DIM_LEN = `${NUM}(?:${LENGTH})|0`;
+const DIM_LEN_PCT = `${DIM_LEN}|${PCT}`;
+const DIM_LEN_PCT_POSI = `${NUM_POSITIVE}(?:${LENGTH}|%)|0`;
+const DIM_LEN_POSI = `${NUM_POSITIVE}(?:${LENGTH})|0`;
 const CTR = 'center';
 const L_R = 'left|right';
 const T_B = 'top|bottom';
@@ -30,36 +32,37 @@ const AXIS_X = `${L_R}|x-(?:${S_E})`;
 const AXIS_Y = `${T_B}|y-(?:${S_E})`;
 const BLOCK = `block-(?:${S_E})`;
 const INLINE = `inline-(?:${S_E})`;
-const POS_1 = `${CTR}|${AXIS_X}|${AXIS_Y}|${BLOCK}|${INLINE}|${LENGTH_PCT}`;
+const POS_1 = `${CTR}|${AXIS_X}|${AXIS_Y}|${BLOCK}|${INLINE}|${DIM_LEN_PCT}`;
 const POS_2 = [
   `(?:${CTR}|${AXIS_X})\\s+(?:${CTR}|${AXIS_Y})`,
   `(?:${CTR}|${AXIS_Y})\\s+(?:${CTR}|${AXIS_X})`,
-  `(?:${CTR}|${AXIS_X}|${LENGTH_PCT})\\s+(?:${CTR}|${AXIS_Y}|${LENGTH_PCT})`,
+  `(?:${CTR}|${AXIS_X}|${DIM_LEN_PCT})\\s+(?:${CTR}|${AXIS_Y}|${DIM_LEN_PCT})`,
   `(?:${CTR}|${BLOCK})\\s+(?:${CTR}|${INLINE})`,
   `(?:${CTR}|${INLINE})\\s+(?:${CTR}|${BLOCK})`,
   `(?:${CTR}|${S_E})\\s+(?:${CTR}|${S_E})`
 ].join('|');
 const POS_4 = [
-  `(?:${AXIS_X})\\s+${LENGTH_PCT}\\s+(?:${AXIS_Y})\\s+${LENGTH_PCT}`,
-  `(?:${AXIS_Y})\\s+${LENGTH_PCT}\\s+(?:${AXIS_X})\\s+${LENGTH_PCT}`,
-  `(?:${BLOCK})\\s+${LENGTH_PCT}\\s+(?:${INLINE})\\s+${LENGTH_PCT}`,
-  `(?:${INLINE})\\s+${LENGTH_PCT}\\s+(?:${BLOCK})\\s+${LENGTH_PCT}`,
-  `(?:${S_E})\\s+${LENGTH_PCT}\\s+(?:${S_E})\\s+${LENGTH_PCT}`
+  `(?:${AXIS_X})\\s+(?:${DIM_LEN_PCT})\\s+(?:${AXIS_Y})\\s+(?:${DIM_LEN_PCT})`,
+  `(?:${AXIS_Y})\\s+(?:${DIM_LEN_PCT})\\s+(?:${AXIS_X})\\s+(?:${DIM_LEN_PCT})`,
+  `(?:${BLOCK})\\s+(?:${DIM_LEN_PCT})\\s+(?:${INLINE})\\s+(?:${DIM_LEN_PCT})`,
+  `(?:${INLINE})\\s+(?:${DIM_LEN_PCT})\\s+(?:${BLOCK})\\s+(?:${DIM_LEN_PCT})`,
+  `(?:${S_E})\\s+(?:${DIM_LEN_PCT})\\s+(?:${S_E})\\s+(?:${DIM_LEN_PCT})`
 ].join('|');
 const RAD_EXTENT = '(?:clos|farth)est-(?:corner|side)';
 const RAD_SIZE = [
   `${RAD_EXTENT}(?:\\s+${RAD_EXTENT})?`,
-  `${LENGTH_POSITIVE}`,
-  `(?:${LENGTH_PCT_POSITIVE})\\s+(?:${LENGTH_PCT_POSITIVE})`
+  `${DIM_LEN_POSI}`,
+  `(?:${DIM_LEN_PCT_POSI})\\s+(?:${DIM_LEN_PCT_POSI})`
 ].join('|');
 const RAD_SHAPE = 'circle|ellipse';
-const FROM_ANGLE = `from\\s+${NUM}${ANGLE}`;
+const FROM_ANGLE = `from\\s+${DIM_ANGLE}`;
 const AT_POSITION = `at\\s+(?:${POS_1}|${POS_2}|${POS_4})`;
 const TO_SIDE_CORNER = `to\\s+(?:${L_R}(?:\\s${T_B})?|${T_B}(?:\\s${L_R})?)`;
 const IN_COLOR_SPACE = `in\\s+(?:${CS_RECT}|${CS_HUE})`;
 
 /* regexp */
-const REG_GRAD = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
+const REG_GRAD = /^(?:repeating-)?(?:conic|linear|radial)-gradient\(/;
+const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
 
 /* type definitions */
 /**
@@ -85,7 +88,7 @@ export const getGradientType = (value: string): string => {
   if (isString(value)) {
     value = value.trim();
     if (REG_GRAD.test(value)) {
-      const [, type = ''] = value.match(REG_GRAD) as RegExpExecArray;
+      const [, type = ''] = value.match(REG_GRAD_CAPT) as RegExpExecArray;
       return type;
     }
   }
@@ -144,8 +147,8 @@ export const validateGradientLine = (value: string, type: string): boolean => {
        * ]
        */
       const linearLine = [
-        `(?:${NUM}${ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?`,
-        `${IN_COLOR_SPACE}(?:\\s+(?:${NUM}${ANGLE}|${TO_SIDE_CORNER}))?`
+        `(?:${DIM_ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?`,
+        `${IN_COLOR_SPACE}(?:\\s+(?:${DIM_ANGLE}|${TO_SIDE_CORNER}))?`
       ].join('|');
       const reg = new RegExp(`^${linearLine}$`);
       return reg.test(value);
@@ -168,7 +171,7 @@ export const validateColorStopList = (
 ): boolean => {
   if (Array.isArray(list)) {
     const isConic = /^(?:repeating-)?conic-gradient$/.test(type);
-    const dimension = isConic ? ANGLE_PCT : LENGTH_PCT;
+    const dimension = isConic ? DIM_ANGLE_PCT : DIM_LEN_PCT;
     const regColorHint = new RegExp(`^(?:${dimension})$`);
     const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
     const arr = [];
@@ -226,7 +229,7 @@ export const parseGradient = (
         /\s{0,255},\s{0,255}/
       ) as [string, ...string[]];
       const isConic = /^(?:repeating-)?conic-gradient$/.test(type);
-      const dimension = isConic ? ANGLE_PCT : LENGTH_PCT;
+      const dimension = isConic ? DIM_ANGLE_PCT : DIM_LEN_PCT;
       const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
       let isColorStop = false;
       if (regDimension.test(gradientLineOrColorStop)) {
