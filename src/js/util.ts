@@ -4,6 +4,7 @@
 
 import { isString } from './common';
 import { resolve } from './resolve';
+import { Options } from './typedef';
 
 /* constants */
 import { NAMED_COLORS } from './color';
@@ -22,9 +23,10 @@ const REG_MIX = new RegExp(`${SYN_MIX}`);
 /**
  * is color
  * @param value
+ * @param [opt]
  * @returns result
  */
-export const isColor = (value: unknown): boolean => {
+export const isColor = (value: unknown, opt: Options = {}): boolean => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (value && isString(value)) {
@@ -38,13 +40,11 @@ export const isColor = (value: unknown): boolean => {
       } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
         return true;
       } else {
-        const resolvedValue = resolve(value, {
-          format: VAL_SPEC
-        });
+        opt.format = VAL_SPEC;
+        const resolvedValue = resolve(value, opt);
         if (resolvedValue) {
           return true;
         }
-        return false;
       }
     }
   }

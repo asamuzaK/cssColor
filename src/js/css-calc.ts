@@ -18,6 +18,8 @@ import { Options } from './typedef';
 
 /* constants */
 import {
+  ANGLE,
+  LENGTH,
   NUM,
   SYN_FN_CALC,
   SYN_FN_MATH_START,
@@ -47,8 +49,8 @@ const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
 const REG_OPERATOR = /\s[*+/-]\s/;
-const REG_TYPE_DIM = new RegExp(`^(${NUM})([a-z]+)$`);
-const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})([a-z]+|%)$`);
+const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
+const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
 
 /**
