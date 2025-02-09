@@ -65,6 +65,16 @@ describe('is color', () => {
     const res = func('var(--foo)');
     assert.strictEqual(res, true, 'result');
   });
+
+  it('should get true', () => {
+    const res = func(
+      'color-mix(in oklab, green, color-mix(in rgb, red, transparent)',
+      {
+        format: 'computedColor'
+      }
+    );
+    assert.strictEqual(res, true, 'result');
+  });
 });
 
 describe('value to JSON string', () => {

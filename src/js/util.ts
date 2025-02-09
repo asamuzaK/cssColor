@@ -40,7 +40,9 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
       } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
         return true;
       } else {
-        opt.format = VAL_SPEC;
+        if (!opt.format) {
+          opt.format = VAL_SPEC;
+        }
         const resolvedValue = resolve(value, opt);
         if (resolvedValue) {
           return true;
