@@ -2,6 +2,7 @@
  * css-gradient
  */
 
+import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 import { Options } from './typedef';
@@ -17,6 +18,13 @@ import {
   NUM_POSITIVE,
   PCT
 } from './constant';
+const {
+  CloseParen: PAREN_CLOSE,
+  Comma: COMMA,
+  EOF,
+  Function: FUNC,
+  OpenParen: PAREN_OPEN
+} = TokenType;
 const NAMESPACE = 'css-gradient';
 const DIM_ANGLE = `${NUM}(?:${ANGLE})`;
 const DIM_ANGLE_PCT = `${DIM_ANGLE}|${PCT}`;
@@ -66,17 +74,22 @@ const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
 
 /* type definitions */
 /**
+ * @type ColorStopList - list of color stops
+ */
+type ColorStopList = [string, string, ...string[]];
+
+/**
  * @typedef Gradient - parsed CSS gradient
- * @property value
- * @property type
- * @property colorStopList
- * @property [gradientLine]
+ * @property value - input value
+ * @property type - gradient type
+ * @property [gradientLine] - gradient line
+ * @property colorStopList - list of color stops
  */
 interface Gradient {
   value: string;
   type: string;
-  colorStopList: string[];
   gradientLine?: string;
+  colorStopList: ColorStopList;
 }
 
 /**
@@ -99,37 +112,31 @@ export const getGradientType = (value: string): string => {
  * validate gradient line
  * @param value
  * @param type
- * @param [opt]
  * @returns result
  */
 export const validateGradientLine = (value: string, type: string): boolean => {
   if (isString(value) && isString(type)) {
     value = value.trim();
     type = type.trim();
-    const isConic = /^(?:repeating-)?conic-gradient$/.test(type);
-    const isLinear = /^(?:repeating-)?linear-gradient$/.test(type);
-    const isRadial = /^(?:repeating-)?radial-gradient$/.test(type);
-    if (isConic) {
+    let lineSyntax = '';
+    if (/^(?:repeating-)?linear-gradient$/.test(type)) {
       /*
-       * <conic-gradient-line> = [
-       *   [ [ from <angle> ]? [ at <position> ]? ] ||
+       * <linear-gradient-line> = [
+       *   [ <angle> | to <side-or-corner> ] ||
        *   <color-interpolation-method>
        * ]
        */
-      const conicLine = [
-        `${FROM_ANGLE}(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
-        `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
-        `${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?`
+      lineSyntax = [
+        `(?:${DIM_ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?`,
+        `${IN_COLOR_SPACE}(?:\\s+(?:${DIM_ANGLE}|${TO_SIDE_CORNER}))?`
       ].join('|');
-      const reg = new RegExp(`^${conicLine}$`);
-      return reg.test(value);
-    } else if (isRadial) {
+    } else if (/^(?:repeating-)?radial-gradient$/.test(type)) {
       /*
        * <radial-gradient-line> = [
        *   [ [ <radial-shape> || <radial-size> ]? [ at <position> ]? ] ||
        *   <color-interpolation-method>]?
        */
-      const radialLine = [
+      lineSyntax = [
         `(?:${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(\\s+${AT_POSITION})?(?:${IN_COLOR_SPACE})?`,
         `(?:${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(\\s+${AT_POSITION})?(?:${IN_COLOR_SPACE})?`,
         `${AT_POSITION}(?:${IN_COLOR_SPACE})?`,
@@ -137,20 +144,21 @@ export const validateGradientLine = (value: string, type: string): boolean => {
         `${IN_COLOR_SPACE}(?:\\s+${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(\\s+${AT_POSITION})?`,
         `${IN_COLOR_SPACE}(\\s+${AT_POSITION})?`
       ].join('|');
-      const reg = new RegExp(`^${radialLine}$`);
-      return reg.test(value);
-    } else if (isLinear) {
+    } else if (/^(?:repeating-)?conic-gradient$/.test(type)) {
       /*
-       * <linear-gradient-line> = [
-       *   [ <angle> | to <side-or-corner> ] ||
+       * <conic-gradient-line> = [
+       *   [ [ from <angle> ]? [ at <position> ]? ] ||
        *   <color-interpolation-method>
        * ]
        */
-      const linearLine = [
-        `(?:${DIM_ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?`,
-        `${IN_COLOR_SPACE}(?:\\s+(?:${DIM_ANGLE}|${TO_SIDE_CORNER}))?`
+      lineSyntax = [
+        `${FROM_ANGLE}(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
+        `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
+        `${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?`
       ].join('|');
-      const reg = new RegExp(`^${linearLine}$`);
+    }
+    if (lineSyntax) {
+      const reg = new RegExp(`^${lineSyntax}$`);
       return reg.test(value);
     }
   }
@@ -169,9 +177,10 @@ export const validateColorStopList = (
   type: string,
   opt: Options = {}
 ): boolean => {
-  if (Array.isArray(list)) {
-    const isConic = /^(?:repeating-)?conic-gradient$/.test(type);
-    const dimension = isConic ? DIM_ANGLE_PCT : DIM_LEN_PCT;
+  if (Array.isArray(list) && list.length > 1) {
+    const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
+      ? DIM_ANGLE_PCT
+      : DIM_LEN_PCT;
     const regColorHint = new RegExp(`^(?:${dimension})$`);
     const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
     const arr = [];
@@ -193,6 +202,58 @@ export const validateColorStopList = (
     return /^color(?:,(?:hint,)?color)+$/.test(value);
   }
   return false;
+};
+
+/**
+ * parse tokens
+ * @param tokens - CSS tokens
+ * @returns parsed tokens
+ */
+export const parseTokens = (tokens: CSSToken[]): string[] => {
+  if (!Array.isArray(tokens)) {
+    throw new TypeError(`${tokens} is not an array.`);
+  }
+  let nest = 0;
+  let str = '';
+  const res: string[] = [];
+  while (tokens.length) {
+    const token = tokens.shift();
+    if (!Array.isArray(token)) {
+      throw new TypeError(`${token} is not an array.`);
+    }
+    const [type = '', value = ''] = token as [TokenType, string];
+    switch (type) {
+      case COMMA: {
+        if (nest === 0) {
+          res.push(str.trim());
+          str = '';
+        } else {
+          str += value;
+        }
+        break;
+      }
+      case FUNC:
+      case PAREN_OPEN: {
+        str += value;
+        nest++;
+        break;
+      }
+      case PAREN_CLOSE: {
+        str += value;
+        nest--;
+        break;
+      }
+      default: {
+        if (type === EOF) {
+          res.push(str.trim());
+          str = '';
+        } else {
+          str += value;
+        }
+      }
+    }
+  }
+  return res;
 };
 
 /**
@@ -223,46 +284,46 @@ export const parseGradient = (
       return cachedResult.item as Gradient;
     }
     const type = getGradientType(value);
-    if (type) {
-      const gradientValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
-      const [gradientLineOrColorStop, ...colorStopList] = gradientValue.split(
-        /\s{0,255},\s{0,255}/
-      ) as [string, ...string[]];
-      const isConic = /^(?:repeating-)?conic-gradient$/.test(type);
-      const dimension = isConic ? DIM_ANGLE_PCT : DIM_LEN_PCT;
+    const gradientValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
+    if (type && gradientValue) {
+      const tokens = tokenize({ css: gradientValue });
+      const [lineOrColorStop = '', ...colorStops] = parseTokens(tokens);
+      const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
+        ? DIM_ANGLE_PCT
+        : DIM_LEN_PCT;
       const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
       let isColorStop = false;
-      if (regDimension.test(gradientLineOrColorStop)) {
-        const colorStop = gradientLineOrColorStop.replace(regDimension, '');
+      if (regDimension.test(lineOrColorStop)) {
+        const colorStop = lineOrColorStop.replace(regDimension, '');
         if (isColor(colorStop, opt)) {
           isColorStop = true;
         }
-      } else if (isColor(gradientLineOrColorStop, opt)) {
+      } else if (isColor(lineOrColorStop, opt)) {
         isColorStop = true;
       }
       if (isColorStop) {
-        colorStopList.unshift(gradientLineOrColorStop);
-        const valid = validateColorStopList(colorStopList, type, opt);
+        colorStops.unshift(lineOrColorStop);
+        const valid = validateColorStopList(colorStops, type, opt);
         if (valid) {
           const res: Gradient = {
             value,
             type,
-            colorStopList
+            colorStopList: colorStops as ColorStopList
           };
           setCache(cacheKey, res);
           return res;
         }
-      } else {
-        const gradientLine = gradientLineOrColorStop;
+      } else if (colorStops.length > 1) {
+        const gradientLine = lineOrColorStop;
         const valid =
           validateGradientLine(gradientLine, type) &&
-          validateColorStopList(colorStopList, type, opt);
+          validateColorStopList(colorStops, type, opt);
         if (valid) {
           const res: Gradient = {
             value,
             type,
-            colorStopList,
-            gradientLine
+            gradientLine,
+            colorStopList: colorStops as ColorStopList
           };
           setCache(cacheKey, res);
           return res;
