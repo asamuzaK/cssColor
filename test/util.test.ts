@@ -11,54 +11,59 @@ import * as util from '../src/js/util';
 describe('is color', () => {
   const func = util.isColor;
 
-  it('should get result', () => {
+  it('should get false', () => {
     const res = func();
     assert.strictEqual(res, false, 'result');
   });
 
-  it('should get result', () => {
+  it('should get false', () => {
     const res = func('');
     assert.strictEqual(res, false, 'result');
   });
 
-  it('should get result', () => {
+  it('should get false', () => {
     const res = func('foo');
     assert.strictEqual(res, false, 'result');
   });
 
-  it('should get result', () => {
+  it('should get true', () => {
     const res = func('red');
     assert.strictEqual(res, true, 'result');
   });
 
-  it('should get result', () => {
+  it('should get true', () => {
     const res = func('currentcolor');
     assert.strictEqual(res, true, 'result');
   });
 
-  it('should get result', () => {
+  it('should get true', () => {
     const res = func('transparent');
     assert.strictEqual(res, true, 'result');
   });
 
-  it('should get result', () => {
+  it('should get true', () => {
     const res = func('color(srgb 0 127.5 0)');
     assert.strictEqual(res, true, 'result');
   });
 
-  it('should get result', () => {
+  it('should get true', () => {
     const res = func('color-mix(in oklab, red, blue)');
     assert.strictEqual(res, true, 'result');
   });
 
-  it('should get result', () => {
+  it('should get true', () => {
     const res = func('rgb(from rebeccapurple r g b)');
     assert.strictEqual(res, true, 'result');
   });
 
-  it('should get result', () => {
+  it('should get false', () => {
     const res = func('rgb(from rebeccapurple l a b)');
     assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, true, 'result');
   });
 });
 
