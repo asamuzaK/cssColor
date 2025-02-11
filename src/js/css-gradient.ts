@@ -5,7 +5,7 @@
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { Options } from './typedef';
+import { MatchedRegExp, Options } from './typedef';
 import { isColor } from './util';
 
 /* constants */
@@ -68,10 +68,6 @@ const AT_POSITION = `at\\s+(?:${POS_1}|${POS_2}|${POS_4})`;
 const TO_SIDE_CORNER = `to\\s+(?:${L_R}(?:\\s${T_B})?|${T_B}(?:\\s${L_R})?)`;
 const IN_COLOR_SPACE = `in\\s+(?:${CS_RECT}|${CS_HUE})`;
 
-/* regexp */
-const REG_GRAD = /^(?:repeating-)?(?:conic|linear|radial)-gradient\(/;
-const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
-
 /* type definitions */
 /**
  * @type ColorStopList - list of color stops
@@ -92,6 +88,10 @@ interface Gradient {
   colorStopList: ColorStopList;
 }
 
+/* regexp */
+const REG_GRAD = /^(?:repeating-)?(?:conic|linear|radial)-gradient\(/;
+const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
+
 /**
  * get gradient type
  * @param value
@@ -101,7 +101,7 @@ export const getGradientType = (value: string): string => {
   if (isString(value)) {
     value = value.trim();
     if (REG_GRAD.test(value)) {
-      const [, type = ''] = value.match(REG_GRAD_CAPT) as RegExpExecArray;
+      const [, type] = value.match(REG_GRAD_CAPT) as MatchedRegExp;
       return type;
     }
   }
@@ -221,7 +221,7 @@ export const parseTokens = (tokens: CSSToken[]): string[] => {
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type = '', value = ''] = token as [TokenType, string];
+    const [type, value] = token as [TokenType, string];
     switch (type) {
       case COMMA: {
         if (nest === 0) {

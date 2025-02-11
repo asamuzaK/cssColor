@@ -26,7 +26,24 @@ describe('resolve relative color channels', () => {
   });
 
   it('should throw', () => {
-    assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
+    assert.throws(
+      () =>
+        func(['foo'], {
+          colorSpace: 'lab',
+          format: 'specifiedValue'
+        }),
+      TypeError,
+      'foo is not an array.'
+    );
+  });
+
+  it('should get null object', () => {
+    const css = ' r g b / alpha)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
   });
 
   it('should get null object', () => {

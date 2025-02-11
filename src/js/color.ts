@@ -19,7 +19,10 @@ import {
   ColorChannels,
   ComputedColorChannels,
   Options,
-  SpecifiedColorChannels
+  MatchedRegExp,
+  SpecifiedColorChannels,
+  StringColorChannels,
+  StringColorSpacedChannels
 } from './typedef';
 
 /* constants */
@@ -556,7 +559,7 @@ export const angleToDeg = (angle: string): number => {
   if (!reg.test(angle)) {
     throw new SyntaxError(`Invalid property value: ${angle}`);
   }
-  const [, value = '', unit = ''] = angle.match(reg) as RegExpExecArray;
+  const [, value, unit] = angle.match(reg) as MatchedRegExp;
   let deg;
   switch (unit) {
     case 'grad':
@@ -1134,41 +1137,41 @@ export const convertHexToRgb = (value: string): ColorChannels => {
     throw new SyntaxError(`Invalid property value: ${value}`);
   }
   const arr: number[] = [];
-  if (/^#[\da-f]{6}$/.test(value)) {
-    const [, r = '', g = '', b = ''] = value.match(
-      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
-    ) as RegExpExecArray;
-    arr.push(parseInt(r, HEX), parseInt(g, HEX), parseInt(b, HEX), 1);
-  } else if (/^#[\da-f]{3}$/.test(value)) {
-    const [, r = '', g = '', b = ''] = value.match(
+  if (/^#[\da-f]{3}$/.test(value)) {
+    const [, r, g, b] = value.match(
       /^#([\da-f])([\da-f])([\da-f])$/
-    ) as RegExpExecArray;
+    ) as MatchedRegExp;
     arr.push(
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
       parseInt(`${b}${b}`, HEX),
       1
     );
-  } else if (/^#[\da-f]{8}$/.test(value)) {
-    const [, r = '', g = '', b = '', alpha = ''] = value.match(
-      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
-    ) as RegExpExecArray;
-    arr.push(
-      parseInt(r, HEX),
-      parseInt(g, HEX),
-      parseInt(b, HEX),
-      parseHexAlpha(alpha)
-    );
   } else if (/^#[\da-f]{4}$/.test(value)) {
-    const [, r = '', g = '', b = '', alpha = ''] = value.match(
+    const [, r, g, b, alpha] = value.match(
       /^#([\da-f])([\da-f])([\da-f])([\da-f])$/
-    ) as RegExpExecArray;
+    ) as MatchedRegExp;
     arr.push(
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
       parseInt(`${b}${b}`, HEX),
       parseHexAlpha(`${alpha}${alpha}`)
     );
+  } else if (/^#[\da-f]{8}$/.test(value)) {
+    const [, r, g, b, alpha] = value.match(
+      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
+    ) as MatchedRegExp;
+    arr.push(
+      parseInt(r, HEX),
+      parseInt(g, HEX),
+      parseInt(b, HEX),
+      parseHexAlpha(alpha)
+    );
+  } else {
+    const [, r, g, b] = value.match(
+      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
+    ) as MatchedRegExp;
+    arr.push(parseInt(r, HEX), parseInt(g, HEX), parseInt(b, HEX), 1);
   }
   return arr as ColorChannels;
 };
@@ -1222,10 +1225,10 @@ export const parseRgb = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val = ''] = value.match(reg) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(reg) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace(/[,/]/g, ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let r, g, b;
   if (v1 === NONE) {
     r = 0;
@@ -1287,10 +1290,10 @@ export const parseHsl = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val = ''] = value.match(REG_HSL) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_HSL) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace(/[,/]/g, ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let h, s, l;
   if (v1 === NONE) {
     h = 0;
@@ -1361,10 +1364,10 @@ export const parseHwb = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val = ''] = value.match(REG_HWB) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_HWB) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace('/', ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let h, wh, bk;
   if (v1 === NONE) {
     h = 0;
@@ -1438,10 +1441,10 @@ export const parseLab = (
   }
   const COEF_PCT = 1.25;
   const COND_POW = 8;
-  const [, val = ''] = value.match(REG_LAB) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_LAB) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace('/', ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let l, a, b;
   if (v1 === NONE) {
     l = 0;
@@ -1530,10 +1533,10 @@ export const parseLch = (
     return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 1.5;
-  const [, val = ''] = value.match(REG_LCH) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_LCH) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace('/', ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let l, c, h;
   if (v1 === NONE) {
     l = 0;
@@ -1604,10 +1607,10 @@ export const parseOklab = (
     return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 0.4;
-  const [, val = ''] = value.match(REG_OKLAB) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_OKLAB) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace('/', ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let l, a, b;
   if (v1 === NONE) {
     l = 0;
@@ -1682,10 +1685,10 @@ export const parseOklch = (
     return res as SpecifiedColorChannels;
   }
   const COEF_PCT = 0.4;
-  const [, val = ''] = value.match(REG_OKLCH) as RegExpExecArray;
-  const [v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_OKLCH) as MatchedRegExp;
+  const [v1, v2, v3, v4 = ''] = val
     .replace('/', ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorChannels;
   let l, c, h;
   if (v1 === NONE) {
     l = 0;
@@ -1764,10 +1767,10 @@ export const parseColorFunc = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val = ''] = value.match(REG_FN_COLOR) as RegExpExecArray;
-  let [cs = '', v1 = '', v2 = '', v3 = '', v4 = ''] = val
+  const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+  let [cs, v1, v2, v3, v4 = ''] = val
     .replace('/', ' ')
-    .split(/\s+/);
+    .split(/\s+/) as StringColorSpacedChannels;
   let r, g, b;
   if (cs === 'xyz') {
     cs = 'xyz-d65';
@@ -2237,7 +2240,7 @@ export const resolveColorFunc = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [cs = '', v1 = '', v2 = '', v3 = '', v4 = ''] = parseColorFunc(
+  const [cs, v1, v2, v3, v4] = parseColorFunc(
     value,
     opt
   ) as SpecifiedColorChannels;
@@ -2293,8 +2296,10 @@ export const convertColorToLinearRgb = (
     }
     [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
   } else if (value.startsWith(FN_COLOR)) {
-    const [, val = ''] = value.match(REG_FN_COLOR) as RegExpExecArray;
-    const [cs] = val.replace('/', ' ').split(/\s+/);
+    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+    const [cs] = val
+      .replace('/', ' ')
+      .split(/\s+/) as StringColorSpacedChannels;
     if (cs === 'srgb-linear') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
         format: VAL_COMP
@@ -2345,8 +2350,10 @@ export const convertColorToRgb = (
     }
     [, r, g, b, alpha] = rgb as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
-    const [, val = ''] = value.match(REG_FN_COLOR) as RegExpExecArray;
-    const [cs] = val.replace('/', ' ').split(/\s+/);
+    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+    const [cs] = val
+      .replace('/', ' ')
+      .split(/\s+/) as StringColorSpacedChannels;
     if (cs === 'srgb') {
       [, r, g, b, alpha] = resolveColorFunc(value, {
         format: VAL_COMP
@@ -2397,8 +2404,10 @@ export const convertColorToXyz = (
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
-    const [, val = ''] = value.match(REG_FN_COLOR) as RegExpExecArray;
-    const [cs = ''] = val.replace('/', ' ').split(/\s+/);
+    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+    const [cs] = val
+      .replace('/', ' ')
+      .split(/\s+/) as StringColorSpacedChannels;
     if (d50) {
       if (cs === 'xyz-d50') {
         [, x, y, z, alpha] = resolveColorFunc(value, {
@@ -2745,7 +2754,7 @@ export const resolveColorMix = (
   if (!REG_MIX.test(value)) {
     if (value.startsWith(FN_MIX) && REG_MIX_NEST.test(value)) {
       const regColorSpace = new RegExp(`^(?:${CS_RGB}|${CS_XYZ})$`);
-      const items = value.match(REG_MIX_NEST) as RegExpExecArray;
+      const items = value.match(REG_MIX_NEST) as RegExpMatchArray;
       for (const item of items) {
         if (item) {
           let val = resolveColorMix(item, {
@@ -2797,27 +2806,30 @@ export const resolveColorMix = (
       return res;
     }
   }
-  let colorSpace, hueArc, colorA, pctA, colorB, pctB;
+  let colorSpace = '';
+  let hueArc = '';
+  let colorA = '';
+  let pctA = '';
+  let colorB = '';
+  let pctB = '';
   if (nestedItems.length && format === VAL_SPEC) {
     const regColorSpace = new RegExp(`^color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,`);
-    const [, cs = ''] = value.match(regColorSpace) as RegExpExecArray;
+    const [, cs] = value.match(regColorSpace) as MatchedRegExp;
     if (REG_CS_HUE.test(cs)) {
-      [, colorSpace = '', hueArc = ''] = cs.match(
-        REG_CS_HUE
-      ) as RegExpExecArray;
+      [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as MatchedRegExp;
     } else {
       colorSpace = cs;
     }
     if (nestedItems.length === 2) {
-      let [itemA = '', itemB = ''] = nestedItems;
+      let [itemA, itemB] = nestedItems as [string, string];
       itemA = itemA.replace(/(?=[()])/g, '\\');
       itemB = itemB.replace(/(?=[()])/g, '\\');
       const regA = new RegExp(`(${itemA})(?:\\s+(${PCT}))?`);
       const regB = new RegExp(`(${itemB})(?:\\s+(${PCT}))?`);
-      [, colorA = '', pctA = ''] = value.match(regA) as RegExpExecArray;
-      [, colorB = '', pctB = ''] = value.match(regB) as RegExpExecArray;
+      [, colorA, pctA] = value.match(regA) as MatchedRegExp;
+      [, colorB, pctB] = value.match(regB) as MatchedRegExp;
     } else {
-      let [item = ''] = nestedItems;
+      let [item] = nestedItems as [string];
       item = item.replace(/(?=[()])/g, '\\');
       const itemPart = `${item}(?:\\s+${PCT})?`;
       const itemPartCapt = `(${item})(?:\\s+(${PCT}))?`;
@@ -2829,41 +2841,27 @@ export const resolveColorMix = (
         const reg = new RegExp(
           `(${SYN_MIX_PART})\\s*,\\s*(${itemPart})\\s*\\)$`
         );
-        const [, colorPartA = '', colorPartB = ''] = value.match(
-          reg
-        ) as RegExpExecArray;
-        [, colorA = '', pctA = ''] = colorPartA.match(
-          regColorPart
-        ) as RegExpExecArray;
-        [, colorB = '', pctB = ''] = colorPartB.match(
-          regItemPart
-        ) as RegExpExecArray;
+        const [, colorPartA, colorPartB] = value.match(reg) as MatchedRegExp;
+        [, colorA, pctA] = colorPartA.match(regColorPart) as MatchedRegExp;
+        [, colorB, pctB] = colorPartB.match(regItemPart) as MatchedRegExp;
       } else {
         const reg = new RegExp(
           `(${itemPart})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)$`
         );
-        const [, colorPartA = '', colorPartB = ''] = value.match(
-          reg
-        ) as RegExpExecArray;
-        [, colorA = '', pctA = ''] = colorPartA.match(
-          regItemPart
-        ) as RegExpExecArray;
-        [, colorB = '', pctB = ''] = colorPartB.match(
-          regColorPart
-        ) as RegExpExecArray;
+        const [, colorPartA, colorPartB] = value.match(reg) as MatchedRegExp;
+        [, colorA, pctA] = colorPartA.match(regItemPart) as MatchedRegExp;
+        [, colorB, pctB] = colorPartB.match(regColorPart) as MatchedRegExp;
       }
     }
   } else {
-    const [, cs = '', colorPartA = '', colorPartB = ''] = value.match(
+    const [, cs, colorPartA, colorPartB] = value.match(
       REG_MIX_CAPT
-    ) as RegExpExecArray;
+    ) as MatchedRegExp;
     const reg = new RegExp(`^(${SYN_COLOR_TYPE})(?:\\s+(${PCT}))?$`);
-    [, colorA = '', pctA = ''] = colorPartA.match(reg) as RegExpExecArray;
-    [, colorB = '', pctB = ''] = colorPartB.match(reg) as RegExpExecArray;
+    [, colorA, pctA] = colorPartA.match(reg) as MatchedRegExp;
+    [, colorB, pctB] = colorPartB.match(reg) as MatchedRegExp;
     if (REG_CS_HUE.test(cs)) {
-      [, colorSpace = '', hueArc = ''] = cs.match(
-        REG_CS_HUE
-      ) as RegExpExecArray;
+      [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as MatchedRegExp;
     } else {
       colorSpace = cs;
     }
@@ -2935,27 +2933,24 @@ export const resolveColorMix = (
   }
   // specified value
   if (format === VAL_SPEC) {
-    let valueA, valueB;
+    let valueA = '';
+    let valueB = '';
     if (colorA.startsWith(FN_MIX)) {
       valueA = colorA;
     } else if (colorA.startsWith(FN_COLOR)) {
-      valueA = parseColorFunc(colorA, opt);
-      if (Array.isArray(valueA)) {
-        const [cs, v1, v2, v3, v4] = valueA;
-        if (v4 === 1) {
-          valueA = `color(${cs} ${v1} ${v2} ${v3})`;
-        } else {
-          valueA = `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
-        }
+      const [cs, v1, v2, v3, v4] = parseColorFunc(
+        colorA,
+        opt
+      ) as SpecifiedColorChannels;
+      if (v4 === 1) {
+        valueA = `color(${cs} ${v1} ${v2} ${v3})`;
+      } else {
+        valueA = `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
       }
     } else {
-      valueA = parseColorValue(colorA, opt);
-      if (valueA === '') {
-        setCache(cacheKey, valueA);
-        return valueA;
-      }
-      if (Array.isArray(valueA)) {
-        const [cs, v1, v2, v3, v4] = valueA;
+      const val = parseColorValue(colorA, opt);
+      if (Array.isArray(val)) {
+        const [cs, v1, v2, v3, v4] = val;
         if (v4 === 1) {
           if (cs === 'rgb') {
             valueA = `${cs}(${v1}, ${v2}, ${v3})`;
@@ -2967,28 +2962,30 @@ export const resolveColorMix = (
         } else {
           valueA = `${cs}(${v1} ${v2} ${v3} / ${v4})`;
         }
+      } else {
+        if (!isString(val) || !val) {
+          setCache(cacheKey, '');
+          return '';
+        }
+        valueA = val;
       }
     }
     if (colorB.startsWith(FN_MIX)) {
       valueB = colorB;
     } else if (colorB.startsWith(FN_COLOR)) {
-      valueB = parseColorFunc(colorB, opt);
-      if (Array.isArray(valueB)) {
-        const [cs, v1, v2, v3, v4] = valueB;
-        if (v4 === 1) {
-          valueB = `color(${cs} ${v1} ${v2} ${v3})`;
-        } else {
-          valueB = `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
-        }
+      const [cs, v1, v2, v3, v4] = parseColorFunc(
+        colorB,
+        opt
+      ) as SpecifiedColorChannels;
+      if (v4 === 1) {
+        valueB = `color(${cs} ${v1} ${v2} ${v3})`;
+      } else {
+        valueB = `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
       }
     } else {
-      valueB = parseColorValue(colorB, opt);
-      if (valueB === '') {
-        setCache(cacheKey, valueB);
-        return valueB;
-      }
-      if (Array.isArray(valueB)) {
-        const [cs, v1, v2, v3, v4] = [...valueB];
+      const val = parseColorValue(colorB, opt);
+      if (Array.isArray(val)) {
+        const [cs, v1, v2, v3, v4] = val;
         if (v4 === 1) {
           if (cs === 'rgb') {
             valueB = `${cs}(${v1}, ${v2}, ${v3})`;
@@ -3000,6 +2997,12 @@ export const resolveColorMix = (
         } else {
           valueB = `${cs}(${v1} ${v2} ${v3} / ${v4})`;
         }
+      } else {
+        if (!isString(val) || !val) {
+          setCache(cacheKey, '');
+          return '';
+        }
+        valueB = val;
       }
     }
     if (pctA && pctB) {

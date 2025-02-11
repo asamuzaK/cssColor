@@ -30,6 +30,27 @@ export interface Options {
 export type ColorChannels = [x: number, y: number, z: number, alpha: number];
 
 /**
+ * @type StringColorChannels - color channels
+ */
+export type StringColorChannels = [
+  x: string,
+  y: string,
+  z: string,
+  alpha: string | undefined
+];
+
+/**
+ * @type StringColorSpaceedChannels - specified value
+ */
+export type StringColorSpacedChannels = [
+  cs: string,
+  x: string,
+  y: string,
+  z: string,
+  alpha: string | undefined
+];
+
+/**
  * @type ComputedColorChannels - computed value
  */
 export type ComputedColorChannels = [
@@ -49,4 +70,15 @@ export type SpecifiedColorChannels = [
   y: number | string,
   z: number | string,
   alpha: number | string
+];
+
+/**
+ * @type MatchedRegExp - matched regexp array
+ */
+export type MatchedRegExp = [
+  match: string,
+  gr1: string,
+  gr2: string,
+  gr3: string,
+  gr4: string
 ];

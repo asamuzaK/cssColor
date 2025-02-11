@@ -50,7 +50,7 @@ export function resolveCustomProperty(
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type = '', value = ''] = token as [TokenType, string];
+    const [type, value] = token as [TokenType, string];
     // end of var()
     if (type === PAREN_CLOSE) {
       break;

@@ -14,7 +14,7 @@ import {
 import { isString, isStringOrNumber } from './common';
 import { resolveVar } from './css-var';
 import { roundToPrecision } from './util';
-import { Options } from './typedef';
+import { MatchedRegExp, Options } from './typedef';
 
 /* constants */
 import {
@@ -223,12 +223,8 @@ export class Calculator {
       arr.sort((a, b) => {
         let res;
         if (REG_TYPE_DIM_PCT.test(a) && REG_TYPE_DIM_PCT.test(b)) {
-          const [, valA = '', unitA = ''] = a.match(
-            REG_TYPE_DIM_PCT
-          ) as RegExpExecArray;
-          const [, valB = '', unitB = ''] = b.match(
-            REG_TYPE_DIM_PCT
-          ) as RegExpExecArray;
+          const [, valA, unitA] = a.match(REG_TYPE_DIM_PCT) as MatchedRegExp;
+          const [, valB, unitB] = b.match(REG_TYPE_DIM_PCT) as MatchedRegExp;
           if (unitA === unitB) {
             if (Number(valA) === Number(valB)) {
               res = 0;
@@ -597,9 +593,7 @@ export const sortCalcValues = (
             cal.hasNum = true;
             cal.numMul.push(1 / numValue);
           } else if (REG_TYPE_PCT.test(strValue)) {
-            const [, val = ''] = strValue.match(
-              REG_TYPE_PCT
-            ) as RegExpExecArray;
+            const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
             cal.hasPct = true;
             cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
           } else if (REG_TYPE_DIM.test(strValue)) {
@@ -617,9 +611,7 @@ export const sortCalcValues = (
             cal.hasNum = true;
             cal.numMul.push(numValue);
           } else if (REG_TYPE_PCT.test(strValue)) {
-            const [, val = ''] = strValue.match(
-              REG_TYPE_PCT
-            ) as RegExpExecArray;
+            const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
             cal.hasPct = true;
             cal.pctMul.push(Number(val));
           } else if (REG_TYPE_DIM.test(strValue)) {
@@ -661,9 +653,7 @@ export const sortCalcValues = (
                 cal.hasNum = true;
                 cal.numSum.push(-1 * numValue);
               } else if (REG_TYPE_PCT.test(strValue)) {
-                const [, val = ''] = strValue.match(
-                  REG_TYPE_PCT
-                ) as RegExpExecArray;
+                const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
                 cal.hasPct = true;
                 cal.pctSum.push(-1 * Number(val));
               } else if (REG_TYPE_DIM.test(strValue)) {
@@ -681,9 +671,7 @@ export const sortCalcValues = (
                 cal.hasNum = true;
                 cal.numSum.push(numValue);
               } else if (REG_TYPE_PCT.test(strValue)) {
-                const [, val = ''] = strValue.match(
-                  REG_TYPE_PCT
-                ) as RegExpExecArray;
+                const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
                 cal.hasPct = true;
                 cal.pctSum.push(Number(val));
               } else if (REG_TYPE_DIM.test(strValue)) {
@@ -743,7 +731,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   }
   const items: string[] = tokenize({ css: value })
     .map((token: CSSToken): string => {
-      const [type = '', value = ''] = token as [TokenType, string];
+      const [type, value] = token as [TokenType, string];
       let res = '';
       if (type !== W_SPACE && type !== COMMENT) {
         res = value;
@@ -941,9 +929,9 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   });
   if (REG_FN_VAR_START.test(value)) {
     if (REG_TYPE_DIM_PCT.test(resolvedValue)) {
-      const [, val = '', unit = ''] = resolvedValue.match(
+      const [, val, unit] = resolvedValue.match(
         REG_TYPE_DIM_PCT
-      ) as RegExpExecArray;
+      ) as MatchedRegExp;
       resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
     }
     // wrap with `calc()`

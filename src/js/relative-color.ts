@@ -20,7 +20,12 @@ import { isString, isStringOrNumber } from './common';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolve } from './resolve';
 import { roundToPrecision } from './util';
-import { ColorChannels, Options } from './typedef';
+import {
+  ColorChannels,
+  MatchedRegExp,
+  Options,
+  StringColorChannels
+} from './typedef';
 
 /* constants */
 import {
@@ -60,14 +65,9 @@ const MAX_RGB = 255;
 
 /* type definitions */
 /**
- * @type ColorChannel - color channel
+ * @type NumberOrStringColorChannels - color channel
  */
-type ColorChannel = (number | string)[];
-
-/**
- * @type StringColorChannel - color channel
- */
-type StringColorChannel = string[] | NullObject;
+type NumberOrStringColorChannels = ColorChannels & StringColorChannels;
 
 /* regexp */
 const REG_COLOR_CAPT = new RegExp(
@@ -90,7 +90,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 export function resolveColorChannels(
   tokens: CSSToken[],
   opt: Options = {}
-): ColorChannel | StringColorChannel {
+): NumberOrStringColorChannels | NullObject {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
@@ -108,13 +108,17 @@ export function resolveColorChannels(
     ['rgba', ['r', 'g', 'b', 'alpha']]
   ]);
   const colorChannel = colorChannels.get(colorSpace);
+  // invalid color channel
+  if (!colorChannel) {
+    return new NullObject();
+  }
   const mathFunc = new Set();
-  const channels: [ColorChannel, ColorChannel, ColorChannel, ColorChannel] = [
-    [],
-    [],
-    [],
-    []
-  ];
+  const channels: [
+    (number | string)[],
+    (number | string)[],
+    (number | string)[],
+    (number | string)[]
+  ] = [[], [], [], []];
   let i = 0;
   let nest = 0;
   let func = false;
@@ -123,109 +127,111 @@ export function resolveColorChannels(
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }
-    const [type = '', value = '', , , detail = {}] = token;
-    const { value: detailValue } = detail as {
-      value: number;
-    };
-    const channel = channels[i] as ColorChannel;
-    switch (type) {
-      case DIM: {
-        const resolvedValue = resolveDimension(token, opt);
-        if (isString(resolvedValue)) {
-          channel.push(resolvedValue);
-        } else {
-          channel.push(value);
-        }
-        break;
-      }
-      case FUNC: {
-        channel.push(value);
-        func = true;
-        nest++;
-        if (REG_FN_MATH_START.test(value)) {
-          mathFunc.add(nest);
-        }
-        break;
-      }
-      case IDENT: {
-        // invalid channel key
-        if (!colorChannel || !colorChannel.includes(value)) {
-          return new NullObject();
-        }
-        channel.push(value);
-        if (!func) {
-          i++;
-        }
-        break;
-      }
-      case NUM: {
-        channel.push(detailValue);
-        if (!func) {
-          i++;
-        }
-        break;
-      }
-      case PAREN_OPEN: {
-        channel.push(value);
-        nest++;
-        break;
-      }
-      case PAREN_CLOSE: {
-        if (func) {
-          const lastValue = channel[channel.length - 1];
-          if (lastValue === ' ') {
-            channel.splice(-1, 1, value);
+    const [type, value, , , detail] = token as [
+      TokenType,
+      string,
+      number,
+      number,
+      { value: string | number } | undefined
+    ];
+    const channel = channels[i];
+    if (Array.isArray(channel)) {
+      switch (type) {
+        case DIM: {
+          const resolvedValue = resolveDimension(token, opt);
+          if (isString(resolvedValue)) {
+            channel.push(resolvedValue);
           } else {
             channel.push(value);
           }
-          if (mathFunc.has(nest)) {
-            mathFunc.delete(nest);
+          break;
+        }
+        case FUNC: {
+          channel.push(value);
+          func = true;
+          nest++;
+          if (REG_FN_MATH_START.test(value)) {
+            mathFunc.add(nest);
           }
-          nest--;
-          if (nest === 0) {
-            func = false;
+          break;
+        }
+        case IDENT: {
+          // invalid channel key
+          if (!colorChannel.includes(value)) {
+            return new NullObject();
+          }
+          channel.push(value);
+          if (!func) {
             i++;
           }
+          break;
         }
-        break;
-      }
-      case PCT: {
-        channel.push(detailValue / MAX_PCT);
-        if (!func) {
-          i++;
+        case NUM: {
+          channel.push(Number(detail?.value));
+          if (!func) {
+            i++;
+          }
+          break;
         }
-        break;
-      }
-      case W_SPACE: {
-        if (channel.length && func) {
-          const lastValue = channel[channel.length - 1];
-          if (typeof lastValue === 'number') {
-            channel.push(value);
-          } else if (
-            isString(lastValue) &&
-            !lastValue.endsWith('(') &&
-            lastValue !== ' '
-          ) {
+        case PAREN_OPEN: {
+          channel.push(value);
+          nest++;
+          break;
+        }
+        case PAREN_CLOSE: {
+          if (func) {
+            const lastValue = channel[channel.length - 1];
+            if (lastValue === ' ') {
+              channel.splice(-1, 1, value);
+            } else {
+              channel.push(value);
+            }
+            if (mathFunc.has(nest)) {
+              mathFunc.delete(nest);
+            }
+            nest--;
+            if (nest === 0) {
+              func = false;
+              i++;
+            }
+          }
+          break;
+        }
+        case PCT: {
+          channel.push(Number(detail?.value) / MAX_PCT);
+          if (!func) {
+            i++;
+          }
+          break;
+        }
+        case W_SPACE: {
+          if (channel.length && func) {
+            const lastValue = channel[channel.length - 1];
+            if (typeof lastValue === 'number') {
+              channel.push(value);
+            } else if (
+              isString(lastValue) &&
+              !lastValue.endsWith('(') &&
+              lastValue !== ' '
+            ) {
+              channel.push(value);
+            }
+          }
+          break;
+        }
+        default: {
+          if (type !== COMMENT && type !== EOF && func) {
             channel.push(value);
           }
-        }
-        break;
-      }
-      default: {
-        if (type !== COMMENT && type !== EOF && func) {
-          channel.push(value);
         }
       }
     }
   }
-  const channelValues: ColorChannel = [];
+  const channelValues = [];
   for (const channel of channels) {
     if (channel.length === 1) {
       const [resolvedValue] = channel;
-      if (
-        isStringOrNumber(resolvedValue) &&
-        typeof resolvedValue !== 'undefined'
-      ) {
+      if (isStringOrNumber(resolvedValue)) {
         channelValues.push(resolvedValue);
       }
     } else if (channel.length) {
@@ -235,7 +241,7 @@ export function resolveColorChannels(
       channelValues.push(resolvedValue);
     }
   }
-  return channelValues;
+  return channelValues as NumberOrStringColorChannels;
 }
 
 /**
@@ -285,12 +291,12 @@ export function extractOriginColor(
   }
   let colorSpace = '';
   if (REG_FN_REL_CAPT.test(value)) {
-    [, colorSpace = ''] = value.match(REG_FN_REL_CAPT) as RegExpExecArray;
+    [, colorSpace] = value.match(REG_FN_REL_CAPT) as MatchedRegExp;
   }
   opt.colorSpace = colorSpace;
   if (REG_COLOR_CAPT.test(value)) {
-    const [, originColor = ''] = value.match(REG_COLOR_CAPT) as RegExpExecArray;
-    const [, restValue = ''] = value.split(originColor);
+    const [, originColor] = value.match(REG_COLOR_CAPT) as MatchedRegExp;
+    const [, restValue] = value.split(originColor) as MatchedRegExp;
     if (/^[a-z]+$/.test(originColor)) {
       if (
         !/^transparent$/.test(originColor) &&
@@ -307,20 +313,17 @@ export function extractOriginColor(
     }
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue });
-      const channelValues = resolveColorChannels(
-        tokens,
-        opt
-      ) as StringColorChannel;
+      const channelValues = resolveColorChannels(tokens, opt);
       if (channelValues instanceof NullObject) {
         setCache(cacheKey, null);
         return channelValues;
       }
-      let channelValue;
-      if (channelValues.length === 3) {
-        channelValue = ` ${channelValues.join(' ')})`;
-      } else {
-        const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
+      const [v1, v2, v3, v4] = channelValues;
+      let channelValue = '';
+      if (isStringOrNumber(v4)) {
         channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
+      } else {
+        channelValue = ` ${channelValues.join(' ')})`;
       }
       if (restValue !== channelValue) {
         value = value.replace(restValue, channelValue);
@@ -328,15 +331,12 @@ export function extractOriginColor(
     }
     // nested relative color
   } else {
-    const [, restValue = ''] = value.split(REG_FN_REL_START);
+    const [, restValue] = value.split(REG_FN_REL_START) as MatchedRegExp;
     const tokens = tokenize({ css: restValue });
     const originColor: string[] = [];
     let nest = 0;
     while (tokens.length) {
-      const [type = '', tokenValue = ''] = tokens.shift() as [
-        TokenType,
-        string
-      ];
+      const [type, tokenValue] = tokens.shift() as [TokenType, string];
       switch (type) {
         case FUNC:
         case PAREN_OPEN: {
@@ -383,20 +383,17 @@ export function extractOriginColor(
       setCache(cacheKey, null);
       return resolvedOriginColor;
     }
-    const channelValues = resolveColorChannels(
-      tokens,
-      opt
-    ) as StringColorChannel;
+    const channelValues = resolveColorChannels(tokens, opt);
     if (channelValues instanceof NullObject) {
       setCache(cacheKey, null);
       return channelValues;
     }
-    let channelValue: string;
-    if (channelValues.length === 3) {
-      channelValue = ` ${channelValues.join(' ')})`;
-    } else {
-      const [v1 = '', v2 = '', v3 = '', v4 = ''] = channelValues;
+    const [v1, v2, v3, v4] = channelValues;
+    let channelValue = '';
+    if (isStringOrNumber(v4)) {
       channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
+    } else {
+      channelValue = ` ${channelValues.join(' ')})`;
     }
     value = value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
   }
