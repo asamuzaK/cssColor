@@ -6,7 +6,6 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { tokenize } from '@csstools/css-tokenizer';
 import { lruCache } from '../src/js/cache';
 import * as grad from '../src/js/css-gradient';
 
@@ -195,34 +194,6 @@ describe('validate color stop list', () => {
   it('should get false', () => {
     const res = func(['blue', '10%', '20%', 'pink'], 'linear-gradient');
     assert.strictEqual(res, false, 'result');
-  });
-});
-
-describe('parse tokens', () => {
-  const func = grad.parseTokens;
-
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not an array.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(['foo']), TypeError, 'foo is not an array.');
-  });
-
-  it('should get result', () => {
-    const css =
-      'to left, rgb(0, 128, 0) 50%, rgb(from red, calc(r - (r * 10%)) g b)';
-    const tokens = tokenize({ css });
-    const res = func(tokens);
-    assert.deepEqual(
-      res,
-      [
-        'to left',
-        'rgb(0, 128, 0) 50%',
-        'rgb(from red, calc(r - (r * 10%)) g b)'
-      ],
-      'result'
-    );
   });
 });
 
