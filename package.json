@@ -15,7 +15,7 @@
     "dist",
     "src"
   ],
-  "packageManager": "pnpm@9.15.3",
+  "packageManager": "pnpm@10.4.0",
   "type": "module",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.cjs",
