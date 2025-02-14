@@ -15,7 +15,6 @@
     "dist",
     "src"
   ],
-  "packageManager": "pnpm@10.4.0",
   "type": "module",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.cjs",
@@ -50,6 +49,7 @@
     "globals": "^15.15.0",
     "knip": "^5.44.1",
     "neostandard": "^0.12.1",
+    "npm-run-all2": "^7.0.2",
     "prettier": "^3.5.1",
     "publint": "^0.3.5",
     "rimraf": "^6.0.1",
@@ -58,14 +58,14 @@
     "vitest": "^3.0.5"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:browser && pnpm run publint",
+    "build": "npm run clean && npm run test && npm run knip && npm run build:prod && npm run build:browser && npm run publint",
     "build:browser": "vite build -c vite.browser.config.ts",
     "build:prod": "vite build",
     "clean": "rimraf ./coverage ./dist",
     "knip": "knip",
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
-    "test": "pnpm run prettier && pnpm run --stream \"/^test:.*/\"",
+    "test": "npm run prettier && npm-run-all -p test:*",
     "test:eslint": "eslint ./src ./test --fix",
     "test:types": "tsc",
     "test:unit": "vitest"
