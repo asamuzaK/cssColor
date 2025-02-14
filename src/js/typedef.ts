@@ -20,6 +20,7 @@ export interface Options {
   currentColor?: string;
   customProperty?: Record<string, string | ((K: string) => string)>;
   d50?: boolean;
+  delimiter?: string | string[];
   dimension?: Record<string, number | ((K: string) => number)>;
   format?: string;
 }

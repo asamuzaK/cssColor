@@ -2,11 +2,10 @@
  * css-gradient
  */
 
-import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 import { MatchedRegExp, Options } from './typedef';
-import { isColor } from './util';
+import { isColor, splitValue } from './util';
 
 /* constants */
 import {
@@ -18,13 +17,6 @@ import {
   NUM_POSITIVE,
   PCT
 } from './constant';
-const {
-  CloseParen: PAREN_CLOSE,
-  Comma: COMMA,
-  EOF,
-  Function: FUNC,
-  OpenParen: PAREN_OPEN
-} = TokenType;
 const NAMESPACE = 'css-gradient';
 const DIM_ANGLE = `${NUM}(?:${ANGLE})`;
 const DIM_ANGLE_PCT = `${DIM_ANGLE}|${PCT}`;
@@ -205,58 +197,6 @@ export const validateColorStopList = (
 };
 
 /**
- * parse tokens
- * @param tokens - CSS tokens
- * @returns parsed tokens
- */
-export const parseTokens = (tokens: CSSToken[]): string[] => {
-  if (!Array.isArray(tokens)) {
-    throw new TypeError(`${tokens} is not an array.`);
-  }
-  let nest = 0;
-  let str = '';
-  const res: string[] = [];
-  while (tokens.length) {
-    const token = tokens.shift();
-    if (!Array.isArray(token)) {
-      throw new TypeError(`${token} is not an array.`);
-    }
-    const [type, value] = token as [TokenType, string];
-    switch (type) {
-      case COMMA: {
-        if (nest === 0) {
-          res.push(str.trim());
-          str = '';
-        } else {
-          str += value;
-        }
-        break;
-      }
-      case FUNC:
-      case PAREN_OPEN: {
-        str += value;
-        nest++;
-        break;
-      }
-      case PAREN_CLOSE: {
-        str += value;
-        nest--;
-        break;
-      }
-      default: {
-        if (type === EOF) {
-          res.push(str.trim());
-          str = '';
-        } else {
-          str += value;
-        }
-      }
-    }
-  }
-  return res;
-};
-
-/**
  * parse CSS gradient
  * @param value
  * @param [opt]
@@ -284,10 +224,9 @@ export const parseGradient = (
       return cachedResult.item as Gradient;
     }
     const type = getGradientType(value);
-    const gradientValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
-    if (type && gradientValue) {
-      const tokens = tokenize({ css: gradientValue });
-      const [lineOrColorStop = '', ...colorStops] = parseTokens(tokens);
+    const gradValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
+    if (type && gradValue) {
+      const [lineOrColorStop = '', ...colorStops] = splitValue(gradValue, ',');
       const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
         ? DIM_ANGLE_PCT
         : DIM_LEN_PCT;
