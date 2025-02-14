@@ -50,7 +50,7 @@
     "globals": "^15.15.0",
     "knip": "^5.44.1",
     "neostandard": "^0.12.1",
-    "prettier": "^3.5.0",
+    "prettier": "^3.5.1",
     "publint": "^0.3.5",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.3",
