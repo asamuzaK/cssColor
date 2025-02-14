@@ -10,4 +10,4 @@ export { cssCalc } from './js/css-calc';
 export { isGradient } from './js/css-gradient';
 export { cssVar } from './js/css-var';
 export { resolve } from './js/resolve';
-export { isColor } from './js/util';
+export { isColor, splitValue } from './js/util';
