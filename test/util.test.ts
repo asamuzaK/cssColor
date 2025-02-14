@@ -3,10 +3,88 @@
  */
 
 /* api */
-import { assert, describe, it } from 'vitest';
+import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
+import { lruCache } from '../src/js/cache';
 import * as util from '../src/js/util';
+
+beforeEach(() => {
+  lruCache.clear();
+});
+
+afterEach(() => {
+  lruCache.clear();
+});
+
+describe('split value', () => {
+  const func = util.splitValue;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should get value', () => {
+    const res = func(' foo ');
+    assert.deepEqual(res, ['foo'], 'result');
+
+    const res2 = func(' foo ');
+    assert.deepEqual(res2, ['foo'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo bar');
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo bar', ',');
+    assert.deepEqual(res, ['foo bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo  bar');
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo  bar', ',');
+    assert.deepEqual(res, ['foo bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo /* comment */ bar');
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo /* comment */ , bar', ',');
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'linear-gradient(red, blue), radial-gradient(yellow, green)',
+      ','
+    );
+    assert.deepEqual(
+      res,
+      ['linear-gradient(red, blue)', 'radial-gradient(yellow, green)'],
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'rgb(from rebeccapurple, calc((r * 0.5) + 10) g b) 1px 0 10px'
+    );
+    assert.deepEqual(
+      res,
+      ['rgb(from rebeccapurple, calc((r * 0.5) + 10) g b)', '1px', '0', '10px'],
+      'result'
+    );
+  });
+});
 
 describe('is color', () => {
   const func = util.isColor;

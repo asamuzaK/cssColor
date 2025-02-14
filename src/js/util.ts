@@ -2,6 +2,8 @@
  * util
  */
 
+import { TokenType, tokenize } from '@csstools/css-tokenizer';
+import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 import { resolve } from './resolve';
 import { Options } from './typedef';
@@ -9,6 +11,16 @@ import { Options } from './typedef';
 /* constants */
 import { NAMED_COLORS } from './color';
 import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant';
+const {
+  CloseParen: PAREN_CLOSE,
+  Comma: COMMA,
+  Comment: COMMENT,
+  EOF,
+  Function: FUNC,
+  OpenParen: PAREN_OPEN,
+  Whitespace: W_SPACE
+} = TokenType;
+const NAMESPACE = 'util';
 
 /* numeric constants */
 const DEC = 10;
@@ -18,7 +30,97 @@ const DEG_HALF = 180;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_MIX = new RegExp(`${SYN_MIX}`);
+const REG_MIX = new RegExp(SYN_MIX);
+
+/**
+ * split value
+ * @param value - CSS value
+ * @param [delimiter] - comma or space
+ * @returns array of values, NOTE: comments are stripped
+ */
+export const splitValue = (value: string, delimiter: string = ''): string[] => {
+  if (isString(value)) {
+    value = value.trim();
+  } else {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'splitValue',
+      value
+    },
+    {
+      delimiter
+    }
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as string[];
+  }
+  const regDelimiter = delimiter === ',' ? /^,$/ : /^\s+$/;
+  const tokens = tokenize({ css: value });
+  let nest = 0;
+  let str = '';
+  const res: string[] = [];
+  while (tokens.length) {
+    const [type, value] = tokens.shift() as [TokenType, string];
+    switch (type) {
+      case COMMA: {
+        if (regDelimiter.test(value)) {
+          if (nest === 0) {
+            res.push(str.trim());
+            str = '';
+          } else {
+            str += value;
+          }
+        } else {
+          str += value;
+        }
+        break;
+      }
+      case COMMENT: {
+        break;
+      }
+      case FUNC:
+      case PAREN_OPEN: {
+        str += value;
+        nest++;
+        break;
+      }
+      case PAREN_CLOSE: {
+        str += value;
+        nest--;
+        break;
+      }
+      case W_SPACE: {
+        if (regDelimiter.test(value)) {
+          if (nest === 0) {
+            if (str) {
+              res.push(str.trim());
+              str = '';
+            }
+          } else {
+            str += ' ';
+          }
+        } else if (!str.endsWith(' ')) {
+          str += ' ';
+        }
+        break;
+      }
+      default: {
+        if (type === EOF) {
+          res.push(str.trim());
+          str = '';
+        } else {
+          str += value;
+        }
+      }
+    }
+  }
+  setCache(cacheKey, res);
+  return res;
+};
 
 /**
  * is color
