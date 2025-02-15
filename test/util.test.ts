@@ -63,6 +63,11 @@ describe('split value', () => {
   });
 
   it('should get value', () => {
+    const res = func(',', ',');
+    assert.deepEqual(res, ['', ''], 'result');
+  });
+
+  it('should get value', () => {
     const res = func(
       'linear-gradient(red, blue), radial-gradient(yellow, green)',
       ','
