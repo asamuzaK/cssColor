@@ -105,7 +105,17 @@ describe('validate gradient line', () => {
   });
 
   it('should get true', () => {
+    const res = func('in hsl longer hue', 'radial-gradient');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
     const res = func('circle at center in hsl longer hue', 'radial-gradient');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('circle at center in hsl', 'radial-gradient');
     assert.strictEqual(res, true, 'result');
   });
 
@@ -342,6 +352,11 @@ describe('parse CSS gradient', () => {
       },
       'result'
     );
+  });
+
+  it('should get value', () => {
+    const res = func('radial-gradient(circle -10px at center, red, blue)');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {

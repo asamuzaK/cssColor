@@ -57,7 +57,7 @@ const RAD_SIZE = [
 const RAD_SHAPE = 'circle|ellipse';
 const FROM_ANGLE = `from\\s+${DIM_ANGLE}`;
 const AT_POSITION = `at\\s+(?:${POS_1}|${POS_2}|${POS_4})`;
-const TO_SIDE_CORNER = `to\\s+(?:${L_R}(?:\\s${T_B})?|${T_B}(?:\\s${L_R})?)`;
+const TO_SIDE_CORNER = `to\\s+(?:(?:${L_R})(?:\\s(?:${T_B}))?|(?:${T_B})(?:\\s(?:${L_R}))?)`;
 const IN_COLOR_SPACE = `in\\s+(?:${CS_RECT}|${CS_HUE})`;
 
 /* type definitions */
@@ -129,12 +129,12 @@ export const validateGradientLine = (value: string, type: string): boolean => {
        *   <color-interpolation-method>]?
        */
       lineSyntax = [
-        `(?:${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(\\s+${AT_POSITION})?(?:${IN_COLOR_SPACE})?`,
-        `(?:${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(\\s+${AT_POSITION})?(?:${IN_COLOR_SPACE})?`,
-        `${AT_POSITION}(?:${IN_COLOR_SPACE})?`,
-        `${IN_COLOR_SPACE}(?:\\s+${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(\\s+${AT_POSITION})?`,
-        `${IN_COLOR_SPACE}(?:\\s+${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(\\s+${AT_POSITION})?`,
-        `${IN_COLOR_SPACE}(\\s+${AT_POSITION})?`
+        `(?:${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
+        `(?:${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
+        `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
+        `${IN_COLOR_SPACE}(?:\\s+${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(?:\\s+${AT_POSITION})?`,
+        `${IN_COLOR_SPACE}(?:\\s+${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?`,
+        `${IN_COLOR_SPACE}(?:\\s+${AT_POSITION})?`
       ].join('|');
     } else if (/^(?:repeating-)?conic-gradient$/.test(type)) {
       /*
@@ -150,7 +150,7 @@ export const validateGradientLine = (value: string, type: string): boolean => {
       ].join('|');
     }
     if (lineSyntax) {
-      const reg = new RegExp(`^${lineSyntax}$`);
+      const reg = new RegExp(`^(?:${lineSyntax})$`);
       return reg.test(value);
     }
   }
