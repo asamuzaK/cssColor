@@ -23,6 +23,7 @@ export interface Options {
   delimiter?: string | string[];
   dimension?: Record<string, number | ((K: string) => number)>;
   format?: string;
+  nullable?: boolean;
 }
 
 /**

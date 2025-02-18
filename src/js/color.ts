@@ -343,12 +343,39 @@ export const NAMED_COLORS = {
 } as const;
 
 /**
+ * cache invalid color value
+ * @param key - cache key
+ * @param nullable - is nullable
+ * @returns cached value
+ */
+export const cacheInvalidColorValue = (
+  cacheKey: string,
+  format: string,
+  nullable: boolean = false
+): SpecifiedColorChannels | string | NullObject => {
+  if (format === VAL_SPEC) {
+    const res = '';
+    setCache(cacheKey, res);
+    return res;
+  }
+  if (nullable) {
+    setCache(cacheKey, null);
+    return new NullObject();
+  }
+  const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+  setCache(cacheKey, res);
+  return res;
+};
+
+/**
  * resolve invalid color value
  * @param format - output format
+ * @param nullable - is nullable
  * @returns resolved value
  */
 export const resolveInvalidColorValue = (
-  format: string
+  format: string,
+  nullable: boolean = false
 ): SpecifiedColorChannels | string | NullObject => {
   switch (format) {
     case 'hsl':
@@ -360,6 +387,9 @@ export const resolveInvalidColorValue = (
       return '';
     }
     default: {
+      if (nullable) {
+        return new NullObject();
+      }
       return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
     }
   }
@@ -1213,10 +1243,10 @@ export const parseRgb = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   const reg = new RegExp(`^rgba?\\(\\s*(${SYN_MOD}|${SYN_RGB_LV3})\\s*\\)$`);
   if (!reg.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1279,9 +1309,9 @@ export const parseHsl = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   if (!REG_HSL.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1353,9 +1383,9 @@ export const parseHwb = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   if (!REG_HWB.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1428,9 +1458,9 @@ export const parseLab = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   if (!REG_LAB.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1521,9 +1551,9 @@ export const parseLch = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   if (!REG_LCH.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1595,9 +1625,9 @@ export const parseOklab = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   if (!REG_OKLAB.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1673,9 +1703,9 @@ export const parseOklch = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   if (!REG_OKLCH.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1756,9 +1786,9 @@ export const parseColorFunc = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { colorSpace = '', d50 = false, format = '' } = opt;
+  const { colorSpace = '', d50 = false, format = '', nullable = false } = opt;
   if (!REG_FN_COLOR.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1908,9 +1938,9 @@ export const parseColorValue = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { d50 = false, format = '' } = opt;
+  const { d50 = false, format = '', nullable = false } = opt;
   if (!REG_COLOR.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       return res;
     }
@@ -1949,20 +1979,26 @@ export const parseColorValue = (
         [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
       }
     } else {
-      if (format === VAL_COMP) {
-        return ['rgb', 0, 0, 0, 0];
-      }
-      if (format === VAL_SPEC) {
-        if (value === 'transparent') {
-          return value;
-        }
-        return '';
-      }
-      if (format === VAL_MIX) {
-        if (value === 'transparent') {
+      switch (format) {
+        case VAL_COMP: {
+          if (nullable && value !== 'transparent') {
+            return new NullObject();
+          }
           return ['rgb', 0, 0, 0, 0];
         }
-        return new NullObject();
+        case VAL_SPEC: {
+          if (value === 'transparent') {
+            return value;
+          }
+          return '';
+        }
+        case VAL_MIX: {
+          if (value === 'transparent') {
+            return ['rgb', 0, 0, 0, 0];
+          }
+          return new NullObject();
+        }
+        default:
       }
     }
     // hex-color
@@ -2056,7 +2092,7 @@ export const resolveColorValue = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { colorSpace = '', format = '' } = opt;
+  const { colorSpace = '', format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -2077,7 +2113,7 @@ export const resolveColorValue = (
     return cachedItem as SpecifiedColorChannels;
   }
   if (!REG_COLOR.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       setCache(cacheKey, null);
       return res;
@@ -2111,23 +2147,35 @@ export const resolveColorValue = (
       ] as TriColorChannels;
       alpha = 1;
     } else {
-      if (format === VAL_SPEC) {
-        if (value === 'transparent') {
-          setCache(cacheKey, value);
-          return value;
+      switch (format) {
+        case VAL_SPEC: {
+          if (value === 'transparent') {
+            setCache(cacheKey, value);
+            return value;
+          }
+          const res = '';
+          setCache(cacheKey, res);
+          return res;
         }
-        const res = '';
-        setCache(cacheKey, res);
-        return res;
-      }
-      if (format === VAL_MIX) {
-        if (value === 'transparent') {
+        case VAL_MIX: {
+          if (value === 'transparent') {
+            const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+            setCache(cacheKey, res);
+            return res;
+          }
+          setCache(cacheKey, null);
+          return new NullObject();
+        }
+        case VAL_COMP:
+        default: {
+          if (nullable && value !== 'transparent') {
+            setCache(cacheKey, null);
+            return new NullObject();
+          }
           const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
           setCache(cacheKey, res);
           return res;
         }
-        setCache(cacheKey, null);
-        return new NullObject();
       }
     }
     // hex-color
@@ -2208,7 +2256,7 @@ export const resolveColorFunc = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { colorSpace = '', format = '' } = opt;
+  const { colorSpace = '', format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -2229,7 +2277,7 @@ export const resolveColorFunc = (
     return cachedItem as SpecifiedColorChannels;
   }
   if (!REG_FN_COLOR.test(value)) {
-    const res = resolveInvalidColorValue(format);
+    const res = resolveInvalidColorValue(format, nullable);
     if (res instanceof NullObject) {
       setCache(cacheKey, null);
       return res;
@@ -2727,13 +2775,13 @@ export const convertColorToOklch = (
 export const resolveColorMix = (
   value: string,
   opt: Options = {}
-): SpecifiedColorChannels | string => {
+): SpecifiedColorChannels | string | NullObject => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '' } = opt;
+  const { format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -2744,6 +2792,9 @@ export const resolveColorMix = (
   );
   const cachedResult = getCache(cacheKey);
   if (cachedResult instanceof CacheItem) {
+    if (cachedResult.isNull) {
+      return cachedResult as NullObject;
+    }
     const cachedItem = cachedResult.item;
     if (isString(cachedItem)) {
       return cachedItem as string;
@@ -2787,22 +2838,11 @@ export const resolveColorMix = (
         }
       }
       if (!value) {
-        if (format === VAL_SPEC) {
-          const res = '';
-          setCache(cacheKey, res);
-          return res;
-        }
-        const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-        setCache(cacheKey, res);
+        const res = cacheInvalidColorValue(cacheKey, format, nullable);
         return res;
       }
-    } else if (format === VAL_SPEC) {
-      const res = '';
-      setCache(cacheKey, res);
-      return res;
     } else {
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
   }
@@ -2872,24 +2912,12 @@ export const resolveColorMix = (
     const p1 = parseFloat(pctA) / MAX_PCT;
     const p2 = parseFloat(pctB) / MAX_PCT;
     if (p1 < 0 || p1 > 1 || p2 < 0 || p2 > 1) {
-      if (format === VAL_SPEC) {
-        const res = '';
-        setCache(cacheKey, res);
-        return res;
-      }
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const factor = p1 + p2;
     if (factor === 0) {
-      if (format === VAL_SPEC) {
-        const res = '';
-        setCache(cacheKey, res);
-        return res;
-      }
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     pA = p1 / factor;
@@ -2899,26 +2927,14 @@ export const resolveColorMix = (
     if (pctA) {
       pA = parseFloat(pctA) / MAX_PCT;
       if (pA < 0 || pA > 1) {
-        if (format === VAL_SPEC) {
-          const res = '';
-          setCache(cacheKey, res);
-          return res;
-        }
-        const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-        setCache(cacheKey, res);
+        const res = cacheInvalidColorValue(cacheKey, format, nullable);
         return res;
       }
       pB = 1 - pA;
     } else if (pctB) {
       pB = parseFloat(pctB) / MAX_PCT;
       if (pB < 0 || pB > 1) {
-        if (format === VAL_SPEC) {
-          const res = '';
-          setCache(cacheKey, res);
-          return res;
-        }
-        const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-        setCache(cacheKey, res);
+        const res = cacheInvalidColorValue(cacheKey, format, nullable);
         return res;
       }
       pA = 1 - pB;
@@ -3072,8 +3088,7 @@ export const resolveColorMix = (
       }
     }
     if (rgbA instanceof NullObject || rgbB instanceof NullObject) {
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const [rrA, ggA, bbA, aaA] = rgbA as NumStrColorChannels;
@@ -3137,8 +3152,7 @@ export const resolveColorMix = (
       });
     }
     if (xyzA instanceof NullObject || xyzB instanceof NullObject) {
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const [xxA, yyA, zzA, aaA] = xyzA;
@@ -3222,8 +3236,7 @@ export const resolveColorMix = (
       }
     }
     if (hslA instanceof NullObject || hslB instanceof NullObject) {
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const [hhA, ssA, llA, aaA] = hslA;
@@ -3303,8 +3316,7 @@ export const resolveColorMix = (
       }
     }
     if (lchA instanceof NullObject || lchB instanceof NullObject) {
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const [llA, ccA, hhA, aaA] = lchA;
@@ -3387,8 +3399,7 @@ export const resolveColorMix = (
       }
     }
     if (labA instanceof NullObject || labB instanceof NullObject) {
-      const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-      setCache(cacheKey, res);
+      const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const [llA, aaA, bbA, alA] = labA;

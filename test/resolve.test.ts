@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 describe('resolve CSS color', () => {
-  const func = api.resolve;
+  const func = api.resolveColor;
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
@@ -102,26 +102,26 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)', {
       format: 'hex',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)', {
       format: 'hex',
@@ -129,29 +129,29 @@ describe('resolve CSS color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('var(--foo)', {
       format: 'hexAlpha',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('var(--foo)', {
       format: 'hexAlpha',
@@ -159,7 +159,7 @@ describe('resolve CSS color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -168,6 +168,20 @@ describe('resolve CSS color', () => {
 
     const res2 = func('var(--foo)');
     assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('var(--foo)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('var(--foo)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -324,26 +338,26 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, '', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('foo', {
       format: 'hex',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('foo', {
       format: 'hex',
@@ -351,7 +365,7 @@ describe('resolve CSS color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -537,6 +551,38 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
   });
 
+  it('should get null object', () => {
+    const res = func('currentColor', {
+      currentColor: 'foo',
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('currentColor', {
+      currentColor: 'foo',
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('color-mix(in oklab, currentcolor, red)', {
+      currentColor: 'foo',
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color-mix(in oklab, currentcolor, red)', {
+      currentColor: 'foo',
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
   it('should get value', () => {
     const res = func('currentColor', {
       dimension: {
@@ -577,6 +623,20 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
   });
 
+  it('should get null object', () => {
+    const res = func('color-mix(in oklab, transparent, foo)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color-mix(in oklab, transparent, foo)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
   it('should get value', () => {
     const res = func('transparent', {
       format: 'specifiedValue'
@@ -619,26 +679,26 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('transparent', {
       format: 'hex',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('transparent', {
       format: 'hex',
@@ -646,7 +706,7 @@ describe('resolve CSS color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -677,6 +737,20 @@ describe('resolve CSS color', () => {
       }
     });
     assert.strictEqual(res2, '#00000000', 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('color-mix(in oklab, foo, red)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color-mix(in oklab, foo, red)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -802,6 +876,20 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'color(srgb 1 0 0 / 0.5)', 'result');
   });
 
+  it('should get null object', () => {
+    const res = func('color(srgb foo 1 1)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color(srgb foo 1 1)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
   it('should get value', () => {
     const res = func('color(srgb 0.0 .5 1.0 / 1)');
     assert.strictEqual(res, 'color(srgb 0 0.5 1)', 'result');
@@ -869,6 +957,20 @@ describe('resolve CSS color', () => {
 
     const res2 = func('color(srgb 0.0 .5 1.0 / none)');
     assert.strictEqual(res2, 'color(srgb 0 0.5 1 / none)', 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(foo 1 1)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('rgb(foo 1 1)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -1057,28 +1159,40 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
   });
 
-  it('should get null', () => {
+  it('should get value', () => {
+    const res = func('green', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'green', 'result');
+
+    const res2 = func('green', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'green', 'result');
+  });
+
+  it('should get null object', () => {
     const res = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('transparent', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('foo', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -1093,16 +1207,16 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, '#008000', 'result');
   });
 
-  it('should get value', () => {
+  it('should get null object', () => {
     const res = func('currentColor', {
       format: 'hex'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('currentColor', {
       format: 'hex'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -1117,7 +1231,7 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, '#00000000', 'result');
   });
 
-  it('should get null', () => {
+  it('should get value', () => {
     const res = func('foo', {
       format: 'hexAlpha'
     });
@@ -1141,26 +1255,26 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, '#00800080', 'result');
   });
 
-  it('should get value', () => {
+  it('should get null object', () => {
     const res = func('currentColor', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('currentColor', {
       format: 'hexAlpha'
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get value', () => {
+  it('should get null object', () => {
     const res = func('currentColor', {
       format: 'hexAlpha',
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res, null, 'result');
+    assert.strictEqual(res.isNull, true, 'result');
 
     const res2 = func('currentColor', {
       format: 'hexAlpha',
@@ -1168,7 +1282,7 @@ describe('resolve CSS color', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2, null, 'result');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -1303,6 +1417,20 @@ describe('resolve CSS color', () => {
 
   it('should get value', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('rgb(from rebeccapurple l a b)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple l a b)', {
       dimension: {
         callback: () => {}
       }
@@ -1315,6 +1443,18 @@ describe('resolve CSS color', () => {
       }
     });
     assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple r g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(from rebeccapurple r g b)', 'result');
+
+    const res2 = func('rgb(from rebeccapurple r g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'rgb(from rebeccapurple r g b)', 'result');
   });
 
   it('should get value', () => {
@@ -1354,16 +1494,81 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res, '#663399', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
+      format: 'hex'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(from rebeccapurple l a b)', {
+      format: 'hexAlpha'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+});
+
+describe('resolve', () => {
+  const func = api.resolve;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should get value', () => {
+    const res = func('foo');
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('foo', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo', {
       format: 'hex'
     });
     assert.strictEqual(res, null, 'result');
   });
 
+  it('should get value', () => {
+    const res = func('green');
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'green', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('green', {
+      format: 'hex'
+    });
+    assert.strictEqual(res, '#008000', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('var(--foo)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'var(--foo)', 'result');
+  });
+
   it('should get null', () => {
-    const res = func('rgb(from rebeccapurple l a b)', {
-      format: 'hexAlpha'
+    const res = func('var(--foo)', {
+      format: 'hex'
     });
     assert.strictEqual(res, null, 'result');
   });
