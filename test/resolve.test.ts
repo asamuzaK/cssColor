@@ -1457,7 +1457,7 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, 'rgb(from rebeccapurple r g b)', 'result');
   });
 
-  it('should get value', () => {
+  it('should get empty string', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue'
     });
@@ -1469,7 +1469,7 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res2, '', 'result');
   });
 
-  it('should get value', () => {
+  it('should get empty string', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       format: 'specifiedValue',
       dimension: {
@@ -1516,7 +1516,7 @@ describe('resolve', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
-  it('should get value', () => {
+  it('should get empty string', () => {
     const res = func('foo');
     assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
   });

@@ -6839,6 +6839,70 @@ describe('resolve color-mix()', () => {
     assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
   });
 
+  it('should get value', () => {
+    const res = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue',
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.deepEqual(res.isNull, true, 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue',
+      nullable: true
+    });
+    assert.deepEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue',
+      nullable: true,
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res.isNull, true, 'result');
+
+    const res2 = func('color-mix(in foo, blue, red)', {
+      format: 'computedValue',
+      nullable: true,
+      dimension: {
+        callback: () => {}
+      }
+    });
+    assert.deepEqual(res2.isNull, true, 'result');
+  });
+
   it('should get empty string', () => {
     const res = func('color-mix(in foo, blue, red)', {
       format: 'specifiedValue'
