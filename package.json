@@ -76,5 +76,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "3.0.11"
+  "version": "3.0.12"
 }
