@@ -59,6 +59,7 @@
   },
   "pnpm": {
     "overrides": {
+      "esbuild": "^0.25.0",
       "vite-plugin-dts": "4.0.3"
     }
   },
