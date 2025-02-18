@@ -329,7 +329,7 @@ export const resolveColor = (
 
 /**
  * resolve CSS color
- * @param color
+ * @param value
  *   - color value
  *   - system colors are not supported
  * @param [opt] - options
