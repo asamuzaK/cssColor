@@ -42,7 +42,7 @@ export type StringColorChannels = [
 ];
 
 /**
- * @type StringColorSpaceedChannels - specified value
+ * @type StringColorSpacedChannels - specified value
  */
 export type StringColorSpacedChannels = [
   cs: string,
