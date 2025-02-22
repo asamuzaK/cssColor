@@ -5,7 +5,7 @@
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { resolve } from './resolve';
+import { resolveColor } from './resolve';
 import { Options } from './typedef';
 
 /* constants */
@@ -142,10 +142,11 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
       } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
         return true;
       } else {
+        opt.nullable = true;
         if (!opt.format) {
           opt.format = VAL_SPEC;
         }
-        const resolvedValue = resolve(value, opt);
+        const resolvedValue = resolveColor(value, opt);
         if (resolvedValue) {
           return true;
         }

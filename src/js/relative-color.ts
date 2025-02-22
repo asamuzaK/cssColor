@@ -18,7 +18,7 @@ import {
 import { NAMED_COLORS, convertColorToRgb } from './color';
 import { isString, isStringOrNumber } from './common';
 import { resolveDimension, serializeCalc } from './css-calc';
-import { resolve } from './resolve';
+import { resolveColor } from './resolve';
 import { roundToPrecision } from './util';
 import {
   ColorChannels,
@@ -306,7 +306,7 @@ export function extractOriginColor(
         return new NullObject();
       }
     } else if (format === VAL_SPEC) {
-      const resolvedOriginColor = resolve(originColor, opt);
+      const resolvedOriginColor = resolveColor(originColor, opt);
       if (isString(resolvedOriginColor)) {
         value = value.replace(originColor, resolvedOriginColor);
       }

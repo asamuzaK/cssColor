@@ -93,7 +93,7 @@ describe('pre process', () => {
     assert.strictEqual(res, 'blue', 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)');
     assert.strictEqual(res.isNull, true, 'result');
 
@@ -101,7 +101,7 @@ describe('pre process', () => {
     assert.strictEqual(res2.isNull, true, 'result');
   });
 
-  it('should get null', () => {
+  it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)', {
       dimension: {
         callback: () => {}
@@ -123,6 +123,14 @@ describe('pre process', () => {
 
     const res2 = func('rgb(from rebeccapurple r g b)');
     assert.strictEqual(res2, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('color-mix(in oklab, red, foo)');
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('color-mix(in oklab, red, foo)');
+    assert.strictEqual(res2.isNull, true, 'result');
   });
 
   it('should get value', () => {

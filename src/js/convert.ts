@@ -25,7 +25,7 @@ import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { resolveVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
-import { resolve } from './resolve';
+import { resolveColor } from './resolve';
 import { ColorChannels, ComputedColorChannels, Options } from './typedef';
 
 /* constants */
@@ -91,9 +91,12 @@ export const preProcess = (
     value = cssCalc(value, opt);
   }
   if (value.startsWith('color-mix')) {
-    value = resolve(value, {
-      format: VAL_COMP
-    }) as string;
+    const clonedOpt = structuredClone(opt);
+    clonedOpt.format = VAL_COMP;
+    clonedOpt.nullable = true;
+    const resolvedValue = resolveColor(value, clonedOpt);
+    setCache(cacheKey, resolvedValue);
+    return resolvedValue;
   }
   setCache(cacheKey, value);
   return value;
@@ -143,12 +146,13 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
     return cachedResult.item as string;
   }
   let hex;
+  opt.nullable = true;
   if (alpha) {
     opt.format = 'hexAlpha';
-    hex = resolve(value, opt);
+    hex = resolveColor(value, opt);
   } else {
     opt.format = 'hex';
-    hex = resolve(value, opt);
+    hex = resolveColor(value, opt);
   }
   if (isString(hex)) {
     setCache(cacheKey, hex);
