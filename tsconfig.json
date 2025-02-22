@@ -23,5 +23,5 @@
     "strict": true,
     "target": "esnext"
   },
-  "include": ["src", "tests", "eslint.config.js", "vite.config.ts"]
+  "include": ["src"]
 }
