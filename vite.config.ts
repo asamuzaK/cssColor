@@ -22,6 +22,7 @@ export default mergeConfig(
   config,
   tanstackViteConfig({
     entry: './src/index.ts',
-    srcDir: './src'
+    srcDir: './src',
+    cjs: false
   })
 );
