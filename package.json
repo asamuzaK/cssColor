@@ -41,32 +41,33 @@
     "lru-cache": "^10.4.3"
   },
   "devDependencies": {
-    "@tanstack/config": "^0.16.2",
-    "@vitest/coverage-istanbul": "^3.0.5",
+    "@tanstack/config": "^0.16.3",
+    "@vitest/coverage-istanbul": "^3.0.6",
     "esbuild": "^0.25.0",
-    "eslint": "^9.20.1",
+    "eslint": "^9.21.0",
     "eslint-plugin-import-x": "^4.6.1",
     "eslint-plugin-regexp": "^2.7.0",
-    "globals": "^15.15.0",
-    "knip": "^5.44.1",
+    "globals": "^16.0.0",
+    "knip": "^5.44.4",
     "neostandard": "^0.12.1",
     "prettier": "^3.5.1",
-    "publint": "^0.3.5",
+    "publint": "^0.3.6",
     "rimraf": "^6.0.1",
+    "tsup": "^8.3.6",
     "typescript": "^5.7.3",
-    "vite": "^6.1.0",
-    "vitest": "^3.0.5"
+    "vite": "^6.1.1",
+    "vitest": "^3.0.6"
   },
   "pnpm": {
     "overrides": {
-      "esbuild": "^0.25.0",
-      "vite-plugin-dts": "4.0.3"
+      "esbuild": "^0.25.0"
     }
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:browser && pnpm run publint",
+    "build": "pnpm run clean && pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:cjs && pnpm run build:browser && pnpm run publint",
     "build:browser": "vite build -c vite.browser.config.ts",
     "build:prod": "vite build",
+    "build:cjs": "tsup src/index.ts --format=cjs --platform=node --outDir=dist/cjs/ --sourcemap --dts",
     "clean": "rimraf ./coverage ./dist",
     "knip": "knip",
     "prettier": "prettier . --ignore-unknown --write",
