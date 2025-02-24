@@ -34,8 +34,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@csstools/css-calc": "^2.1.1",
-    "@csstools/css-color-parser": "^3.0.7",
+    "@csstools/css-calc": "^2.1.2",
+    "@csstools/css-color-parser": "^3.0.8",
     "@csstools/css-parser-algorithms": "^3.0.4",
     "@csstools/css-tokenizer": "^3.0.3",
     "lru-cache": "^10.4.3"
@@ -48,9 +48,9 @@
     "eslint-plugin-import-x": "^4.6.1",
     "eslint-plugin-regexp": "^2.7.0",
     "globals": "^16.0.0",
-    "knip": "^5.44.4",
+    "knip": "^5.44.5",
     "neostandard": "^0.12.1",
-    "prettier": "^3.5.1",
+    "prettier": "^3.5.2",
     "publint": "^0.3.6",
     "rimraf": "^6.0.1",
     "tsup": "^8.3.6",
@@ -65,9 +65,9 @@
   },
   "scripts": {
     "build": "pnpm run clean && pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:cjs && pnpm run build:browser && pnpm run publint",
-    "build:browser": "vite build -c vite.browser.config.ts",
+    "build:browser": "vite build -c ./vite.browser.config.ts",
     "build:prod": "vite build",
-    "build:cjs": "tsup src/index.ts --format=cjs --platform=node --outDir=dist/cjs/ --sourcemap --dts",
+    "build:cjs": "tsup ./src/index.ts --format=cjs --platform=node --outDir=./dist/cjs/ --sourcemap --dts",
     "clean": "rimraf ./coverage ./dist",
     "knip": "knip",
     "prettier": "prettier . --ignore-unknown --write",
@@ -77,5 +77,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "3.0.12"
+  "version": "3.0.13"
 }
