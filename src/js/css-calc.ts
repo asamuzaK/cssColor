@@ -703,7 +703,7 @@ export const sortCalcValues = (
 
 /**
  * serialize calc
- * @param value - value to serialize
+ * @param value - CSS value
  * @param [opt] - options
  * @returns serialized value
  */
@@ -885,7 +885,7 @@ export const parseTokens = (
 
 /**
  * CSS calc()
- * @param value - color value including calc()
+ * @param value - CSS value including calc()
  * @param [opt] - options
  * @returns resolved value
  */

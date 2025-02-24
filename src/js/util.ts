@@ -124,8 +124,8 @@ export const splitValue = (value: string, delimiter: string = ''): string[] => {
 
 /**
  * is color
- * @param value
- * @param [opt]
+ * @param value - CSS value
+ * @param [opt] - options
  * @returns result
  */
 export const isColor = (value: unknown, opt: Options = {}): boolean => {
@@ -158,7 +158,7 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
 
 /**
  * value to JSON string
- * @param value
+ * @param value - CSS value
  * @param [func] - stringify function
  * @returns stringified value in JSON notation
  */
@@ -193,7 +193,7 @@ export const valueToJsonString = (
 
 /**
  * round to specified precision
- * @param value
+ * @param value - numeric value
  * @param bit - minimum bits
  * @returns rounded value
  */

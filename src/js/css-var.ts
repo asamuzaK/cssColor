@@ -188,7 +188,7 @@ export function parseTokens(
 
 /**
  * resolve CSS var()
- * @param value - color value including var()
+ * @param value - CSS value including var()
  * @param [opt] - options
  * @returns resolved value
  */
@@ -237,7 +237,7 @@ export function resolveVar(
 
 /**
  * CSS var()
- * @param value - color value including var()
+ * @param value - CSS value including var()
  * @param [opt] - options
  * @returns resolved value
  */

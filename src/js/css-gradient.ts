@@ -86,7 +86,7 @@ const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
 
 /**
  * get gradient type
- * @param value
+ * @param value - gradient value
  * @returns gradient type
  */
 export const getGradientType = (value: string): string => {
@@ -102,8 +102,8 @@ export const getGradientType = (value: string): string => {
 
 /**
  * validate gradient line
- * @param value
- * @param type
+ * @param value - gradient line value
+ * @param type - gradient type
  * @returns result
  */
 export const validateGradientLine = (value: string, type: string): boolean => {
@@ -198,8 +198,8 @@ export const validateColorStopList = (
 
 /**
  * parse CSS gradient
- * @param value
- * @param [opt]
+ * @param value - gradient value
+ * @param [opt] - options
  * @returns parsed result
  */
 export const parseGradient = (
@@ -277,8 +277,8 @@ export const parseGradient = (
 
 /**
  * is CSS gradient
- * @param value
- * @param [opt]
+ * @param value - CSS value
+ * @param [opt] - options
  * @returns result
  */
 export const isGradient = (value: string, opt: Options = {}): boolean => {

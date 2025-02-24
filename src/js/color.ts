@@ -190,7 +190,9 @@ const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_MOD})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
-/* named colors */
+/**
+ * named colors
+ */
 export const NAMED_COLORS = {
   aliceblue: [0xf0, 0xf8, 0xff],
   antiquewhite: [0xfa, 0xeb, 0xd7],
@@ -340,7 +342,9 @@ export const NAMED_COLORS = {
   whitesmoke: [0xf5, 0xf5, 0xf5],
   yellow: [0xff, 0xff, 0x00],
   yellowgreen: [0x9a, 0xcd, 0x32]
-} as const;
+} as const satisfies {
+  [key: string]: TriColorChannels;
+};
 
 /**
  * cache invalid color value
@@ -553,7 +557,7 @@ export const normalizeColorComponents = (
 
 /**
  * number to hex string
- * @param value - color value
+ * @param value - numeric value
  * @returns hex string
  */
 export const numberToHexString = (value: number): string => {
@@ -1147,7 +1151,7 @@ export const convertXyzD50ToHex = (xyz: ColorChannels): string => {
 
 /**
  * convert hex color to rgb
- * @param value - color value
+ * @param value - hex color value
  * @returns ColorChannels - [r, g, b, alpha] r|g|b: 0..255 alpha: 0..1
  */
 export const convertHexToRgb = (value: string): ColorChannels => {
@@ -1208,7 +1212,7 @@ export const convertHexToRgb = (value: string): ColorChannels => {
 
 /**
  * convert hex color to linear rgb
- * @param value - color value
+ * @param value - hex color value
  * @returns ColorChannels - [r, g, b, alpha] r|g|b|alpha: 0..1
  */
 export const convertHexToLinearRgb = (value: string): ColorChannels => {
@@ -1219,7 +1223,7 @@ export const convertHexToLinearRgb = (value: string): ColorChannels => {
 
 /**
  * convert hex color to xyz
- * @param value - color value
+ * @param value - hex color value
  * @returns ColorChannels - [x, y, z, alpha]
  */
 export const convertHexToXyz = (value: string): ColorChannels => {
@@ -1230,7 +1234,7 @@ export const convertHexToXyz = (value: string): ColorChannels => {
 
 /**
  * parse rgb()
- * @param value - color value
+ * @param value - rgb color value
  * @param [opt] - options
  * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', NullObject
  */
@@ -1296,7 +1300,7 @@ export const parseRgb = (
 
 /**
  * parse hsl()
- * @param value - color value
+ * @param value - hsl color value
  * @param [opt] - options
  * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', NullObject
  */
@@ -1370,7 +1374,7 @@ export const parseHsl = (
 
 /**
  * parse hwb()
- * @param value - color value
+ * @param value - hwb color value
  * @param [opt] - options
  * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', NullObject
  */
@@ -1444,7 +1448,7 @@ export const parseHwb = (
 
 /**
  * parse lab()
- * @param value - color value
+ * @param value - lab color value
  * @param [opt] - options
  * @returns parsed color
  *   - [xyz-d50, x, y, z, alpha], ['lab', l, a, b, alpha], '(empty)', NullObject
@@ -1536,7 +1540,7 @@ export const parseLab = (
 
 /**
  * parse lch()
- * @param value - color value
+ * @param value - lch color value
  * @param [opt] - options
  * @returns parsed color
  *   - ['xyz-d50', x, y, z, alpha], ['lch', l, c, h, alpha]
@@ -1610,7 +1614,7 @@ export const parseLch = (
 
 /**
  * parse oklab()
- * @param value - color value
+ * @param value - oklab color value
  * @param [opt] - options
  * @returns parsed color
  *   - ['xyz-d65', x, y, z, alpha], ['oklab', l, a, b, alpha]
@@ -1688,7 +1692,7 @@ export const parseOklab = (
 
 /**
  * parse oklch()
- * @param value - color value
+ * @param value - oklch color value
  * @param [opt] - options
  * @returns parsed color
  *   - ['xyz-d65', x, y, z, alpha], ['oklch', l, c, h, alpha]
@@ -1771,7 +1775,7 @@ export const parseOklch = (
 
 /**
  * parse color()
- * @param value - color value
+ * @param value - color function value
  * @param [opt] - options
  * @returns parsed color
  *   - ['xyz-(d50|d65)', x, y, z, alpha], [cs, r, g, b, alpha]
@@ -1923,7 +1927,7 @@ export const parseColorFunc = (
 
 /**
  * parse color value
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns parsed color
  *   - ['xyz-(d50|d65)', x, y, z, alpha], ['rgb', r, g, b, alpha]
@@ -2078,7 +2082,7 @@ export const parseColorValue = (
 
 /**
  * resolve color value
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns resolved color
  *   - [cs, v1, v2, v3, alpha], value, '(empty)', NullObject
@@ -2243,7 +2247,7 @@ export const resolveColorValue = (
 
 /**
  * resolve color()
- * @param value - color value
+ * @param value - color function value
  * @param [opt] - options
  * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', NullObject
  */
@@ -2309,7 +2313,7 @@ export const resolveColorFunc = (
 
 /**
  * convert color value to linear rgb
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [r, g, b, alpha] r|g|b|alpha: 0..1
  */
@@ -2370,7 +2374,7 @@ export const convertColorToLinearRgb = (
 
 /**
  * convert color value to rgb
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject
  *   - [r, g, b, alpha] r|g|b: 0..255 alpha: 0..1
@@ -2425,7 +2429,7 @@ export const convertColorToRgb = (
 
 /**
  * convert color value to xyz
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [x, y, z, alpha]
  */
@@ -2482,7 +2486,7 @@ export const convertColorToXyz = (
 
 /**
  * convert color value to hsl
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [h, s, l, alpha], hue may be powerless
  */
@@ -2532,7 +2536,7 @@ export const convertColorToHsl = (
 
 /**
  * convert color value to hwb
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [h, w, b, alpha], hue may be powerless
  */
@@ -2582,7 +2586,7 @@ export const convertColorToHwb = (
 
 /**
  * convert color value to lab
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [l, a, b, alpha]
  */
@@ -2631,7 +2635,7 @@ export const convertColorToLab = (
 
 /**
  * convert color value to lch
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [l, c, h, alpha], hue may be powerless
  */
@@ -2680,7 +2684,7 @@ export const convertColorToLch = (
 
 /**
  * convert color value to oklab
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [l, a, b, alpha]
  */
@@ -2724,7 +2728,7 @@ export const convertColorToOklab = (
 
 /**
  * convert color value to oklch
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels | NullObject - [l, c, h, alpha], hue may be powerless
  */
@@ -2768,7 +2772,7 @@ export const convertColorToOklch = (
 
 /**
  * resolve color-mix()
- * @param value - color value
+ * @param value - color-mix color value
  * @param [opt] - options
  * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)'
  */

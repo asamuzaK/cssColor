@@ -39,7 +39,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /**
  * pre process
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns value
  */
@@ -104,7 +104,7 @@ export const preProcess = (
 
 /**
  * convert number to hex string
- * @param value - color value
+ * @param value - numeric value
  * @returns hex string: 00..ff
  */
 export const numberToHex = (value: number): string => {
@@ -114,7 +114,7 @@ export const numberToHex = (value: number): string => {
 
 /**
  * convert color to hex
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @param [opt.alpha] - enable alpha channel
  * @returns #rrggbb | #rrggbbaa | null
@@ -164,7 +164,7 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
 
 /**
  * convert color to hsl
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [h, s, l, alpha]
  */
@@ -198,7 +198,7 @@ export const colorToHsl = (value: string, opt: Options = {}): ColorChannels => {
 
 /**
  * convert color to hwb
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [h, w, b, alpha]
  */
@@ -232,7 +232,7 @@ export const colorToHwb = (value: string, opt: Options = {}): ColorChannels => {
 
 /**
  * convert color to lab
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [l, a, b, alpha]
  */
@@ -265,7 +265,7 @@ export const colorToLab = (value: string, opt: Options = {}): ColorChannels => {
 
 /**
  * convert color to lch
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [l, c, h, alpha]
  */
@@ -298,7 +298,7 @@ export const colorToLch = (value: string, opt: Options = {}): ColorChannels => {
 
 /**
  * convert color to oklab
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [l, a, b, alpha]
  */
@@ -334,7 +334,7 @@ export const colorToOklab = (
 
 /**
  * convert color to oklch
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [l, c, h, alpha]
  */
@@ -370,7 +370,7 @@ export const colorToOklch = (
 
 /**
  * convert color to rgb
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [r, g, b, alpha]
  */
@@ -403,7 +403,7 @@ export const colorToRgb = (value: string, opt: Options = {}): ColorChannels => {
 
 /**
  * convert color to xyz
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [x, y, z, alpha]
  */
@@ -441,7 +441,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
 
 /**
  * convert color to xyz-d50
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns ColorChannels - [x, y, z, alpha]
  */

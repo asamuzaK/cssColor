@@ -45,7 +45,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /**
  * resolve color
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns resolved color
  */
@@ -330,7 +330,7 @@ export const resolveColor = (
 /**
  * resolve CSS color
  * @param value
- *   - color value
+ *   - CSS color value
  *   - system colors are not supported
  * @param [opt] - options
  * @param [opt.currentColor]

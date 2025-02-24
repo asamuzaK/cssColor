@@ -246,7 +246,7 @@ export function resolveColorChannels(
 
 /**
  * extract origin color
- * @param value - color value
+ * @param value - CSS color value
  * @param [opt] - options
  * @returns origin color value
  */
@@ -403,7 +403,7 @@ export function extractOriginColor(
 
 /**
  * resolve relative color
- * @param value - relative color value
+ * @param value - CSS relative color value
  * @param [opt] - options
  * @returns resolved value
  */
