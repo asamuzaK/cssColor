@@ -91,6 +91,38 @@ describe('split value', () => {
   });
 });
 
+describe('extract dashed-ident tokens', () => {
+  const func = util.extractDashedIdent;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should get empty array', () => {
+    const res = func('foo');
+    assert.deepEqual(res, [], 'result');
+
+    const res2 = func('foo');
+    assert.deepEqual(res2, [], 'result');
+  });
+
+  it('should get array', () => {
+    const res = func('var(--foo) var(--bar) var(--baz)');
+    assert.deepEqual(res, ['--foo', '--bar', '--baz'], 'result');
+
+    const res2 = func('var(--foo) var(--bar) var(--baz)');
+    assert.deepEqual(res2, ['--foo', '--bar', '--baz'], 'result');
+  });
+
+  it('should get array', () => {
+    const res = func('var(--foo, var(--bar, qux)) var(--baz, quux)');
+    assert.deepEqual(res, ['--foo', '--bar', '--baz'], 'result');
+
+    const res2 = func('var(--foo, var(--bar, qux)) var(--baz, quux)');
+    assert.deepEqual(res2, ['--foo', '--bar', '--baz'], 'result');
+  });
+});
+
 describe('is color', () => {
   const func = util.isColor;
 

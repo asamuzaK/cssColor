@@ -10,4 +10,4 @@ export { cssCalc } from './js/css-calc';
 export { isGradient } from './js/css-gradient';
 export { cssVar } from './js/css-var';
 export { resolve } from './js/resolve';
-export { isColor, splitValue } from './js/util';
+export { extractDashedIdent, isColor, splitValue } from './js/util';

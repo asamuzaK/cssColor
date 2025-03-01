@@ -17,6 +17,7 @@ const {
   Comment: COMMENT,
   EOF,
   Function: FUNC,
+  Ident: IDENT,
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
@@ -118,6 +119,39 @@ export const splitValue = (value: string, delimiter: string = ''): string[] => {
       }
     }
   }
+  setCache(cacheKey, res);
+  return res;
+};
+
+/**
+ * extract dashed-ident tokens
+ * @param value - CSS value
+ * @returns tokens
+ */
+export const extractDashedIdent = (value: string): string[] => {
+  if (isString(value)) {
+    value = value.trim();
+  } else {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  const cacheKey: string = createCacheKey({
+    namespace: NAMESPACE,
+    name: 'extractDashedIdent',
+    value
+  });
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult instanceof CacheItem) {
+    return cachedResult.item as string[];
+  }
+  const tokens = tokenize({ css: value });
+  const items = new Set();
+  while (tokens.length) {
+    const [type, value] = tokens.shift() as [TokenType, string];
+    if (type === IDENT && value.startsWith('--')) {
+      items.add(value);
+    }
+  }
+  const res = [...items] as string[];
   setCache(cacheKey, res);
   return res;
 };
