@@ -126,7 +126,7 @@ export const splitValue = (value: string, delimiter: string = ''): string[] => {
 /**
  * extract dashed-ident tokens
  * @param value - CSS value
- * @returns tokens
+ * @returns array of dashed-ident tokens
  */
 export const extractDashedIdent = (value: string): string[] => {
   if (isString(value)) {
