@@ -913,7 +913,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
-      name: 'serializeCalc',
+      name: 'cssCalc',
       value
     },
     opt
