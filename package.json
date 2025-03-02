@@ -15,7 +15,7 @@
     "dist",
     "src"
   ],
-  "packageManager": "pnpm@10.5.0",
+  "packageManager": "pnpm@10.5.2",
   "type": "module",
   "types": "dist/esm/index.d.ts",
   "main": "dist/cjs/index.cjs",
@@ -72,5 +72,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "3.0.14"
+  "version": "3.0.15"
 }
