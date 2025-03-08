@@ -5,9 +5,22 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
+import { cssCalc as csscalc } from './js/css-calc';
+import { isGradient } from './js/css-gradient';
+import { cssVar } from './js/css-var';
+import { extractDashedIdent, isColor as iscolor, splitValue } from './js/util';
+
 export { convert } from './js/convert';
-export { cssCalc } from './js/css-calc';
-export { isGradient } from './js/css-gradient';
-export { cssVar } from './js/css-var';
 export { resolve } from './js/resolve';
-export { extractDashedIdent, isColor, splitValue } from './js/util';
+/* utils */
+export const utils = {
+  cssCalc: csscalc,
+  cssVar,
+  extractDashedIdent,
+  isColor: iscolor,
+  isGradient,
+  splitValue
+};
+/* TODO: remove later */
+export const cssCalc = utils.cssCalc;
+export const isColor = utils.isColor;
