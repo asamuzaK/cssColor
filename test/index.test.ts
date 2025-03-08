@@ -47,21 +47,27 @@ describe('convert', () => {
   });
 });
 
-describe('isColor', () => {
-  const { isColor } = api;
+describe('utils', () => {
+  const { utils } = api;
 
-  it('should get value', () => {
-    const res = isColor('foo');
-    assert.strictEqual(res, false, 'result');
+  it('should be true', () => {
+    assert.strictEqual(typeof utils.cssCalc, 'function', 'result');
   });
 
-  it('should get value', () => {
-    const res = isColor('green');
-    assert.strictEqual(res, true, 'result');
+  it('should be true', () => {
+    assert.strictEqual(typeof utils.isColor, 'function', 'result');
+  });
+});
+
+/* remove later */
+describe('legacy exports', () => {
+  const { isColor, cssCalc } = api;
+
+  it('should be true', () => {
+    assert.strictEqual(typeof isColor, 'function', 'result');
   });
 
-  it('should get value', () => {
-    const res = isColor('lab(46.2775% -47.5621 48.5837)');
-    assert.strictEqual(res, true, 'result');
+  it('should be true', () => {
+    assert.strictEqual(typeof cssCalc, 'function', 'result');
   });
 });
