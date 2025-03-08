@@ -21,6 +21,7 @@ export const utils = {
   isGradient,
   splitValue
 };
+/* alias */
+export const isColor = utils.isColor;
 /* TODO: remove later */
 export const cssCalc = utils.cssCalc;
-export const isColor = utils.isColor;
