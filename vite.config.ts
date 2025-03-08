@@ -6,8 +6,9 @@ const config = defineConfig({
   test: {
     coverage: {
       enabled: true,
+      include: ['src/**/*'],
       provider: 'istanbul',
-      include: ['src/**/*']
+      reporter: [['text', { maxCols: 100 }], 'html', 'clover', 'json']
     },
     dir: './test',
     name: packageJson.name,
