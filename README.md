@@ -15,7 +15,7 @@ npm i @asamuzakjp/css-color
 ## Usage
 
 ```javascript
-import { convert, isColor, resolve } from '@asamuzakjp/css-color';
+import { convert, resolve, utils } from '@asamuzakjp/css-color';
 
 const resolvedValue = resolve(
   'color-mix(in oklab, lch(67.5345 42.5 258.2), color(srgb 0 0.5 0))'
@@ -25,7 +25,7 @@ const resolvedValue = resolve(
 const convertedValue = covert.colorToHex('lab(46.2775% -47.5621 48.5837)');
 // '#008000'
 
-const result = isColor('green');
+const result = utils.isColor('green');
 // true
 ```
 
@@ -38,9 +38,7 @@ resolves CSS color
 #### Parameters
 
 - `color` **[string][133]** color value
-
   - system colors are not supported
-
 - `opt` **[object][135]?** options (optional, default `{}`)
   - `opt.currentColor` **[string][133]?**
     - color to use for `currentcolor` keyword
@@ -281,7 +279,11 @@ convert color to xyz-d50
 
 Returns **[Array][137]<[number][134]>** \[x, y, z, alpha]
 
-### isColor(color)
+### utils
+
+Contains utility functions.
+
+### utils.isColor(color)
 
 is valid color type
 
