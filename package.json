@@ -15,11 +15,10 @@
     "dist",
     "src"
   ],
-  "packageManager": "pnpm@10.5.2",
   "type": "module",
   "types": "dist/esm/index.d.ts",
-  "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.js",
+  "main": "dist/cjs/index.cjs",
   "exports": {
     ".": {
       "import": {
@@ -33,6 +32,7 @@
     },
     "./package.json": "./package.json"
   },
+  "packageManager": "pnpm@10.6.1",
   "dependencies": {
     "@csstools/css-calc": "^2.1.2",
     "@csstools/css-color-parser": "^3.0.8",
@@ -72,5 +72,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "3.1.0"
+  "version": "3.1.1"
 }
