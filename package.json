@@ -32,7 +32,7 @@
     },
     "./package.json": "./package.json"
   },
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@10.6.3",
   "dependencies": {
     "@csstools/css-calc": "^2.1.2",
     "@csstools/css-color-parser": "^3.0.8",
@@ -41,22 +41,22 @@
     "lru-cache": "^10.4.3"
   },
   "devDependencies": {
-    "@tanstack/vite-config": "^0.1.0",
-    "@vitest/coverage-istanbul": "^3.0.8",
-    "esbuild": "^0.25.0",
-    "eslint": "^9.22.0",
-    "eslint-plugin-import-x": "^4.6.1",
+    "@tanstack/vite-config": "^0.2.0",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "esbuild": "^0.25.2",
+    "eslint": "^9.23.0",
+    "eslint-plugin-import-x": "^4.10.0",
     "eslint-plugin-regexp": "^2.7.0",
     "globals": "^16.0.0",
-    "knip": "^5.45.0",
+    "knip": "^5.46.4",
     "neostandard": "^0.12.1",
     "prettier": "^3.5.3",
-    "publint": "^0.3.8",
+    "publint": "^0.3.9",
     "rimraf": "^6.0.1",
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
-    "vite": "^6.2.1",
-    "vitest": "^3.0.8"
+    "vite": "^6.2.4",
+    "vitest": "^3.1.1"
   },
   "scripts": {
     "build": "pnpm run clean && pnpm run test && pnpm run knip && pnpm run build:prod && pnpm run build:cjs && pnpm run build:browser && pnpm run publint",
