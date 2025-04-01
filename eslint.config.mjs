@@ -1,4 +1,3 @@
-import importX from 'eslint-plugin-import-x';
 import regexp from 'eslint-plugin-regexp';
 import globals from 'globals';
 import neostandard from 'neostandard';
@@ -25,7 +24,6 @@ export default [
       reportUnusedDisableDirectives: true
     },
     plugins: {
-      'import-x': importX,
       regexp
     },
     rules: {
