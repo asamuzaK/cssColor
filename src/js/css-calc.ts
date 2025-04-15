@@ -694,9 +694,9 @@ export const sortCalcValues = (
         operator = '';
       }
     }
-    resolvedValue = finalizedValues.join(' ');
+    resolvedValue = finalizedValues.join(' ').replace(/\+\s-/g, '- ');
   } else {
-    resolvedValue = sortedValues.join(' ');
+    resolvedValue = sortedValues.join(' ').replace(/\+\s-/g, '- ');
   }
   return `${start}${resolvedValue}${end}`;
 };
@@ -942,6 +942,13 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     ) {
       resolvedValue = `calc(${resolvedValue})`;
     }
+  }
+  if (
+    format === VAL_SPEC &&
+    /\s[-+*/]\s/.test(resolvedValue) &&
+    !resolvedValue.includes('NaN')
+  ) {
+    resolvedValue = serializeCalc(resolvedValue, opt);
   }
   setCache(cacheKey, resolvedValue);
   return resolvedValue;
