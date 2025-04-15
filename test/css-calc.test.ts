@@ -1733,4 +1733,16 @@ describe('CSS calc()', () => {
     });
     assert.strictEqual(res2, '1px', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('calc(10px + 20%)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(20% + 10px)', 'result');
+
+    const res2 = func('calc(10px + 20%)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc(20% + 10px)', 'result');
+  });
 });
