@@ -1745,4 +1745,16 @@ describe('CSS calc()', () => {
     });
     assert.strictEqual(res2, 'calc(20% + 10px)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('calc(10px + 100vh)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(10px + 100vh)', 'result');
+
+    const res2 = func('calc(10px + 100vh)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc(10px + 100vh)', 'result');
+  });
 });

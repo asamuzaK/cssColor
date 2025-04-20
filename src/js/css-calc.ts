@@ -698,6 +698,14 @@ export const sortCalcValues = (
   } else {
     resolvedValue = sortedValues.join(' ').replace(/\+\s-/g, '- ');
   }
+  if (
+    resolvedValue.startsWith('(') &&
+    resolvedValue.endsWith(')') &&
+    resolvedValue.lastIndexOf('(') === 0 &&
+    resolvedValue.indexOf(')') === resolvedValue.length - 1
+  ) {
+    resolvedValue = resolvedValue.replace(/^\(/, '').replace(/\)$/, '');
+  }
   return `${start}${resolvedValue}${end}`;
 };
 
