@@ -443,10 +443,10 @@ export class Calculator {
     if (this.#hasDim) {
       let dim, sum, sub;
       if (this.#dimSum.length) {
-        sum = this.#dimSum.join(' + ');
+        sum = this.sort(this.#dimSum).join(' + ');
       }
       if (this.#dimSub.length) {
-        sub = this.#dimSub.join(' + ');
+        sub = this.sort(this.#dimSub).join(' + ');
       }
       if (sum) {
         if (sub) {
