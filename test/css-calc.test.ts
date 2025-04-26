@@ -1769,4 +1769,16 @@ describe('CSS calc()', () => {
     });
     assert.strictEqual(res2, 'calc(10px + 100vh)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('calc(2 / 3)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'calc(0.666667)', 'result');
+
+    const res2 = func('calc(2 / 3)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'calc(0.666667)', 'result');
+  });
 });

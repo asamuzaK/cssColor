@@ -45,6 +45,7 @@ const MAX_PCT = 100;
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
+const REG_FN_CALC_NUM = new RegExp(`^calc\\((${NUM})\\)$`);
 const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
@@ -951,12 +952,13 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
       resolvedValue = `calc(${resolvedValue})`;
     }
   }
-  if (
-    format === VAL_SPEC &&
-    /\s[-+*/]\s/.test(resolvedValue) &&
-    !resolvedValue.includes('NaN')
-  ) {
-    resolvedValue = serializeCalc(resolvedValue, opt);
+  if (format === VAL_SPEC) {
+    if (/\s[-+*/]\s/.test(resolvedValue) && !resolvedValue.includes('NaN')) {
+      resolvedValue = serializeCalc(resolvedValue, opt);
+    } else if (REG_FN_CALC_NUM.test(resolvedValue)) {
+      const [, val] = resolvedValue.match(REG_FN_CALC_NUM) as MatchedRegExp;
+      resolvedValue = `calc(${roundToPrecision(Number(val), HEX)})`;
+    }
   }
   setCache(cacheKey, resolvedValue);
   return resolvedValue;
