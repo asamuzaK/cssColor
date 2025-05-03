@@ -31,6 +31,8 @@ const DEG_HALF = 180;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
+const REG_FN_COLOR =
+  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
 const REG_MIX = new RegExp(SYN_MIX);
 
 /**
@@ -175,7 +177,7 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
         }
       } else if (REG_COLOR.test(value) || REG_MIX.test(value)) {
         return true;
-      } else {
+      } else if (REG_FN_COLOR.test(value)) {
         opt.nullable = true;
         if (!opt.format) {
           opt.format = VAL_SPEC;
