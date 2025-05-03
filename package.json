@@ -43,7 +43,7 @@
     "@tanstack/vite-config": "^0.2.0",
     "@vitest/coverage-istanbul": "^3.1.2",
     "esbuild": "^0.25.3",
-    "eslint": "^9.25.1",
+    "eslint": "^9.26.0",
     "eslint-plugin-regexp": "^2.7.0",
     "globals": "^16.0.0",
     "knip": "^5.52.0",
@@ -77,5 +77,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "3.1.5"
+  "version": "3.1.6"
 }
