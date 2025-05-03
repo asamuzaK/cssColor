@@ -38,15 +38,16 @@ const REG_MIX = new RegExp(SYN_MIX);
 /**
  * split value
  * @param value - CSS value
- * @param [delimiter] - comma or space
+ * @param [opt] - options
  * @returns array of values, NOTE: comments are stripped
  */
-export const splitValue = (value: string, delimiter: string = ''): string[] => {
+export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (isString(value)) {
     value = value.trim();
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
+  const { delimiter = ' ', preserveComment = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -54,7 +55,8 @@ export const splitValue = (value: string, delimiter: string = ''): string[] => {
       value
     },
     {
-      delimiter
+      delimiter,
+      preserveComment
     }
   );
   const cachedResult = getCache(cacheKey);
@@ -83,6 +85,9 @@ export const splitValue = (value: string, delimiter: string = ''): string[] => {
         break;
       }
       case COMMENT: {
+        if (preserveComment && delimiter === ',') {
+          str += value;
+        }
         break;
       }
       case FUNC:

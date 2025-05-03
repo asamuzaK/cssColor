@@ -24,6 +24,7 @@ export interface Options {
   dimension?: Record<string, number | ((K: string) => number)>;
   format?: string;
   nullable?: boolean;
+  preserveComment?: boolean;
 }
 
 /**
