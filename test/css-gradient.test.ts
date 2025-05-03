@@ -411,4 +411,21 @@ describe('is CSS gradient', () => {
     const res = func('linear-gradient(red, blue)');
     assert.strictEqual(res, true, 'result');
   });
+
+  it('should get true', () => {
+    const res = func('radial-gradient(transparent, var(--custom-color))');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('radial-gradient(transparent, var(--custom-color))');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(
+      'radial-gradient(transparent, /* comment */ var(--custom-color))'
+    );
+    assert.strictEqual(res, true, 'result');
+  });
 });

@@ -190,6 +190,16 @@ describe('is color', () => {
     );
     assert.strictEqual(res, true, 'result');
   });
+
+  it('should get false', () => {
+    const res = func('url(var(--foo))');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('radial-gradient(transparent, var(--custom-color))');
+    assert.strictEqual(res, false, 'result');
+  });
 });
 
 describe('value to JSON string', () => {
