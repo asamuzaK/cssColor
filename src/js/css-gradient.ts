@@ -226,7 +226,9 @@ export const parseGradient = (
     const type = getGradientType(value);
     const gradValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
     if (type && gradValue) {
-      const [lineOrColorStop = '', ...colorStops] = splitValue(gradValue, ',');
+      const [lineOrColorStop = '', ...colorStops] = splitValue(gradValue, {
+        delimiter: ','
+      });
       const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
         ? DIM_ANGLE_PCT
         : DIM_LEN_PCT;
