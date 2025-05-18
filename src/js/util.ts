@@ -37,9 +37,11 @@ const REG_MIX = new RegExp(SYN_MIX);
 
 /**
  * split value
+ * NOTE: comments are stripped, it can be preserved if `delimiter` is set to
+ * ',' and `preserveComment` to `true` in the options param
  * @param value - CSS value
  * @param [opt] - options
- * @returns array of values, NOTE: comments are stripped
+ * @returns array of values
  */
 export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (isString(value)) {
