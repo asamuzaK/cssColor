@@ -15,6 +15,7 @@ const {
   CloseParen: PAREN_CLOSE,
   Comma: COMMA,
   Comment: COMMENT,
+  Delim: DELIM,
   EOF,
   Function: FUNC,
   Ident: IDENT,
@@ -37,8 +38,8 @@ const REG_MIX = new RegExp(SYN_MIX);
 
 /**
  * split value
- * NOTE: comments are stripped, it can be preserved if `delimiter` is set to
- * ',' and `preserveComment` to `true` in the options param
+ * NOTE: comments are stripped, it can be preserved if, in the options param,
+ * `delimiter` is either ',' or '/' and with `preserveComment` set to `true`
  * @param value - CSS value
  * @param [opt] - options
  * @returns array of values
@@ -65,7 +66,14 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (cachedResult instanceof CacheItem) {
     return cachedResult.item as string[];
   }
-  const regDelimiter = delimiter === ',' ? /^,$/ : /^\s+$/;
+  let regDelimiter;
+  if (delimiter === ',') {
+    regDelimiter = /^,$/;
+  } else if (delimiter === '/') {
+    regDelimiter = /^\/$/;
+  } else {
+    regDelimiter = /^\s+$/;
+  }
   const tokens = tokenize({ css: value });
   let nest = 0;
   let str = '';
@@ -86,8 +94,21 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
         }
         break;
       }
+      case DELIM: {
+        if (regDelimiter.test(value)) {
+          if (nest === 0) {
+            res.push(str.trim());
+            str = '';
+          } else {
+            str += value;
+          }
+        } else {
+          str += value;
+        }
+        break;
+      }
       case COMMENT: {
-        if (preserveComment && delimiter === ',') {
+        if (preserveComment && (delimiter === ',' || delimiter === '/')) {
           str += value;
         }
         break;

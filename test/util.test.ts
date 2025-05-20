@@ -45,6 +45,34 @@ describe('split value', () => {
   });
 
   it('should get value', () => {
+    const res = func('foo, bar', {
+      delimiter: ','
+    });
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo bar', {
+      delimiter: '/'
+    });
+    assert.deepEqual(res, ['foo bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo / bar', {
+      delimiter: '/'
+    });
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('calc(1 / 3) / bar', {
+      delimiter: '/'
+    });
+    assert.deepEqual(res, ['calc(1 / 3)', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('foo  bar');
     assert.deepEqual(res, ['foo', 'bar'], 'result');
   });
@@ -57,6 +85,13 @@ describe('split value', () => {
   });
 
   it('should get value', () => {
+    const res = func('foo  bar', {
+      delimiter: '/'
+    });
+    assert.deepEqual(res, ['foo bar'], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('foo /* comment */ bar');
     assert.deepEqual(res, ['foo', 'bar'], 'result');
   });
@@ -64,6 +99,13 @@ describe('split value', () => {
   it('should get value', () => {
     const res = func('foo /* comment */ , bar', {
       delimiter: ','
+    });
+    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo /* comment */ / bar', {
+      delimiter: '/'
     });
     assert.deepEqual(res, ['foo', 'bar'], 'result');
   });
@@ -84,6 +126,14 @@ describe('split value', () => {
   });
 
   it('should get value', () => {
+    const res = func('foo /* comment */ / bar', {
+      delimiter: '/',
+      preserveComment: true
+    });
+    assert.deepEqual(res, ['foo /* comment */', 'bar'], 'result');
+  });
+
+  it('should get value', () => {
     const res = func('foo /* comment */ bar, baz', {
       delimiter: ',',
       preserveComment: true
@@ -92,8 +142,23 @@ describe('split value', () => {
   });
 
   it('should get value', () => {
+    const res = func('foo /* comment */ bar / baz', {
+      delimiter: '/',
+      preserveComment: true
+    });
+    assert.deepEqual(res, ['foo /* comment */ bar', 'baz'], 'result');
+  });
+
+  it('should get value', () => {
     const res = func(',', {
       delimiter: ','
+    });
+    assert.deepEqual(res, ['', ''], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('/', {
+      delimiter: '/'
     });
     assert.deepEqual(res, ['', ''], 'result');
   });
