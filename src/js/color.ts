@@ -1967,7 +1967,7 @@ export const parseColorValue = (
     }
     // named-color
   } else if (/^[a-z]+$/.test(value)) {
-    if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
+    if (Object.hasOwn(NAMED_COLORS, value)) {
       if (format === VAL_SPEC) {
         return value;
       }
@@ -2141,7 +2141,7 @@ export const resolveColorValue = (
     }
     // named-color
   } else if (/^[a-z]+$/.test(value)) {
-    if (Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)) {
+    if (Object.hasOwn(NAMED_COLORS, value)) {
       if (format === VAL_SPEC) {
         setCache(cacheKey, value);
         return value;

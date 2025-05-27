@@ -793,7 +793,7 @@ export const resolveDimension = (
   const relativeValue = Number(value);
   if (unit && Number.isFinite(relativeValue)) {
     let pixelValue;
-    if (Object.hasOwnProperty.call(dimension, unit)) {
+    if (Object.hasOwn(dimension, unit)) {
       pixelValue = dimension[unit];
     } else if (typeof dimension.callback === 'function') {
       pixelValue = dimension.callback(unit);

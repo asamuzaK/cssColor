@@ -300,7 +300,7 @@ export function extractOriginColor(
     if (/^[a-z]+$/.test(originColor)) {
       if (
         !/^transparent$/.test(originColor) &&
-        !Object.prototype.hasOwnProperty.call(NAMED_COLORS, originColor)
+        !Object.hasOwn(NAMED_COLORS, originColor)
       ) {
         setCache(cacheKey, null);
         return new NullObject();

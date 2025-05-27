@@ -199,7 +199,7 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
       if (/^[a-z]+$/.test(value)) {
         if (
           /^(?:currentcolor|transparent)$/.test(value) ||
-          Object.prototype.hasOwnProperty.call(NAMED_COLORS, value)
+          Object.hasOwn(NAMED_COLORS, value)
         ) {
           return true;
         }

@@ -46,7 +46,8 @@ export default [
           functions: false,
           variables: true
         }
-      ]
+      ],
+      'prefer-object-has-own': 'error'
     }
   }
 ];

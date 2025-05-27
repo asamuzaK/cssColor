@@ -65,7 +65,7 @@ export function resolveCustomProperty(
     } else if (type === IDENT) {
       if (value.startsWith('--')) {
         let item;
-        if (Object.hasOwnProperty.call(customProperty, value)) {
+        if (Object.hasOwn(customProperty, value)) {
           item = customProperty[value] as string;
         } else if (typeof customProperty.callback === 'function') {
           item = customProperty.callback(value);
