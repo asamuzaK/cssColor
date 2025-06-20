@@ -22,7 +22,7 @@ const resolvedValue = resolve(
 );
 // 'oklab(0.620754 -0.0931934 -0.00374881)'
 
-const convertedValue = covert.colorToHex('lab(46.2775% -47.5621 48.5837)');
+const convertedValue = convert.colorToHex('lab(46.2775% -47.5621 48.5837)');
 // '#008000'
 
 const result = utils.isColor('green');

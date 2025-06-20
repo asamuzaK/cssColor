@@ -8,7 +8,7 @@
  * @property [alpha] - enable alpha
  * @property [colorSpace] - color space
  * @property [currentColor] - color for currentcolor
- * @property [customPropeerty] - custom properties
+ * @property [customProperty] - custom properties
  * @property [d50] - white point in d50
  * @property [dimension] - dimension
  * @property [format] - output format
