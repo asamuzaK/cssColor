@@ -16,6 +16,7 @@
  */
 export interface Options {
   alpha?: boolean;
+  colorScheme?: string;
   colorSpace?: string;
   currentColor?: string;
   customProperty?: Record<string, string | ((K: string) => string)>;
