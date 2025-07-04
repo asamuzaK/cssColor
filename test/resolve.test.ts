@@ -435,6 +435,13 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('color-mix(in srgb, light-dark(red, green), white)', {
+      colorScheme: 'dark'
+    });
+    assert.strictEqual(res, 'color(srgb 0.5 0.75098 0.5)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func(
       'rgb(calc(64 * 2) calc(100% / 2) calc(128 + 127.5) / calc(2 / 3))'
     );

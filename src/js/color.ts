@@ -2787,7 +2787,7 @@ export const resolveColorMix = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { colorScheme = 'normal', format = '', nullable = false } = opt;
+  const { format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -2869,49 +2869,43 @@ export const resolveColorMix = (
       const [colorPartA = '', pctPartA = ''] = splitValue(partA);
       const [colorPartB = '', pctPartB = ''] = splitValue(partB);
       const specifiedColorA = resolveColor(colorPartA, {
-        colorScheme,
         format: VAL_SPEC
       }) as string;
       const specifiedColorB = resolveColor(colorPartB, {
-        colorScheme,
         format: VAL_SPEC
       }) as string;
-      if (
-        !csPart ||
-        !regColorSpace.test(csPart) ||
-        specifiedColorA === '' ||
-        specifiedColorB === ''
-      ) {
+      if (regColorSpace.test(csPart) && specifiedColorA && specifiedColorB) {
+        if (format === VAL_SPEC) {
+          const [, cs] = csPart.match(regColorSpace) as MatchedRegExp;
+          if (REG_CS_HUE.test(cs)) {
+            [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as MatchedRegExp;
+          } else {
+            colorSpace = cs;
+          }
+          colorA = specifiedColorA;
+          if (pctPartA) {
+            pctA = pctPartA;
+          }
+          colorB = specifiedColorB;
+          if (pctPartB) {
+            pctB = pctPartB;
+          }
+          value = value
+            .replace(colorPartA, specifiedColorA)
+            .replace(colorPartB, specifiedColorB);
+          parsed = true;
+        } else {
+          const resolvedColorA = resolveColor(colorPartA, opt);
+          const resolvedColorB = resolveColor(colorPartB, opt);
+          if (isString(resolvedColorA) && isString(resolvedColorB)) {
+            value = value
+              .replace(colorPartA, resolvedColorA)
+              .replace(colorPartB, resolvedColorB);
+          }
+        }
+      } else {
         const res = cacheInvalidColorValue(cacheKey, format, nullable);
         return res;
-      }
-      if (format === VAL_SPEC) {
-        const [, cs] = csPart.match(regColorSpace) as MatchedRegExp;
-        if (REG_CS_HUE.test(cs)) {
-          [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as MatchedRegExp;
-        } else {
-          colorSpace = cs;
-        }
-        colorA = specifiedColorA;
-        if (pctPartA) {
-          pctA = pctPartA;
-        }
-        colorB = specifiedColorB;
-        if (pctPartB) {
-          pctB = pctPartB;
-        }
-        value = value
-          .replace(colorPartA, specifiedColorA)
-          .replace(colorPartB, specifiedColorB);
-        parsed = true;
-      } else {
-        const resolvedColorA = resolveColor(colorPartA, opt);
-        const resolvedColorB = resolveColor(colorPartB, opt);
-        if (isString(resolvedColorA) && isString(resolvedColorB)) {
-          value = value
-            .replace(colorPartA, resolvedColorA)
-            .replace(colorPartB, resolvedColorB);
-        }
       }
     } else {
       const res = cacheInvalidColorValue(cacheKey, format, nullable);
