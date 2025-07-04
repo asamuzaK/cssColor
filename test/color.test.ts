@@ -9353,4 +9353,105 @@ describe('resolve color-mix()', () => {
     );
     assert.deepEqual(res, ['oklch', 1, 0, 230, 1], 'result');
   });
+
+  it('should get empty string', () => {
+    const res = func(
+      'color-mix(foo srgb, light-dark(green, white), light-dark(green, white))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '');
+  });
+
+  it('should get empty string', () => {
+    const res = func(
+      'color-mix(in foo, light-dark(green, white), light-dark(green, white))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '');
+  });
+
+  it('should get empty string', () => {
+    const res = func(
+      'color-mix(in srgb, light-dark(foo, white), light-dark(green, white))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '');
+  });
+
+  it('should get empty string', () => {
+    const res = func(
+      'color-mix(in srgb, light-dark(green, foo), light-dark(green, white))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '');
+  });
+
+  it('should get empty string', () => {
+    const res = func(
+      'color-mix(in srgb, light-dark(green, white), light-dark(foo, white))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '');
+  });
+
+  it('should get empty string', () => {
+    const res = func(
+      'color-mix(in srgb, light-dark(green, white), light-dark(green, foo))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'color-mix(in srgb, light-dark(green, white), light-dark(green, white))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(
+      res,
+      'color-mix(in srgb, light-dark(green, white), light-dark(green, white))'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'color-mix(in oklch decreasing hue, light-dark(green, white) 40%, blue)',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(
+      res,
+      'color-mix(in oklch decreasing hue, light-dark(green, white) 40%, blue)',
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'color-mix(in oklch decreasing hue, blue, light-dark(green, white) 40%)',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(
+      res,
+      'color-mix(in oklch decreasing hue, blue 60%, light-dark(green, white))',
+      'result'
+    );
+  });
 });

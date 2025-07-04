@@ -14,7 +14,8 @@ import {
   setCache
 } from './cache';
 import { isString } from './common';
-import { interpolateHue, roundToPrecision } from './util';
+import { resolveColor } from './resolve';
+import { interpolateHue, roundToPrecision, splitValue } from './util';
 import {
   ColorChannels,
   ComputedColorChannels,
@@ -33,6 +34,7 @@ import {
   CS_RGB,
   CS_XYZ,
   FN_COLOR,
+  FN_LIGHT_DARK,
   FN_MIX,
   NONE,
   NUM,
@@ -2785,7 +2787,7 @@ export const resolveColorMix = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { format = '', nullable = false } = opt;
+  const { colorScheme = 'normal', format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -2806,7 +2808,15 @@ export const resolveColorMix = (
     return cachedItem as SpecifiedColorChannels;
   }
   const nestedItems = [];
+  let colorSpace = '';
+  let hueArc = '';
+  let colorA = '';
+  let pctA = '';
+  let colorB = '';
+  let pctB = '';
+  let parsed = false;
   if (!REG_MIX.test(value)) {
+    // nested color-mix()
     if (value.startsWith(FN_MIX) && REG_MIX_NEST.test(value)) {
       const regColorSpace = new RegExp(`^(?:${CS_RGB}|${CS_XYZ})$`);
       const items = value.match(REG_MIX_NEST) as RegExpMatchArray;
@@ -2845,17 +2855,69 @@ export const resolveColorMix = (
         const res = cacheInvalidColorValue(cacheKey, format, nullable);
         return res;
       }
+      // contains light-dark()
+    } else if (
+      value.startsWith(FN_MIX) &&
+      value.endsWith(')') &&
+      value.includes(FN_LIGHT_DARK)
+    ) {
+      const regColorSpace = new RegExp(`in\\s+(${CS_MIX})`);
+      const colorParts = value.replace(FN_MIX, '').replace(/\)$/, '');
+      const [csPart = '', partA = '', partB = ''] = splitValue(colorParts, {
+        delimiter: ','
+      });
+      const [colorPartA = '', pctPartA = ''] = splitValue(partA);
+      const [colorPartB = '', pctPartB = ''] = splitValue(partB);
+      const specifiedColorA = resolveColor(colorPartA, {
+        colorScheme,
+        format: VAL_SPEC
+      }) as string;
+      const specifiedColorB = resolveColor(colorPartB, {
+        colorScheme,
+        format: VAL_SPEC
+      }) as string;
+      if (
+        !csPart ||
+        !regColorSpace.test(csPart) ||
+        specifiedColorA === '' ||
+        specifiedColorB === ''
+      ) {
+        const res = cacheInvalidColorValue(cacheKey, format, nullable);
+        return res;
+      }
+      if (format === VAL_SPEC) {
+        const [, cs] = csPart.match(regColorSpace) as MatchedRegExp;
+        if (REG_CS_HUE.test(cs)) {
+          [, colorSpace, hueArc] = cs.match(REG_CS_HUE) as MatchedRegExp;
+        } else {
+          colorSpace = cs;
+        }
+        colorA = specifiedColorA;
+        if (pctPartA) {
+          pctA = pctPartA;
+        }
+        colorB = specifiedColorB;
+        if (pctPartB) {
+          pctB = pctPartB;
+        }
+        value = value
+          .replace(colorPartA, specifiedColorA)
+          .replace(colorPartB, specifiedColorB);
+        parsed = true;
+      } else {
+        const resolvedColorA = resolveColor(colorPartA, opt);
+        const resolvedColorB = resolveColor(colorPartB, opt);
+        if (isString(resolvedColorA) && isString(resolvedColorB)) {
+          value = value
+            .replace(colorPartA, resolvedColorA)
+            .replace(colorPartB, resolvedColorB);
+        }
+      }
     } else {
       const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
   }
-  let colorSpace = '';
-  let hueArc = '';
-  let colorA = '';
-  let pctA = '';
-  let colorB = '';
-  let pctB = '';
   if (nestedItems.length && format === VAL_SPEC) {
     const regColorSpace = new RegExp(`^color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,`);
     const [, cs] = value.match(regColorSpace) as MatchedRegExp;
@@ -2897,7 +2959,7 @@ export const resolveColorMix = (
         [, colorB, pctB] = colorPartB.match(regColorPart) as MatchedRegExp;
       }
     }
-  } else {
+  } else if (!parsed) {
     const [, cs, colorPartA, colorPartB] = value.match(
       REG_MIX_CAPT
     ) as MatchedRegExp;
@@ -2955,7 +3017,7 @@ export const resolveColorMix = (
   if (format === VAL_SPEC) {
     let valueA = '';
     let valueB = '';
-    if (colorA.startsWith(FN_MIX)) {
+    if (colorA.startsWith(FN_MIX) || colorA.startsWith(FN_LIGHT_DARK)) {
       valueA = colorA;
     } else if (colorA.startsWith(FN_COLOR)) {
       const [cs, v1, v2, v3, v4] = parseColorFunc(
@@ -2990,7 +3052,7 @@ export const resolveColorMix = (
         valueA = val;
       }
     }
-    if (colorB.startsWith(FN_MIX)) {
+    if (colorB.startsWith(FN_MIX) || colorB.startsWith(FN_LIGHT_DARK)) {
       valueB = colorB;
     } else if (colorB.startsWith(FN_COLOR)) {
       const [cs, v1, v2, v3, v4] = parseColorFunc(

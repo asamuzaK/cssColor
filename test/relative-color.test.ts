@@ -297,6 +297,34 @@ describe('extract origin color', () => {
       'result'
     );
   });
+
+  it('should get null object', () => {
+    const res = func('rgb(from light-dark(foo, red) r g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(from light-dark(foo, red) r g b)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from light-dark(green, red) r g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(from light-dark(green, red) r g b)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from light-dark(green, red) r g b)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, 'rgb(from rgb(0, 128, 0) r g b)', 'result');
+  });
 });
 
 describe('resolve relative color', () => {

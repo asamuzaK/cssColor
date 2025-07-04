@@ -19,7 +19,7 @@ import { NAMED_COLORS, convertColorToRgb } from './color';
 import { isString, isStringOrNumber } from './common';
 import { resolveDimension, serializeCalc } from './css-calc';
 import { resolveColor } from './resolve';
-import { roundToPrecision } from './util';
+import { roundToPrecision, splitValue } from './util';
 import {
   ColorChannels,
   MatchedRegExp,
@@ -31,6 +31,7 @@ import {
 import {
   CS_LAB,
   CS_LCH,
+  FN_LIGHT_DARK,
   FN_REL,
   FN_REL_CAPT,
   FN_VAR,
@@ -254,7 +255,7 @@ export function extractOriginColor(
   value: string,
   opt: Options = {}
 ): string | NullObject {
-  const { currentColor = '', format = '' } = opt;
+  const { colorScheme = 'normal', currentColor = '', format = '' } = opt;
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (!value) {
@@ -294,6 +295,28 @@ export function extractOriginColor(
     [, colorSpace] = value.match(REG_FN_REL_CAPT) as MatchedRegExp;
   }
   opt.colorSpace = colorSpace;
+  if (value.includes(FN_LIGHT_DARK)) {
+    const colorParts = value
+      .replace(new RegExp(`^${colorSpace}\\(`), '')
+      .replace(/\)$/, '');
+    const [, originColor = ''] = splitValue(colorParts);
+    const specifiedOriginColor = resolveColor(originColor, {
+      colorScheme,
+      format: VAL_SPEC
+    }) as string;
+    if (specifiedOriginColor === '') {
+      setCache(cacheKey, null);
+      return new NullObject();
+    }
+    if (format === VAL_SPEC) {
+      value = value.replace(originColor, specifiedOriginColor);
+    } else {
+      const resolvedOriginColor = resolveColor(specifiedOriginColor, opt);
+      if (isString(resolvedOriginColor)) {
+        value = value.replace(originColor, resolvedOriginColor);
+      }
+    }
+  }
   if (REG_COLOR_CAPT.test(value)) {
     const [, originColor] = value.match(REG_COLOR_CAPT) as MatchedRegExp;
     const [, restValue] = value.split(originColor) as MatchedRegExp;

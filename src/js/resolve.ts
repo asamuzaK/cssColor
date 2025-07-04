@@ -19,6 +19,7 @@ import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { resolveVar } from './css-var';
 import { resolveRelativeColor } from './relative-color';
+import { splitValue } from './util';
 import {
   ComputedColorChannels,
   Options,
@@ -30,6 +31,7 @@ import {
   FN_COLOR,
   FN_MIX,
   SYN_FN_CALC,
+  SYN_FN_LIGHT_DARK,
   SYN_FN_REL,
   SYN_FN_VAR,
   VAL_COMP,
@@ -40,6 +42,7 @@ const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
+const REG_FN_LIGHT_DARK = new RegExp(SYN_FN_LIGHT_DARK);
 const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
@@ -58,7 +61,12 @@ export const resolveColor = (
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { currentColor = '', format = VAL_COMP, nullable = false } = opt;
+  const {
+    colorScheme = 'normal',
+    currentColor = '',
+    format = VAL_COMP,
+    nullable = false
+  } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -105,6 +113,62 @@ export const resolveColor = (
     opt.format = format;
   }
   value = value.toLowerCase();
+  if (REG_FN_LIGHT_DARK.test(value) && value.endsWith(')')) {
+    const colorParts = value.replace(REG_FN_LIGHT_DARK, '').replace(/\)$/, '');
+    const [light = '', dark = ''] = splitValue(colorParts, {
+      delimiter: ','
+    });
+    if (light && dark) {
+      if (format === VAL_SPEC) {
+        const lightColor = resolveColor(light, opt);
+        const darkColor = resolveColor(dark, opt);
+        let res;
+        if (lightColor && darkColor) {
+          res = `light-dark(${lightColor}, ${darkColor})`;
+        } else {
+          res = '';
+        }
+        setCache(cacheKey, res);
+        return res;
+      }
+      let resolvedValue;
+      if (colorScheme === 'dark') {
+        resolvedValue = resolveColor(dark, opt);
+      } else {
+        resolvedValue = resolveColor(light, opt);
+      }
+      let res;
+      if (resolvedValue instanceof NullObject) {
+        if (nullable) {
+          res = resolvedValue;
+        } else {
+          res = RGB_TRANSPARENT;
+        }
+      } else {
+        res = resolvedValue;
+      }
+      setCache(cacheKey, res);
+      return res;
+    }
+    // invalid value
+    switch (format) {
+      case VAL_SPEC: {
+        setCache(cacheKey, '');
+        return '';
+      }
+      case 'hex':
+      case 'hexAlpha': {
+        setCache(cacheKey, null);
+        return new NullObject();
+      }
+      case VAL_COMP:
+      default: {
+        const res = RGB_TRANSPARENT;
+        setCache(cacheKey, res);
+        return res;
+      }
+    }
+  }
   if (REG_FN_REL.test(value)) {
     const resolvedValue = resolveRelativeColor(value, opt);
     if (format === VAL_COMP) {

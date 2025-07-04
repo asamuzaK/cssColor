@@ -210,6 +210,231 @@ describe('resolve CSS color', () => {
   });
 
   it('should get value', () => {
+    const res = func('light-dark()');
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(, blue)', {
+      colorScheme: 'normal'
+    });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+
+    const res2 = func('light-dark(, blue)', {
+      colorScheme: 'normal'
+    });
+    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(green,)', {
+      colorScheme: 'normal'
+    });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('light-dark(, blue)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+
+    const res2 = func('light-dark(, blue)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, '', 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('light-dark(, blue)', {
+      colorScheme: 'normal',
+      format: 'hex'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('light-dark(, blue)', {
+      colorScheme: 'normal',
+      format: 'hex'
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('light-dark(, blue)', {
+      colorScheme: 'normal',
+      format: 'hexAlpha'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(green, blue)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'light-dark(green, blue)', 'result');
+
+    const res2 = func('light-dark(green, blue)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, 'light-dark(green, blue)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(green, blue)', {
+      colorScheme: 'normal'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+
+    const res2 = func('light-dark(green, blue)', {
+      colorScheme: 'normal'
+    });
+    assert.strictEqual(res2, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(green, blue)', {
+      colorScheme: 'dark'
+    });
+    assert.strictEqual(res, 'rgb(0, 0, 255)', 'result');
+
+    const res2 = func('light-dark(green, blue)', {
+      colorScheme: 'dark'
+    });
+    assert.strictEqual(res2, 'rgb(0, 0, 255)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'light-dark(light-dark(green, red), light-dark(red, blue))'
+    );
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'light-dark(light-dark(green, red), light-dark(red, blue))',
+      {
+        colorScheme: 'dark'
+      }
+    );
+    assert.strictEqual(res, 'rgb(0, 0, 255)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(currentcolor, red)', {
+      currentColor: 'green'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(red, currentcolor)', {
+      colorScheme: 'dark',
+      currentColor: 'green'
+    });
+    assert.strictEqual(res, 'rgb(0, 128, 0)', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('light-dark(foo, blue)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+
+    const res2 = func('light-dark(foo, blue)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res2, '', 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('light-dark(transparent, blue)', {
+      colorScheme: 'normal',
+      format: 'hex',
+      nullable: true
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+
+    const res2 = func('light-dark(transparent, blue)', {
+      colorScheme: 'normal',
+      format: 'hex',
+      nullable: true
+    });
+    assert.strictEqual(res2.isNull, true, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(transparent, blue)', {
+      format: 'hex'
+    });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('light-dark(currentcolor, blue)', {
+      colorScheme: 'normal',
+      currentColor: 'foo'
+    });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)', 'result');
+
+    const res2 = func('light-dark(currentcolor, blue)', {
+      colorScheme: 'normal',
+      currentColor: 'foo'
+    });
+    assert.strictEqual(res2, 'rgba(0, 0, 0, 0)', 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('light-dark(green, bar)', {
+      colorScheme: 'normal',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from light-dark(red, lime) r calc(g * 1/2) b)', {
+      colorScheme: 'dark',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from light-dark(red, lime) r calc(0.5 * g) b)',
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from light-dark(red, lime) r calc(g * 1/2) b)', {
+      colorScheme: 'dark',
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, 'color(srgb 0 0.5 0)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in srgb, light-dark(green, red), white)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(
+      res,
+      'color-mix(in srgb, light-dark(green, red), white)',
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func('color-mix(in srgb, light-dark(green, red), white)');
+    assert.strictEqual(res, 'color(srgb 0.5 0.75098 0.5)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func(
       'rgb(calc(64 * 2) calc(100% / 2) calc(128 + 127.5) / calc(2 / 3))'
     );
