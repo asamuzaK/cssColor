@@ -3,6 +3,7 @@
  */
 
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
+import { resolveColor } from './resolve';
 import { isString } from './common';
 import { MatchedRegExp, Options } from './typedef';
 import { isColor, splitValue } from './util';
@@ -15,7 +16,8 @@ import {
   LENGTH,
   NUM,
   NUM_POSITIVE,
-  PCT
+  PCT,
+  VAL_SPEC
 } from './constant';
 const NAMESPACE = 'css-gradient';
 const DIM_ANGLE = `${NUM}(?:${ANGLE})`;
@@ -65,6 +67,16 @@ const IN_COLOR_SPACE = `in\\s+(?:${CS_RECT}|${CS_HUE})`;
  * @type ColorStopList - list of color stops
  */
 type ColorStopList = [string, string, ...string[]];
+
+/**
+ * @typedef ValidateColorStops - validate color stops
+ * @property valid - result
+ * @property value - list of color stops
+ */
+interface ValidateColorStops {
+  valid: boolean;
+  colorStopList: string[];
+}
 
 /**
  * @typedef Gradient - parsed CSS gradient
@@ -168,32 +180,47 @@ export const validateColorStopList = (
   list: string[],
   type: string,
   opt: Options = {}
-): boolean => {
+): ValidateColorStops => {
   if (Array.isArray(list) && list.length > 1) {
     const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
       ? DIM_ANGLE_PCT
       : DIM_LEN_PCT;
     const regColorHint = new RegExp(`^(?:${dimension})$`);
     const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
-    const arr = [];
+    const valueTypes = [];
+    const valueList = [];
     for (const item of list) {
       if (isString(item)) {
         if (regColorHint.test(item)) {
-          arr.push('hint');
+          valueTypes.push('hint');
+          valueList.push(item);
         } else {
-          const color = item.replace(regDimension, '');
-          if (isColor(color, opt)) {
-            arr.push('color');
+          const itemColor = item.replace(regDimension, '');
+          if (isColor(itemColor, opt)) {
+            const resolvedColor = resolveColor(itemColor, {
+              format: VAL_SPEC
+            }) as string;
+            valueTypes.push('color');
+            valueList.push(item.replace(itemColor, resolvedColor));
           } else {
-            return false;
+            return {
+              colorStopList: list,
+              valid: false
+            };
           }
         }
       }
     }
-    const value = arr.join(',');
-    return /^color(?:,(?:hint,)?color)+$/.test(value);
+    const valid = /^color(?:,(?:hint,)?color)+$/.test(valueTypes.join(','));
+    return {
+      valid,
+      colorStopList: valueList
+    };
   }
-  return false;
+  return {
+    colorStopList: list,
+    valid: false
+  };
 };
 
 /**
@@ -233,38 +260,50 @@ export const parseGradient = (
         ? DIM_ANGLE_PCT
         : DIM_LEN_PCT;
       const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
-      let isColorStop = false;
+      let colorStop = '';
       if (regDimension.test(lineOrColorStop)) {
-        const colorStop = lineOrColorStop.replace(regDimension, '');
-        if (isColor(colorStop, opt)) {
-          isColorStop = true;
+        const itemColor = lineOrColorStop.replace(regDimension, '');
+        if (isColor(itemColor, opt)) {
+          const resolvedColor = resolveColor(itemColor, {
+            format: VAL_SPEC
+          }) as string;
+          colorStop = lineOrColorStop.replace(itemColor, resolvedColor);
         }
       } else if (isColor(lineOrColorStop, opt)) {
-        isColorStop = true;
+        colorStop = resolveColor(lineOrColorStop, {
+          format: VAL_SPEC
+        }) as string;
       }
-      if (isColorStop) {
-        colorStops.unshift(lineOrColorStop);
-        const valid = validateColorStopList(colorStops, type, opt);
+      if (colorStop) {
+        colorStops.unshift(colorStop);
+        const { colorStopList, valid } = validateColorStopList(
+          colorStops,
+          type,
+          opt
+        );
         if (valid) {
           const res: Gradient = {
             value,
             type,
-            colorStopList: colorStops as ColorStopList
+            colorStopList: colorStopList as ColorStopList
           };
           setCache(cacheKey, res);
           return res;
         }
       } else if (colorStops.length > 1) {
         const gradientLine = lineOrColorStop;
-        const valid =
-          validateGradientLine(gradientLine, type) &&
-          validateColorStopList(colorStops, type, opt);
-        if (valid) {
+        const validLine = validateGradientLine(gradientLine, type);
+        const { colorStopList, valid } = validateColorStopList(
+          colorStops,
+          type,
+          opt
+        );
+        if (validLine && valid) {
           const res: Gradient = {
             value,
             type,
             gradientLine,
-            colorStopList: colorStops as ColorStopList
+            colorStopList: colorStopList as ColorStopList
           };
           setCache(cacheKey, res);
           return res;

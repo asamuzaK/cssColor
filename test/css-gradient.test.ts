@@ -145,37 +145,86 @@ describe('validate color stop list', () => {
 
   it('should get false', () => {
     const res = func();
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: undefined,
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func(['foo']);
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['foo'],
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func(['foo'], 'bar');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['foo'],
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func(['foo'], 'linear-gradient');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['foo'],
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func(['red'], 'linear-gradient');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['red'],
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func(['red', 'foo'], 'linear-gradient');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['red', 'foo'],
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func(['blue', 'green', 'yellow 180deg'], 'conic-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['blue', 'green', 'yellow 180deg'],
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
@@ -183,27 +232,74 @@ describe('validate color stop list', () => {
       ['red 36deg', 'orange 36deg 170deg', 'yellow 170deg'],
       'conic-gradient'
     );
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['red 36deg', 'orange 36deg 170deg', 'yellow 170deg'],
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func(['lime 28px', 'red 77%', 'cyan'], 'linear-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['lime 28px', 'red 77%', 'cyan'],
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func(['cyan 50%', 'palegoldenrod 50%'], 'linear-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['cyan 50%', 'palegoldenrod 50%'],
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func(['blue', '10%', 'pink'], 'linear-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['blue', '10%', 'pink'],
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func(['blue', '10%', '20%', 'pink'], 'linear-gradient');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['blue', '10%', '20%', 'pink'],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get true', () => {
+    const res = func(['#0000ff', '10%', '#008000'], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStopList: ['rgb(0, 0, 255)', '10%', 'rgb(0, 128, 0)'],
+        valid: true
+      },
+      'result'
+    );
   });
 });
 
@@ -268,6 +364,19 @@ describe('parse CSS gradient', () => {
   });
 
   it('should get value', () => {
+    const res = func('linear-gradient(#0000ff, #ffc0cb)');
+    assert.deepEqual(
+      res,
+      {
+        value: 'linear-gradient(#0000ff, #ffc0cb)',
+        type: 'linear-gradient',
+        colorStopList: ['rgb(0, 0, 255)', 'rgb(255, 192, 203)']
+      },
+      'result'
+    );
+  });
+
+  it('should get value', () => {
     const res = func('linear-gradient(to right, blue, pink)');
     assert.deepEqual(
       res,
@@ -315,7 +424,7 @@ describe('parse CSS gradient', () => {
       {
         value: 'radial-gradient(red 10px, yellow 30%, #1e90ff 50%)',
         type: 'radial-gradient',
-        colorStopList: ['red 10px', 'yellow 30%', '#1e90ff 50%']
+        colorStopList: ['red 10px', 'yellow 30%', 'rgb(30, 144, 255) 50%']
       },
       'result'
     );
@@ -331,7 +440,7 @@ describe('parse CSS gradient', () => {
         value: 'radial-gradient(at 0% 30%, red 10px, yellow 30%, #1e90ff 50%)',
         type: 'radial-gradient',
         gradientLine: 'at 0% 30%',
-        colorStopList: ['red 10px', 'yellow 30%', '#1e90ff 50%']
+        colorStopList: ['red 10px', 'yellow 30%', 'rgb(30, 144, 255) 50%']
       },
       'result'
     );
@@ -348,7 +457,7 @@ describe('parse CSS gradient', () => {
           'radial-gradient(ellipse closest-side, red, yellow 10%, #1e90ff 50%, beige)',
         type: 'radial-gradient',
         gradientLine: 'ellipse closest-side',
-        colorStopList: ['red', 'yellow 10%', '#1e90ff 50%', 'beige']
+        colorStopList: ['red', 'yellow 10%', 'rgb(30, 144, 255) 50%', 'beige']
       },
       'result'
     );
@@ -382,7 +491,7 @@ describe('parse CSS gradient', () => {
         value: 'conic-gradient(at 0% 30%, red 10%, yellow 30%, #1e90ff 50%)',
         type: 'conic-gradient',
         gradientLine: 'at 0% 30%',
-        colorStopList: ['red 10%', 'yellow 30%', '#1e90ff 50%']
+        colorStopList: ['red 10%', 'yellow 30%', 'rgb(30, 144, 255) 50%']
       },
       'result'
     );
