@@ -148,7 +148,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: undefined,
+        colorStops: undefined,
         valid: false
       },
       'result'
@@ -160,7 +160,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['foo'],
+        colorStops: ['foo'],
         valid: false
       },
       'result'
@@ -172,7 +172,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['foo'],
+        colorStops: ['foo'],
         valid: false
       },
       'result'
@@ -184,7 +184,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['foo'],
+        colorStops: ['foo'],
         valid: false
       },
       'result'
@@ -196,7 +196,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['red'],
+        colorStops: ['red'],
         valid: false
       },
       'result'
@@ -208,7 +208,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['red', 'foo'],
+        colorStops: ['red', 'foo'],
         valid: false
       },
       'result'
@@ -220,7 +220,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['blue', 'green', 'yellow 180deg'],
+        colorStops: ['blue', 'green', 'yellow 180deg'],
         valid: true
       },
       'result'
@@ -235,7 +235,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['red 36deg', 'orange 36deg 170deg', 'yellow 170deg'],
+        colorStops: ['red 36deg', 'orange 36deg 170deg', 'yellow 170deg'],
         valid: true
       },
       'result'
@@ -247,7 +247,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['lime 28px', 'red 77%', 'cyan'],
+        colorStops: ['lime 28px', 'red 77%', 'cyan'],
         valid: true
       },
       'result'
@@ -259,7 +259,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['cyan 50%', 'palegoldenrod 50%'],
+        colorStops: ['cyan 50%', 'palegoldenrod 50%'],
         valid: true
       },
       'result'
@@ -271,7 +271,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['blue', '10%', 'pink'],
+        colorStops: ['blue', '10%', 'pink'],
         valid: true
       },
       'result'
@@ -283,7 +283,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['blue', '10%', '20%', 'pink'],
+        colorStops: ['blue', '10%', '20%', 'pink'],
         valid: false
       },
       'result'
@@ -295,7 +295,7 @@ describe('validate color stop list', () => {
     assert.deepEqual(
       res,
       {
-        colorStopList: ['rgb(0, 0, 255)', '10%', 'rgb(0, 128, 0)'],
+        colorStops: ['rgb(0, 0, 255)', '10%', 'rgb(0, 128, 0)'],
         valid: true
       },
       'result'
