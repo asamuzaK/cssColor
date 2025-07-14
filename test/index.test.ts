@@ -58,17 +58,3 @@ describe('utils', () => {
     assert.strictEqual(typeof utils.isColor, 'function', 'result');
   });
 });
-
-describe('alias', () => {
-  const { cssCalc, isColor, utils } = api;
-
-  it('should be true', () => {
-    assert.strictEqual(typeof isColor, 'function', 'result');
-    assert.deepEqual(isColor, utils.isColor, 'alias');
-  });
-
-  it('should be true', () => {
-    assert.strictEqual(typeof cssCalc, 'function', 'result');
-    assert.deepEqual(cssCalc, utils.cssCalc, 'alias');
-  });
-});

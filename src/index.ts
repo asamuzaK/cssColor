@@ -12,6 +12,7 @@ import { extractDashedIdent, isColor as iscolor, splitValue } from './js/util';
 
 export { convert } from './js/convert';
 export { resolve } from './js/resolve';
+export { parseGradient as resolveGradient } from './js/css-gradient';
 /* utils */
 export const utils = {
   cssCalc: csscalc,
@@ -21,7 +22,3 @@ export const utils = {
   isGradient,
   splitValue
 };
-/* TODO: remove later */
-/* alias */
-export const isColor = utils.isColor;
-export const cssCalc = utils.cssCalc;
