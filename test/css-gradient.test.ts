@@ -627,6 +627,15 @@ describe('resolve CSS gradient', () => {
   });
 
   it('should get value', () => {
+    const res = func('linear-gradient(to right, red, blue)');
+    assert.strictEqual(
+      res,
+      'linear-gradient(to right, rgb(255, 0, 0), rgb(0, 0, 255))',
+      'result'
+    );
+  });
+
+  it('should get value', () => {
     const res = func('linear-gradient(red, blue)', {
       format: 'specifiedValue'
     });
