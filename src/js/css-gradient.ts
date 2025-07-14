@@ -17,6 +17,7 @@ import {
   NUM,
   NUM_POSITIVE,
   PCT,
+  VAL_COMP,
   VAL_SPEC
 } from './constant';
 const NAMESPACE = 'css-gradient';
@@ -196,10 +197,8 @@ export const validateColorStopList = (
           valueList.push(item);
         } else {
           const itemColor = item.replace(regDimension, '');
-          if (isColor(itemColor, opt)) {
-            const resolvedColor = resolveColor(itemColor, {
-              format: VAL_SPEC
-            }) as string;
+          if (isColor(itemColor, { format: VAL_SPEC })) {
+            const resolvedColor = resolveColor(itemColor, opt) as string;
             valueTypes.push('color');
             valueList.push(item.replace(itemColor, resolvedColor));
           } else {
@@ -263,16 +262,12 @@ export const parseGradient = (
       let colorStop = '';
       if (regDimension.test(lineOrColorStop)) {
         const itemColor = lineOrColorStop.replace(regDimension, '');
-        if (isColor(itemColor, opt)) {
-          const resolvedColor = resolveColor(itemColor, {
-            format: VAL_SPEC
-          }) as string;
+        if (isColor(itemColor, { format: VAL_SPEC })) {
+          const resolvedColor = resolveColor(itemColor, opt) as string;
           colorStop = lineOrColorStop.replace(itemColor, resolvedColor);
         }
-      } else if (isColor(lineOrColorStop, opt)) {
-        colorStop = resolveColor(lineOrColorStop, {
-          format: VAL_SPEC
-        }) as string;
+      } else if (isColor(lineOrColorStop, { format: VAL_SPEC })) {
+        colorStop = resolveColor(lineOrColorStop, opt) as string;
       }
       if (colorStop) {
         itemList.unshift(colorStop);
@@ -314,6 +309,30 @@ export const parseGradient = (
     return null;
   }
   return null;
+};
+
+/**
+ * resolve CSS gradient
+ * @param value - CSS value
+ * @param [opt] - options
+ * @returns result
+ */
+export const resolveGradient = (value: string, opt: Options = {}): string => {
+  const { format = VAL_COMP } = opt;
+  const gradient = parseGradient(value, opt);
+  if (gradient) {
+    const { type = '', gradientLine = '', colorStopList = [] } = gradient;
+    if (type && Array.isArray(colorStopList) && colorStopList.length > 1) {
+      if (gradientLine) {
+        return `${type}(${gradientLine}, ${colorStopList.join(', ')})`;
+      }
+      return `${type}(${colorStopList.join(', ')})`;
+    }
+  }
+  if (format === VAL_SPEC) {
+    return '';
+  }
+  return 'none';
 };
 
 /**

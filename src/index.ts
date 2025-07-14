@@ -6,13 +6,12 @@
  */
 
 import { cssCalc as csscalc } from './js/css-calc';
-import { isGradient } from './js/css-gradient';
+import { isGradient, resolveGradient } from './js/css-gradient';
 import { cssVar } from './js/css-var';
 import { extractDashedIdent, isColor as iscolor, splitValue } from './js/util';
 
 export { convert } from './js/convert';
 export { resolve } from './js/resolve';
-export { parseGradient as resolveGradient } from './js/css-gradient';
 /* utils */
 export const utils = {
   cssCalc: csscalc,
@@ -20,5 +19,6 @@ export const utils = {
   extractDashedIdent,
   isColor: iscolor,
   isGradient,
+  resolveGradient,
   splitValue
 };
