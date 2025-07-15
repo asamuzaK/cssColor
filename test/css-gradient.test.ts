@@ -66,77 +66,218 @@ describe('validate gradient line', () => {
 
   it('should get false', () => {
     const res = func();
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: undefined,
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func('foo');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'foo',
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func('foo', 'bar');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'foo',
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get false', () => {
     const res = func('foo', 'linear-gradient');
-    assert.strictEqual(res, false, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'foo',
+        valid: false
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('from 45deg', 'conic-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'from 45deg',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('from 90deg at 0 0', 'conic-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'from 90deg at 0 0',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('in hsl longer hue', 'conic-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'in hsl longer hue',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('circle at center', 'radial-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'circle',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('in hsl longer hue', 'radial-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'in hsl longer hue',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('circle at center in hsl longer hue', 'radial-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'circle in hsl longer hue',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('circle at center in hsl', 'radial-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'circle in hsl',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('ellipse closest-side', 'radial-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'closest-side',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('45deg', 'linear-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: '45deg',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('to left top', 'linear-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'to left top',
+        valid: true
+      },
+      'result'
+    );
   });
 
   it('should get true', () => {
     const res = func('in oklab', 'linear-gradient');
-    assert.strictEqual(res, true, 'result');
+    assert.deepEqual(
+      res,
+      {
+        line: 'in oklab',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should get true', () => {
+    const res = func('to  bottom', 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should get true', () => {
+    const res = func('ellipse farthest-corner at  center', 'radial-gradient');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should get true', () => {
+    const res = func('at  center', 'conic-gradient');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
   });
 });
 
@@ -543,7 +684,7 @@ describe('parse CSS gradient', () => {
         value:
           'radial-gradient(ellipse closest-side, red, yellow 10%, #1e90ff 50%, beige)',
         type: 'radial-gradient',
-        gradientLine: 'ellipse closest-side',
+        gradientLine: 'closest-side',
         colorStopList: ['red', 'yellow 10%', 'rgb(30, 144, 255) 50%', 'beige']
       },
       'result'
@@ -640,6 +781,20 @@ describe('resolve CSS gradient', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, 'linear-gradient(red, blue)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'radial-gradient(ellipse closest-side, #1e90ff 50%, #008000)',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(
+      res,
+      'radial-gradient(closest-side, rgb(30, 144, 255) 50%, rgb(0, 128, 0))',
+      'result'
+    );
   });
 
   it('should get value', () => {
