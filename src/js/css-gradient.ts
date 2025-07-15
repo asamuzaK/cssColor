@@ -70,6 +70,16 @@ const IN_COLOR_SPACE = `in\\s+(?:${CS_RECT}|${CS_HUE})`;
 type ColorStopList = [string, string, ...string[]];
 
 /**
+ * @typedef ValidateGradientLine - validate gradient line
+ * @property line - gradient line
+ * @property valid - result
+ */
+interface ValidateGradientLine {
+  line: string;
+  valid: boolean;
+}
+
+/**
  * @typedef ValidateColorStops - validate color stops
  * @property colorStops - list of color stops
  * @property valid - result
@@ -119,11 +129,15 @@ export const getGradientType = (value: string): string => {
  * @param type - gradient type
  * @returns result
  */
-export const validateGradientLine = (value: string, type: string): boolean => {
+export const validateGradientLine = (
+  value: string,
+  type: string
+): ValidateGradientLine => {
   if (isString(value) && isString(type)) {
     value = value.trim();
     type = type.trim();
     let lineSyntax = '';
+    const defaultValues = [];
     if (/^(?:repeating-)?linear-gradient$/.test(type)) {
       /*
        * <linear-gradient-line> = [
@@ -135,6 +149,7 @@ export const validateGradientLine = (value: string, type: string): boolean => {
         `(?:${DIM_ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?`,
         `${IN_COLOR_SPACE}(?:\\s+(?:${DIM_ANGLE}|${TO_SIDE_CORNER}))?`
       ].join('|');
+      defaultValues.push(/to\s+bottom/);
     } else if (/^(?:repeating-)?radial-gradient$/.test(type)) {
       /*
        * <radial-gradient-line> = [
@@ -149,6 +164,7 @@ export const validateGradientLine = (value: string, type: string): boolean => {
         `${IN_COLOR_SPACE}(?:\\s+${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?`,
         `${IN_COLOR_SPACE}(?:\\s+${AT_POSITION})?`
       ].join('|');
+      defaultValues.push(/ellipse/, /farthest-corner/, /at\s+center/);
     } else if (/^(?:repeating-)?conic-gradient$/.test(type)) {
       /*
        * <conic-gradient-line> = [
@@ -161,13 +177,32 @@ export const validateGradientLine = (value: string, type: string): boolean => {
         `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
         `${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?`
       ].join('|');
+      defaultValues.push(/at\s+center/);
     }
     if (lineSyntax) {
       const reg = new RegExp(`^(?:${lineSyntax})$`);
-      return reg.test(value);
+      const valid = reg.test(value);
+      if (valid) {
+        let line = value;
+        for (const defaultValue of defaultValues) {
+          line = line.replace(defaultValue, '');
+        }
+        line = line.replace(/\s{2,}/g, ' ').trim();
+        return {
+          line,
+          valid
+        };
+      }
+      return {
+        valid,
+        line: value
+      };
     }
   }
-  return false;
+  return {
+    line: value,
+    valid: false
+  };
 };
 
 /**
@@ -286,14 +321,16 @@ export const parseGradient = (
           return res;
         }
       } else if (itemList.length > 1) {
-        const gradientLine = lineOrColorStop;
-        const validLine = validateGradientLine(gradientLine, type);
-        const { colorStops, valid } = validateColorStopList(
+        const { line: gradientLine, valid: validLine } = validateGradientLine(
+          lineOrColorStop,
+          type
+        );
+        const { colorStops, valid: validColorStops } = validateColorStopList(
           itemList,
           type,
           opt
         );
-        if (validLine && valid) {
+        if (validLine && validColorStops) {
           const res: Gradient = {
             value,
             type,
