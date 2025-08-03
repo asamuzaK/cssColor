@@ -2971,15 +2971,11 @@ export const resolveColorMix = (
   if (pctA && pctB) {
     const p1 = parseFloat(pctA) / MAX_PCT;
     const p2 = parseFloat(pctB) / MAX_PCT;
-    if (p1 < 0 || p1 > 1 || p2 < 0 || p2 > 1) {
+    if (p1 < 0 || p1 > 1 || p2 < 0 || p2 > 1 || (p1 === 0 && p2 === 0)) {
       const res = cacheInvalidColorValue(cacheKey, format, nullable);
       return res;
     }
     const factor = p1 + p2;
-    if (factor === 0) {
-      const res = cacheInvalidColorValue(cacheKey, format, nullable);
-      return res;
-    }
     pA = p1 / factor;
     pB = p2 / factor;
     m = factor < 1 ? factor : 1;

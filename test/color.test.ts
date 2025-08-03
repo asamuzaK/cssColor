@@ -9454,4 +9454,24 @@ describe('resolve color-mix()', () => {
       'result'
     );
   });
+
+  it('should get value', () => {
+    const res = func(
+      'color-mix(in hsl, hsl(120deg 10% 20%) 0%, hsl(30deg 30% 40%) 0%)',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      'color-mix(in hsl, hsl(120deg 10% 20%) 0%, hsl(30deg 30% 40%) 0%)',
+      {
+        format: 'computedValue'
+      }
+    );
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
 });
