@@ -44,7 +44,7 @@
     "@vitest/coverage-istanbul": "^3.2.4",
     "esbuild": "^0.25.8",
     "eslint": "^9.32.0",
-    "eslint-plugin-regexp": "^2.9.0",
+    "eslint-plugin-regexp": "^2.9.1",
     "globals": "^16.3.0",
     "knip": "^5.62.0",
     "neostandard": "^0.12.2",
@@ -52,11 +52,11 @@
     "publint": "^0.3.12",
     "rimraf": "^6.0.1",
     "tsup": "^8.5.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@10.14.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
@@ -78,5 +78,5 @@
     "test:types": "tsc",
     "test:unit": "vitest"
   },
-  "version": "4.0.3"
+  "version": "4.0.4"
 }
