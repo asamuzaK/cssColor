@@ -646,3 +646,188 @@ describe('interpolate hue', () => {
     assert.deepEqual(res, [240, 30], 'result');
   });
 });
+
+describe('resolve length in pixels', () => {
+  const func = util.resolveLengthInPixels;
+
+  it('should get NaN', () => {
+    const res = func();
+    assert.deepEqual(res, Number.NaN, 'result');
+  });
+
+  it('should get NaN', () => {
+    const res = func('foo');
+    assert.deepEqual(res, Number.NaN, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func('medium', null, {
+      dimension: {
+        rem: 16
+      }
+    });
+    assert.deepEqual(res, 16, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func('smaller', null, {
+      dimension: {
+        em: 12
+      }
+    });
+    assert.deepEqual(res, 10, 'result');
+  });
+
+  it('should get NaN', () => {
+    const res = func(3);
+    assert.deepEqual(res, Number.NaN, 'result');
+  });
+
+  it('should get NaN', () => {
+    const res = func(3, 'foo');
+    assert.deepEqual(res, Number.NaN, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'in', {
+      dimension: {
+        in: 96
+      }
+    });
+    assert.deepEqual(res, 288, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'in', {
+      dimension: {
+        callback: unit => {
+          if (unit === 'in') {
+            return 96;
+          }
+        }
+      }
+    });
+    assert.deepEqual(res, 288, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'rem', {
+      dimension: {
+        rem: 16
+      }
+    });
+    assert.deepEqual(res, 48, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'in', {
+      dimension: {
+        rem: 16
+      }
+    });
+    assert.deepEqual(res, 288, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'rex', {
+      dimension: {
+        rem: 16
+      }
+    });
+    assert.deepEqual(res, 24, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'em', {
+      dimension: {
+        em: 12
+      }
+    });
+    assert.deepEqual(res, 36, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'ex', {
+      dimension: {
+        em: 12
+      }
+    });
+    assert.deepEqual(res, 18, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vh', {
+      dimension: {
+        vh: 576 / 100
+      }
+    });
+    assert.deepEqual(res, 17.28, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vw', {
+      dimension: {
+        vw: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 30.72, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vb', {
+      dimension: {
+        vw: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 30.72, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vi', {
+      dimension: {
+        vw: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 30.72, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vmax', {
+      dimension: {
+        vh: 576 / 100,
+        vw: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 30.72, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vmax', {
+      dimension: {
+        vw: 576 / 100,
+        vh: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 30.72, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vmin', {
+      dimension: {
+        vh: 576 / 100,
+        vw: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 17.28, 'result');
+  });
+
+  it('should get number', () => {
+    const res = func(3, 'vmin', {
+      dimension: {
+        vw: 576 / 100,
+        vh: 1024 / 100
+      }
+    });
+    assert.deepEqual(res, 17.28, 'result');
+  });
+});
