@@ -364,24 +364,14 @@ const absoluteLength = new Map([
   ['px', 1]
 ]);
 
-/* root relative length to pixel ratio */
-const rootLength = new Map([
+/* relative length to pixel ratio */
+const relativeLength = new Map([
   ['rcap', 1],
   ['rch', 0.5],
   ['rem', 1],
   ['rex', 0.5],
   ['ric', 1],
   ['rlh', 1.2]
-]);
-
-/* relative length to pixel ratio */
-const relativeLength = new Map([
-  ['cap', 1],
-  ['ch', 0.5],
-  ['em', 1],
-  ['ex', 0.5],
-  ['ic', 1],
-  ['lh', 1.2]
 ]);
 
 /**
@@ -419,10 +409,10 @@ export const resolveLengthInPixels = (
       return value * callback(unit);
     } else if (absoluteLength.has(unit)) {
       return value * Number(absoluteLength.get(unit));
-    } else if (rootLength.has(unit)) {
-      return value * Number(rootLength.get(unit)) * rem;
     } else if (relativeLength.has(unit)) {
-      return value * Number(relativeLength.get(unit)) * em;
+      return value * Number(relativeLength.get(unit)) * rem;
+    } else if (relativeLength.has(`r${unit}`)) {
+      return value * Number(relativeLength.get(`r${unit}`)) * em;
     } else {
       switch (unit) {
         case 'vb':
