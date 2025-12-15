@@ -45,6 +45,7 @@ import {
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
+  Delim: DELIM,
   Dimension: DIM,
   EOF,
   Function: FUNC,
@@ -81,6 +82,7 @@ const REG_FN_REL = new RegExp(FN_REL);
 const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
 const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
+const REG_FUNC_CALC_SUM = /^(?:abs|sign|sin|cos|tan)\(/;
 
 /**
  * resolve relative color channels
@@ -122,7 +124,8 @@ export function resolveColorChannels(
   ] = [[], [], [], []];
   let i = 0;
   let nest = 0;
-  let func = false;
+  let func = '';
+  let precededPct = false;
   while (tokens.length) {
     const token = tokens.shift();
     if (!Array.isArray(token)) {
@@ -138,7 +141,24 @@ export function resolveColorChannels(
     const channel = channels[i];
     if (Array.isArray(channel)) {
       switch (type) {
+        case DELIM: {
+          if (func) {
+            if (
+              (value === '+' || value === '-') &&
+              precededPct &&
+              !REG_FUNC_CALC_SUM.test(func)
+            ) {
+              return new NullObject();
+            }
+            precededPct = false;
+            channel.push(value);
+          }
+          break;
+        }
         case DIM: {
+          if (!func || !REG_FUNC_CALC_SUM.test(func)) {
+            return new NullObject();
+          }
           const resolvedValue = resolveDimension(token, opt);
           if (isString(resolvedValue)) {
             channel.push(resolvedValue);
@@ -149,7 +169,7 @@ export function resolveColorChannels(
         }
         case FUNC: {
           channel.push(value);
-          func = true;
+          func = value;
           nest++;
           if (REG_FN_MATH_START.test(value)) {
             mathFunc.add(nest);
@@ -192,13 +212,25 @@ export function resolveColorChannels(
             }
             nest--;
             if (nest === 0) {
-              func = false;
+              func = '';
               i++;
             }
           }
           break;
         }
         case PCT: {
+          if (!func) {
+            return new NullObject();
+          } else if (!REG_FUNC_CALC_SUM.test(func)) {
+            const lastValue = channel.toReversed().find(v => v !== ' ');
+            if (lastValue === '+' || lastValue === '-') {
+              return new NullObject();
+            } else if (lastValue === '*' || lastValue === '/') {
+              precededPct = false;
+            } else {
+              precededPct = true;
+            }
+          }
           channel.push(Number(detail?.value) / MAX_PCT);
           if (!func) {
             i++;
