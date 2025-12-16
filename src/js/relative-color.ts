@@ -77,7 +77,7 @@ const REG_COLOR_CAPT = new RegExp(
 );
 const REG_CS_HSL = /(?:hsla?|hwb)$/;
 const REG_CS_CIE = new RegExp(`^(?:${CS_LAB}|${CS_LCH})$`);
-const REG_FN_CALC_SUM = /^(?:abs|sign|sin|cos|tan)\(/;
+const REG_FN_CALC_SUM = /^(?:abs|sig?n|cos|tan)\(/;
 const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_REL = new RegExp(FN_REL);
 const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
