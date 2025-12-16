@@ -66,14 +66,14 @@ describe('resolve relative color channels', () => {
     assert.deepEqual(res, ['r', 'calc(1 * g)', 'abs(-10)'], 'result');
   });
 
-  it('should get value', () => {
+  it('should get null object', () => {
     const css = ' r calc(g * sign(2em)) 1000%)';
     const tokens = tokenize({ css });
     const res = func(tokens, {
       colorSpace: 'rgb',
       format: 'specifiedValue'
     });
-    assert.deepEqual(res, ['r', 'calc(1 * g)', 10], 'result');
+    assert.deepEqual(res.isNull, true, 'result');
   });
 
   it('should get value', () => {
@@ -324,6 +324,67 @@ describe('extract origin color', () => {
       format: 'computedValue'
     });
     assert.strictEqual(res, 'rgb(from rgb(0, 128, 0) r g b)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple calc(r * 2) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple calc(2 * r) g b)',
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple calc(r * 50%) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple calc(0.5 * r) g b)',
+      'result'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from rebeccapurple calc(r * sign(50%)) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from rebeccapurple calc(1 * r) g b)',
+      'result'
+    );
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(from rebeccapurple calc(r * 2rem) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(from rebeccapurple calc(r + 50%) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(from rebeccapurple calc(2rem * r) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
+  });
+
+  it('should get null object', () => {
+    const res = func('rgb(from rebeccapurple calc(50% + r) g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res.isNull, true, 'result');
   });
 });
 
