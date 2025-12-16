@@ -77,12 +77,12 @@ const REG_COLOR_CAPT = new RegExp(
 );
 const REG_CS_HSL = /(?:hsla?|hwb)$/;
 const REG_CS_CIE = new RegExp(`^(?:${CS_LAB}|${CS_LCH})$`);
+const REG_FN_CALC_SUM = /^(?:abs|sign|sin|cos|tan)\(/;
 const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_REL = new RegExp(FN_REL);
 const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
 const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-const REG_FUNC_CALC_SUM = /^(?:abs|sign|sin|cos|tan)\(/;
 
 /**
  * resolve relative color channels
@@ -146,7 +146,7 @@ export function resolveColorChannels(
             if (
               (value === '+' || value === '-') &&
               precededPct &&
-              !REG_FUNC_CALC_SUM.test(func)
+              !REG_FN_CALC_SUM.test(func)
             ) {
               return new NullObject();
             }
@@ -156,7 +156,7 @@ export function resolveColorChannels(
           break;
         }
         case DIM: {
-          if (!func || !REG_FUNC_CALC_SUM.test(func)) {
+          if (!func || !REG_FN_CALC_SUM.test(func)) {
             return new NullObject();
           }
           const resolvedValue = resolveDimension(token, opt);
@@ -221,7 +221,7 @@ export function resolveColorChannels(
         case PCT: {
           if (!func) {
             return new NullObject();
-          } else if (!REG_FUNC_CALC_SUM.test(func)) {
+          } else if (!REG_FN_CALC_SUM.test(func)) {
             const lastValue = channel.toReversed().find(v => v !== ' ');
             if (lastValue === '+' || lastValue === '-') {
               return new NullObject();
