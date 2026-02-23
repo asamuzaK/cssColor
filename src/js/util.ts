@@ -337,11 +337,11 @@ export const interpolateHue = (
 
 /* absolute font size to pixel ratio */
 const absoluteFontSize = new Map([
-  ['xx-small', 3 / 5],
-  ['x-small', 3 / 4],
-  ['small', 8 / 9],
+  ['xx-small', 9 / 16],
+  ['x-small', 5 / 8],
+  ['small', 13 / 16],
   ['medium', 1],
-  ['large', 6 / 5],
+  ['large', 9 / 8],
   ['x-large', 3 / 2],
   ['xx-large', 2],
   ['xxx-large', 3]
