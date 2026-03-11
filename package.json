@@ -35,7 +35,7 @@
     "@vitest/coverage-istanbul": "^4.0.18",
     "esbuild": "^0.27.3",
     "eslint": "^9.39.4",
-    "eslint-plugin-regexp": "^3.0.0",
+    "eslint-plugin-regexp": "^3.1.0",
     "globals": "^17.4.0",
     "knip": "^5.86.0",
     "neostandard": "^0.13.0",
@@ -46,7 +46,7 @@
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
   },
-  "packageManager": "pnpm@10.31.0",
+  "packageManager": "pnpm@10.32.1",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
