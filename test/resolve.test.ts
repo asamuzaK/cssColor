@@ -1804,4 +1804,15 @@ describe('resolve', () => {
     });
     assert.strictEqual(res, null, 'result');
   });
+
+  it('should get value', () => {
+    const res = func(
+      'color-mix(in lch, color-mix(in lch, black, currentColor), black)',
+      {
+        format: 'computedValue',
+        currentColor: 'black'
+      }
+    );
+    assert.strictEqual(res, 'lch(0 0 none)', 'result');
+  });
 });
