@@ -57,4 +57,12 @@ describe('utils', () => {
   it('should be true', () => {
     assert.strictEqual(typeof utils.isColor, 'function', 'result');
   });
+
+  it('should be true', () => {
+    assert.strictEqual(
+      typeof utils.isAbsoluteSizeOrLength,
+      'function',
+      'result'
+    );
+  });
 });
