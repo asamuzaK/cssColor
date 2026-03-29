@@ -880,3 +880,62 @@ describe('is absolute size or length', () => {
     assert.strictEqual(res, true, 'result');
   });
 });
+
+describe('is absolute font size', () => {
+  const func = util.isAbsoluteFontSize;
+
+  it('should get false', () => {
+    const res = func('foo');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('smaller');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('medium');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('1em');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('1rem');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('1px');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('1pt');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('1');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('0');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('0.0');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('.0');
+    assert.strictEqual(res, true, 'result');
+  });
+});
