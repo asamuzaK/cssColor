@@ -461,3 +461,28 @@ export const isAbsoluteSizeOrLength = (
   }
   return value === 0;
 };
+
+/**
+ * is absolute font size
+ * @param value - value
+ * @returns result
+ */
+export const isAbsoluteFontSize = (value: unknown): boolean => {
+  if (isString(value)) {
+    const size = value.toLowerCase().trim() as string;
+    if (/^[a-z-]+$/.test(size)) {
+      return absoluteFontSize.has(size);
+    } else {
+      const [, val, unit] = /^(\d+(?:\.\d+)?|\.\d+)([a-z-]+)?$/.exec(
+        size
+      ) as RegExpExecArray;
+      if (unit) {
+        return absoluteLength.has(unit);
+      } else if (val) {
+        const num = parseFloat(val);
+        return num === 0;
+      }
+    }
+  }
+  return false;
+};

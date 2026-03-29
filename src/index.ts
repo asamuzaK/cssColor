@@ -10,6 +10,7 @@ import { isGradient, resolveGradient } from './js/css-gradient';
 import { cssVar } from './js/css-var';
 import {
   extractDashedIdent,
+  isAbsoluteFontSize,
   isAbsoluteSizeOrLength,
   isColor,
   resolveLengthInPixels,
@@ -23,6 +24,7 @@ export const utils = {
   cssCalc,
   cssVar,
   extractDashedIdent,
+  isAbsoluteFontSize,
   isAbsoluteSizeOrLength,
   isColor,
   isGradient,
