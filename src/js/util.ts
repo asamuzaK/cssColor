@@ -441,3 +441,23 @@ export const resolveLengthInPixels = (
   // unsupported or invalid value
   return Number.NaN;
 };
+
+/**
+ * is absolute size or length
+ * @param value - value
+ * @param unit - unit
+ * @returns result
+ */
+export const isAbsoluteSizeOrLength = (
+  value: number | string,
+  unit: string | undefined
+): boolean => {
+  if (isString(value)) {
+    value = value.toLowerCase().trim();
+    return absoluteFontSize.has(value);
+  } else if (isString(unit)) {
+    unit = unit.toLowerCase().trim();
+    return absoluteLength.has(unit);
+  }
+  return value === 0;
+};
