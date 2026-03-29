@@ -831,3 +831,52 @@ describe('resolve length in pixels', () => {
     assert.deepEqual(res, 17.28, 'result');
   });
 });
+
+describe('is absolute size or length', () => {
+  const func = util.isAbsoluteSizeOrLength;
+
+  it('should get false', () => {
+    const res = func('foo');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('smaller');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('medium');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func(1, 'em');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func(1, 'rem');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(1, 'px');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(1, 'pt');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func(1);
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(0);
+    assert.strictEqual(res, true, 'result');
+  });
+});
