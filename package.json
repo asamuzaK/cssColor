@@ -37,7 +37,7 @@
     "eslint": "^9.39.4",
     "eslint-plugin-regexp": "^3.1.0",
     "globals": "^17.4.0",
-    "knip": "^6.0.6",
+    "knip": "^6.1.0",
     "neostandard": "^0.13.0",
     "prettier": "^3.8.1",
     "publint": "^0.3.18",
@@ -79,5 +79,5 @@
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
   },
-  "version": "5.0.1"
+  "version": "5.1.0"
 }
