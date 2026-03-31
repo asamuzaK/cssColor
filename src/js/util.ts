@@ -464,24 +464,19 @@ export const isAbsoluteSizeOrLength = (
 
 /**
  * is absolute font size
- * @param value - value
+ * @param css - css
  * @returns result
  */
-export const isAbsoluteFontSize = (value: unknown): boolean => {
-  if (isString(value)) {
-    const size = value.toLowerCase().trim() as string;
-    if (/^[a-z-]+$/.test(size)) {
-      return absoluteFontSize.has(size);
-    } else {
-      const [, val, unit] = /^(\d+(?:\.\d+)?|\.\d+)([a-z-]+)?$/.exec(
-        size
-      ) as RegExpExecArray;
-      if (unit) {
-        return absoluteLength.has(unit);
-      } else if (val) {
-        const num = parseFloat(val);
-        return num === 0;
-      }
+export const isAbsoluteFontSize = (css: unknown): boolean => {
+  if (isString(css)) {
+    const [token] = tokenize({ css });
+    if (Array.isArray(token)) {
+      const [, , , , detail = {}] = token;
+      const { unit, value } = detail as {
+        unit: string;
+        value: number;
+      };
+      return isAbsoluteSizeOrLength(value, unit);
     }
   }
   return false;

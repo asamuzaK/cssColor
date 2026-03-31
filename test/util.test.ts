@@ -885,6 +885,16 @@ describe('is absolute font size', () => {
   const func = util.isAbsoluteFontSize;
 
   it('should get false', () => {
+    const res = func();
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func({});
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
     const res = func('foo');
     assert.strictEqual(res, false, 'result');
   });
