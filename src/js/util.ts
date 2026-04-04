@@ -18,7 +18,6 @@ const {
   Delim: DELIM,
   EOF,
   Function: FUNC,
-  Ident: IDENT,
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
@@ -32,6 +31,7 @@ const DEG_HALF = 180;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
+const REG_DIMENSION = /^([+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?)([a-z]*)$/i;
 const REG_FN_COLOR =
   /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
 const REG_MIX = new RegExp(SYN_MIX);
@@ -78,8 +78,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
   let nest = 0;
   let str = '';
   const res: string[] = [];
-  while (tokens.length) {
-    const [type, value] = tokens.shift() as [TokenType, string];
+  for (const [type, value] of tokens) {
     switch (type) {
       case COMMA: {
         if (regDelimiter.test(value)) {
@@ -173,15 +172,8 @@ export const extractDashedIdent = (value: string): string[] => {
   if (cachedResult instanceof CacheItem) {
     return cachedResult.item as string[];
   }
-  const tokens = tokenize({ css: value });
-  const items = new Set();
-  while (tokens.length) {
-    const [type, value] = tokens.shift() as [TokenType, string];
-    if (type === IDENT && value.startsWith('--')) {
-      items.add(value);
-    }
-  }
-  const res = [...items] as string[];
+  const matches = value.match(/--[\w-]+/g);
+  const res = matches ? [...new Set(matches)] : [];
   setCache(cacheKey, res);
   return res;
 };
@@ -218,41 +210,6 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
     }
   }
   return false;
-};
-
-/**
- * value to JSON string
- * @param value - CSS value
- * @param [func] - stringify function
- * @returns stringified value in JSON notation
- */
-export const valueToJsonString = (
-  value: unknown,
-  func: boolean = false
-): string => {
-  if (typeof value === 'undefined') {
-    return '';
-  }
-  const res = JSON.stringify(value, (_key, val) => {
-    let replacedValue;
-    if (typeof val === 'undefined') {
-      replacedValue = null;
-    } else if (typeof val === 'function') {
-      if (func) {
-        replacedValue = val.toString().replace(/\s/g, '').substring(0, HEX);
-      } else {
-        replacedValue = val.name;
-      }
-    } else if (val instanceof Map || val instanceof Set) {
-      replacedValue = [...val];
-    } else if (typeof val === 'bigint') {
-      replacedValue = val.toString();
-    } else {
-      replacedValue = val;
-    }
-    return replacedValue;
-  });
-  return res;
 };
 
 /**
@@ -469,14 +426,14 @@ export const isAbsoluteSizeOrLength = (
  */
 export const isAbsoluteFontSize = (css: unknown): boolean => {
   if (isString(css)) {
-    const [token] = tokenize({ css });
-    if (Array.isArray(token)) {
-      const [, , , , detail = {}] = token;
-      const { unit, value } = detail as {
-        unit: string;
-        value: number;
-      };
-      return isAbsoluteSizeOrLength(value, unit);
+    const str = css.trim();
+    if (isAbsoluteSizeOrLength(str, undefined)) {
+      return true;
+    }
+    const match = str.match(REG_DIMENSION);
+    if (match) {
+      const [, value, unit] = match;
+      return isAbsoluteSizeOrLength(Number(value), unit || undefined);
     }
   }
   return false;
