@@ -163,7 +163,40 @@ describe('create cache key', () => {
       foo: 'foo',
       bar: 'bar'
     });
-    assert.strictEqual(res, '{"foo":"foo","bar":"bar","opt":"{}"}', 'result');
+    assert.strictEqual(res, '::::||||0|0|0|::::', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(
+      {
+        namespace: 'foo',
+        name: 'bar',
+        value: 'baz'
+      },
+      {
+        format: 'computedValue',
+        colorSpace: 'srgb',
+        colorScheme: 'normal',
+        currentColor: 'black',
+        d50: false,
+        nullable: false,
+        preserveComment: true,
+        delimiter: ' ',
+        customProperty: {
+          '--foo': 'foo',
+          '--bar': 'bar'
+        },
+        dimension: {
+          em: 12,
+          rem: 16
+        }
+      }
+    );
+    assert.strictEqual(
+      res,
+      'foo:bar:baz::computedValue|srgb|normal|black|0|0|1| ::{"--foo":"foo","--bar":"bar"}::{"em":12,"rem":16}',
+      'result'
+    );
   });
 
   it('should get empty string', () => {

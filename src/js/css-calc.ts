@@ -793,8 +793,7 @@ export const parseTokens = (
   const mathFunc = new Set();
   let nest = 0;
   const res: string[] = [];
-  while (tokens.length) {
-    const token = tokens.shift();
+  for (const token of tokens) {
     if (!Array.isArray(token)) {
       throw new TypeError(`${token} is not an array.`);
     }

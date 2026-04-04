@@ -4,7 +4,6 @@
 
 import { LRUCache } from 'lru-cache';
 import { Options } from './typedef';
-import { valueToJsonString } from './util';
 
 /* numeric constants */
 const MAX_CACHE = 4096;
@@ -100,15 +99,28 @@ export const createCacheKey = (
   opt: Options = {}
 ): string => {
   const { customProperty = {}, dimension = {} } = opt;
-  let cacheKey = '';
   if (
-    keyData &&
-    Object.keys(keyData).length &&
-    typeof customProperty.callback !== 'function' &&
-    typeof dimension.callback !== 'function'
+    !keyData ||
+    Object.keys(keyData).length === 0 ||
+    typeof customProperty.callback === 'function' ||
+    typeof dimension.callback === 'function'
   ) {
-    keyData.opt = valueToJsonString(opt);
-    cacheKey = valueToJsonString(keyData);
+    return '';
   }
-  return cacheKey;
+  const baseKey = `${keyData.namespace || ''}:${keyData.name || ''}:${keyData.value || ''}`;
+  const optStr = [
+    opt.format || '',
+    opt.colorSpace || '',
+    opt.colorScheme || '',
+    opt.currentColor || '',
+    opt.d50 ? '1' : '0',
+    opt.nullable ? '1' : '0',
+    opt.preserveComment ? '1' : '0',
+    String(opt.delimiter || '')
+  ].join('|');
+  const customPropStr = Object.keys(customProperty).length
+    ? JSON.stringify(customProperty)
+    : '';
+  const dimStr = Object.keys(dimension).length ? JSON.stringify(dimension) : '';
+  return `${baseKey}::${optStr}::${customPropStr}::${dimStr}`;
 };
