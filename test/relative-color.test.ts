@@ -7,15 +7,15 @@ import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
+import { genCache } from '../src/js/cache';
 import * as relColor from '../src/js/relative-color';
 
 beforeEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 afterEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 describe('resolve relative color channels', () => {
