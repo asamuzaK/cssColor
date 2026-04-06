@@ -6,15 +6,15 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
+import { genCache } from '../src/js/cache';
 import * as grad from '../src/js/css-gradient';
 
 beforeEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 afterEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 describe('get gradient type', () => {

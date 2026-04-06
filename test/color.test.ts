@@ -6,14 +6,14 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { NullObject, lruCache } from '../src/js/cache';
+import { NullObject, genCache } from '../src/js/cache';
 import * as color from '../src/js/color';
 
 beforeEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 afterEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 describe('cache invalid color value', () => {

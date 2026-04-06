@@ -6,18 +6,17 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { LRUCache } from 'lru-cache';
 import * as cache from '../src/js/cache';
 
-describe('lru cache', () => {
+describe('generational cache', () => {
   it('should be instance', () => {
-    const { lruCache } = cache;
-    assert.strictEqual(lruCache instanceof LRUCache, true, 'instance');
-    assert.strictEqual(typeof lruCache.clear, 'function', 'clear');
-    assert.strictEqual(typeof lruCache.delete, 'function', 'delete');
-    assert.strictEqual(typeof lruCache.get, 'function', 'get');
-    assert.strictEqual(typeof lruCache.has, 'function', 'has');
-    assert.strictEqual(typeof lruCache.set, 'function', 'set');
+    const { GenerationalCache, genCache } = cache;
+    assert.strictEqual(genCache instanceof GenerationalCache, true, 'instance');
+    assert.strictEqual(typeof genCache.clear, 'function', 'clear');
+    assert.strictEqual(typeof genCache.delete, 'function', 'delete');
+    assert.strictEqual(typeof genCache.get, 'function', 'get');
+    assert.strictEqual(typeof genCache.has, 'function', 'has');
+    assert.strictEqual(typeof genCache.set, 'function', 'set');
   });
 });
 
@@ -58,55 +57,55 @@ describe('NullObject', () => {
 });
 
 describe('set cache', () => {
-  const { CacheItem, lruCache } = cache;
+  const { CacheItem, genCache } = cache;
   const func = cache.setCache;
 
   beforeEach(() => {
-    lruCache.clear();
+    genCache.clear();
   });
   afterEach(() => {
-    lruCache.clear();
+    genCache.clear();
   });
 
   it('should not set cache', () => {
     func('');
-    assert.strictEqual(lruCache.has(''), false, 'has');
+    assert.strictEqual(genCache.has(''), false, 'has');
   });
 
   it('should set cache', () => {
     func('foo');
-    assert.strictEqual(lruCache.has('foo'), true, 'has');
-    assert.strictEqual(lruCache.get('foo') instanceof CacheItem, true, 'cache');
+    assert.strictEqual(genCache.has('foo'), true, 'has');
+    assert.strictEqual(genCache.get('foo') instanceof CacheItem, true, 'cache');
   });
 
   it('should set cache', () => {
     func('bar', 'bar');
-    assert.strictEqual(lruCache.has('bar'), true, 'has');
-    assert.strictEqual(lruCache.get('bar') instanceof CacheItem, true, 'cache');
+    assert.strictEqual(genCache.has('bar'), true, 'has');
+    assert.strictEqual(genCache.get('bar') instanceof CacheItem, true, 'cache');
   });
 
   it('should set cache', () => {
     func('baz', null);
-    assert.strictEqual(lruCache.has('baz'), true, 'has');
-    assert.strictEqual(lruCache.get('baz') instanceof CacheItem, true, 'cache');
+    assert.strictEqual(genCache.has('baz'), true, 'has');
+    assert.strictEqual(genCache.get('baz') instanceof CacheItem, true, 'cache');
   });
 
   it('should set cache', () => {
     func('qux', new CacheItem('qux'));
-    assert.strictEqual(lruCache.has('qux'), true, 'has');
-    assert.strictEqual(lruCache.get('qux') instanceof CacheItem, true, 'cache');
+    assert.strictEqual(genCache.has('qux'), true, 'has');
+    assert.strictEqual(genCache.get('qux') instanceof CacheItem, true, 'cache');
   });
 });
 
 describe('get cache', () => {
-  const { CacheItem, NullObject, lruCache, setCache } = cache;
+  const { CacheItem, NullObject, genCache, setCache } = cache;
   const func = cache.getCache;
 
   beforeEach(() => {
-    lruCache.clear();
+    genCache.clear();
   });
   afterEach(() => {
-    lruCache.clear();
+    genCache.clear();
   });
 
   it('should get cache', () => {
@@ -138,9 +137,9 @@ describe('get cache', () => {
   });
 
   it('should get false and delete key', () => {
-    lruCache.set('quux', 'quux');
+    genCache.set('quux', 'quux');
     const res = func('quux');
-    assert.strictEqual(lruCache.has('quux'), false, 'key');
+    assert.strictEqual(genCache.has('quux'), false, 'key');
     assert.strictEqual(res, false, 'result');
   });
 });

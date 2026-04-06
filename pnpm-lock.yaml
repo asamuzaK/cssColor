@@ -33,9 +33,6 @@ importers:
       '@csstools/css-tokenizer':
         specifier: ^4.0.0
         version: 4.0.0
-      lru-cache:
-        specifier: ^11.2.7
-        version: 11.2.7
     devDependencies:
       '@tanstack/vite-config':
         specifier: ^0.5.2

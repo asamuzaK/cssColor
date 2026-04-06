@@ -2,7 +2,6 @@
  * cache
  */
 
-import { LRUCache } from 'lru-cache';
 import { Options } from './typedef';
 
 /* numeric constants */
@@ -45,12 +44,63 @@ export class NullObject extends CacheItem {
   }
 }
 
-/*
- * lru cache
+/**
+ * Generational Cache implementation
  */
-export const lruCache = new LRUCache({
-  max: MAX_CACHE
-});
+export class GenerationalCache<K, V> {
+  private max: number;
+  private current: Map<K, V>;
+  private old: Map<K, V>;
+
+  constructor(max: number) {
+    this.max = Math.ceil(max / 2);
+    this.current = new Map<K, V>();
+    this.old = new Map<K, V>();
+  }
+
+  get(key: K): V | undefined {
+    let value = this.current.get(key);
+    if (value !== undefined) {
+      return value;
+    }
+
+    value = this.old.get(key);
+    if (value !== undefined) {
+      this.set(key, value);
+      return value;
+    }
+
+    return undefined;
+  }
+
+  set(key: K, value: V): void {
+    this.current.set(key, value);
+
+    if (this.current.size >= this.max) {
+      this.old = this.current;
+      this.current = new Map<K, V>();
+    }
+  }
+
+  has(key: K): boolean {
+    return this.current.has(key) || this.old.has(key);
+  }
+
+  delete(key: K): void {
+    this.current.delete(key);
+    this.old.delete(key);
+  }
+
+  clear(): void {
+    this.current.clear();
+    this.old.clear();
+  }
+}
+
+/*
+ * generational cache instance
+ */
+export const genCache = new GenerationalCache<string, CacheItem>(MAX_CACHE);
 
 /**
  * set cache
@@ -61,11 +111,11 @@ export const lruCache = new LRUCache({
 export const setCache = (key: string, value: unknown): void => {
   if (key) {
     if (value === null) {
-      lruCache.set(key, new NullObject());
+      genCache.set(key, new NullObject());
     } else if (value instanceof CacheItem) {
-      lruCache.set(key, value);
+      genCache.set(key, value);
     } else {
-      lruCache.set(key, new CacheItem(value));
+      genCache.set(key, new CacheItem(value));
     }
   }
 };
@@ -76,13 +126,13 @@ export const setCache = (key: string, value: unknown): void => {
  * @returns cached item or false otherwise
  */
 export const getCache = (key: string): CacheItem | boolean => {
-  if (key && lruCache.has(key)) {
-    const item = lruCache.get(key);
+  if (key && genCache.has(key)) {
+    const item = genCache.get(key);
     if (item instanceof CacheItem) {
       return item;
     }
     // delete unexpected cached item
-    lruCache.delete(key);
+    genCache.delete(key);
     return false;
   }
   return false;

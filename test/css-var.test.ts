@@ -6,15 +6,15 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
+import { genCache } from '../src/js/cache';
 import * as custom from '../src/js/css-var';
 
 beforeEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 afterEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 describe('resolve CSS variable', () => {

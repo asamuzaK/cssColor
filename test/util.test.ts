@@ -6,15 +6,15 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
+import { genCache } from '../src/js/cache';
 import * as util from '../src/js/util';
 
 beforeEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 afterEach(() => {
-  lruCache.clear();
+  genCache.clear();
 });
 
 describe('split value', () => {
