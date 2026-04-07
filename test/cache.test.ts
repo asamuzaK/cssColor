@@ -193,7 +193,7 @@ describe('create cache key', () => {
     );
     assert.strictEqual(
       res,
-      'foo:bar:baz::computedValue|srgb|normal|black|0|0|1| ::{"--foo":"foo","--bar":"bar"}::{"em":12,"rem":16}',
+      'foo:bar:baz::computedValue|srgb|normal|black|0|0|1| ::{"--bar":"bar","--foo":"foo"}::{"em":12,"rem":16}',
       'result'
     );
   });
