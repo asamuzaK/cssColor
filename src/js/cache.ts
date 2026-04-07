@@ -125,17 +125,42 @@ export const setCache = (key: string, value: unknown): void => {
  * @param key - cache key
  * @returns cached item or false otherwise
  */
-export const getCache = (key: string): CacheItem | boolean => {
-  if (key && genCache.has(key)) {
-    const item = genCache.get(key);
+export const getCache = (key: string): CacheItem | false => {
+  if (!key) {
+    return false;
+  }
+
+  const item = genCache.get(key);
+  if (item !== undefined) {
     if (item instanceof CacheItem) {
       return item;
     }
-    // delete unexpected cached item
     genCache.delete(key);
     return false;
   }
+
   return false;
+};
+
+/**
+ * helper function to sort object keys alphabetically
+ * @param obj - Object
+ * @returns stringified JSON
+ */
+const stringifySorted = (obj: Record<string, unknown>): string => {
+  const keys = Object.keys(obj).sort();
+  if (keys.length === 0) {
+    return '';
+  }
+  return JSON.stringify(
+    keys.reduce(
+      (acc, key) => {
+        acc[key] = obj[key];
+        return acc;
+      },
+      {} as Record<string, unknown>
+    )
+  );
 };
 
 /**
@@ -168,9 +193,11 @@ export const createCacheKey = (
     opt.preserveComment ? '1' : '0',
     String(opt.delimiter || '')
   ].join('|');
-  const customPropStr = Object.keys(customProperty).length
-    ? JSON.stringify(customProperty)
-    : '';
-  const dimStr = Object.keys(dimension).length ? JSON.stringify(dimension) : '';
+
+  const customPropStr = stringifySorted(
+    customProperty as Record<string, unknown>
+  );
+  const dimStr = stringifySorted(dimension as Record<string, unknown>);
+
   return `${baseKey}::${optStr}::${customPropStr}::${dimStr}`;
 };
