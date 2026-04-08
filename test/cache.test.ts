@@ -9,14 +9,163 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 import * as cache from '../src/js/cache';
 
 describe('generational cache', () => {
-  it('should be instance', () => {
-    const { GenerationalCache, genCache } = cache;
-    assert.strictEqual(genCache instanceof GenerationalCache, true, 'instance');
-    assert.strictEqual(typeof genCache.clear, 'function', 'clear');
-    assert.strictEqual(typeof genCache.delete, 'function', 'delete');
-    assert.strictEqual(typeof genCache.get, 'function', 'get');
-    assert.strictEqual(typeof genCache.has, 'function', 'has');
-    assert.strictEqual(typeof genCache.set, 'function', 'set');
+  it('should initialize with 4 for the max generation size', () => {
+    const genCache = new cache.GenerationalCache(2);
+    assert.strictEqual(genCache.max, 4, 'max generation size should be 4');
+  });
+
+  it('should initialize with the given max generation size', () => {
+    const genCache = new cache.GenerationalCache(5);
+    assert.strictEqual(
+      genCache.max,
+      5,
+      'max generation size should be given value'
+    );
+  });
+
+  it('should set max generation size and clear cache', () => {
+    const genCache = new cache.GenerationalCache(2);
+    genCache.set('foo', 'bar');
+    assert.strictEqual(genCache.size, 1, 'cache is added');
+    genCache.max = 5;
+    assert.strictEqual(
+      genCache.max,
+      5,
+      'max generation size should be given value'
+    );
+    assert.strictEqual(genCache.size, 0, 'cache is cleared');
+  });
+
+  it('should set max generation size and clear cache', () => {
+    const genCache = new cache.GenerationalCache(5);
+    genCache.set('foo', 'bar');
+    assert.strictEqual(genCache.size, 1, 'cache is added');
+    genCache.max = 2;
+    assert.strictEqual(genCache.max, 4, 'max generation size should be 4');
+    assert.strictEqual(genCache.size, 0, 'cache is cleared');
+  });
+
+  it('should be within max generation size', () => {
+    const genCache = new cache.GenerationalCache(9);
+    const boundary = Math.ceil(genCache.max / 2);
+    const sizes = [];
+    for (let i = 1; i < 20; i++) {
+      genCache.set(`key${i}`, i);
+      sizes.push(genCache.size);
+      if (i < genCache.max) {
+        assert.strictEqual(genCache.size, i, `${i}`);
+      } else {
+        assert.strictEqual(genCache.size, (i % boundary) + boundary, `${i}`);
+      }
+    }
+    assert.deepEqual(
+      sizes,
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 9, 5, 6, 7, 8, 9]
+    );
+  });
+
+  it('should set and get values', () => {
+    const genCache = new cache.GenerationalCache(10);
+    genCache.set('key1', 'value1');
+    genCache.set('key2', { foo: 'bar' });
+
+    assert.strictEqual(
+      genCache.get('key1'),
+      'value1',
+      'should get primitive value'
+    );
+    assert.deepEqual(
+      genCache.get('key2'),
+      { foo: 'bar' },
+      'should get object value'
+    );
+    assert.strictEqual(
+      genCache.get('unknown'),
+      undefined,
+      'should return undefined for missing keys'
+    );
+  });
+
+  it('should check existence with has()', () => {
+    const genCache = new cache.GenerationalCache(10);
+    genCache.set('key1', 'value1');
+
+    assert.strictEqual(genCache.has('key1'), true, 'should have key1');
+    assert.strictEqual(genCache.has('key2'), false, 'should not have key2');
+  });
+
+  it('should delete values', () => {
+    const genCache = new cache.GenerationalCache(10);
+    genCache.set('key1', 'value1');
+    genCache.delete('key1');
+
+    assert.strictEqual(genCache.has('key1'), false, 'key1 should be deleted');
+    assert.strictEqual(
+      genCache.get('key1'),
+      undefined,
+      'deleted key should return undefined'
+    );
+  });
+
+  it('should clear all values', () => {
+    const genCache = new cache.GenerationalCache(10);
+    genCache.set('key1', 'value1');
+    genCache.set('key2', 'value2');
+    genCache.clear();
+
+    assert.strictEqual(genCache.has('key1'), false, 'key1 should be cleared');
+    assert.strictEqual(genCache.has('key2'), false, 'key2 should be cleared');
+  });
+
+  it('should shift generations and evict old items', () => {
+    const genCache = new cache.GenerationalCache(4);
+    genCache.set('k1', 'v1');
+    genCache.set('k2', 'v2');
+    assert.strictEqual(
+      genCache.has('k1'),
+      true,
+      'k1 should exist in old generation'
+    );
+    assert.strictEqual(
+      genCache.has('k2'),
+      true,
+      'k2 should exist in old generation'
+    );
+
+    genCache.set('k3', 'v3');
+    genCache.set('k4', 'v4');
+    assert.strictEqual(genCache.has('k1'), false, 'k1 should be evicted');
+    assert.strictEqual(genCache.has('k2'), false, 'k2 should be evicted');
+    assert.strictEqual(
+      genCache.has('k3'),
+      true,
+      'k3 should survive in old generation'
+    );
+    assert.strictEqual(
+      genCache.has('k4'),
+      true,
+      'k4 should survive in old generation'
+    );
+  });
+
+  it('should promote accessed old items to current generation', () => {
+    const genCache = new cache.GenerationalCache(4);
+    genCache.set('k1', 'v1');
+    genCache.set('k2', 'v2');
+    const val = genCache.get('k1');
+    assert.strictEqual(val, 'v1', 'should get promoted value');
+    genCache.set('k3', 'v3');
+    assert.strictEqual(
+      genCache.has('k1'),
+      true,
+      'k1 should survive because it was promoted'
+    );
+    assert.strictEqual(genCache.has('k2'), false, 'k2 should be evicted');
+    assert.strictEqual(
+      genCache.has('k3'),
+      true,
+      'k3 should survive in old generation'
+    );
   });
 });
 
