@@ -9,13 +9,14 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 import * as cache from '../src/js/cache';
 
 describe('generational cache', () => {
+  const { GenerationalCache } = cache;
   it('should initialize with 4 for the max generation size', () => {
-    const genCache = new cache.GenerationalCache(2);
+    const genCache = new GenerationalCache(2);
     assert.strictEqual(genCache.max, 4, 'max generation size should be 4');
   });
 
   it('should initialize with the given max generation size', () => {
-    const genCache = new cache.GenerationalCache(5);
+    const genCache = new GenerationalCache(5);
     assert.strictEqual(
       genCache.max,
       5,
@@ -24,7 +25,7 @@ describe('generational cache', () => {
   });
 
   it('should set max generation size and clear cache', () => {
-    const genCache = new cache.GenerationalCache(2);
+    const genCache = new GenerationalCache(2);
     genCache.set('foo', 'bar');
     assert.strictEqual(genCache.size, 1, 'cache is added');
     genCache.max = 5;
@@ -37,7 +38,7 @@ describe('generational cache', () => {
   });
 
   it('should set max generation size and clear cache', () => {
-    const genCache = new cache.GenerationalCache(5);
+    const genCache = new GenerationalCache(5);
     genCache.set('foo', 'bar');
     assert.strictEqual(genCache.size, 1, 'cache is added');
     genCache.max = 2;
@@ -46,7 +47,7 @@ describe('generational cache', () => {
   });
 
   it('should be within max generation size', () => {
-    const genCache = new cache.GenerationalCache(9);
+    const genCache = new GenerationalCache(9);
     const boundary = Math.ceil(genCache.max / 2);
     const sizes = [];
     for (let i = 1; i < 20; i++) {
@@ -65,7 +66,7 @@ describe('generational cache', () => {
   });
 
   it('should set and get values', () => {
-    const genCache = new cache.GenerationalCache(10);
+    const genCache = new GenerationalCache(10);
     genCache.set('key1', 'value1');
     genCache.set('key2', { foo: 'bar' });
 
@@ -87,7 +88,7 @@ describe('generational cache', () => {
   });
 
   it('should check existence with has()', () => {
-    const genCache = new cache.GenerationalCache(10);
+    const genCache = new GenerationalCache(10);
     genCache.set('key1', 'value1');
 
     assert.strictEqual(genCache.has('key1'), true, 'should have key1');
@@ -95,7 +96,7 @@ describe('generational cache', () => {
   });
 
   it('should delete values', () => {
-    const genCache = new cache.GenerationalCache(10);
+    const genCache = new GenerationalCache(10);
     genCache.set('key1', 'value1');
     genCache.delete('key1');
 
@@ -108,7 +109,7 @@ describe('generational cache', () => {
   });
 
   it('should clear all values', () => {
-    const genCache = new cache.GenerationalCache(10);
+    const genCache = new GenerationalCache(10);
     genCache.set('key1', 'value1');
     genCache.set('key2', 'value2');
     genCache.clear();
@@ -118,7 +119,7 @@ describe('generational cache', () => {
   });
 
   it('should shift generations and evict old items', () => {
-    const genCache = new cache.GenerationalCache(4);
+    const genCache = new GenerationalCache(4);
     genCache.set('k1', 'v1');
     genCache.set('k2', 'v2');
     assert.strictEqual(
@@ -149,7 +150,7 @@ describe('generational cache', () => {
   });
 
   it('should promote accessed old items to current generation', () => {
-    const genCache = new cache.GenerationalCache(4);
+    const genCache = new GenerationalCache(4);
     genCache.set('k1', 'v1');
     genCache.set('k2', 'v2');
     const val = genCache.get('k1');
