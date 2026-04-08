@@ -10,43 +10,35 @@ import * as cache from '../src/js/cache';
 
 describe('generational cache', () => {
   const { GenerationalCache } = cache;
-  it('should initialize with 4 for the max generation size', () => {
+  it('should initialize with 4 for the max cache size', () => {
     const genCache = new GenerationalCache(2);
-    assert.strictEqual(genCache.max, 4, 'max generation size should be 4');
+    assert.strictEqual(genCache.max, 4, 'max cache size should be 4');
   });
 
-  it('should initialize with the given max generation size', () => {
+  it('should initialize with the given max cache size', () => {
     const genCache = new GenerationalCache(5);
-    assert.strictEqual(
-      genCache.max,
-      5,
-      'max generation size should be given value'
-    );
+    assert.strictEqual(genCache.max, 5, 'max cache size should be given value');
   });
 
-  it('should set max generation size and clear cache', () => {
+  it('should set max cache size and clear cache', () => {
     const genCache = new GenerationalCache(2);
     genCache.set('foo', 'bar');
     assert.strictEqual(genCache.size, 1, 'cache is added');
     genCache.max = 5;
-    assert.strictEqual(
-      genCache.max,
-      5,
-      'max generation size should be given value'
-    );
+    assert.strictEqual(genCache.max, 5, 'max cache size should be given value');
     assert.strictEqual(genCache.size, 0, 'cache is cleared');
   });
 
-  it('should set max generation size and clear cache', () => {
+  it('should set max cache size and clear cache', () => {
     const genCache = new GenerationalCache(5);
     genCache.set('foo', 'bar');
     assert.strictEqual(genCache.size, 1, 'cache is added');
     genCache.max = 2;
-    assert.strictEqual(genCache.max, 4, 'max generation size should be 4');
+    assert.strictEqual(genCache.max, 4, 'max cache size should be 4');
     assert.strictEqual(genCache.size, 0, 'cache is cleared');
   });
 
-  it('should be within max generation size', () => {
+  it('should be within max cache size', () => {
     const genCache = new GenerationalCache(9);
     const boundary = Math.ceil(genCache.max / 2);
     const sizes = [];

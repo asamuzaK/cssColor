@@ -65,7 +65,7 @@ export class GenerationalCache<K, V> {
     }
   }
 
-  get size() {
+  get size(): number {
     return this.#current.size + this.#old.size;
   }
 
@@ -86,12 +86,11 @@ export class GenerationalCache<K, V> {
   }
 
   get(key: K): V | undefined {
-    let value = this.#current.get(key);
-    if (value !== undefined) {
-      return value;
+    if (this.#current.has(key)) {
+      return this.#current.get(key);
     }
 
-    value = this.#old.get(key);
+    const value = this.#old.get(key);
     if (value !== undefined) {
       this.set(key, value);
       return value;
