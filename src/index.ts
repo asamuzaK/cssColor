@@ -5,6 +5,7 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
+import { GenerationalCache } from './js/cache';
 import { cssCalc } from './js/css-calc';
 import { isGradient, resolveGradient } from './js/css-gradient';
 import { cssVar } from './js/css-var';
@@ -21,6 +22,7 @@ export { convert } from './js/convert';
 export { resolve } from './js/resolve';
 /* utils */
 export const utils = {
+  GenerationalCache,
   cssCalc,
   cssVar,
   extractDashedIdent,
