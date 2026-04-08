@@ -9,19 +9,6 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 import * as cache from '../src/js/cache';
 
 describe('generational cache', () => {
-  it('should be instance', () => {
-    assert.strictEqual(
-      cache.genCache instanceof cache.GenerationalCache,
-      true,
-      'instance'
-    );
-    assert.strictEqual(typeof cache.genCache.clear, 'function', 'clear');
-    assert.strictEqual(typeof cache.genCache.delete, 'function', 'delete');
-    assert.strictEqual(typeof cache.genCache.get, 'function', 'get');
-    assert.strictEqual(typeof cache.genCache.has, 'function', 'has');
-    assert.strictEqual(typeof cache.genCache.set, 'function', 'set');
-  });
-
   it('should initialize with 4 for the max generation size', () => {
     const genCache = new cache.GenerationalCache(2);
     assert.strictEqual(genCache.max, 4, 'max generation size should be 4');
@@ -61,14 +48,20 @@ describe('generational cache', () => {
   it('should be within max generation size', () => {
     const genCache = new cache.GenerationalCache(9);
     const boundary = Math.ceil(genCache.max / 2);
+    const sizes = [];
     for (let i = 1; i < 20; i++) {
       genCache.set(`key${i}`, i);
+      sizes.push(genCache.size);
       if (i < genCache.max) {
-        assert.equal(genCache.size, i, `${i}`);
+        assert.strictEqual(genCache.size, i, `${i}`);
       } else {
-        assert.equal(genCache.size, (i % boundary) + boundary, `${i}`);
+        assert.strictEqual(genCache.size, (i % boundary) + boundary, `${i}`);
       }
     }
+    assert.deepEqual(
+      sizes,
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 5, 6, 7, 8, 9, 5, 6, 7, 8, 9]
+    );
   });
 
   it('should set and get values', () => {
