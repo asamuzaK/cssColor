@@ -5,7 +5,7 @@
 import { Options } from './typedef';
 
 /* numeric constants */
-const MAX_CACHE = 4096;
+const MAX_CACHE = 1024;
 
 /**
  * CacheItem
