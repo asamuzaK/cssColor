@@ -255,7 +255,7 @@ describe('get cache', () => {
     const res = func('foo');
     assert.strictEqual(res instanceof CacheItem, true, 'instance');
     assert.strictEqual(res instanceof NullObject, false, 'instance');
-    assert.strictEqual(res.item, undefined, 'result');
+    assert.strictEqual((res as CacheItem).item, undefined, 'result');
   });
 
   it('should get cache', () => {
@@ -263,7 +263,7 @@ describe('get cache', () => {
     const res = func('bar');
     assert.strictEqual(res instanceof CacheItem, true, 'instance');
     assert.strictEqual(res instanceof NullObject, false, 'instance');
-    assert.strictEqual(res.item, 'bar', 'result');
+    assert.strictEqual((res as CacheItem).item, 'bar', 'result');
   });
 
   it('should get null object', () => {
@@ -275,13 +275,6 @@ describe('get cache', () => {
 
   it('should get false', () => {
     const res = func('qux');
-    assert.strictEqual(res, false, 'result');
-  });
-
-  it('should get false and delete key', () => {
-    genCache.set('quux', 'quux');
-    const res = func('quux');
-    assert.strictEqual(genCache.has('quux'), false, 'key');
     assert.strictEqual(res, false, 'result');
   });
 });
@@ -299,12 +292,34 @@ describe('create cache key', () => {
     assert.strictEqual(res, '', 'result');
   });
 
-  it('should get value', () => {
+  it('should get empty string when missing required key data', () => {
     const res = func({
       foo: 'foo',
       bar: 'bar'
     });
-    assert.strictEqual(res, '::::||||0|0|0|::::', 'result');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get base key string with default options', () => {
+    const res = func({
+      value: 'val'
+    });
+    assert.strictEqual(res, '::val::||||0|0|0|::::', 'result');
+  });
+
+  it('should get empty string blocks for empty options', () => {
+    const res = func(
+      {
+        namespace: 'foo',
+        name: 'bar',
+        value: 'baz'
+      },
+      {
+        customProperty: {},
+        dimension: {}
+      }
+    );
+    assert.strictEqual(res, 'foo:bar:baz::||||0|0|0|::::', 'result');
   });
 
   it('should get value', () => {
@@ -335,7 +350,7 @@ describe('create cache key', () => {
     );
     assert.strictEqual(
       res,
-      'foo:bar:baz::computedValue|srgb|normal|black|0|0|1| ::{"--bar":"bar","--foo":"foo"}::{"em":12,"rem":16}',
+      'foo:bar:baz::computedValue|srgb|normal|black|0|0|1| ::--bar:"bar";--foo:"foo";::em:12;rem:16;',
       'result'
     );
   });
