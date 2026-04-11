@@ -4,7 +4,7 @@
 
 import { Options } from './typedef';
 
-/* numeric constants */
+/* constants */
 const MAX_CACHE = 1024;
 
 /**
@@ -15,9 +15,6 @@ export class CacheItem {
   #isNull: boolean;
   #item: unknown;
 
-  /**
-   * constructor
-   */
   constructor(item: unknown, isNull: boolean = false) {
     this.#item = item;
     this.#isNull = !!isNull;
@@ -36,9 +33,6 @@ export class CacheItem {
  * NullObject
  */
 export class NullObject extends CacheItem {
-  /**
-   * constructor
-   */
   constructor() {
     super(Symbol('null'), true);
   }
@@ -86,22 +80,20 @@ export class GenerationalCache<K, V> {
   }
 
   get(key: K): V | undefined {
-    if (this.#current.has(key)) {
-      return this.#current.get(key);
+    let value = this.#current.get(key);
+    if (value !== undefined) {
+      return value;
     }
-
-    const value = this.#old.get(key);
+    value = this.#old.get(key);
     if (value !== undefined) {
       this.set(key, value);
       return value;
     }
-
     return undefined;
   }
 
   set(key: K, value: V): void {
     this.#current.set(key, value);
-
     if (this.#current.size >= this.#boundary) {
       this.#old = this.#current;
       this.#current = new Map<K, V>();
@@ -129,20 +121,26 @@ export class GenerationalCache<K, V> {
 export const genCache = new GenerationalCache<string, CacheItem>(MAX_CACHE);
 
 /**
+ * shared null object
+ */
+const sharedNullObject = new NullObject();
+
+/**
  * set cache
  * @param key - cache key
  * @param value - value to cache
  * @returns void
  */
 export const setCache = (key: string, value: unknown): void => {
-  if (key) {
-    if (value === null) {
-      genCache.set(key, new NullObject());
-    } else if (value instanceof CacheItem) {
-      genCache.set(key, value);
-    } else {
-      genCache.set(key, new CacheItem(value));
-    }
+  if (!key) {
+    return;
+  }
+  if (value === null) {
+    genCache.set(key, sharedNullObject);
+  } else if (value instanceof CacheItem) {
+    genCache.set(key, value);
+  } else {
+    genCache.set(key, new CacheItem(value));
   }
 };
 
@@ -155,16 +153,10 @@ export const getCache = (key: string): CacheItem | false => {
   if (!key) {
     return false;
   }
-
   const item = genCache.get(key);
   if (item !== undefined) {
-    if (item instanceof CacheItem) {
-      return item;
-    }
-    genCache.delete(key);
-    return false;
+    return item as CacheItem;
   }
-
   return false;
 };
 
@@ -174,19 +166,16 @@ export const getCache = (key: string): CacheItem | false => {
  * @returns stringified JSON
  */
 const stringifySorted = (obj: Record<string, unknown>): string => {
-  const keys = Object.keys(obj).sort();
+  const keys = Object.keys(obj);
   if (keys.length === 0) {
     return '';
   }
-  return JSON.stringify(
-    keys.reduce(
-      (acc, key) => {
-        acc[key] = obj[key];
-        return acc;
-      },
-      {} as Record<string, unknown>
-    )
-  );
+  keys.sort();
+  let result = '';
+  for (const key of keys) {
+    result += `${key}:${JSON.stringify(obj[key])};`;
+  }
+  return result;
 };
 
 /**
@@ -199,31 +188,26 @@ export const createCacheKey = (
   keyData: Record<string, string>,
   opt: Options = {}
 ): string => {
-  const { customProperty = {}, dimension = {} } = opt;
   if (
     !keyData ||
-    Object.keys(keyData).length === 0 ||
-    typeof customProperty.callback === 'function' ||
-    typeof dimension.callback === 'function'
+    (opt.customProperty && typeof opt.customProperty.callback === 'function') ||
+    (opt.dimension && typeof opt.dimension.callback === 'function')
   ) {
     return '';
   }
-  const baseKey = `${keyData.namespace || ''}:${keyData.name || ''}:${keyData.value || ''}`;
-  const optStr = [
-    opt.format || '',
-    opt.colorSpace || '',
-    opt.colorScheme || '',
-    opt.currentColor || '',
-    opt.d50 ? '1' : '0',
-    opt.nullable ? '1' : '0',
-    opt.preserveComment ? '1' : '0',
-    String(opt.delimiter || '')
-  ].join('|');
-
-  const customPropStr = stringifySorted(
-    customProperty as Record<string, unknown>
-  );
-  const dimStr = stringifySorted(dimension as Record<string, unknown>);
-
+  const namespace = keyData.namespace || '';
+  const name = keyData.name || '';
+  const value = keyData.value || '';
+  if (!namespace && !name && !value) {
+    return '';
+  }
+  const baseKey = `${namespace}:${name}:${value}`;
+  const optStr = `${opt.format || ''}|${opt.colorSpace || ''}|${opt.colorScheme || ''}|${opt.currentColor || ''}|${opt.d50 ? '1' : '0'}|${opt.nullable ? '1' : '0'}|${opt.preserveComment ? '1' : '0'}|${opt.delimiter || ''}`;
+  const customPropStr = opt.customProperty
+    ? stringifySorted(opt.customProperty as Record<string, unknown>)
+    : '';
+  const dimStr = opt.dimension
+    ? stringifySorted(opt.dimension as Record<string, unknown>)
+    : '';
   return `${baseKey}::${optStr}::${customPropStr}::${dimStr}`;
 };
