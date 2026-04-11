@@ -1782,3 +1782,35 @@ describe('CSS calc()', () => {
     assert.strictEqual(res2, 'calc(0.666667)', 'result');
   });
 });
+
+describe('serialize calc edge cases', () => {
+  const func = csscalc.serializeCalc;
+
+  it('should handle incomplete top-level tokens', () => {
+    const res = func('calc(1) +', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should handle unmatched closing parenthesis', () => {
+    const res = func('calc(1) )', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(1)', 'result');
+  });
+
+  it('should handle inner node with fewer than 3 items', () => {
+    const res = func('calc(1 + ())', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(1 + ())', 'result');
+  });
+
+  it('should handle empty calc wrapper', () => {
+    const res = func('calc()', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc()', 'result');
+  });
+
+  it('should throw if top-level flat items >= 3 but not matching sortCalcValues pattern', () => {
+    assert.throws(
+      () => func('calc(1) + 2', { format: 'specifiedValue' }),
+      Error,
+      'Unexpected token 1.'
+    );
+  });
+});

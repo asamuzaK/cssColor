@@ -824,4 +824,20 @@ describe('resolve relative color', () => {
     });
     assert.strictEqual(res2.isNull, true, 'result');
   });
+
+  it('should handle unclassified tokens inside math functions', () => {
+    const res = func('rgb(from red calc("string") g b)');
+    assert.strictEqual(
+      typeof res === 'string' || res.isNull === true,
+      true,
+      'result'
+    );
+  });
+
+  it('should handle unusual tokens inside math functions', () => {
+    const res = func('rgb(from red calc(r * "foo") g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(typeof res === 'string', true, 'result');
+  });
 });

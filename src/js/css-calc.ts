@@ -50,6 +50,7 @@ const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
 const REG_OPERATOR = /\s[*+/-]\s/;
+const REG_PAREN_OPEN = /\($/;
 const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
@@ -199,24 +200,24 @@ export class Calculator {
   clear() {
     // number
     this.#hasNum = false;
-    this.#numSum = [];
-    this.#numMul = [];
+    this.#numSum.length = 0;
+    this.#numMul.length = 0;
     // percentage
     this.#hasPct = false;
-    this.#pctSum = [];
-    this.#pctMul = [];
+    this.#pctSum.length = 0;
+    this.#pctMul.length = 0;
     // dimension
     this.#hasDim = false;
-    this.#dimSum = [];
-    this.#dimSub = [];
-    this.#dimMul = [];
-    this.#dimDiv = [];
+    this.#dimSum.length = 0;
+    this.#dimSub.length = 0;
+    this.#dimMul.length = 0;
+    this.#dimDiv.length = 0;
     // et cetra
     this.#hasEtc = false;
-    this.#etcSum = [];
-    this.#etcSub = [];
-    this.#etcMul = [];
-    this.#etcDiv = [];
+    this.#etcSum.length = 0;
+    this.#etcSub.length = 0;
+    this.#etcMul.length = 0;
+    this.#etcDiv.length = 0;
   }
 
   /**
@@ -551,6 +552,8 @@ export const sortCalcValues = (
   const cal = new Calculator();
   let operator: string = '';
   const l = values.length;
+  // Array traversal optimization for operator check
+  let hasAddSub = false;
   for (let i = 0; i < l; i++) {
     const value = values[i];
     if (!isStringOrNumber(value)) {
@@ -563,6 +566,8 @@ export const sortCalcValues = (
       if (sortedValue) {
         sortedValues.push(sortedValue, value);
       }
+      // Mark presence of + or -
+      hasAddSub = true;
       cal.clear();
       operator = '';
     } else {
@@ -615,7 +620,7 @@ export const sortCalcValues = (
     }
   }
   let resolvedValue = '';
-  if (finalize && (sortedValues.includes('+') || sortedValues.includes('-'))) {
+  if (finalize && hasAddSub) {
     const finalizedValues = [];
     cal.clear();
     operator = '';
@@ -685,9 +690,41 @@ export const sortCalcValues = (
     resolvedValue.lastIndexOf('(') === 0 &&
     resolvedValue.indexOf(')') === resolvedValue.length - 1
   ) {
-    resolvedValue = resolvedValue.replace(/^\(/, '').replace(/\)$/, '');
+    resolvedValue = resolvedValue.substring(1, resolvedValue.length - 1);
   }
   return `${start}${resolvedValue}${end}`;
+};
+
+/**
+ * resolve AST node
+ * @param node - AST node
+ * @param isRoot - is root node
+ * @returns resolved value
+ */
+const resolveNode = (node: any[], isRoot: boolean): string => {
+  const flatItems: string[] = [];
+  for (const item of node) {
+    if (Array.isArray(item)) {
+      flatItems.push(resolveNode(item, false));
+    } else {
+      flatItems.push(item as string);
+    }
+  }
+  if (isRoot) {
+    if (flatItems.length >= TRIA) {
+      return sortCalcValues(flatItems, true);
+    }
+    const joined = flatItems.join('');
+    return joined.startsWith('calc(') ? joined : `calc(${joined})`;
+  }
+  if (flatItems.length >= TRIA) {
+    let serialized = sortCalcValues(flatItems, false);
+    if (REG_FN_VAR_START.test(serialized)) {
+      serialized = calc(serialized, { toCanonicalUnits: true });
+    }
+    return serialized;
+  }
+  return flatItems.join('');
 };
 
 /**
@@ -720,30 +757,67 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   }
   const items: string[] = tokenize({ css: value })
     .map((token: CSSToken): string => {
-      const [type, value] = token as [TokenType, string];
+      const [type, val] = token as [TokenType, string];
       let res = '';
       if (type !== W_SPACE && type !== COMMENT) {
-        res = value;
+        res = val;
       }
       return res;
     })
     .filter(v => v);
-  let startIndex = items.findLastIndex((item: string) => /\($/.test(item));
-  while (startIndex) {
-    const endIndex = items.findIndex((item: unknown, index: number) => {
-      return item === ')' && index > startIndex;
-    });
-    const slicedValues: string[] = items.slice(startIndex, endIndex + 1);
-    let serializedValue: string = sortCalcValues(slicedValues);
-    if (REG_FN_VAR_START.test(serializedValue)) {
-      serializedValue = calc(serializedValue, {
-        toCanonicalUnits: true
-      });
+  const stack: any[][] = [[]];
+  for (const item of items) {
+    if (REG_PAREN_OPEN.test(item)) {
+      const newNode = [item];
+      const parent = stack[stack.length - 1];
+      if (parent) {
+        parent.push(newNode);
+      }
+      stack.push(newNode);
+    } else if (item === ')') {
+      if (stack.length > 1) {
+        const currentLevel = stack.pop();
+        if (currentLevel) {
+          currentLevel.push(item);
+        }
+      } else {
+        const root = stack[0];
+        if (root) {
+          root.push(item);
+        }
+      }
+    } else {
+      const parent = stack[stack.length - 1];
+      if (parent) {
+        parent.push(item);
+      }
     }
-    items.splice(startIndex, endIndex - startIndex + 1, serializedValue);
-    startIndex = items.findLastIndex((item: string) => /\($/.test(item));
   }
-  const serializedCalc = sortCalcValues(items, true);
+  let serializedCalc = '';
+  const rootItems = stack[0];
+  if (rootItems) {
+    if (rootItems.length === 1 && Array.isArray(rootItems[0])) {
+      serializedCalc = resolveNode(rootItems[0], true);
+    } else {
+      const flatItems: string[] = [];
+      for (const item of rootItems) {
+        if (Array.isArray(item)) {
+          flatItems.push(resolveNode(item, false));
+        } else {
+          flatItems.push(item as string);
+        }
+      }
+      if (flatItems.length >= TRIA) {
+        serializedCalc = sortCalcValues(flatItems, true);
+      } else {
+        const firstItem = flatItems[0] || '';
+        serializedCalc =
+          isString(firstItem) && firstItem.startsWith('calc(')
+            ? firstItem
+            : `calc(${firstItem})`;
+      }
+    }
+  }
   setCache(cacheKey, serializedCalc);
   return serializedCalc;
 };
