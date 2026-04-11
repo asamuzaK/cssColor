@@ -443,6 +443,11 @@ describe('resolve CSS variable', () => {
     );
     assert.deepEqual(res, [[], 'red'], 'result');
   });
+
+  it('should break loop if token is falsy', () => {
+    const res = func([undefined] as any);
+    assert.deepEqual(res, [[], ''], 'result');
+  });
 });
 
 describe('parse tokens', () => {
@@ -520,6 +525,11 @@ describe('parse tokens', () => {
   it('should get value', () => {
     const res = func([[')-token', ')']]);
     assert.deepEqual(res, [')'], 'result');
+  });
+
+  it('should break loop if token is falsy', () => {
+    const res = func([undefined] as any);
+    assert.deepEqual(res, [], 'result');
   });
 });
 

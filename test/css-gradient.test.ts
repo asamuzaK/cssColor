@@ -485,6 +485,42 @@ describe('validate color stop list', () => {
       'result'
     );
   });
+
+  it('should get false for non-string items', () => {
+    const res = func(['red', undefined as any], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red', undefined as any],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if a color hint is the first item', () => {
+    const res = func(['50%', 'blue'], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['50%', 'blue'],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if a color hint is the last item', () => {
+    const res = func(['red', '50%'], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red', '50%'],
+        valid: false
+      },
+      'result'
+    );
+  });
 });
 
 describe('parse CSS gradient', () => {

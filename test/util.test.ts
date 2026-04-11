@@ -699,6 +699,26 @@ describe('resolve length in pixels', () => {
     });
     assert.deepEqual(res, 17.28, 'result');
   });
+
+  it('should get NaN when callback returns undefined', () => {
+    const res = func(3, 'in', {
+      dimension: {
+        callback: () => {
+          // returns nothing (undefined)
+        }
+      }
+    });
+    assert.deepEqual(res, Number.NaN, 'result');
+  });
+
+  it('should get number from dimension object by property name', () => {
+    const res = func(2, 'cm', {
+      dimension: {
+        cm: 10
+      }
+    });
+    assert.deepEqual(res, 20, 'result');
+  });
 });
 
 describe('is absolute size or length', () => {

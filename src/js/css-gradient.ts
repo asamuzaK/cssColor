@@ -79,9 +79,9 @@ const LINE_SYNTAX_CONIC = [
   `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
   `${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?`
 ].join('|');
-const REG_LINE_LINEAR = new RegExp(`^(?:${LINE_SYNTAX_LINEAR})$`);
-const REG_LINE_RADIAL = new RegExp(`^(?:${LINE_SYNTAX_RADIAL})$`);
-const REG_LINE_CONIC = new RegExp(`^(?:${LINE_SYNTAX_CONIC})$`);
+const DEFAULT_LINEAR = [/to\s+bottom/];
+const DEFAULT_RADIAL = [/ellipse/, /farthest-corner/, /at\s+center/];
+const DEFAULT_CONIC = [/at\s+center/];
 
 /* type definitions */
 /**
@@ -124,8 +124,18 @@ interface Gradient {
 }
 
 /* regexp */
+const IS_CONIC = /^(?:repeating-)?conic-gradient$/;
+const IS_LINEAR = /^(?:repeating-)?linear-gradient$/;
+const IS_RADIAL = /^(?:repeating-)?radial-gradient$/;
+const REG_COLOR_HINT_CONIC = new RegExp(`^(?:${DIM_ANGLE_PCT})$`);
+const REG_COLOR_HINT_NON_CONIC = new RegExp(`^(?:${DIM_LEN_PCT})$`);
+const REG_DIM_CONIC = new RegExp(`(?:\\s+(?:${DIM_ANGLE_PCT})){1,2}$`);
+const REG_DIM_NON_CONIC = new RegExp(`(?:\\s+(?:${DIM_LEN_PCT})){1,2}$`);
 const REG_GRAD = /^(?:repeating-)?(?:conic|linear|radial)-gradient\(/;
 const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
+const REG_LINE_CONIC = new RegExp(`^(?:${LINE_SYNTAX_CONIC})$`);
+const REG_LINE_LINEAR = new RegExp(`^(?:${LINE_SYNTAX_LINEAR})$`);
+const REG_LINE_RADIAL = new RegExp(`^(?:${LINE_SYNTAX_RADIAL})$`);
 
 /**
  * get gradient type
@@ -158,15 +168,16 @@ export const validateGradientLine = (
     type = type.trim();
     let reg: RegExp | null = null;
     let defaultValues: RegExp[] = [];
-    if (/^(?:repeating-)?linear-gradient$/.test(type)) {
+
+    if (IS_LINEAR.test(type)) {
       reg = REG_LINE_LINEAR;
-      defaultValues = [/to\s+bottom/];
-    } else if (/^(?:repeating-)?radial-gradient$/.test(type)) {
+      defaultValues = DEFAULT_LINEAR;
+    } else if (IS_RADIAL.test(type)) {
       reg = REG_LINE_RADIAL;
-      defaultValues = [/ellipse/, /farthest-corner/, /at\s+center/];
-    } else if (/^(?:repeating-)?conic-gradient$/.test(type)) {
+      defaultValues = DEFAULT_RADIAL;
+    } else if (IS_CONIC.test(type)) {
       reg = REG_LINE_CONIC;
-      defaultValues = [/at\s+center/];
+      defaultValues = DEFAULT_CONIC;
     }
     if (reg) {
       const valid = reg.test(value);
@@ -197,43 +208,45 @@ export const validateColorStopList = (
   opt: Options = {}
 ): ValidateColorStops => {
   if (Array.isArray(list) && list.length > 1) {
-    const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
-      ? DIM_ANGLE_PCT
-      : DIM_LEN_PCT;
-    const regColorHint = new RegExp(`^(?:${dimension})$`);
-    const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
-    const valueTypes = [];
-    const valueList = [];
-    for (const item of list) {
+    const isConic = IS_CONIC.test(type);
+    const regColorHint = isConic
+      ? REG_COLOR_HINT_CONIC
+      : REG_COLOR_HINT_NON_CONIC;
+    const regDimension = isConic ? REG_DIM_CONIC : REG_DIM_NON_CONIC;
+    const valueList: string[] = [];
+    // State tracker: 'color' or 'hint'
+    let prevType = '';
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i];
       if (isString(item)) {
         if (regColorHint.test(item)) {
-          valueTypes.push('hint');
+          // Hints cannot be the first item, and two hints cannot be adjacent
+          if (i === 0 || prevType === 'hint') {
+            return { colorStops: list, valid: false };
+          }
+          prevType = 'hint';
           valueList.push(item);
         } else {
           const itemColor = item.replace(regDimension, '');
           if (isColor(itemColor, { format: VAL_SPEC })) {
             const resolvedColor = resolveColor(itemColor, opt) as string;
-            valueTypes.push('color');
+            prevType = 'color';
             valueList.push(item.replace(itemColor, resolvedColor));
           } else {
-            return {
-              colorStops: list,
-              valid: false
-            };
+            return { colorStops: list, valid: false };
           }
         }
+      } else {
+        return { colorStops: list, valid: false };
       }
     }
-    const valid = /^color(?:,(?:hint,)?color)+$/.test(valueTypes.join(','));
-    return {
-      valid,
-      colorStops: valueList
-    };
+    // The last item must be a color, not a hint
+    if (prevType !== 'color') {
+      return { colorStops: list, valid: false };
+    }
+    return { valid: true, colorStops: valueList };
   }
-  return {
-    colorStops: list,
-    valid: false
-  };
+  return { colorStops: list, valid: false };
 };
 
 /**
@@ -269,10 +282,8 @@ export const parseGradient = (
       const [lineOrColorStop = '', ...itemList] = splitValue(gradValue, {
         delimiter: ','
       });
-      const dimension = /^(?:repeating-)?conic-gradient$/.test(type)
-        ? DIM_ANGLE_PCT
-        : DIM_LEN_PCT;
-      const regDimension = new RegExp(`(?:\\s+(?:${dimension})){1,2}$`);
+      const isConic = IS_CONIC.test(type);
+      const regDimension = isConic ? REG_DIM_CONIC : REG_DIM_NON_CONIC;
       let colorStop = '';
       if (regDimension.test(lineOrColorStop)) {
         const itemColor = lineOrColorStop.replace(regDimension, '');
