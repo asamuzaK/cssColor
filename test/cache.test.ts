@@ -4,12 +4,12 @@
 
 /* api */
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
+import { GenerationalCache } from '@asamuzakjp/generational-cache';
 
 /* test */
 import * as cache from '../src/js/cache';
 
 describe('generational cache', () => {
-  const { GenerationalCache } = cache;
   it('should initialize with 4 for the max cache size', () => {
     const genCache = new GenerationalCache(2);
     assert.strictEqual(genCache.max, 4, 'max cache size should be 4');
