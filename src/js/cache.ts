@@ -2,10 +2,11 @@
  * cache
  */
 
+import { GenerationalCache } from '@asamuzakjp/generational-cache';
 import { Options } from './typedef';
 
 /* constants */
-const MAX_CACHE = 1024;
+const CACHE_SIZE = 4096;
 
 /**
  * CacheItem
@@ -38,87 +39,10 @@ export class NullObject extends CacheItem {
   }
 }
 
-/**
- * Generational Cache implementation
- */
-export class GenerationalCache<K, V> {
-  #max: number;
-  #boundary: number;
-  #current: Map<K, V>;
-  #old: Map<K, V>;
-
-  constructor(max: number) {
-    this.#current = new Map<K, V>();
-    this.#old = new Map<K, V>();
-    if (Number.isFinite(max) && max > 4) {
-      this.#max = max;
-      this.#boundary = Math.ceil(max / 2);
-    } else {
-      this.#max = 4;
-      this.#boundary = 2;
-    }
-  }
-
-  get size(): number {
-    return this.#current.size + this.#old.size;
-  }
-
-  get max(): number {
-    return this.#max;
-  }
-
-  set max(value: number) {
-    if (Number.isFinite(value) && value > 4) {
-      this.#max = value;
-      this.#boundary = Math.ceil(value / 2);
-    } else {
-      this.#max = 4;
-      this.#boundary = 2;
-    }
-    this.#current.clear();
-    this.#old.clear();
-  }
-
-  get(key: K): V | undefined {
-    let value = this.#current.get(key);
-    if (value !== undefined) {
-      return value;
-    }
-    value = this.#old.get(key);
-    if (value !== undefined) {
-      this.set(key, value);
-      return value;
-    }
-    return undefined;
-  }
-
-  set(key: K, value: V): void {
-    this.#current.set(key, value);
-    if (this.#current.size >= this.#boundary) {
-      this.#old = this.#current;
-      this.#current = new Map<K, V>();
-    }
-  }
-
-  has(key: K): boolean {
-    return this.#current.has(key) || this.#old.has(key);
-  }
-
-  delete(key: K): void {
-    this.#current.delete(key);
-    this.#old.delete(key);
-  }
-
-  clear(): void {
-    this.#current.clear();
-    this.#old.clear();
-  }
-}
-
 /*
  * generational cache instance
  */
-export const genCache = new GenerationalCache<string, CacheItem>(MAX_CACHE);
+export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE);
 
 /**
  * shared null object
