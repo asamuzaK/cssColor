@@ -6,7 +6,7 @@ import { GenerationalCache } from '@asamuzakjp/generational-cache';
 import { Options } from './typedef';
 
 /* constants */
-const MAX_CACHE = 1024;
+const CACHE_SIZE = 4096;
 
 /**
  * CacheItem
@@ -42,7 +42,7 @@ export class NullObject extends CacheItem {
 /*
  * generational cache instance
  */
-export const genCache = new GenerationalCache<string, CacheItem>(MAX_CACHE);
+export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE);
 
 /**
  * shared null object
