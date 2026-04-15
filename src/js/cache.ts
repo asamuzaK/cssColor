@@ -6,7 +6,7 @@ import { GenerationalCache } from '@asamuzakjp/generational-cache';
 import { Options } from './typedef';
 
 /* constants */
-const CACHE_SIZE = 4096;
+const CACHE_SIZE = 2048;
 
 /**
  * CacheItem
