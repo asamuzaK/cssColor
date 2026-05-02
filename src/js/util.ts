@@ -31,7 +31,6 @@ const DEG_HALF = 180;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_DIMENSION = /^([+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?)([a-z]*)$/i;
 const REG_FN_COLOR =
   /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
 const REG_MIX = new RegExp(SYN_MIX);
@@ -367,7 +366,9 @@ export const resolveLengthInPixels = (
       return value * rUnitRatio * em;
     }
     switch (u) {
-      case 'vb':
+      case 'vb': {
+        return value * vh;
+      }
       case 'vi': {
         return value * vw;
       }
@@ -382,42 +383,4 @@ export const resolveLengthInPixels = (
   }
   // unsupported or invalid value
   return Number.NaN;
-};
-
-/**
- * is absolute size or length
- * @param value - value
- * @param unit - unit
- * @returns result
- */
-export const isAbsoluteSizeOrLength = (
-  value: number | string,
-  unit: string | undefined
-): boolean => {
-  if (isString(value)) {
-    return absoluteFontSize.has(value.toLowerCase().trim());
-  }
-  if (isString(unit)) {
-    return absoluteLength.has(unit.toLowerCase().trim());
-  }
-  return value === 0;
-};
-
-/**
- * is absolute font size
- * @param css - css
- * @returns result
- */
-export const isAbsoluteFontSize = (css: unknown): boolean => {
-  if (!isString(css)) {
-    return false;
-  }
-  const str = css.trim();
-  if (isAbsoluteSizeOrLength(str, undefined)) {
-    return true;
-  }
-  const match = str.match(REG_DIMENSION);
-  return match
-    ? isAbsoluteSizeOrLength(Number(match[1]), match[2] || undefined)
-    : false;
 };
