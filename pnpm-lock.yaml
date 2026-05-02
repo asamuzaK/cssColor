@@ -22,8 +22,8 @@ importers:
   .:
     dependencies:
       '@asamuzakjp/generational-cache':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^2.0.1
+        version: 2.0.1
       '@csstools/css-calc':
         specifier: ^3.2.0
         version: 3.2.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
@@ -91,9 +91,9 @@ importers:
 
 packages:
 
-  '@asamuzakjp/generational-cache@1.0.1':
-    resolution: {integrity: sha512-wajfB8KqzMCN2KGNFdLkReeHncd0AslUSrvHVvvYWuU8ghncRJoA50kT3zP9MVL0+9g4/67H+cdvBskj9THPzg==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
+  '@asamuzakjp/generational-cache@2.0.1':
+    resolution: {integrity: sha512-O06obS7ehFd/gLFUjQaH7bh8c5BQKjCBNAI6MSl6U1dDTRXV/RCJPp4Z4hsdZl3XF3RBRkz81/kW72gz2Cz8YA==}
+    engines: {node: ^22.13.0 || >=24.0.0}
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -2794,7 +2794,7 @@ packages:
 
 snapshots:
 
-  '@asamuzakjp/generational-cache@1.0.1': {}
+  '@asamuzakjp/generational-cache@2.0.1': {}
 
   '@babel/code-frame@7.29.0':
     dependencies:

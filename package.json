@@ -24,7 +24,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@asamuzakjp/generational-cache": "^1.0.1",
+    "@asamuzakjp/generational-cache": "^2.0.1",
     "@csstools/css-calc": "^3.2.0",
     "@csstools/css-color-parser": "^4.1.0",
     "@csstools/css-parser-algorithms": "^4.0.0",
@@ -85,5 +85,5 @@
   "engines": {
     "node": "^22.13.0 || >=24.0.0"
   },
-  "version": "6.0.0"
+  "version": "6.0.1"
 }
