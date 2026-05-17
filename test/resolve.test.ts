@@ -1840,3 +1840,104 @@ describe('resolve', () => {
     assert.strictEqual(res2, '', 'result');
   });
 });
+
+describe('is color', () => {
+  const func = api.isColor;
+
+  it('should get false', () => {
+    const res = func();
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('foo');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('red');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('currentcolor');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('transparent');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('color(srgb 0 127.5 0)');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('color-mix(in oklab, red, blue)');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('rgb(from rebeccapurple l a b)');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func('var(--foo)');
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(
+      'color-mix(in oklab, green, color-mix(in srgb, red, transparent))',
+      {
+        format: 'computedColor'
+      }
+    );
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func(
+      // Invalid color space
+      'color-mix(in oklab, green, color-mix(in rgb, red, transparent))',
+      {
+        format: 'computedColor'
+      }
+    );
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(
+      // Missing close paren should be okay
+      'color-mix(in oklab, green, color-mix(in srgb, red, transparent)',
+      {
+        format: 'computedColor'
+      }
+    );
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('url(var(--foo))');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func('radial-gradient(transparent, var(--custom-color))');
+    assert.strictEqual(res, false, 'result');
+  });
+});

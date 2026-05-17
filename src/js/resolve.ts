@@ -4,6 +4,7 @@
 
 import { createCacheKey, getCache, setCache } from './cache';
 import {
+  NAMED_COLORS,
   convertRgbToHex,
   resolveColorFunc,
   resolveColorMix,
@@ -24,10 +25,12 @@ import {
 import {
   FN_COLOR,
   FN_MIX,
+  SYN_COLOR_TYPE,
   SYN_FN_CALC,
   SYN_FN_LIGHT_DARK,
   SYN_FN_REL,
   SYN_FN_VAR,
+  SYN_MIX,
   VAL_COMP,
   VAL_SPEC
 } from './constant';
@@ -35,10 +38,14 @@ const NAMESPACE = 'resolve';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
+const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
+const REG_FN_COLOR =
+  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
 const REG_FN_LIGHT_DARK = new RegExp(SYN_FN_LIGHT_DARK);
 const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
+const REG_MIX = new RegExp(SYN_MIX);
 
 /**
  * resolve color
@@ -310,4 +317,36 @@ export const resolveColor = (
 export const resolve = (value: string, opt: Options = {}): string | null => {
   opt.nullable = false;
   return resolveColor(value, opt);
+};
+
+/**
+ * is color
+ * @param value - CSS value
+ * @param [opt] - options
+ * @returns result
+ */
+export const isColor = (value: unknown, opt: Options = {}): boolean => {
+  if (!isString(value)) {
+    return false;
+  }
+  const str = value.toLowerCase().trim();
+  if (!str) {
+    return false;
+  }
+  if (/^[a-z]+$/.test(str)) {
+    return (
+      str === 'currentcolor' ||
+      str === 'transparent' ||
+      Object.hasOwn(NAMED_COLORS, str)
+    );
+  }
+  if (REG_COLOR.test(str) || REG_MIX.test(str)) {
+    return true;
+  }
+  if (REG_FN_COLOR.test(str)) {
+    const colorOpt = { ...opt, nullable: true };
+    if (!colorOpt.format) colorOpt.format = VAL_SPEC;
+    return !!resolveColor(str, colorOpt);
+  }
+  return false;
 };
