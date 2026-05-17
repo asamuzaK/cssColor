@@ -49,6 +49,12 @@ const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
 
+/* type definitions */
+/**
+ * @type CalcASTNode - AST node for calc()
+ */
+type CalcASTNode = string | CalcASTNode[];
+
 /**
  * Calclator
  */
@@ -695,13 +701,13 @@ export const sortCalcValues = (
  * @param isRoot - is root node
  * @returns resolved value
  */
-const resolveNode = (node: any[], isRoot: boolean): string => {
+const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
   const flatItems: string[] = [];
   for (const item of node) {
     if (Array.isArray(item)) {
       flatItems.push(resolveNode(item, false));
     } else {
-      flatItems.push(item as string);
+      flatItems.push(item);
     }
   }
   if (isRoot) {
@@ -759,10 +765,10 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
       return res;
     })
     .filter(v => v);
-  const stack: any[][] = [[]];
+  const stack: CalcASTNode[][] = [[]];
   for (const item of items) {
     if (REG_PAREN_OPEN.test(item)) {
-      const newNode = [item];
+      const newNode: CalcASTNode[] = [item];
       const parent = stack[stack.length - 1];
       if (parent) {
         parent.push(newNode);
@@ -798,7 +804,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
         if (Array.isArray(item)) {
           flatItems.push(resolveNode(item, false));
         } else {
-          flatItems.push(item as string);
+          flatItems.push(item);
         }
       }
       if (flatItems.length >= TRIA) {
