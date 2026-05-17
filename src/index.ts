@@ -5,9 +5,8 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
-import { cssCalc } from './js/css-calc';
+import { cssCalc, cssVar } from './js/css-calc-var';
 import { isGradient, resolveGradient } from './js/css-gradient';
-import { cssVar } from './js/css-var';
 import { isColor } from './js/resolve';
 import {
   extractDashedIdent,
