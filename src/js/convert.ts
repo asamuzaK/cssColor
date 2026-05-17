@@ -16,8 +16,7 @@ import {
   parseColorValue
 } from './color';
 import { isString } from './common';
-import { cssCalc } from './css-calc';
-import { resolveVar } from './css-var';
+import { cssCalc, resolveVar } from './css-calc-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolveColor } from './resolve';
 import { ColorChannels, ComputedColorChannels, Options } from './typedef';

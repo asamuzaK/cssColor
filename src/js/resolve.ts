@@ -11,8 +11,7 @@ import {
   resolveColorValue
 } from './color';
 import { isString } from './common';
-import { cssCalc } from './css-calc';
-import { resolveVar } from './css-var';
+import { cssCalc, resolveVar } from './css-calc-var';
 import { resolveRelativeColor } from './relative-color';
 import { splitValue } from './util';
 import {

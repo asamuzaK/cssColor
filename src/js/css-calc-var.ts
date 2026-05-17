@@ -1,18 +1,19 @@
 /**
- * css-calc
+ * css-calc-var
  */
 
 import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { createCacheKey, getCache, setCache } from './cache';
 import { isString, isStringOrNumber } from './common';
-import { resolveVar } from './css-var';
+import { isColor } from './resolve'; // 👈 先ほど移動した isColor
 import { resolveLengthInPixels, roundToPrecision } from './util';
 import { MatchedRegExp, Options } from './typedef';
 
 /* constants */
 import {
   ANGLE,
+  FN_VAR,
   LENGTH,
   NUM,
   SYN_FN_CALC,
@@ -21,16 +22,18 @@ import {
   SYN_FN_VAR_START,
   VAL_SPEC
 } from './constant';
+
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
   Dimension: DIM,
   EOF,
   Function: FUNC,
+  Ident: IDENT,
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
-const NAMESPACE = 'css-calc';
+const NAMESPACE = 'css-calc-var';
 
 /* numeric constants */
 const TRIA = 3;
@@ -48,8 +51,8 @@ const REG_PAREN_OPEN = /\($/;
 const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
+const REG_CSS_WIDE_KEYWORD = /^(?:inherit|initial|revert(?:-layer)?|unset)$/;
 
-/* type definitions */
 /**
  * @type CalcASTNode - AST node for calc()
  */
@@ -851,12 +854,12 @@ export const resolveDimension = (
 };
 
 /**
- * parse tokens
+ * parse CSS calc() tokens
  * @param tokens - CSS tokens
  * @param [opt] - options
  * @returns parsed tokens
  */
-export const parseTokens = (
+export const parseCalcTokens = (
   tokens: CSSToken[],
   opt: Options = {}
 ): string[] => {
@@ -975,7 +978,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     return cachedResult.item as string;
   }
   const tokens = tokenize({ css: value });
-  const values = parseTokens(tokens, opt);
+  const values = parseCalcTokens(tokens, opt);
   let resolvedValue: string = calc(values.join(''), {
     toCanonicalUnits: true
   });
@@ -1005,4 +1008,202 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   }
   setCache(cacheKey, resolvedValue);
   return resolvedValue;
+};
+
+/**
+ * resolve custom property
+ * @param tokens - CSS tokens
+ * @param [opt] - options
+ * @returns result - [tokens, resolvedValue]
+ */
+export function resolveCustomProperty(
+  tokens: CSSToken[],
+  opt: Options = {}
+): [CSSToken[], string] {
+  if (!Array.isArray(tokens)) {
+    throw new TypeError(`${tokens} is not an array.`);
+  }
+  const { customProperty = {} } = opt;
+  const items: string[] = [];
+  while (tokens.length) {
+    const token = tokens.shift();
+    if (!token) {
+      break;
+    }
+    if (!Array.isArray(token)) {
+      throw new TypeError(`${token} is not an array.`);
+    }
+    const [type, value] = token as [TokenType, string];
+    // end of var()
+    if (type === PAREN_CLOSE) {
+      break;
+    }
+    // nested var()
+    if (value === FN_VAR) {
+      const [, item] = resolveCustomProperty(tokens, opt);
+      if (item) {
+        items.push(item);
+      }
+    } else if (type === IDENT) {
+      if (value.startsWith('--')) {
+        let item;
+        if (Object.hasOwn(customProperty, value)) {
+          item = customProperty[value] as string;
+        } else if (typeof customProperty.callback === 'function') {
+          item = customProperty.callback(value);
+        }
+        if (item) {
+          items.push(item);
+        }
+      } else if (value) {
+        items.push(value);
+      }
+    }
+  }
+  let resolveAsColor = false;
+  if (items.length > 1) {
+    resolveAsColor = isColor(items[items.length - 1]);
+  }
+  let resolvedValue = '';
+  for (let item of items) {
+    item = item.trim();
+    if (REG_FN_VAR.test(item)) {
+      // recurse resolveVar()
+      const resolvedItem = resolveVar(item, opt);
+      if (isString(resolvedItem)) {
+        if (!resolveAsColor || isColor(resolvedItem)) {
+          resolvedValue = resolvedItem;
+        }
+      }
+    } else if (REG_FN_CALC.test(item)) {
+      item = cssCalc(item, opt);
+      if (!resolveAsColor || isColor(item)) {
+        resolvedValue = item;
+      }
+    } else if (item && !REG_CSS_WIDE_KEYWORD.test(item)) {
+      if (!resolveAsColor || isColor(item)) {
+        resolvedValue = item;
+      }
+    }
+    if (resolvedValue) {
+      break;
+    }
+  }
+  return [tokens, resolvedValue];
+}
+
+/**
+ * parse CSS var() tokens
+ * @param tokens - CSS tokens
+ * @param [opt] - options
+ * @returns parsed tokens
+ */
+export function parseVarTokens(
+  tokens: CSSToken[],
+  opt: Options = {}
+): string[] | null {
+  const res: string[] = [];
+  while (tokens.length) {
+    const token = tokens.shift();
+    if (!token) break;
+    const [type = '', value = ''] = token as [TokenType, string];
+    if (value === FN_VAR) {
+      const [, resolvedValue] = resolveCustomProperty(tokens, opt);
+      if (!resolvedValue) {
+        return null;
+      }
+      res.push(resolvedValue);
+    } else {
+      switch (type) {
+        case PAREN_CLOSE: {
+          if (res.length) {
+            if (res[res.length - 1] === ' ') {
+              res[res.length - 1] = value;
+            } else {
+              res.push(value);
+            }
+          } else {
+            res.push(value);
+          }
+          break;
+        }
+        case W_SPACE: {
+          if (res.length) {
+            const lastValue = res[res.length - 1];
+            if (
+              isString(lastValue) &&
+              !lastValue.endsWith('(') &&
+              lastValue !== ' '
+            ) {
+              res.push(value);
+            }
+          }
+          break;
+        }
+        default: {
+          if (type !== COMMENT && type !== EOF) {
+            res.push(value);
+          }
+        }
+      }
+    }
+  }
+  return res;
+}
+
+/**
+ * resolve CSS var()
+ * @param value - CSS value including var()
+ * @param [opt] - options
+ * @returns resolved value
+ */
+export function resolveVar(value: string, opt: Options = {}): string | null {
+  const { format = '' } = opt;
+  if (isString(value)) {
+    if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
+      return value;
+    }
+    value = value.trim();
+  } else {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'resolveVar',
+      value
+    },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult !== false) {
+    return cachedResult.item as string | null;
+  }
+  const tokens = tokenize({ css: value });
+  const values = parseVarTokens(tokens, opt);
+  if (Array.isArray(values)) {
+    let color = values.join('');
+    if (REG_FN_CALC.test(color)) {
+      color = cssCalc(color, opt);
+    }
+    setCache(cacheKey, color);
+    return color;
+  } else {
+    setCache(cacheKey, null);
+    return null;
+  }
+}
+
+/**
+ * CSS var()
+ * @param value - CSS value including var()
+ * @param [opt] - options
+ * @returns resolved value
+ */
+export const cssVar = (value: string, opt: Options = {}): string => {
+  const resolvedValue = resolveVar(value, opt);
+  if (isString(resolvedValue)) {
+    return resolvedValue;
+  }
+  return '';
 };
