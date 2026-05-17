@@ -2,7 +2,7 @@
  * css-gradient
  */
 
-import { CacheItem, createCacheKey, getCache, setCache } from './cache';
+import { createCacheKey, getCache, setCache } from './cache';
 import { resolveColor } from './resolve';
 import { isString } from './common';
 import { MatchedRegExp, Options } from './typedef';
@@ -270,11 +270,8 @@ export const parseGradient = (
       opt
     );
     const cachedResult = getCache(cacheKey);
-    if (cachedResult instanceof CacheItem) {
-      if (cachedResult.isNull) {
-        return null;
-      }
-      return cachedResult.item as Gradient;
+    if (cachedResult !== false) {
+      return cachedResult.item as Gradient | null;
     }
     const type = getGradientType(value);
     const gradValue = value.replace(REG_GRAD, '').replace(/\)$/, '');

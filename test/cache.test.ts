@@ -168,33 +168,22 @@ describe('CacheItem', () => {
   it('should create instance', () => {
     const item = new CacheItem();
     assert.strictEqual(item instanceof CacheItem, true, 'instance');
-    assert.strictEqual(item.isNull, false, 'isNull');
+    assert.strictEqual(item.isNull, undefined, 'isNull');
     assert.strictEqual(item.item, undefined, 'item');
   });
 
   it('should create instance', () => {
     const item = new CacheItem('foo');
     assert.strictEqual(item instanceof CacheItem, true, 'instance');
-    assert.strictEqual(item.isNull, false, 'isNull');
+    assert.strictEqual(item.isNull, undefined, 'isNull');
     assert.strictEqual(item.item, 'foo', 'item');
   });
 
   it('should create instance', () => {
     const item = new CacheItem(['foo', 1, 'bar']);
     assert.strictEqual(item instanceof CacheItem, true, 'instance');
-    assert.strictEqual(item.isNull, false, 'isNull');
+    assert.strictEqual(item.isNull, undefined, 'isNull');
     assert.deepEqual(item.item, ['foo', 1, 'bar'], 'item');
-  });
-});
-
-describe('NullObject', () => {
-  const { CacheItem, NullObject } = cache;
-
-  it('should create instance', () => {
-    const item = new NullObject();
-    assert.strictEqual(item instanceof NullObject, true, 'instance');
-    assert.strictEqual(item instanceof CacheItem, true, 'instance');
-    assert.strictEqual(item.isNull, true, 'isNull');
   });
 });
 
@@ -240,7 +229,7 @@ describe('set cache', () => {
 });
 
 describe('get cache', () => {
-  const { CacheItem, NullObject, genCache, setCache } = cache;
+  const { CacheItem, genCache, setCache } = cache;
   const func = cache.getCache;
 
   beforeEach(() => {
@@ -254,7 +243,6 @@ describe('get cache', () => {
     setCache('foo');
     const res = func('foo');
     assert.strictEqual(res instanceof CacheItem, true, 'instance');
-    assert.strictEqual(res instanceof NullObject, false, 'instance');
     assert.strictEqual((res as CacheItem).item, undefined, 'result');
   });
 
@@ -262,15 +250,14 @@ describe('get cache', () => {
     setCache('bar', 'bar');
     const res = func('bar');
     assert.strictEqual(res instanceof CacheItem, true, 'instance');
-    assert.strictEqual(res instanceof NullObject, false, 'instance');
     assert.strictEqual((res as CacheItem).item, 'bar', 'result');
   });
 
-  it('should get null object', () => {
+  it('should get null', () => {
     setCache('baz', null);
     const res = func('baz');
     assert.strictEqual(res instanceof CacheItem, true, 'instance');
-    assert.strictEqual(res instanceof NullObject, true, 'instance');
+    assert.strictEqual((res as CacheItem).item, null, 'result');
   });
 
   it('should get false', () => {

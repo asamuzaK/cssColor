@@ -459,7 +459,7 @@ describe('parse tokens', () => {
       ['ident-token', '--foo'],
       [')-token', ')']
     ]);
-    assert.deepEqual(res.isNull, true, 'result');
+    assert.deepEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -559,10 +559,10 @@ describe('resolve CSS var()', () => {
 
   it('should get null object', () => {
     const res = func('var(--foo)');
-    assert.deepEqual(res.isNull, true, 'result');
+    assert.deepEqual(res, null, 'result');
 
     const res2 = func('var(--foo)');
-    assert.deepEqual(res2.isNull, true, 'result');
+    assert.deepEqual(res2, null, 'result');
   });
 
   it('should get value', () => {

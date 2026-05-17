@@ -281,7 +281,29 @@ describe('is color', () => {
 
   it('should get true', () => {
     const res = func(
-      'color-mix(in oklab, green, color-mix(in rgb, red, transparent)',
+      'color-mix(in oklab, green, color-mix(in srgb, red, transparent))',
+      {
+        format: 'computedColor'
+      }
+    );
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should get false', () => {
+    const res = func(
+      // Invalid color space
+      'color-mix(in oklab, green, color-mix(in rgb, red, transparent))',
+      {
+        format: 'computedColor'
+      }
+    );
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should get true', () => {
+    const res = func(
+      // Missing close paren should be okay
+      'color-mix(in oklab, green, color-mix(in srgb, red, transparent)',
       {
         format: 'computedColor'
       }

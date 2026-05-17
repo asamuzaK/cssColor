@@ -13,29 +13,14 @@ const CACHE_SIZE = 2048;
  */
 export class CacheItem {
   /* private */
-  #isNull: boolean;
   #item: unknown;
 
-  constructor(item: unknown, isNull: boolean = false) {
+  constructor(item: unknown) {
     this.#item = item;
-    this.#isNull = !!isNull;
   }
 
   get item() {
     return this.#item;
-  }
-
-  get isNull() {
-    return this.#isNull;
-  }
-}
-
-/**
- * NullObject
- */
-export class NullObject extends CacheItem {
-  constructor() {
-    super(Symbol('null'), true);
   }
 }
 
@@ -43,11 +28,6 @@ export class NullObject extends CacheItem {
  * generational cache instance
  */
 export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE);
-
-/**
- * shared null object
- */
-const sharedNullObject = new NullObject();
 
 /**
  * set cache
@@ -59,9 +39,7 @@ export const setCache = (key: string, value: unknown): void => {
   if (!key) {
     return;
   }
-  if (value === null) {
-    genCache.set(key, sharedNullObject);
-  } else if (value instanceof CacheItem) {
+  if (value instanceof CacheItem) {
     genCache.set(key, value);
   } else {
     genCache.set(key, new CacheItem(value));

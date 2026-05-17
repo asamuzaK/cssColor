@@ -22,12 +22,12 @@ describe('pre process', () => {
 
   it('should get null object', () => {
     const res = func();
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null object', () => {
     const res = func(' ');
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value as is', () => {
@@ -37,10 +37,10 @@ describe('pre process', () => {
 
   it('should get null object', () => {
     const res = func('var(--foo)');
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
 
     const res2 = func('var(--foo)');
-    assert.strictEqual(res2.isNull, true, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get null object', () => {
@@ -49,14 +49,14 @@ describe('pre process', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
 
     const res2 = func('var(--foo)', {
       customProperty: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2.isNull, true, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -95,10 +95,10 @@ describe('pre process', () => {
 
   it('should get null object', () => {
     const res = func('rgb(from rebeccapurple l a b)');
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
 
     const res2 = func('rgb(from rebeccapurple l a b)');
-    assert.strictEqual(res2.isNull, true, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get null object', () => {
@@ -107,14 +107,14 @@ describe('pre process', () => {
         callback: () => {}
       }
     });
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
 
     const res2 = func('rgb(from rebeccapurple l a b)', {
       dimension: {
         callback: () => {}
       }
     });
-    assert.strictEqual(res2.isNull, true, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
@@ -127,10 +127,10 @@ describe('pre process', () => {
 
   it('should get null object', () => {
     const res = func('color-mix(in oklab, red, foo)');
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
 
     const res2 = func('color-mix(in oklab, red, foo)');
-    assert.strictEqual(res2.isNull, true, 'result');
+    assert.strictEqual(res2, null, 'result');
   });
 
   it('should get value', () => {
