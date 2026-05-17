@@ -8,9 +8,9 @@
 import { cssCalc } from './js/css-calc';
 import { isGradient, resolveGradient } from './js/css-gradient';
 import { cssVar } from './js/css-var';
+import { isColor } from './js/resolve';
 import {
   extractDashedIdent,
-  isColor,
   resolveLengthInPixels,
   splitValue
 } from './js/util';

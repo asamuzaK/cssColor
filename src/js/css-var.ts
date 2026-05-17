@@ -6,7 +6,7 @@ import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
-import { isColor } from './util';
+import { isColor } from './resolve';
 import { Options } from './typedef';
 
 /* constants */

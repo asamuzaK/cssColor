@@ -3,10 +3,10 @@
  */
 
 import { createCacheKey, getCache, setCache } from './cache';
-import { resolveColor } from './resolve';
 import { isString } from './common';
+import { isColor, resolveColor } from './resolve';
 import { MatchedRegExp, Options } from './typedef';
-import { isColor, splitValue } from './util';
+import { splitValue } from './util';
 
 /* constants */
 import {

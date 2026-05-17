@@ -5,12 +5,9 @@
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { resolveColor } from './resolve';
 import { Options } from './typedef';
 
 /* constants */
-import { NAMED_COLORS } from './color';
-import { SYN_COLOR_TYPE, SYN_MIX, VAL_SPEC } from './constant';
 const {
   CloseParen: PAREN_CLOSE,
   Comma: COMMA,
@@ -30,10 +27,6 @@ const DEG = 360;
 const DEG_HALF = 180;
 
 /* regexp */
-const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_FN_COLOR =
-  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
-const REG_MIX = new RegExp(SYN_MIX);
 const REG_DASHED_IDENT = /--[\w-]+/g;
 const REG_COMMA = /^,$/;
 const REG_SLASH = /^\/$/;
@@ -164,38 +157,6 @@ export const extractDashedIdent = (value: string): string[] => {
   const res = matches ? [...new Set(matches)] : [];
   setCache(cacheKey, res);
   return res;
-};
-
-/**
- * is color
- * @param value - CSS value
- * @param [opt] - options
- * @returns result
- */
-export const isColor = (value: unknown, opt: Options = {}): boolean => {
-  if (!isString(value)) {
-    return false;
-  }
-  const str = value.toLowerCase().trim();
-  if (!str) {
-    return false;
-  }
-  if (/^[a-z]+$/.test(str)) {
-    return (
-      str === 'currentcolor' ||
-      str === 'transparent' ||
-      Object.hasOwn(NAMED_COLORS, str)
-    );
-  }
-  if (REG_COLOR.test(str) || REG_MIX.test(str)) {
-    return true;
-  }
-  if (REG_FN_COLOR.test(str)) {
-    const colorOpt = { ...opt, nullable: true };
-    if (!colorOpt.format) colorOpt.format = VAL_SPEC;
-    return !!resolveColor(str, colorOpt);
-  }
-  return false;
 };
 
 /**
