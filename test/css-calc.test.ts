@@ -885,7 +885,7 @@ describe('resolve dimension', () => {
 
   it('should get null object', () => {
     const res = func([]);
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null object', () => {
@@ -902,7 +902,7 @@ describe('resolve dimension', () => {
       }
     ];
     const res = func(token);
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null object', () => {
@@ -919,7 +919,7 @@ describe('resolve dimension', () => {
       }
     ];
     const res = func(token);
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get null object', () => {
@@ -936,7 +936,7 @@ describe('resolve dimension', () => {
       }
     ];
     const res = func(token);
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should get value', () => {
@@ -1158,7 +1158,7 @@ describe('resolve dimension', () => {
     const res = func(token, {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res.isNull, true, 'result');
+    assert.strictEqual(res, null, 'result');
   });
 });
 

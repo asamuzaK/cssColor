@@ -2,13 +2,7 @@
  * convert
  */
 
-import {
-  CacheItem,
-  NullObject,
-  createCacheKey,
-  getCache,
-  setCache
-} from './cache';
+import { createCacheKey, getCache, setCache } from './cache';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -43,36 +37,30 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
  * @param [opt] - options
  * @returns value
  */
-export const preProcess = (
-  value: string,
-  opt: Options = {}
-): string | NullObject => {
+export const preProcess = (value: string, opt: Options = {}): string | null => {
   if (!isString(value)) {
-    return new NullObject();
+    return null;
   }
   value = value.trim();
   if (!value) {
-    return new NullObject();
+    return null;
   }
   const cacheKey: string = createCacheKey(
     { namespace: NAMESPACE, name: 'preProcess', value },
     opt
   );
   const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
-    if (cachedResult.isNull) {
-      return cachedResult as NullObject;
-    }
-    return cachedResult.item as string;
+  if (cachedResult !== false) {
+    return cachedResult.item as string | null;
   }
-  let res: string | NullObject = value;
+  let res: string | null = value;
   if (REG_FN_VAR.test(value)) {
     const resolved = resolveVar(value, opt);
     if (isString(resolved)) {
       res = resolved;
     } else {
       setCache(cacheKey, null);
-      return new NullObject();
+      return null;
     }
   }
   if (isString(res)) {
@@ -82,7 +70,7 @@ export const preProcess = (
         res = resolved;
       } else {
         setCache(cacheKey, null);
-        return new NullObject();
+        return null;
       }
     } else if (REG_FN_CALC.test(res)) {
       res = cssCalc(res, opt);
@@ -90,7 +78,12 @@ export const preProcess = (
   }
   if (isString(res)) {
     if (res.startsWith('color-mix')) {
-      res = resolveColor(res, { ...opt, format: VAL_COMP, nullable: true });
+      const resolvedColorMix = resolveColor(res, {
+        ...opt,
+        format: VAL_COMP,
+        nullable: true
+      });
+      res = typeof resolvedColorMix === 'string' ? resolvedColorMix : null;
     }
   }
   setCache(cacheKey, res);
@@ -117,7 +110,7 @@ const createColorConverter = (
       throw new TypeError(`${value} is not a string.`);
     }
     const resolved = preProcess(value, opt);
-    if (resolved instanceof NullObject) {
+    if (resolved === null) {
       return [0, 0, 0, 0];
     }
     const val = resolved.toLowerCase();
@@ -126,7 +119,7 @@ const createColorConverter = (
       opt
     );
     const cached = getCache(cacheKey);
-    if (cached instanceof CacheItem) {
+    if (cached !== false) {
       return cached.item as ColorChannels;
     }
     const result = convertFn(val, { ...opt, format }) as ColorChannels;
@@ -155,7 +148,7 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
     throw new TypeError(`${value} is not a string.`);
   }
   const resolved = preProcess(value, opt);
-  if (resolved instanceof NullObject) {
+  if (resolved === null) {
     return null;
   }
   const val = resolved.toLowerCase();
@@ -164,11 +157,8 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
     opt
   );
   const cached = getCache(cacheKey);
-  if (cached instanceof CacheItem) {
-    if (cached.isNull) {
-      return null;
-    }
-    return cached.item as string;
+  if (cached !== false) {
+    return cached.item as string | null;
   }
   const hex = resolveColor(val, {
     ...opt,
@@ -278,7 +268,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
     throw new TypeError(`${value} is not a string.`);
   }
   const resolved = preProcess(value, opt);
-  if (resolved instanceof NullObject) {
+  if (resolved === null) {
     return [0, 0, 0, 0];
   }
   const val = resolved.toLowerCase();
@@ -287,7 +277,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
     opt
   );
   const cached = getCache(cacheKey);
-  if (cached instanceof CacheItem) {
+  if (cached !== false) {
     return cached.item as ColorChannels;
   }
   let parsed;

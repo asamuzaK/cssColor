@@ -3,13 +3,7 @@
  */
 
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import {
-  CacheItem,
-  NullObject,
-  createCacheKey,
-  getCache,
-  setCache
-} from './cache';
+import { createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 import { cssCalc } from './css-calc';
 import { isColor } from './util';
@@ -122,7 +116,7 @@ export function resolveCustomProperty(
 export function parseTokens(
   tokens: CSSToken[],
   opt: Options = {}
-): string[] | NullObject {
+): string[] | null {
   const res: string[] = [];
   while (tokens.length) {
     const token = tokens.shift();
@@ -131,7 +125,7 @@ export function parseTokens(
     if (value === FN_VAR) {
       const [, resolvedValue] = resolveCustomProperty(tokens, opt);
       if (!resolvedValue) {
-        return new NullObject();
+        return null;
       }
       res.push(resolvedValue);
     } else {
@@ -178,10 +172,7 @@ export function parseTokens(
  * @param [opt] - options
  * @returns resolved value
  */
-export function resolveVar(
-  value: string,
-  opt: Options = {}
-): string | NullObject {
+export function resolveVar(value: string, opt: Options = {}): string | null {
   const { format = '' } = opt;
   if (isString(value)) {
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
@@ -200,11 +191,8 @@ export function resolveVar(
     opt
   );
   const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
-    if (cachedResult.isNull) {
-      return cachedResult as NullObject;
-    }
-    return cachedResult.item as string;
+  if (cachedResult !== false) {
+    return cachedResult.item as string | null;
   }
   const tokens = tokenize({ css: value });
   const values = parseTokens(tokens, opt);
@@ -217,7 +205,7 @@ export function resolveVar(
     return color;
   } else {
     setCache(cacheKey, null);
-    return new NullObject();
+    return null;
   }
 }
 

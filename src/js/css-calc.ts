@@ -4,13 +4,7 @@
 
 import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import {
-  CacheItem,
-  NullObject,
-  createCacheKey,
-  getCache,
-  setCache
-} from './cache';
+import { createCacheKey, getCache, setCache } from './cache';
 import { isString, isStringOrNumber } from './common';
 import { resolveVar } from './css-var';
 import { resolveLengthInPixels, roundToPrecision } from './util';
@@ -752,7 +746,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
     opt
   );
   const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
+  if (cachedResult !== false) {
     return cachedResult.item as string;
   }
   const items: string[] = tokenize({ css: value })
@@ -831,7 +825,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
 export const resolveDimension = (
   token: CSSToken,
   opt: Options = {}
-): string | NullObject => {
+): string | null => {
   if (!Array.isArray(token)) {
     throw new TypeError(`${token} is not an array.`);
   }
@@ -847,7 +841,7 @@ export const resolveDimension = (
   if (Number.isFinite(pixelValue)) {
     return `${roundToPrecision(pixelValue, HEX)}px`;
   }
-  return new NullObject();
+  return null;
 };
 
 /**
@@ -971,7 +965,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     opt
   );
   const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
+  if (cachedResult !== false) {
     return cachedResult.item as string;
   }
   const tokens = tokenize({ css: value });

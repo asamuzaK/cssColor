@@ -2,13 +2,7 @@
  * resolve
  */
 
-import {
-  CacheItem,
-  NullObject,
-  createCacheKey,
-  getCache,
-  setCache
-} from './cache';
+import { createCacheKey, getCache, setCache } from './cache';
 import {
   convertRgbToHex,
   resolveColorFunc,
@@ -55,7 +49,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 export const resolveColor = (
   value: string,
   opt: Options = {}
-): string | NullObject => {
+): string | null => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
@@ -71,11 +65,8 @@ export const resolveColor = (
     opt
   );
   const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
-    if (cachedResult.isNull) {
-      return cachedResult as NullObject;
-    }
-    return cachedResult.item as string;
+  if (cachedResult !== false) {
+    return cachedResult.item as string | null;
   }
   // 1. var() resolution
   if (REG_FN_VAR.test(value)) {
@@ -84,10 +75,10 @@ export const resolveColor = (
       return value;
     }
     const resolvedVar = resolveVar(value, opt);
-    if (resolvedVar instanceof NullObject) {
+    if (resolvedVar === null) {
       const res =
         format === 'hex' || format === 'hexAlpha' || nullable
-          ? resolvedVar
+          ? null
           : RGB_TRANSPARENT;
       setCache(cacheKey, res);
       return res;
@@ -115,20 +106,19 @@ export const resolveColor = (
       }
       const chosen = colorScheme === 'dark' ? dark : light;
       const resolved = resolveColor(chosen, opt);
-      const res =
-        resolved instanceof NullObject && !nullable
-          ? RGB_TRANSPARENT
-          : resolved;
+      const res = resolved === null && !nullable ? RGB_TRANSPARENT : resolved;
       setCache(cacheKey, res);
       return res;
     }
     // fallback for invalid light-dark
-    const invalidRes =
-      format === VAL_SPEC
-        ? ''
-        : format === 'hex' || format === 'hexAlpha'
-          ? new NullObject()
-          : RGB_TRANSPARENT;
+    let invalidRes;
+    if (format === VAL_SPEC) {
+      invalidRes = '';
+    } else if (format === 'hex' || format === 'hexAlpha') {
+      invalidRes = null;
+    } else {
+      invalidRes = RGB_TRANSPARENT;
+    }
     setCache(cacheKey, invalidRes);
     return invalidRes;
   }
@@ -137,18 +127,16 @@ export const resolveColor = (
     const resolvedRel = resolveRelativeColor(value, opt);
     if (format === VAL_COMP) {
       const res =
-        resolvedRel instanceof NullObject && !nullable
-          ? RGB_TRANSPARENT
-          : resolvedRel;
+        resolvedRel === null && !nullable ? RGB_TRANSPARENT : resolvedRel;
       setCache(cacheKey, res);
       return res;
     }
     if (format === VAL_SPEC) {
-      const res = resolvedRel instanceof NullObject ? '' : resolvedRel;
+      const res = resolvedRel === null ? '' : resolvedRel;
       setCache(cacheKey, res);
       return res;
     }
-    value = resolvedRel instanceof NullObject ? '' : resolvedRel;
+    value = resolvedRel === null ? '' : resolvedRel;
   }
   // 4. calc() resolution
   if (REG_FN_CALC.test(value)) {
@@ -161,14 +149,14 @@ export const resolveColor = (
   let b = NaN;
   let alpha = NaN;
   if (value === 'transparent') {
-    let res: string | NullObject;
+    let res: string | null;
     switch (format) {
       case VAL_SPEC: {
         res = value;
         break;
       }
       case 'hex': {
-        res = new NullObject();
+        res = null;
         break;
       }
       case 'hexAlpha': {
@@ -196,9 +184,9 @@ export const resolveColor = (
       } else {
         resolvedCurrent = resolveColorValue(currentColor, opt);
       }
-      if (resolvedCurrent instanceof NullObject) {
-        setCache(cacheKey, resolvedCurrent);
-        return resolvedCurrent;
+      if (resolvedCurrent === null) {
+        setCache(cacheKey, null);
+        return null;
       }
       [cs, r, g, b, alpha] = resolvedCurrent as ComputedColorChannels;
     } else {
@@ -212,21 +200,24 @@ export const resolveColor = (
   } else if (format === VAL_SPEC) {
     let res = '';
     if (value.startsWith(FN_MIX)) {
-      res = resolveColorMix(value, opt) as string;
+      const mixRes = resolveColorMix(value, opt);
+      res = mixRes ? (mixRes as string) : '';
     } else if (value.startsWith(FN_COLOR)) {
-      const [scs, rr, gg, bb, aa] = resolveColorFunc(
-        value,
-        opt
-      ) as SpecifiedColorChannels;
-      res =
-        aa === 1
-          ? `color(${scs} ${rr} ${gg} ${bb})`
-          : `color(${scs} ${rr} ${gg} ${bb} / ${aa})`;
+      const funcRes = resolveColorFunc(value, opt);
+      if (isString(funcRes)) {
+        res = funcRes;
+      } else if (Array.isArray(funcRes)) {
+        const [scs, rr, gg, bb, aa] = funcRes as SpecifiedColorChannels;
+        res =
+          aa === 1
+            ? `color(${scs} ${rr} ${gg} ${bb})`
+            : `color(${scs} ${rr} ${gg} ${bb} / ${aa})`;
+      }
     } else {
       const rgb = resolveColorValue(value, opt);
       if (isString(rgb)) {
         res = rgb;
-      } else {
+      } else if (Array.isArray(rgb)) {
         const [scs, rr, gg, bb, aa] = rgb as SpecifiedColorChannels;
         if (scs === 'rgb') {
           res =
@@ -249,28 +240,28 @@ export const resolveColor = (
     }
     value = value.replace(/transparent/g, RGB_TRANSPARENT);
     const resolvedMix = resolveColorMix(value, opt);
-    if (resolvedMix instanceof NullObject) {
-      setCache(cacheKey, resolvedMix);
-      return resolvedMix;
+    if (resolvedMix === null) {
+      setCache(cacheKey, null);
+      return null;
     }
     [cs, r, g, b, alpha] = resolvedMix as ComputedColorChannels;
   } else if (value.startsWith(FN_COLOR)) {
     const resolvedFunc = resolveColorFunc(value, opt);
-    if (resolvedFunc instanceof NullObject) {
-      setCache(cacheKey, resolvedFunc);
-      return resolvedFunc;
+    if (resolvedFunc === null) {
+      setCache(cacheKey, null);
+      return null;
     }
     [cs, r, g, b, alpha] = resolvedFunc as ComputedColorChannels;
   } else if (value) {
     const resolvedVal = resolveColorValue(value, opt);
-    if (resolvedVal instanceof NullObject) {
-      setCache(cacheKey, resolvedVal);
-      return resolvedVal;
+    if (resolvedVal === null) {
+      setCache(cacheKey, null);
+      return null;
     }
     [cs, r, g, b, alpha] = resolvedVal as ComputedColorChannels;
   }
   // 6. Format Finalization
-  let finalRes: string | NullObject = '';
+  let finalRes: string | null = '';
   switch (format) {
     case 'hex':
     case 'hexAlpha': {
@@ -281,7 +272,7 @@ export const resolveColor = (
         Number.isNaN(alpha) ||
         (format === 'hex' && alpha === 0)
       ) {
-        finalRes = new NullObject();
+        finalRes = null;
       } else {
         finalRes = convertRgbToHex([r, g, b, format === 'hex' ? 1 : alpha]);
       }
@@ -314,9 +305,9 @@ export const resolveColor = (
  * resolve CSS color
  * @param value - CSS color value. system colors are not supported
  * @param [opt] - options
+ * @returns resolved value
  */
 export const resolve = (value: string, opt: Options = {}): string | null => {
   opt.nullable = false;
-  const resolvedValue = resolveColor(value, opt);
-  return resolvedValue instanceof NullObject ? null : (resolvedValue as string);
+  return resolveColor(value, opt);
 };
