@@ -49,7 +49,7 @@ const REG_MIX = new RegExp(SYN_MIX);
 /**
  * resolve color
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns resolved color
  */
 export const resolveColor = (
@@ -130,7 +130,7 @@ export const resolveColor = (
   }
   // 3. Relative Color resolution
   if (REG_FN_REL.test(value)) {
-    const resolvedRel = resolveRelativeColor(value, opt);
+    const resolvedRel = resolveRelativeColor(value, opt, resolveColor);
     if (format === VAL_COMP) {
       const res =
         resolvedRel === null && !nullable ? RGB_TRANSPARENT : resolvedRel;
@@ -184,7 +184,7 @@ export const resolveColor = (
     if (currentColor) {
       let resolvedCurrent;
       if (currentColor.startsWith(FN_MIX)) {
-        resolvedCurrent = resolveColorMix(currentColor, opt);
+        resolvedCurrent = resolveColorMix(currentColor, opt, resolveColor);
       } else if (currentColor.startsWith(FN_COLOR)) {
         resolvedCurrent = resolveColorFunc(currentColor, opt);
       } else {
@@ -206,7 +206,7 @@ export const resolveColor = (
   } else if (format === VAL_SPEC) {
     let res = '';
     if (value.startsWith(FN_MIX)) {
-      const mixRes = resolveColorMix(value, opt);
+      const mixRes = resolveColorMix(value, opt, resolveColor);
       res = mixRes ? (mixRes as string) : '';
     } else if (value.startsWith(FN_COLOR)) {
       const funcRes = resolveColorFunc(value, opt);
@@ -245,7 +245,7 @@ export const resolveColor = (
       value = value.replace(/currentcolor/g, currentColor);
     }
     value = value.replace(/transparent/g, RGB_TRANSPARENT);
-    const resolvedMix = resolveColorMix(value, opt);
+    const resolvedMix = resolveColorMix(value, opt, resolveColor);
     if (resolvedMix === null) {
       setCache(cacheKey, null);
       return null;
@@ -310,7 +310,7 @@ export const resolveColor = (
 /**
  * resolve CSS color
  * @param value - CSS color value. system colors are not supported
- * @param [opt] - options
+ * @param opt - options
  * @returns resolved value
  */
 export const resolve = (value: string, opt: Options = {}): string | null => {
@@ -321,7 +321,7 @@ export const resolve = (value: string, opt: Options = {}): string | null => {
 /**
  * is color
  * @param value - CSS value
- * @param [opt] - options
+ * @param opt - options
  * @returns result
  */
 export const isColor = (value: unknown, opt: Options = {}): boolean => {

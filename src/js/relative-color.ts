@@ -12,7 +12,6 @@ import { createCacheKey, getCache, setCache } from './cache';
 import { NAMED_COLORS, convertColorToRgb } from './color';
 import { isString, isStringOrNumber } from './common';
 import { resolveDimension, serializeCalc } from './css-calc-var';
-import { resolveColor } from './resolve';
 import { roundToPrecision, splitValue } from './util';
 import {
   ColorChannels,
@@ -312,12 +311,14 @@ export function resolveColorChannels(
 /**
  * extract origin color
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
+ * @param resolver - resolver function
  * @returns origin color value
  */
 export function extractOriginColor(
   value: string,
-  opt: Options = {}
+  opt: Options = {},
+  resolver: (v: string, o?: Options) => string | null = () => null
 ): string | null {
   const { colorScheme = 'normal', currentColor = '', format = '' } = opt;
   if (isString(value)) {
@@ -361,20 +362,23 @@ export function extractOriginColor(
       .replace(new RegExp(`^${colorSpace}\\(`), '')
       .replace(/\)$/, '');
     const [, originColor = ''] = splitValue(colorParts);
-    const specifiedOriginColor = resolveColor(originColor, {
+    const specifiedOriginColor = resolver(originColor, {
       colorScheme,
       format: VAL_SPEC
     }) as string;
-    if (specifiedOriginColor === '') {
+    if (!specifiedOriginColor) {
       setCache(cacheKey, null);
       return null;
     }
     if (format === VAL_SPEC) {
       value = value.replace(originColor, specifiedOriginColor);
     } else {
-      const resolvedOriginColor = resolveColor(specifiedOriginColor, opt);
+      const resolvedOriginColor = resolver(specifiedOriginColor, opt);
       if (isString(resolvedOriginColor)) {
         value = value.replace(originColor, resolvedOriginColor);
+      } else {
+        setCache(cacheKey, null);
+        return null;
       }
     }
   }
@@ -390,7 +394,7 @@ export function extractOriginColor(
         return null;
       }
     } else if (format === VAL_SPEC) {
-      const resolvedOriginColor = resolveColor(originColor, opt);
+      const resolvedOriginColor = resolver(originColor, opt);
       if (isString(resolvedOriginColor)) {
         value = value.replace(originColor, resolvedOriginColor);
       }
@@ -462,7 +466,8 @@ export function extractOriginColor(
     }
     const resolvedOriginColor = resolveRelativeColor(
       originColor.join('').trim(),
-      opt
+      opt,
+      resolver
     );
     if (resolvedOriginColor === null) {
       setCache(cacheKey, null);
@@ -489,12 +494,14 @@ export function extractOriginColor(
 /**
  * resolve relative color
  * @param value - CSS relative color value
- * @param [opt] - options
+ * @param opt - options
+ * @param resolver - resolver function
  * @returns resolved value
  */
 export function resolveRelativeColor(
   value: string,
-  opt: Options = {}
+  opt: Options = {},
+  resolver: (v: string, o?: Options) => string | null = () => null
 ): string | null {
   const { format = '' } = opt;
   if (isString(value)) {
@@ -523,7 +530,7 @@ export function resolveRelativeColor(
   if (cachedResult !== false) {
     return cachedResult.item as string | null;
   }
-  const originColor = extractOriginColor(value, opt);
+  const originColor = extractOriginColor(value, opt, resolver);
   if (originColor === null) {
     setCache(cacheKey, null);
     return null;

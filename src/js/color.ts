@@ -8,7 +8,6 @@
 
 import { createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { resolveColor } from './resolve';
 import { interpolateHue, roundToPrecision, splitValue } from './util';
 import {
   ColorChannels,
@@ -406,13 +405,13 @@ export const resolveInvalidColorValue = (
 /**
  * validate color components
  * @param arr - color components
- * @param [opt] - options
- * @param [opt.alpha] - alpha channel
- * @param [opt.minLength] - min length
- * @param [opt.maxLength] - max length
- * @param [opt.minRange] - min range
- * @param [opt.maxRange] - max range
- * @param [opt.validateRange] - validate range
+ * @param opt - options
+ * @param opt.alpha - alpha channel
+ * @param opt.minLength - min length
+ * @param opt.maxLength - max length
+ * @param opt.minRange - min range
+ * @param opt.maxRange - max range
+ * @param opt.validateRange - validate range
  * @returns result - validated color components
  */
 export const validateColorComponents = (
@@ -1238,7 +1237,7 @@ export const convertHexToXyz = (value: string): ColorChannels => {
 /**
  * parse rgb()
  * @param value - rgb color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
  */
 export const parseRgb = (
@@ -1300,7 +1299,7 @@ export const parseRgb = (
 /**
  * parse hsl()
  * @param value - hsl color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
  */
 export const parseHsl = (
@@ -1371,7 +1370,7 @@ export const parseHsl = (
 /**
  * parse hwb()
  * @param value - hwb color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
  */
 export const parseHwb = (
@@ -1442,7 +1441,7 @@ export const parseHwb = (
 /**
  * parse lab()
  * @param value - lab color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color
  *   - [xyz-d50, x, y, z, alpha], ['lab', l, a, b, alpha], '(empty)', null
  */
@@ -1531,7 +1530,7 @@ export const parseLab = (
 /**
  * parse lch()
  * @param value - lch color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color
  *   - ['xyz-d50', x, y, z, alpha], ['lch', l, c, h, alpha], '(empty)', null
  */
@@ -1601,7 +1600,7 @@ export const parseLch = (
 /**
  * parse oklab()
  * @param value - oklab color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color
  *   - ['xyz-d65', x, y, z, alpha], ['oklab', l, a, b, alpha], '(empty)', null
  */
@@ -1675,7 +1674,7 @@ export const parseOklab = (
 /**
  * parse oklch()
  * @param value - oklch color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color
  *   - ['xyz-d65', x, y, z, alpha], ['oklch', l, c, h, alpha], '(empty)', null
  */
@@ -1754,7 +1753,7 @@ export const parseOklch = (
 /**
  * parse color()
  * @param value - color function value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color
  *   - ['xyz-(d50|d65)', x, y, z, alpha], [cs, r, g, b, alpha], '(empty)', null
  */
@@ -1904,7 +1903,7 @@ export const parseColorFunc = (
 /**
  * parse color value
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns parsed color
  *   - ['xyz-(d50|d65)', x, y, z, alpha], ['rgb', r, g, b, alpha]
  *   - value, '(empty)', null
@@ -2058,7 +2057,7 @@ export const parseColorValue = (
 /**
  * resolve color value
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns resolved color
  *   - [cs, v1, v2, v3, alpha], value, '(empty)', null
  */
@@ -2216,7 +2215,7 @@ export const resolveColorValue = (
 /**
  * resolve color()
  * @param value - color function value
- * @param [opt] - options
+ * @param opt - options
  * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', null
  */
 export const resolveColorFunc = (
@@ -2275,7 +2274,7 @@ export const resolveColorFunc = (
 /**
  * convert color value to linear rgb
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [r, g, b, alpha] r|g|b|alpha: 0..1
  */
 export const convertColorToLinearRgb = (
@@ -2334,7 +2333,7 @@ export const convertColorToLinearRgb = (
 /**
  * convert color value to rgb
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [r, g, b, alpha] r|g|b: 0..255 alpha: 0..1
  */
 export const convertColorToRgb = (
@@ -2386,7 +2385,7 @@ export const convertColorToRgb = (
 /**
  * convert color value to xyz
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [x, y, z, alpha]
  */
 export const convertColorToXyz = (
@@ -2441,7 +2440,7 @@ export const convertColorToXyz = (
 /**
  * convert color value to hsl
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [h, s, l, alpha], hue may be powerless
  */
 export const convertColorToHsl = (
@@ -2491,7 +2490,7 @@ export const convertColorToHsl = (
 /**
  * convert color value to hwb
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [h, w, b, alpha], hue may be powerless
  */
 export const convertColorToHwb = (
@@ -2541,7 +2540,7 @@ export const convertColorToHwb = (
 /**
  * convert color value to lab
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [l, a, b, alpha]
  */
 export const convertColorToLab = (
@@ -2590,7 +2589,7 @@ export const convertColorToLab = (
 /**
  * convert color value to lch
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [l, c, h, alpha], hue may be powerless
  */
 export const convertColorToLch = (
@@ -2639,7 +2638,7 @@ export const convertColorToLch = (
 /**
  * convert color value to oklab
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [l, a, b, alpha]
  */
 export const convertColorToOklab = (
@@ -2683,7 +2682,7 @@ export const convertColorToOklab = (
 /**
  * convert color value to oklch
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns ColorChannels | null - [l, c, h, alpha], hue may be powerless
  */
 export const convertColorToOklch = (
@@ -2727,12 +2726,14 @@ export const convertColorToOklch = (
 /**
  * resolve color-mix()
  * @param value - color-mix color value
- * @param [opt] - options
+ * @param opt - options
+ * @param resolver - resolver function
  * @returns resolved color - [cs, v1, v2, v3, alpha], '(empty)', null
  */
 export const resolveColorMix = (
   value: string,
-  opt: Options = {}
+  opt: Options = {},
+  resolver: (v: string, o?: Options) => string | null = () => null
 ): SpecifiedColorChannels | string | null => {
   if (isString(value)) {
     value = value.toLowerCase().trim();
@@ -2766,9 +2767,13 @@ export const resolveColorMix = (
       const items = value.match(REG_MIX_NEST) as RegExpMatchArray;
       for (const item of items) {
         if (item) {
-          let val = resolveColorMix(item, {
-            format: format === VAL_SPEC ? format : VAL_COMP
-          }) as ComputedColorChannels | string;
+          let val = resolveColorMix(
+            item,
+            {
+              format: format === VAL_SPEC ? format : VAL_COMP
+            },
+            resolver
+          ) as ComputedColorChannels | string;
           // computed value
           if (Array.isArray(val)) {
             const [cs, v1, v2, v3, v4] = val as ComputedColorChannels;
@@ -2811,10 +2816,10 @@ export const resolveColorMix = (
       });
       const [colorPartA = '', pctPartA = ''] = splitValue(partA);
       const [colorPartB = '', pctPartB = ''] = splitValue(partB);
-      const specifiedColorA = resolveColor(colorPartA, {
+      const specifiedColorA = resolver(colorPartA, {
         format: VAL_SPEC
       }) as string;
-      const specifiedColorB = resolveColor(colorPartB, {
+      const specifiedColorB = resolver(colorPartB, {
         format: VAL_SPEC
       }) as string;
       if (REG_MIX_IN_CS.test(csPart) && specifiedColorA && specifiedColorB) {
@@ -2838,8 +2843,8 @@ export const resolveColorMix = (
             .replace(colorPartB, specifiedColorB);
           parsed = true;
         } else {
-          const resolvedColorA = resolveColor(colorPartA, opt);
-          const resolvedColorB = resolveColor(colorPartB, opt);
+          const resolvedColorA = resolver(colorPartA, opt);
+          const resolvedColorB = resolver(colorPartB, opt);
           if (isString(resolvedColorA) && isString(resolvedColorB)) {
             value = value
               .replace(colorPartA, resolvedColorA)
