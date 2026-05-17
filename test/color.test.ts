@@ -7,6 +7,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { genCache } from '../src/js/cache';
+import { resolveColor } from '../src/js/resolve';
 import * as color from '../src/js/color';
 
 beforeEach(() => {
@@ -6803,7 +6804,24 @@ describe('convert color value to oklch', () => {
 });
 
 describe('resolve color-mix()', () => {
-  const func = color.resolveColorMix;
+  const func = (val: string, opt?: any) =>
+    color.resolveColorMix(val, opt, resolveColor);
+
+  it('should get fallback value when resolver is not provided', () => {
+    const res = color.resolveColorMix(
+      'color-mix(in srgb, light-dark(red, green), blue)',
+      { format: 'computedValue' }
+    );
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get empty string when resolver is not provided', () => {
+    const res = color.resolveColorMix(
+      'color-mix(in srgb, light-dark(red, green), blue)',
+      { format: 'specifiedValue' }
+    );
+    assert.strictEqual(res, '', 'result');
+  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string');

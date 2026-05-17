@@ -8,6 +8,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { genCache } from '../src/js/cache';
+import { resolveColor } from '../src/js/resolve';
 import * as relColor from '../src/js/relative-color';
 
 beforeEach(() => {
@@ -108,7 +109,16 @@ describe('resolve relative color channels', () => {
 });
 
 describe('extract origin color', () => {
-  const func = relColor.extractOriginColor;
+  const func = (val: string, opt?: any) =>
+    relColor.extractOriginColor(val, opt, resolveColor);
+
+  it('should get fallback value when resolver is not provided', () => {
+    const res = relColor.extractOriginColor(
+      'rgb(from light-dark(green, red) r g b)',
+      { format: 'computedValue' }
+    );
+    assert.strictEqual(res, null, 'result');
+  });
 
   it('should get null object', () => {
     const res = func();
@@ -389,7 +399,45 @@ describe('extract origin color', () => {
 });
 
 describe('resolve relative color', () => {
-  const func = relColor.resolveRelativeColor;
+  const func = (val: string, opt?: any) =>
+    relColor.resolveRelativeColor(val, opt, resolveColor);
+
+  it('should get value even without resolver', () => {
+    const res = relColor.resolveRelativeColor('rgb(from currentColor r g b)', {
+      currentColor: 'rebeccapurple'
+    });
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
+
+  it('should get fallback value when resolver is not provided', () => {
+    const res = relColor.resolveRelativeColor('rgb(from currentColor r g b)', {
+      currentColor: 'unknowncolor'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get fallback value when resolver is not provided', () => {
+    const res = relColor.resolveRelativeColor(
+      'rgb(from light-dark(green, red) r g b)',
+      { format: 'computedValue' }
+    );
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null when resolvedOriginColor is not a string', () => {
+    const mockResolver = (v: string, o?: any) => {
+      if (o?.format === 'specifiedValue') {
+        return 'light-dark(green, red)';
+      }
+      return null;
+    };
+    const res = relColor.extractOriginColor(
+      'rgb(from light-dark(green, red) r g b)',
+      { format: 'computedValue' },
+      mockResolver
+    );
+    assert.strictEqual(res, null, 'result');
+  });
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
