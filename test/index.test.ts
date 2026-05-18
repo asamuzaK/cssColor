@@ -36,6 +36,13 @@ describe('resolve CSS color', () => {
     });
     assert.strictEqual(res, '#00800080', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('hsl(calc(var(--base-hue) * 3) 100% 50% / .5)', {
+      customProperty: { '--base-hue': '210deg' }
+    });
+    assert.strictEqual(res, 'rgba(128, 0, 255, 0.5)', 'result');
+  });
 });
 
 describe('convert', () => {
