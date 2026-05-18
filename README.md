@@ -86,33 +86,35 @@ Resolves a CSS color string into its computed or specified value. System colors 
 
 A collection of color conversion utilities.
 
-| Function                             | Returns          | Options                                                | Description                                                        |
-| :----------------------------------- | :--------------- | :----------------------------------------------------- | :----------------------------------------------------------------- |
-| `convert.colorToHex(value, opt?)`    | `string \| null` | `opt.alpha` `<boolean>`<br>_(+ see `resolve` options)_ | Returns `#rrggbb` or `#rrggbbaa` (if `opt.alpha` is true).         |
-| `convert.colorToHsl(value, opt?)`    | `number[]`       | _See `resolve` options_                                | Converts to HSL channels: `[h, s, l, alpha]`                       |
-| `convert.colorToHwb(value, opt?)`    | `number[]`       | _See `resolve` options_                                | Converts to HWB channels: `[h, w, b, alpha]`                       |
-| `convert.colorToLab(value, opt?)`    | `number[]`       | _See `resolve` options_                                | Converts to CIE LAB channels: `[l, a, b, alpha]`                   |
-| `convert.colorToLch(value, opt?)`    | `number[]`       | _See `resolve` options_                                | Converts to CIE LCH channels: `[l, c, h, alpha]`                   |
-| `convert.colorToOklab(value, opt?)`  | `number[]`       | _See `resolve` options_                                | Converts to Oklab channels: `[l, a, b, alpha]`                     |
-| `convert.colorToOklch(value, opt?)`  | `number[]`       | _See `resolve` options_                                | Converts to Oklch channels: `[l, c, h, alpha]`                     |
-| `convert.colorToRgb(value, opt?)`    | `number[]`       | _See `resolve` options_                                | Converts to sRGB channels: `[r, g, b, alpha]`                      |
-| `convert.colorToXyz(value, opt?)`    | `number[]`       | _See `resolve` options_                                | Converts to CIE XYZ channels (defaults to D65): `[x, y, z, alpha]` |
-| `convert.colorToXyzD50(value, opt?)` | `number[]`       | _See `resolve` options_                                | Converts to CIE XYZ channels with D50 white point.                 |
+<!-- prettier-ignore -->
+| Function | Returns | Options | Description |
+| :-------------- | :-------------- | :-------------- | :-------------- |
+| `convert.colorToHex(value, opt?)` | `string \| null` | `opt.alpha` `<boolean>`<br>_(+ see `resolve` options)_ | Returns `#rrggbb` or `#rrggbbaa` (if `opt.alpha` is true). |
+| `convert.colorToHsl(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to HSL channels: `[h, s, l, alpha]` |
+| `convert.colorToHwb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to HWB channels: `[h, w, b, alpha]` |
+| `convert.colorToLab(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE LAB channels: `[l, a, b, alpha]` |
+| `convert.colorToLch(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE LCH channels: `[l, c, h, alpha]` |
+| `convert.colorToOklab(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Oklab channels: `[l, a, b, alpha]` |
+| `convert.colorToOklch(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Oklch channels: `[l, c, h, alpha]` |
+| `convert.colorToRgb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to sRGB channels: `[r, g, b, alpha]` |
+| `convert.colorToXyz(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE XYZ channels (defaults to D65): `[x, y, z, alpha]` |
+| `convert.colorToXyzD50(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE XYZ channels with D50 white point. |
 
 ### `utils`
 
 Helpful internal tools exposed for advanced usage, parsing, and validation.
 
-| Function                                         | Returns    | Options (`opt`)                                                 | Description                                                         |
-| :----------------------------------------------- | :--------- | :-------------------------------------------------------------- | :------------------------------------------------------------------ |
-| `utils.cssCalc(value, opt?)`                     | `string`   | `opt.dimension`<br>_(+ see `resolve` options)_                  | Resolves CSS `calc()` expressions.                                  |
-| `utils.cssVar(value, opt?)`                      | `string`   | `opt.customProperty`<br>_(+ see `resolve` options)_             | Resolves CSS `var()` expressions.                                   |
-| `utils.extractDashedIdent(value)`                | `string[]` | _None_                                                          | Extracts custom property names (dashed-ident tokens) from a value.  |
-| `utils.isColor(value, opt?)`                     | `boolean`  | _See `resolve` options_                                         | Returns `true` if the string is a valid CSS color.                  |
-| `utils.isGradient(value, opt?)`                  | `boolean`  | _See `resolve` options_                                         | Returns `true` if the string is a valid CSS gradient.               |
-| `utils.resolveGradient(value, opt?)`             | `string`   | _See `resolve` options_                                         | Resolves CSS gradient strings.                                      |
-| `utils.resolveLengthInPixels(value, unit, opt?)` | `number`   | `opt.dimension`<br>_(+ see `resolve` options)_                  | Converts an absolute or relative CSS length to pixels.              |
-| `utils.splitValue(value, opt?)`                  | `string[]` | `opt.delimiter` `<string>`<br>`opt.preserveComment` `<boolean>` | Safely splits a CSS value by a specified delimiter (` `, `,`, `/`). |
+<!-- prettier-ignore -->
+| Function | Returns | Options (`opt`) | Description |
+| :-------------- | :-------------- | :-------------- | :-------------- |
+| `utils.cssCalc(value, opt?)` | `string` | `opt.dimension`<br>_(+ see `resolve` options)_ | Resolves CSS `calc()` expressions. |
+| `utils.cssVar(value, opt?)` | `string` | `opt.customProperty`<br>_(+ see `resolve` options)_ | Resolves CSS `var()` expressions. |
+| `utils.extractDashedIdent(value)` | `string[]` | _None_ | Extracts custom property names (dashed-ident tokens) from a value. |
+| `utils.isColor(value, opt?)` | `boolean` | _See `resolve` options_ | Returns `true` if the string is a valid CSS color. |
+| `utils.isGradient(value, opt?)` | `boolean` | _See `resolve` options_ | Returns `true` if the string is a valid CSS gradient. |
+| `utils.resolveGradient(value, opt?)` | `string` | _See `resolve` options_ | Resolves CSS gradient strings. |
+| `utils.resolveLengthInPixels(value, unit, opt?)` | `number` | `opt.dimension`<br>_(+ see `resolve` options)_ | Converts an absolute or relative CSS length to pixels. |
+| `utils.splitValue(value, opt?)` | `string[]` | `opt.delimiter` `<string>`<br>`opt.preserveComment` `<boolean>` | Safely splits a CSS value by a specified delimiter (` `, `,`, `/`). |
 
 ## Acknowledgments
 
