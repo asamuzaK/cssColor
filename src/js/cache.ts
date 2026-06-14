@@ -27,7 +27,9 @@ export class CacheItem {
 /*
  * generational cache instance
  */
-export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE);
+export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE, {
+  strictValidate: false
+});
 
 /**
  * set cache
