@@ -14,17 +14,17 @@ The following versions of this project are currently supported with security upd
 
 ## Reporting a Vulnerability
 
-Please **DO NOT** open a public issue for security-related vulnerabilities. 
+Please **DO NOT** open a public issue for security-related vulnerabilities.
 
 If you discover a security vulnerability, please report it privately via **GitHub's Private vulnerability reporting** feature.
 You can do this by navigating to the **Security** tab of this repository, selecting **Advisories**, and clicking the **Report a vulnerability** button.
 
 To help us resolve the issue efficiently, please include the following details in your report:
 
-* **Type of vulnerability** (e.g., XSS, SSRF, Prototype Pollution)
-* **Affected component or file name**
-* **Steps to reproduce** (including proof of concept / PoC code if available)
-* **Potential impact** of the vulnerability
+- **Type of vulnerability** (e.g., XSS, SSRF, Prototype Pollution)
+- **Affected component or file name**
+- **Steps to reproduce** (including proof of concept / PoC code if available)
+- **Potential impact** of the vulnerability
 
 ### Our Response Process
 
