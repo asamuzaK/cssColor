@@ -23,19 +23,19 @@ describe('generational cache', () => {
   it('should set max cache size and clear cache', () => {
     const genCache = new GenerationalCache(2);
     genCache.set('foo', 'bar');
-    assert.strictEqual(genCache.size, 1, 'cache is added');
+    assert.strictEqual(genCache.entryCount, 1, 'cache is added');
     genCache.max = 5;
     assert.strictEqual(genCache.max, 5, 'max cache size should be given value');
-    assert.strictEqual(genCache.size, 0, 'cache is cleared');
+    assert.strictEqual(genCache.entryCount, 0, 'cache is cleared');
   });
 
   it('should set max cache size and clear cache', () => {
     const genCache = new GenerationalCache(5);
     genCache.set('foo', 'bar');
-    assert.strictEqual(genCache.size, 1, 'cache is added');
+    assert.strictEqual(genCache.entryCount, 1, 'cache is added');
     genCache.max = 2;
     assert.strictEqual(genCache.max, 4, 'max cache size should be 4');
-    assert.strictEqual(genCache.size, 0, 'cache is cleared');
+    assert.strictEqual(genCache.entryCount, 0, 'cache is cleared');
   });
 
   it('should be within max cache size', () => {
@@ -44,11 +44,15 @@ describe('generational cache', () => {
     const sizes = [];
     for (let i = 1; i < 20; i++) {
       genCache.set(`key${i}`, i);
-      sizes.push(genCache.size);
+      sizes.push(genCache.entryCount);
       if (i < genCache.max) {
-        assert.strictEqual(genCache.size, i, `${i}`);
+        assert.strictEqual(genCache.entryCount, i, `${i}`);
       } else {
-        assert.strictEqual(genCache.size, (i % boundary) + boundary, `${i}`);
+        assert.strictEqual(
+          genCache.entryCount,
+          (i % boundary) + boundary,
+          `${i}`
+        );
       }
     }
     assert.deepEqual(

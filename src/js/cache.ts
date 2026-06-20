@@ -6,7 +6,7 @@ import { GenerationalCache } from '@asamuzakjp/generational-cache';
 import { Options } from './typedef';
 
 /* constants */
-const CACHE_SIZE = 2048;
+const CACHE_SIZE = 1024;
 
 /**
  * CacheItem
@@ -28,6 +28,7 @@ export class CacheItem {
  * generational cache instance
  */
 export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE, {
+  cacheFunction: true,
   strictValidate: false
 });
 

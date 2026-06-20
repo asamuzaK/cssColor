@@ -25,21 +25,21 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@asamuzakjp/generational-cache": "^2.0.4",
+    "@asamuzakjp/generational-cache": "^3.0.1",
     "@csstools/css-calc": "^3.2.1",
-    "@csstools/css-color-parser": "^4.1.5",
+    "@csstools/css-color-parser": "^4.1.8",
     "@csstools/css-parser-algorithms": "^4.0.0",
     "@csstools/css-tokenizer": "^4.0.0"
   },
   "devDependencies": {
     "@tanstack/vite-config": "^0.5.2",
-    "@types/node": "^25.9.3",
-    "@vitest/coverage-istanbul": "^4.1.8",
+    "@types/node": "^25.9.4",
+    "@vitest/coverage-istanbul": "^4.1.9",
     "esbuild": "^0.28.1",
     "eslint": "^9.39.4",
     "eslint-plugin-regexp": "^3.1.0",
     "globals": "^17.6.0",
-    "knip": "^6.16.1",
+    "knip": "^6.17.1",
     "mitata": "^1.0.34",
     "neostandard": "^0.13.0",
     "prettier": "^3.8.4",
@@ -48,7 +48,7 @@
     "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.9"
   },
   "packageManager": "pnpm@10.33.2",
   "pnpm": {
