@@ -1162,14 +1162,12 @@ export const convertHexToRgb = (value: string): ColorChannels => {
   } else {
     throw new TypeError(`${value} is not a string.`);
   }
-  if (
-    !(
-      /^#[\da-f]{6}$/.test(value) ||
-      /^#[\da-f]{3}$/.test(value) ||
-      /^#[\da-f]{8}$/.test(value) ||
-      /^#[\da-f]{4}$/.test(value)
-    )
-  ) {
+  if (!(
+    /^#[\da-f]{6}$/.test(value) ||
+    /^#[\da-f]{3}$/.test(value) ||
+    /^#[\da-f]{8}$/.test(value) ||
+    /^#[\da-f]{4}$/.test(value)
+  )) {
     throw new SyntaxError(`Invalid property value: ${value}`);
   }
   const arr: number[] = [];
