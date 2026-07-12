@@ -2,7 +2,7 @@
  * cache
  */
 
-import { GenerationalCache } from '@asamuzakjp/generational-cache';
+import { LRUCache } from 'lru-cache';
 import { Options } from './typedef';
 
 /* constants */
@@ -25,11 +25,10 @@ export class CacheItem {
 }
 
 /*
- * generational cache instance
+ * lru cache instance
  */
-export const genCache = new GenerationalCache<string, CacheItem>(CACHE_SIZE, {
-  cacheFunction: true,
-  strictValidate: false
+export const lruCache = new LRUCache<string, CacheItem>({
+  max: CACHE_SIZE
 });
 
 /**
@@ -43,9 +42,9 @@ export const setCache = (key: string, value: unknown): void => {
     return;
   }
   if (value instanceof CacheItem) {
-    genCache.set(key, value);
+    lruCache.set(key, value);
   } else {
-    genCache.set(key, new CacheItem(value));
+    lruCache.set(key, new CacheItem(value));
   }
 };
 
@@ -58,7 +57,7 @@ export const getCache = (key: string): CacheItem | false => {
   if (!key) {
     return false;
   }
-  const item = genCache.get(key);
+  const item = lruCache.get(key);
   if (item !== undefined) {
     return item as CacheItem;
   }
