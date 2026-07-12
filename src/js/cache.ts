@@ -6,7 +6,7 @@ import { LRUCache } from 'lru-cache';
 import { Options } from './typedef';
 
 /* constants */
-const CACHE_SIZE = 2048;
+const CACHE_SIZE = 4096;
 
 /**
  * CacheItem
