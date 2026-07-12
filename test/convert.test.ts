@@ -7,14 +7,14 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import * as convert from '../src/js/convert.js';
-import { genCache } from '../src/js/cache.js';
+import { lruCache } from '../src/js/cache.js';
 
 beforeEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 afterEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 describe('pre process', () => {

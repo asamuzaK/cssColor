@@ -6,15 +6,15 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { genCache } from '../src/js/cache';
+import { lruCache } from '../src/js/cache';
 import * as css from '../src/js/css-calc-var';
 
 beforeEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 afterEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 describe('Calculator', () => {

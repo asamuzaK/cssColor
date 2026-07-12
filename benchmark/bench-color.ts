@@ -7,12 +7,12 @@ import { run, bench, group } from 'mitata';
 import { resolve } from '../src/js/resolve.ts';
 
 // 1. Get arguments from command line
-let cacheSize = 4096; // Default
+let cacheSize = 4096; // Default; not configurable at the moment.
 let totalColors = 1000; // Default
 
 process.argv.forEach(arg => {
   if (arg.startsWith('--size=')) {
-    cacheSize = parseInt(arg.split('=')[1], 10);
+    return;
   } else if (arg.startsWith('--colors=')) {
     totalColors = parseInt(arg.split('=')[1], 10);
   }

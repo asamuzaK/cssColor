@@ -7,16 +7,16 @@ import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { genCache } from '../src/js/cache';
+import { lruCache } from '../src/js/cache';
 import { resolveColor } from '../src/js/resolve';
 import * as relColor from '../src/js/relative-color';
 
 beforeEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 afterEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 describe('resolve relative color channels', () => {

@@ -21,9 +21,6 @@ importers:
 
   .:
     dependencies:
-      '@asamuzakjp/generational-cache':
-        specifier: ^3.0.1
-        version: 3.0.1
       '@csstools/css-calc':
         specifier: ^3.2.1
         version: 3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
@@ -36,6 +33,9 @@ importers:
       '@csstools/css-tokenizer':
         specifier: ^4.0.0
         version: 4.0.0
+      lru-cache:
+        specifier: ^11.5.2
+        version: 11.5.2
     devDependencies:
       '@tanstack/vite-config':
         specifier: ^0.5.2
@@ -90,10 +90,6 @@ importers:
         version: 4.1.10(@types/node@26.1.1)(@vitest/coverage-istanbul@4.1.10)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.0)(yaml@2.9.0))
 
 packages:
-
-  '@asamuzakjp/generational-cache@3.0.1':
-    resolution: {integrity: sha512-dI+Zi9yaDkBZpAgXxRowS6rJY4s4mg55XxZiSQSgoVya4vLKABv5+T+7+IHFC4I5LuC8PRfkQkDhXnvmMTC0Tg==}
-    engines: {node: ^22.13.0 || >=24.0.0}
 
   '@babel/code-frame@7.29.7':
     resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
@@ -2644,8 +2640,6 @@ packages:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
-
-  '@asamuzakjp/generational-cache@3.0.1': {}
 
   '@babel/code-frame@7.29.7':
     dependencies:

@@ -7,15 +7,15 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import * as api from '../src/js/resolve';
-import { genCache } from '../src/js/cache';
+import { lruCache } from '../src/js/cache';
 import { parseColorValue } from '../src/js/color';
 
 beforeEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 afterEach(() => {
-  genCache.clear();
+  lruCache.clear();
 });
 
 describe('resolve CSS color', () => {
