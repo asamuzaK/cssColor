@@ -1781,6 +1781,20 @@ describe('CSS calc()', () => {
     });
     assert.strictEqual(res2, 'calc(0.666667)', 'result');
   });
+
+  it('should get value', () => {
+    const res = func('min(180px, calc(80vw - 24px))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'min(180px, calc(80vw - 24px))', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('max(10px, calc(1vw + 1px))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'max(10px, calc(1vw + 1px))', 'result');
+  });
 });
 
 describe('serialize calc edge cases', () => {

@@ -713,21 +713,24 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
       flatItems.push(item);
     }
   }
+  const hasComma = flatItems.includes(',');
   if (isRoot) {
-    if (flatItems.length >= TRIA) {
+    if (flatItems.length >= TRIA && !hasComma) {
       return sortCalcValues(flatItems, true);
     }
-    const joined = flatItems.join('');
-    return joined.startsWith('calc(') ? joined : `calc(${joined})`;
+    const joined = flatItems.join('').replace(/,\s*/g, ', ');
+    return joined.startsWith('calc(') || /^[a-z-]+\(/.test(joined)
+      ? joined
+      : `calc(${joined})`;
   }
-  if (flatItems.length >= TRIA) {
+  if (flatItems.length >= TRIA && !hasComma) {
     let serialized = sortCalcValues(flatItems, false);
     if (REG_FN_VAR_START.test(serialized)) {
       serialized = calc(serialized, { toCanonicalUnits: true });
     }
     return serialized;
   }
-  return flatItems.join('');
+  return flatItems.join('').replace(/,\s*/g, ', ');
 };
 
 /**
@@ -810,12 +813,14 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
           flatItems.push(item);
         }
       }
-      if (flatItems.length >= TRIA) {
+      const hasComma = flatItems.includes(',');
+      if (flatItems.length >= TRIA && !hasComma) {
         serializedCalc = sortCalcValues(flatItems, true);
       } else {
         const firstItem = flatItems[0] || '';
         serializedCalc =
-          isString(firstItem) && firstItem.startsWith('calc(')
+          isString(firstItem) &&
+          (firstItem.startsWith('calc(') || /^[a-z-]+\(/.test(firstItem))
             ? firstItem
             : `calc(${firstItem})`;
       }
