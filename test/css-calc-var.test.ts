@@ -1786,14 +1786,14 @@ describe('CSS calc()', () => {
     const res = func('min(180px, calc(80vw - 24px))', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'min(180px, calc(80vw - 24px))', 'result');
+    assert.strictEqual(res, 'min(180px, -24px + 80vw)', 'result');
   });
 
   it('should get value', () => {
     const res = func('max(10px, calc(1vw + 1px))', {
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, 'max(10px, calc(1vw + 1px))', 'result');
+    assert.strictEqual(res, 'max(10px, 1px + 1vw)', 'result');
   });
 });
 
