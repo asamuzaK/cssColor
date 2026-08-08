@@ -1795,6 +1795,56 @@ describe('CSS calc()', () => {
     });
     assert.strictEqual(res, 'max(10px, 1px + 1vw)', 'result');
   });
+
+  it('should resolve and sort subtraction directly inside math functions', () => {
+    const res = func('min(180px, 80vw - 24px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'min(180px, -24px + 80vw)', 'result');
+  });
+
+  it('should unwrap calc() and sort subtraction inside math functions', () => {
+    const res = func('max(10px, calc(1vw - 1px))', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'max(10px, -1px + 1vw)', 'result');
+  });
+
+  it('should handle addition without breaking regex replacement', () => {
+    const res = func('clamp(10px, calc(50vw + 20px), 100px)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'clamp(10px, 20px + 50vw, 100px)', 'result');
+  });
+
+  it('should apply both branches correctly in a complex math function', () => {
+    const res = func(
+      'clamp(calc(10vw - 5px), 100vw - 20px, calc(50vw - 10px))',
+      {
+        format: 'specifiedValue'
+      }
+    );
+    assert.strictEqual(
+      res,
+      'clamp(-5px + 10vw, -20px + 100vw, -10px + 50vw)',
+      'result'
+    );
+  });
+
+  it('should not wrap if it starts with an unknown math function', () => {
+    const res = func('some-fn(1px, 2px)', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'some-fn(1px, 2px)', 'result');
+  });
+
+  it('should not wrap if it is an empty unknown function', () => {
+    const res = func('some-fn()', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'some-fn()', 'result');
+  });
+
+  it('should not double-wrap if it already starts with calc(', () => {
+    const res = func('calc(1px, 2px)', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(1px, 2px)', 'result');
+  });
 });
 
 describe('serialize calc edge cases', () => {
@@ -1826,6 +1876,16 @@ describe('serialize calc edge cases', () => {
       Error,
       'Unexpected token 1.'
     );
+  });
+
+  it('should join and format comma-separated values inside calc()', () => {
+    const res = func('calc(1px,   2px)', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(1px, 2px)', 'result');
+  });
+
+  it('should join and format incomplete comma math function', () => {
+    const res = func('min(1px,   2px', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'min(1px, 2px', 'result');
   });
 });
 

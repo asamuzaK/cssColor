@@ -719,10 +719,8 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
   }
   const hasComma = flatItems.includes(',');
   const firstItem = flatItems[0] || '';
-  const isMathFn = isString(firstItem) && /^[a-z-]+\(/i.test(firstItem);
-  const isCommaMathFn =
-    isString(firstItem) && REG_FN_MATH_START.test(firstItem);
-  if (hasComma && isCommaMathFn && flatItems[flatItems.length - 1] === ')') {
+  const isMathFn = isString(firstItem) && REG_FN_MATH_START.test(firstItem);
+  if (hasComma && isMathFn && flatItems[flatItems.length - 1] === ')') {
     const fnName = flatItems.shift() as string;
     const fnEnd = flatItems.pop() as string;
     const args: string[][] = [];
@@ -774,8 +772,7 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
         ? first
         : `calc(${first})`;
     }
-    const joined = flatItems.join('').replace(/,\s*/g, ', ');
-    return joined.startsWith('calc(') || isMathFn ? joined : `calc(${joined})`;
+    return flatItems.join('').replace(/,\s*/g, ', ');
   }
   if (flatItems.length >= TRIA && !hasComma) {
     let serialized = sortCalcValues(flatItems, false);
