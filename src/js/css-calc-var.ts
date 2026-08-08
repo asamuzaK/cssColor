@@ -6,7 +6,7 @@ import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { createCacheKey, getCache, setCache } from './cache';
 import { isString, isStringOrNumber } from './common';
-import { isColor } from './resolve'; // 👈 先ほど移動した isColor
+import { isColor } from './resolve';
 import { resolveLengthInPixels, roundToPrecision } from './util';
 import { MatchedRegExp, Options } from './typedef';
 
@@ -52,6 +52,7 @@ const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
 const REG_CSS_WIDE_KEYWORD = /^(?:inherit|initial|revert(?:-layer)?|unset)$/;
+const REG_SORT_MINUS = /^(\S+)\s+-\s+(\S+)$/;
 
 /**
  * @type CalcASTNode - AST node for calc()
@@ -705,23 +706,76 @@ export const sortCalcValues = (
  * @returns resolved value
  */
 const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
+  const firstItemRaw = node[0];
+  const isCommaMathFnNode =
+    isString(firstItemRaw) && REG_FN_MATH_START.test(firstItemRaw);
   const flatItems: string[] = [];
   for (const item of node) {
     if (Array.isArray(item)) {
-      flatItems.push(resolveNode(item, false));
+      flatItems.push(resolveNode(item, isCommaMathFnNode));
     } else {
       flatItems.push(item);
     }
   }
   const hasComma = flatItems.includes(',');
+  const firstItem = flatItems[0] || '';
+  const isMathFn = isString(firstItem) && /^[a-z-]+\(/i.test(firstItem);
+  const isCommaMathFn =
+    isString(firstItem) && REG_FN_MATH_START.test(firstItem);
+  if (hasComma && isCommaMathFn && flatItems[flatItems.length - 1] === ')') {
+    const fnName = flatItems.shift() as string;
+    const fnEnd = flatItems.pop() as string;
+    const args: string[][] = [];
+    let currentArg: string[] = [];
+    for (const item of flatItems) {
+      if (item === ',') {
+        args.push(currentArg);
+        currentArg = [];
+      } else {
+        currentArg.push(item);
+      }
+    }
+    if (currentArg.length) {
+      args.push(currentArg);
+    }
+    const resolvedArgs = args.map(argNodes => {
+      if (argNodes.length >= TRIA) {
+        const temp = ['calc(', ...argNodes, ')'];
+        const sorted = sortCalcValues(temp, true);
+        let unwrapped = sorted.substring(5, sorted.length - 1);
+        unwrapped = unwrapped.replace(REG_SORT_MINUS, '-$2 + $1');
+        return unwrapped;
+      } else if (argNodes.length === 1) {
+        const item = argNodes[0];
+        if (isString(item) && item.startsWith('calc(') && item.endsWith(')')) {
+          let unwrapped = item.substring(5, item.length - 1);
+          unwrapped = unwrapped.replace(REG_SORT_MINUS, '-$2 + $1');
+          return unwrapped;
+        }
+      }
+      return argNodes.join('');
+    });
+    return `${fnName}${resolvedArgs.join(', ')}${fnEnd}`;
+  }
   if (isRoot) {
-    if (flatItems.length >= TRIA && !hasComma) {
-      return sortCalcValues(flatItems, true);
+    if (!hasComma) {
+      if (flatItems.length >= TRIA) {
+        return sortCalcValues(flatItems, true);
+      }
+      const first = flatItems[0] || '';
+      if (isString(first) && first.endsWith('(')) {
+        const joined = flatItems.join('');
+        return joined.startsWith('calc(') || /^[a-z-]+\(/.test(joined)
+          ? joined
+          : `calc(${joined})`;
+      }
+      return isString(first) &&
+        (first.startsWith('calc(') || /^[a-z-]+\(/.test(first))
+        ? first
+        : `calc(${first})`;
     }
     const joined = flatItems.join('').replace(/,\s*/g, ', ');
-    return joined.startsWith('calc(') || /^[a-z-]+\(/.test(joined)
-      ? joined
-      : `calc(${joined})`;
+    return joined.startsWith('calc(') || isMathFn ? joined : `calc(${joined})`;
   }
   if (flatItems.length >= TRIA && !hasComma) {
     let serialized = sortCalcValues(flatItems, false);
@@ -805,25 +859,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
     if (rootItems.length === 1 && Array.isArray(rootItems[0])) {
       serializedCalc = resolveNode(rootItems[0], true);
     } else {
-      const flatItems: string[] = [];
-      for (const item of rootItems) {
-        if (Array.isArray(item)) {
-          flatItems.push(resolveNode(item, false));
-        } else {
-          flatItems.push(item);
-        }
-      }
-      const hasComma = flatItems.includes(',');
-      if (flatItems.length >= TRIA && !hasComma) {
-        serializedCalc = sortCalcValues(flatItems, true);
-      } else {
-        const firstItem = flatItems[0] || '';
-        serializedCalc =
-          isString(firstItem) &&
-          (firstItem.startsWith('calc(') || /^[a-z-]+\(/.test(firstItem))
-            ? firstItem
-            : `calc(${firstItem})`;
-      }
+      serializedCalc = resolveNode(rootItems, true);
     }
   }
   setCache(cacheKey, serializedCalc);
