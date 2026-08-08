@@ -1298,6 +1298,54 @@ describe('parse CSS calc() tokens', () => {
   });
 });
 
+describe('sort math function terms', () => {
+  const func = css.sortMathFnTerms;
+
+  it('should return original expression if terms array is empty', () => {
+    const res = func('');
+    assert.strictEqual(res, '', 'result');
+
+    const res2 = func('   ');
+    assert.strictEqual(res2, '   ', 'result');
+  });
+
+  it('should get original value if only one term', () => {
+    const res = func('100px');
+    assert.strictEqual(res, '100px', 'result');
+  });
+
+  it('should sort by units', () => {
+    const res = func('80vw - 24px');
+    assert.strictEqual(res, '-24px + 80vw', 'result');
+  });
+
+  it('should sort different units alphabetically', () => {
+    const res = func('80vw - 24px + 1em');
+    assert.strictEqual(res, '1em - 24px + 80vw', 'result');
+  });
+
+  it('should sort by units and handle numerical values', () => {
+    const res = func('1vw + 1px - 1em');
+    assert.strictEqual(res, '-1em + 1px + 1vw', 'result');
+  });
+
+  it('should sort same units by numerical value', () => {
+    const res = func('30px - 10px + 20px');
+    assert.strictEqual(res, '-10px + 20px + 30px', 'result');
+  });
+
+  it('should sort correctly with percentages', () => {
+    const res = func('10px - 5% + 2em');
+    assert.strictEqual(res, '-5% + 2em + 10px', 'result');
+  });
+
+  it('should not split terms inside parentheses or nested functions', () => {
+    const res = func('10px - calc(5vw + 10px)');
+    const resIncludesCalc = res.includes('calc(5vw + 10px)');
+    assert.strictEqual(resIncludesCalc, true, 'result');
+  });
+});
+
 describe('CSS calc()', () => {
   const func = css.cssCalc;
 

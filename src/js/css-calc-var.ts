@@ -52,7 +52,6 @@ const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
 const REG_CSS_WIDE_KEYWORD = /^(?:inherit|initial|revert(?:-layer)?|unset)$/;
-const REG_SORT_MINUS = /^(\S+)\s+-\s+(\S+)$/;
 
 /**
  * @type CalcASTNode - AST node for calc()
@@ -700,6 +699,72 @@ export const sortCalcValues = (
 };
 
 /**
+ * sort math function terms
+ * @param expr - unwrapped calc expression
+ * @returns sorted expression
+ */
+export const sortMathFnTerms = (expr: string): string => {
+  const tokens = tokenize({ css: expr });
+  const terms: string[] = [];
+  let currentTerm = '';
+  let currentSign = '';
+  let depth = 0;
+  for (const token of tokens) {
+    const [type, value] = token as [TokenType, string];
+    if (type === PAREN_OPEN || type === FUNC) {
+      depth++;
+    } else if (type === PAREN_CLOSE) {
+      depth--;
+    }
+    if (depth === 0 && (value === '+' || value === '-')) {
+      if (currentTerm.trim()) {
+        terms.push((currentSign === '-' ? '-' : '') + currentTerm.trim());
+      }
+      currentTerm = '';
+      currentSign = value;
+      continue;
+    }
+    currentTerm += value;
+  }
+  if (currentTerm.trim()) {
+    terms.push((currentSign === '-' ? '-' : '') + currentTerm.trim());
+  }
+  terms.sort((a, b) => {
+    const reg = /^(-?(?:\d+(?:\.\d+)?|\.\d+))([a-z%]*)$/i;
+    const matchA = a.match(reg);
+    const matchB = b.match(reg);
+    if (matchA && matchB) {
+      const numA = Number(matchA[1] || '0');
+      const numB = Number(matchB[1] || '0');
+      const unitA = matchA[2] || '';
+      const unitB = matchB[2] || '';
+      if (unitA === unitB) {
+        return numA - numB;
+      }
+      return unitA > unitB ? 1 : -1;
+    }
+    if (a === b) return 0;
+    return a > b ? 1 : -1;
+  });
+  const firstTerm = terms[0];
+  if (firstTerm === undefined) {
+    return expr;
+  }
+  let res: string = firstTerm;
+  for (let i = 1; i < terms.length; i++) {
+    const term = terms[i];
+    if (term !== undefined) {
+      if (term.startsWith('-')) {
+        res += ' - ' + term.substring(1);
+      } else {
+        res += ' + ' + term;
+      }
+    }
+  }
+  return res;
+};
+
+/**
  * resolve AST node
  * @param node - AST node
  * @param isRoot - is root node
@@ -719,8 +784,9 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
   }
   const hasComma = flatItems.includes(',');
   const firstItem = flatItems[0] || '';
-  const isMathFn = isString(firstItem) && REG_FN_MATH_START.test(firstItem);
-  if (hasComma && isMathFn && flatItems[flatItems.length - 1] === ')') {
+  const isCommaMathFn =
+    isString(firstItem) && REG_FN_MATH_START.test(firstItem);
+  if (hasComma && isCommaMathFn && flatItems[flatItems.length - 1] === ')') {
     const fnName = flatItems.shift() as string;
     const fnEnd = flatItems.pop() as string;
     const args: string[][] = [];
@@ -740,15 +806,13 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
       if (argNodes.length >= TRIA) {
         const temp = ['calc(', ...argNodes, ')'];
         const sorted = sortCalcValues(temp, true);
-        let unwrapped = sorted.substring(5, sorted.length - 1);
-        unwrapped = unwrapped.replace(REG_SORT_MINUS, '-$2 + $1');
-        return unwrapped;
+        const unwrapped = sorted.substring(5, sorted.length - 1);
+        return sortMathFnTerms(unwrapped);
       } else if (argNodes.length === 1) {
         const item = argNodes[0];
         if (isString(item) && item.startsWith('calc(') && item.endsWith(')')) {
-          let unwrapped = item.substring(5, item.length - 1);
-          unwrapped = unwrapped.replace(REG_SORT_MINUS, '-$2 + $1');
-          return unwrapped;
+          const unwrapped = item.substring(5, item.length - 1);
+          return sortMathFnTerms(unwrapped);
         }
       }
       return argNodes.join('');
