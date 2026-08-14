@@ -1,8 +1,26 @@
-import { tanstackViteConfig } from '@tanstack/vite-config';
-import { defineConfig, mergeConfig } from 'vitest/config';
-import packageJson from './package.json';
+import { defineConfig } from 'vitest/config';
+import packageJson from './package.json' with { type: 'json' };
 
-const config = defineConfig({
+const externalDeps = [
+  ...Object.keys(packageJson.dependencies || {}),
+  ...Object.keys(packageJson.peerDependencies || {})
+];
+
+export default defineConfig({
+  build: {
+    outDir: './dist/esm',
+    emptyOutDir: false,
+    lib: {
+      entry: './src/index.ts',
+      formats: ['es'],
+      fileName: 'index'
+    },
+    rollupOptions: {
+      external: id =>
+        externalDeps.some(dep => id === dep || id.startsWith(`${dep}/`))
+    }
+  },
+
   test: {
     coverage: {
       enabled: true,
@@ -18,12 +36,3 @@ const config = defineConfig({
     watch: false
   }
 });
-
-export default mergeConfig(
-  config,
-  tanstackViteConfig({
-    entry: './src/index.ts',
-    srcDir: './src',
-    cjs: false
-  })
-);

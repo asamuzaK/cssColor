@@ -32,7 +32,6 @@
     "lru-cache": "^11.5.2"
   },
   "devDependencies": {
-    "@tanstack/vite-config": "^0.6.0",
     "@types/node": "^26.2.0",
     "@vitest/coverage-istanbul": "^4.1.10",
     "esbuild": "^0.28.2",
@@ -50,28 +49,18 @@
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
   },
-  "packageManager": "pnpm@10.34.4",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "oxc-resolver",
-      "unrs-resolver"
-    ],
-    "overrides": {
-      "ajv@>=7.0.0-alpha.0 <8.18.0": ">=8.18.0",
-      "lodash@>=4.0.0 <=4.17.23": ">=4.18.0",
-      "minimatch@<3.1.4": ">=3.1.4"
-    }
+  "allowScripts": {
+    "esbuild@0.28.2": true
   },
   "scripts": {
     "bench:color": "npx tsx --expose-gc ./benchmark/bench-color.ts",
-    "build": "pnpm run clean && pnpm run test && pnpm run knip && vite build && pnpm run publint",
+    "build": "npm run clean && npm run test && npm run knip && vite build && npm run publint",
     "clean": "rimraf ./coverage ./dist",
     "knip": "knip",
+    "lint": "eslint ./src ./test --fix",
     "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
-    "test": "pnpm run prettier && pnpm run --stream \"/^test:.*/\"",
-    "test:eslint": "eslint ./src ./test --fix",
+    "test": "npm run prettier && npm run lint && npm run test:types && npm run test:unit",
     "test:types": "tsc",
     "test:unit": "vitest"
   },
