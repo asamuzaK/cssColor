@@ -32,7 +32,6 @@
     "lru-cache": "^11.5.2"
   },
   "devDependencies": {
-    "@tanstack/vite-config": "^0.6.0",
     "@types/node": "^26.2.0",
     "@vitest/coverage-istanbul": "^4.1.10",
     "esbuild": "^0.28.2",
