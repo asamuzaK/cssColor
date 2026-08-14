@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import packageJson from './package.json';
+import packageJson from './package.json' with { type: 'json' };
 
 const externalDeps = [
   ...Object.keys(packageJson.dependencies || {}),
@@ -16,7 +16,8 @@ export default defineConfig({
       fileName: 'index'
     },
     rollupOptions: {
-      external: (id) => externalDeps.some((dep) => id === dep || id.startsWith(`${dep}/`))
+      external: id =>
+        externalDeps.some(dep => id === dep || id.startsWith(`${dep}/`))
     }
   },
 
