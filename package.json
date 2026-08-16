@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@csstools/css-calc": "^3.3.0",
-    "@csstools/css-color-parser": "^4.1.10",
+    "@csstools/css-color-parser": "^4.2.0",
     "@csstools/css-parser-algorithms": "^4.0.0",
     "@csstools/css-tokenizer": "^4.0.0",
     "lru-cache": "^11.5.2"
