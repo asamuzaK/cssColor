@@ -62,28 +62,24 @@ export const preProcess = (value: string, opt: Options = {}): string | null => {
       return null;
     }
   }
-  if (isString(res)) {
-    if (REG_FN_REL.test(res)) {
-      const resolved = resolveRelativeColor(res, opt);
-      if (isString(resolved)) {
-        res = resolved;
-      } else {
-        setCache(cacheKey, null);
-        return null;
-      }
-    } else if (REG_FN_CALC.test(res)) {
-      res = cssCalc(res, opt);
+  if (REG_FN_REL.test(res)) {
+    const resolved = resolveRelativeColor(res, opt);
+    if (isString(resolved)) {
+      res = resolved;
+    } else {
+      setCache(cacheKey, null);
+      return null;
     }
+  } else if (REG_FN_CALC.test(res)) {
+    res = cssCalc(res, opt);
   }
-  if (isString(res)) {
-    if (res.startsWith('color-mix')) {
-      const resolvedColorMix = resolveColor(res, {
-        ...opt,
-        format: VAL_COMP,
-        nullable: true
-      });
-      res = typeof resolvedColorMix === 'string' ? resolvedColorMix : null;
-    }
+  if (res.startsWith('color-mix')) {
+    const resolvedColorMix = resolveColor(res, {
+      ...opt,
+      format: VAL_COMP,
+      nullable: true
+    });
+    res = typeof resolvedColorMix === 'string' ? resolvedColorMix : null;
   }
   setCache(cacheKey, res);
   return res;

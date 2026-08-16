@@ -1344,6 +1344,30 @@ describe('sort math function terms', () => {
     const resIncludesCalc = res.includes('calc(5vw + 10px)');
     assert.strictEqual(resIncludesCalc, true, 'result');
   });
+
+  it('should return 0 when comparing identical non-numeric terms', () => {
+    const res1 = func('calc(1vw) + calc(1vw)');
+    assert.strictEqual(res1, 'calc(1vw) + calc(1vw)', 'result');
+    const res2 = func('var(--foo) + var(--foo)');
+    assert.strictEqual(res2, 'var(--foo) + var(--foo)', 'result');
+    const res3 = func('env(safe-area-inset-top) + env(safe-area-inset-top)');
+    assert.strictEqual(
+      res3,
+      'env(safe-area-inset-top) + env(safe-area-inset-top)',
+      'result'
+    );
+  });
+
+  it('should sort non-numeric terms alphabetically', () => {
+    const res0 = func('var(--a) + var(--b)');
+    assert.strictEqual(res0, 'var(--a) + var(--b)', 'result');
+    const res1 = func('var(--b) + var(--a)');
+    assert.strictEqual(res1, 'var(--a) + var(--b)', 'result');
+    const res2 = func('min(1px) + max(1px)');
+    assert.strictEqual(res2, 'max(1px) + min(1px)', 'result');
+    const res3 = func('calc(1vw) + 10px');
+    assert.strictEqual(res3, '10px + calc(1vw)', 'result');
+  });
 });
 
 describe('CSS calc()', () => {

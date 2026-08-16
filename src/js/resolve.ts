@@ -207,12 +207,12 @@ export const resolveColor = (
     let res = '';
     if (value.startsWith(FN_MIX)) {
       const mixRes = resolveColorMix(value, opt, resolveColor);
-      res = mixRes ? (mixRes as string) : '';
+      if (mixRes && isString(mixRes)) {
+        res = mixRes;
+      }
     } else if (value.startsWith(FN_COLOR)) {
       const funcRes = resolveColorFunc(value, opt);
-      if (isString(funcRes)) {
-        res = funcRes;
-      } else if (Array.isArray(funcRes)) {
+      if (Array.isArray(funcRes)) {
         const [scs, rr, gg, bb, aa] = funcRes as SpecifiedColorChannels;
         res =
           aa === 1
@@ -221,9 +221,7 @@ export const resolveColor = (
       }
     } else {
       const rgb = resolveColorValue(value, opt);
-      if (isString(rgb)) {
-        res = rgb;
-      } else if (Array.isArray(rgb)) {
+      if (Array.isArray(rgb)) {
         const [scs, rr, gg, bb, aa] = rgb as SpecifiedColorChannels;
         if (scs === 'rgb') {
           res =
@@ -236,6 +234,8 @@ export const resolveColor = (
               ? `${scs}(${rr} ${gg} ${bb})`
               : `${scs}(${rr} ${gg} ${bb} / ${aa})`;
         }
+      } else if (rgb) {
+        res = rgb;
       }
     }
     setCache(cacheKey, res);

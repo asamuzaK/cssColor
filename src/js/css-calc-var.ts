@@ -734,16 +734,18 @@ export const sortMathFnTerms = (expr: string): string => {
     const matchA = a.match(reg);
     const matchB = b.match(reg);
     if (matchA && matchB) {
-      const numA = Number(matchA[1] || '0');
-      const numB = Number(matchB[1] || '0');
-      const unitA = matchA[2] || '';
-      const unitB = matchB[2] || '';
+      const numA = Number(matchA[1] ?? '0');
+      const numB = Number(matchB[1] ?? '0');
+      const unitA = matchA[2] ?? '';
+      const unitB = matchB[2] ?? '';
       if (unitA === unitB) {
         return numA - numB;
       }
       return unitA > unitB ? 1 : -1;
     }
-    if (a === b) return 0;
+    if (a === b) {
+      return 0;
+    }
     return a > b ? 1 : -1;
   });
   const firstTerm = terms[0];
@@ -752,13 +754,11 @@ export const sortMathFnTerms = (expr: string): string => {
   }
   let res: string = firstTerm;
   for (let i = 1; i < terms.length; i++) {
-    const term = terms[i];
-    if (term !== undefined) {
-      if (term.startsWith('-')) {
-        res += ' - ' + term.substring(1);
-      } else {
-        res += ' + ' + term;
-      }
+    const term = terms[i] ?? '';
+    if (term.startsWith('-')) {
+      res += ' - ' + term.substring(1);
+    } else if (term) {
+      res += ' + ' + term;
     }
   }
   return res;
@@ -783,10 +783,10 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
     }
   }
   const hasComma = flatItems.includes(',');
-  const firstItem = flatItems[0] || '';
+  const firstItem = flatItems[0] ?? '';
   const isCommaMathFn =
     isString(firstItem) && REG_FN_MATH_START.test(firstItem);
-  if (hasComma && isCommaMathFn && flatItems[flatItems.length - 1] === ')') {
+  if (hasComma && isCommaMathFn && flatItems.at(-1) === ')') {
     const fnName = flatItems.shift() as string;
     const fnEnd = flatItems.pop() as string;
     const args: string[][] = [];
@@ -824,15 +824,11 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
       if (flatItems.length >= TRIA) {
         return sortCalcValues(flatItems, true);
       }
-      const first = flatItems[0] || '';
-      if (isString(first) && first.endsWith('(')) {
-        const joined = flatItems.join('');
-        return joined.startsWith('calc(') || /^[a-z-]+\(/.test(joined)
-          ? joined
-          : `calc(${joined})`;
+      const first = flatItems[0] ?? '';
+      if (first.endsWith('(')) {
+        return flatItems.join('');
       }
-      return isString(first) &&
-        (first.startsWith('calc(') || /^[a-z-]+\(/.test(first))
+      return first.startsWith('calc(') || /^[a-z-]+\(/.test(first)
         ? first
         : `calc(${first})`;
     }
@@ -890,7 +886,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   for (const item of items) {
     if (REG_PAREN_OPEN.test(item)) {
       const newNode: CalcASTNode[] = [item];
-      const parent = stack[stack.length - 1];
+      const parent = stack.at(-1);
       if (parent) {
         parent.push(newNode);
       }
@@ -908,7 +904,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
         }
       }
     } else {
-      const parent = stack[stack.length - 1];
+      const parent = stack.at(-1);
       if (parent) {
         parent.push(item);
       }
@@ -1002,7 +998,7 @@ export const parseCalcTokens = (
       }
       case PAREN_CLOSE: {
         if (res.length) {
-          const lastValue = res[res.length - 1];
+          const lastValue = res.at(-1);
           if (lastValue === ' ') {
             res.splice(-1, 1, value);
           } else {
@@ -1019,7 +1015,7 @@ export const parseCalcTokens = (
       }
       case W_SPACE: {
         if (res.length) {
-          const lastValue = res[res.length - 1];
+          const lastValue = res.at(-1);
           if (
             isString(lastValue) &&
             !lastValue.endsWith('(') &&
@@ -1146,7 +1142,7 @@ export function resolveCustomProperty(
       if (item) {
         items.push(item);
       }
-    } else if (type === IDENT) {
+    } else if (value && type === IDENT) {
       if (value.startsWith('--')) {
         let item;
         if (Object.hasOwn(customProperty, value)) {
@@ -1157,14 +1153,14 @@ export function resolveCustomProperty(
         if (item) {
           items.push(item);
         }
-      } else if (value) {
+      } else {
         items.push(value);
       }
     }
   }
   let resolveAsColor = false;
   if (items.length > 1) {
-    resolveAsColor = isColor(items[items.length - 1]);
+    resolveAsColor = isColor(items.at(-1));
   }
   let resolvedValue = '';
   for (let item of items) {
@@ -1219,7 +1215,7 @@ export function parseVarTokens(
       switch (type) {
         case PAREN_CLOSE: {
           if (res.length) {
-            if (res[res.length - 1] === ' ') {
+            if (res.at(-1) === ' ') {
               res[res.length - 1] = value;
             } else {
               res.push(value);
@@ -1231,7 +1227,7 @@ export function parseVarTokens(
         }
         case W_SPACE: {
           if (res.length) {
-            const lastValue = res[res.length - 1];
+            const lastValue = res.at(-1);
             if (
               isString(lastValue) &&
               !lastValue.endsWith('(') &&

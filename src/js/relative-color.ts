@@ -229,7 +229,7 @@ export function resolveColorChannels(
         }
         case PAREN_CLOSE: {
           if (func) {
-            const lastValue = channel[channel.length - 1];
+            const lastValue = channel.at(-1);
             if (lastValue === ' ') {
               channel[channel.length - 1] = value;
             } else {
@@ -270,7 +270,7 @@ export function resolveColorChannels(
         }
         case W_SPACE: {
           if (channel.length && func) {
-            const lastValue = channel[channel.length - 1];
+            const lastValue = channel.at(-1);
             if (typeof lastValue === 'number') {
               channel.push(value);
             } else if (
@@ -395,7 +395,7 @@ export function extractOriginColor(
       }
     } else if (format === VAL_SPEC) {
       const resolvedOriginColor = resolver(originColor, opt);
-      if (isString(resolvedOriginColor)) {
+      if (resolvedOriginColor && isString(resolvedOriginColor)) {
         value = value.replace(originColor, resolvedOriginColor);
       }
     }
@@ -434,17 +434,17 @@ export function extractOriginColor(
           break;
         }
         case PAREN_CLOSE: {
-          const lastValue = originColor[originColor.length - 1];
+          const lastValue = originColor.at(-1);
           if (lastValue === ' ') {
             originColor[originColor.length - 1] = tokenValue;
-          } else if (isString(lastValue)) {
+          } else {
             originColor.push(tokenValue);
           }
           nest--;
           break;
         }
         case W_SPACE: {
-          const lastValue = originColor[originColor.length - 1];
+          const lastValue = originColor.at(-1);
           if (
             isString(lastValue) &&
             !lastValue.endsWith('(') &&
