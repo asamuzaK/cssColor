@@ -2885,7 +2885,11 @@ export const resolveColorMix = (
         const reg = new RegExp(
           `(${SYN_MIX_PART})\\s*,\\s*(${itemPart})\\s*\\)$`
         );
-        const [, colorPartA, colorPartB] = value.match(reg) as MatchedRegExp;
+        const matchReg = value.match(reg);
+        if (!matchReg) {
+          return cacheInvalidColorValue(cacheKey, format, nullable);
+        }
+        const [, colorPartA, colorPartB] = matchReg as MatchedRegExp;
         [, colorA, pctA] = colorPartA.match(
           REG_MIX_COLOR_PART
         ) as MatchedRegExp;
@@ -2894,7 +2898,11 @@ export const resolveColorMix = (
         const reg = new RegExp(
           `(${itemPart})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)$`
         );
-        const [, colorPartA, colorPartB] = value.match(reg) as MatchedRegExp;
+        const matchReg = value.match(reg);
+        if (!matchReg) {
+          return cacheInvalidColorValue(cacheKey, format, nullable);
+        }
+        const [, colorPartA, colorPartB] = matchReg as MatchedRegExp;
         [, colorA, pctA] = colorPartA.match(regItemPart) as MatchedRegExp;
         [, colorB, pctB] = colorPartB.match(
           REG_MIX_COLOR_PART
@@ -2902,9 +2910,11 @@ export const resolveColorMix = (
       }
     }
   } else if (!parsed) {
-    const [, cs, colorPartA, colorPartB] = value.match(
-      REG_MIX_CAPT
-    ) as MatchedRegExp;
+    const matchMixCapt = value.match(REG_MIX_CAPT);
+    if (!matchMixCapt) {
+      return cacheInvalidColorValue(cacheKey, format, nullable);
+    }
+    const [, cs, colorPartA, colorPartB] = matchMixCapt as MatchedRegExp;
     [, colorA, pctA] = colorPartA.match(REG_MIX_COLOR_PART) as MatchedRegExp;
     [, colorB, pctB] = colorPartB.match(REG_MIX_COLOR_PART) as MatchedRegExp;
     if (REG_CS_HUE.test(cs)) {

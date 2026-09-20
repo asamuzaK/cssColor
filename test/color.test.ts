@@ -9486,4 +9486,67 @@ describe('resolve color-mix()', () => {
     );
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
+
+  it('should fallback when first color part is invalid and nested item is last', () => {
+    const input =
+      'color-mix(in srgb, red 10% 20%, color-mix(in srgb, blue, green))';
+    const res = func(input, {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should fallback when first color is invalid and nested item is last', () => {
+    const input =
+      'color-mix(in srgb, red 10% 20%, color-mix(in srgb, blue, green))';
+    const res = func(input, {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should fallback when second color is invalid and nested item is first', () => {
+    const input =
+      'color-mix(in srgb, color-mix(in srgb, red, green), blue 10% 20%)';
+    const res = func(input, {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should fallback when second color is invalid and nested item is first', () => {
+    const input =
+      'color-mix(in srgb, color-mix(in srgb, red, green), blue 10% 20%)';
+    const res = func(input, {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should fallback to empty string for 3-level nested color-mix', () => {
+    const input =
+      'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, red, blue), green), yellow)';
+    const res = func(input, {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should fallback to transparent rgb for 3-level nested color-mix', () => {
+    const input =
+      'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, red, blue), green), yellow)';
+    const res = func(input, {
+      format: 'computedValue'
+    });
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should fallback for 3-level nested color-mix with percentages', () => {
+    const input =
+      'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, red 40%, blue 60%) 50%, green 50%) 30%, yellow 70%)';
+    const res = func(input, {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, '', 'result');
+  });
 });
