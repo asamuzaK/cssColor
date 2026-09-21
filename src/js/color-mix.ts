@@ -17,11 +17,10 @@ import {
   normalizeColorComponents,
   parseColorFunc,
   parseColorValue,
-  resolveColorValue,
-  transformXyzD50ToRgb,
-  transformXyzToRgb
+  resolveColorValue
 } from './color';
 import { isString } from './common';
+import { transformXyzD50ToRgb, transformXyzToRgb } from './transform';
 import { interpolateHue, roundToPrecision, splitValue } from './util';
 import {
   ColorChannels,
