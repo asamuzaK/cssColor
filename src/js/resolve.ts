@@ -7,9 +7,9 @@ import {
   NAMED_COLORS,
   convertRgbToHex,
   resolveColorFunc,
-  resolveColorMix,
   resolveColorValue
 } from './color';
+import { resolveColorMix } from './color-mix';
 import { isString } from './common';
 import { cssCalc, resolveVar } from './css-calc-var';
 import { resolveRelativeColor } from './relative-color';
