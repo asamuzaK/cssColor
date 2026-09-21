@@ -34,6 +34,24 @@ export interface Options {
 export type TriColorChannels = [x: number, y: number, z: number];
 
 /**
+ * @type ReadonlyTriColorChannels - readonly color channels without alpha
+ */
+export type ReadonlyTriColorChannels = readonly [
+  x: number,
+  y: number,
+  z: number
+];
+
+/**
+ * @type ReadonlyColorMatrix - readonly color matrix
+ */
+export type ReadonlyColorMatrix = readonly [
+  r1: ReadonlyTriColorChannels,
+  r2: ReadonlyTriColorChannels,
+  r3: ReadonlyTriColorChannels
+];
+
+/**
  * @type ColorChannels - color channels
  */
 export type ColorChannels = [x: number, y: number, z: number, alpha: number];
