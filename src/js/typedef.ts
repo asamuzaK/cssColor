@@ -92,6 +92,15 @@ export type SpecifiedColorChannels = [
 ];
 
 /**
+ * @type ColorMatrix - color matrix
+ */
+export type ColorMatrix = [
+  r1: TriColorChannels,
+  r2: TriColorChannels,
+  r3: TriColorChannels
+];
+
+/**
  * @type MatchedRegExp - matched regexp array
  */
 export type MatchedRegExp = [
