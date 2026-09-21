@@ -56,6 +56,7 @@
     "bench:color": "npx tsx --expose-gc ./benchmark/bench-color.ts",
     "build": "npm run clean && npm run test && npm run knip && vite build && npm run publint",
     "clean": "rimraf ./coverage ./dist",
+    "clone": "node ./scripts/clone-txt.js",
     "knip": "knip",
     "lint": "eslint ./src ./test --fix",
     "prettier": "prettier . --ignore-unknown --write",
