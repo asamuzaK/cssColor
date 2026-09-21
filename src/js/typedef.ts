@@ -29,6 +29,11 @@ export interface Options {
 }
 
 /**
+ * @type TriColorChannels - color channels without alpha
+ */
+export type TriColorChannels = [x: number, y: number, z: number];
+
+/**
  * @type ColorChannels - color channels
  */
 export type ColorChannels = [x: number, y: number, z: number, alpha: number];
@@ -41,6 +46,16 @@ export type StringColorChannels = [
   y: string,
   z: string,
   alpha: string | undefined
+];
+
+/**
+ * @type NumStrColorChannels - string or numeric color channels
+ */
+export type NumStrColorChannels = [
+  x: number | string,
+  y: number | string,
+  z: number | string,
+  alpha: number | string
 ];
 
 /**
