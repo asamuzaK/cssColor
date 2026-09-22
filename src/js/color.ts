@@ -36,7 +36,14 @@ import {
   transformXyzToOklch,
   transformXyzToRgb
 } from './transform';
-import { resolveInvalidColorValue, roundToPrecision } from './util';
+import {
+  angleToDeg,
+  numberToHexString,
+  parseAlpha,
+  parseHexAlpha,
+  resolveInvalidColorValue,
+  roundToPrecision
+} from './util';
 import {
   ColorChannels,
   ComputedColorChannels,
@@ -50,10 +57,8 @@ import {
 
 /* constants */
 import {
-  ANGLE,
   FN_COLOR,
   NONE,
-  NUM,
   SYN_COLOR_TYPE,
   SYN_FN_COLOR,
   SYN_HSL,
@@ -69,7 +74,6 @@ import { NAMED_COLORS } from './named-color';
 const NAMESPACE = 'color';
 
 /* numeric constants */
-const PPTH = 0.001;
 const DUO = 2;
 const TRIA = 3;
 const QUAD = 4;
@@ -100,140 +104,9 @@ const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_MOD})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
-const REG_ANGLE_TO_DEG = new RegExp(`^(${NUM})(${ANGLE})?$`);
 const REG_PARSE_RGB = new RegExp(
   `^rgba?\\(\\s*(${SYN_MOD}|${SYN_RGB_LV3})\\s*\\)$`
 );
-
-/**
- * number to hex string
- * @param value - numeric value
- * @returns hex string
- */
-export const numberToHexString = (value: number): string => {
-  if (!Number.isFinite(value)) {
-    throw new TypeError(`${value} is not a number.`);
-  } else {
-    value = Math.round(value);
-    if (value < 0 || value > MAX_RGB) {
-      throw new RangeError(`${value} is not between 0 and ${MAX_RGB}.`);
-    }
-  }
-  let hex = value.toString(HEX);
-  if (hex.length === 1) {
-    hex = `0${hex}`;
-  }
-  return hex;
-};
-
-/**
- * angle to deg
- * @param angle
- * @returns deg: 0..360
- */
-export const angleToDeg = (angle: string): number => {
-  if (isString(angle)) {
-    angle = angle.trim();
-  } else {
-    throw new TypeError(`${angle} is not a string.`);
-  }
-  const GRAD = DEG / 400;
-  const RAD = DEG / (Math.PI * DUO);
-  if (!REG_ANGLE_TO_DEG.test(angle)) {
-    throw new SyntaxError(`Invalid property value: ${angle}`);
-  }
-  const [, value, unit] = angle.match(REG_ANGLE_TO_DEG) as MatchedRegExp;
-  let deg;
-  switch (unit) {
-    case 'grad':
-      deg = parseFloat(value) * GRAD;
-      break;
-    case 'rad':
-      deg = parseFloat(value) * RAD;
-      break;
-    case 'turn':
-      deg = parseFloat(value) * DEG;
-      break;
-    default:
-      deg = parseFloat(value);
-  }
-  deg %= DEG;
-  if (deg < 0) {
-    deg += DEG;
-  } else if (Object.is(deg, -0)) {
-    deg = 0;
-  }
-  return deg;
-};
-
-/**
- * parse alpha
- * @param [alpha] - alpha value
- * @returns alpha: 0..1
- */
-export const parseAlpha = (alpha: string = ''): number => {
-  if (isString(alpha)) {
-    alpha = alpha.trim();
-    if (!alpha) {
-      alpha = '1';
-    } else if (alpha === NONE) {
-      alpha = '0';
-    } else {
-      let a;
-      if (alpha.endsWith('%')) {
-        a = parseFloat(alpha) / MAX_PCT;
-      } else {
-        a = parseFloat(alpha);
-      }
-      if (!Number.isFinite(a)) {
-        throw new TypeError(`${a} is not a finite number.`);
-      }
-      if (a < PPTH) {
-        alpha = '0';
-      } else if (a > 1) {
-        alpha = '1';
-      } else {
-        alpha = a.toFixed(TRIA);
-      }
-    }
-  } else {
-    alpha = '1';
-  }
-  return parseFloat(alpha);
-};
-
-/**
- * parse hex alpha
- * @param value - alpha value in hex string
- * @returns alpha: 0..1
- */
-export const parseHexAlpha = (value: string): number => {
-  if (isString(value)) {
-    if (value === '') {
-      throw new SyntaxError('Invalid property value: (empty string)');
-    }
-    value = value.trim();
-  } else {
-    throw new TypeError(`${value} is not a string.`);
-  }
-  let alpha = parseInt(value, HEX);
-  if (alpha <= 0) {
-    return 0;
-  }
-  if (alpha >= MAX_RGB) {
-    return 1;
-  }
-  const alphaMap = new Map();
-  for (let i = 1; i < MAX_PCT; i++) {
-    alphaMap.set(Math.round((i * MAX_RGB) / MAX_PCT), i);
-  }
-  if (alphaMap.has(alpha)) {
-    alpha = alphaMap.get(alpha) / MAX_PCT;
-  } else {
-    alpha = Math.round(alpha / MAX_RGB / PPTH) * PPTH;
-  }
-  return parseFloat(alpha.toFixed(TRIA));
-};
 
 /**
  * convert rgb to hex color

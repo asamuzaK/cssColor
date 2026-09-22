@@ -726,3 +726,324 @@ describe('resolve invalid color value', () => {
     assert.strictEqual(res, '', 'result');
   });
 });
+
+describe('number to hex string', () => {
+  const func = util.numberToHexString;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a number.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(Number.NaN), TypeError, 'NaN is not a number.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(-1), RangeError, '-1 is not between 0 and 255.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(256), RangeError, '256 is not between 0 and 255.');
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func(-0.6), RangeError, '-1 is not between 0 and 255.');
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func(255.5),
+      RangeError,
+      '256 is not between 0 and 255.'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func(-0.4);
+    assert.strictEqual(res, '00', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(255.4);
+    assert.strictEqual(res, 'ff', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(0);
+    assert.strictEqual(res, '00', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(9);
+    assert.strictEqual(res, '09', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(10);
+    assert.strictEqual(res, '0a', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(15);
+    assert.strictEqual(res, '0f', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(16);
+    assert.strictEqual(res, '10', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(17);
+    assert.strictEqual(res, '11', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(0.15 * 255);
+    assert.strictEqual(res, '26', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(255);
+    assert.strictEqual(res, 'ff', 'result');
+  });
+});
+
+describe('angle to deg', () => {
+  const func = util.angleToDeg;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func('0foo'),
+      SyntaxError,
+      'Invalid property value: 0foo'
+    );
+  });
+
+  it('should throw', () => {
+    assert.throws(() => func('.'), SyntaxError, 'Invalid property value: .');
+  });
+
+  it('should get value', () => {
+    const res = func('.0');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0.');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('90');
+    assert.strictEqual(res, 90, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('90deg');
+    assert.strictEqual(res, 90, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('100grad');
+    assert.strictEqual(res, 90, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('.25turn');
+    assert.strictEqual(res, 90, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('1.57rad');
+    assert.strictEqual(Math.round(res), 90, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0deg');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('360deg');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('540deg');
+    assert.strictEqual(res, 180, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('720deg');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-90deg');
+    assert.strictEqual(res, 270, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-180deg');
+    assert.strictEqual(res, 180, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-270deg');
+    assert.strictEqual(res, 90, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-360deg');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-540deg');
+    assert.strictEqual(res, 180, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-720deg');
+    assert.strictEqual(res, 0, 'result');
+  });
+});
+
+describe('parse alpha', () => {
+  const func = util.parseAlpha;
+
+  it('should throw', () => {
+    assert.throws(() => func('foo'), TypeError, 'NaN is not a finite number.');
+  });
+
+  it('should get value', () => {
+    const res = func();
+    assert.strictEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func(1);
+    assert.strictEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('');
+    assert.strictEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('none');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('.5');
+    assert.strictEqual(res, 0.5, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('50%');
+    assert.strictEqual(res, 0.5, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0.5');
+    assert.strictEqual(res, 0.5, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('-0.5');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('1.1');
+    assert.strictEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0.33333333');
+    assert.strictEqual(res, 0.333, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0.66666666');
+    assert.strictEqual(res, 0.667, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0.6065');
+    assert.strictEqual(res, 0.607, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0.0005');
+    assert.strictEqual(res, 0, 'result');
+  });
+});
+
+describe('parse hex alpha', () => {
+  const func = util.parseHexAlpha;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should throw', () => {
+    assert.throws(
+      () => func(''),
+      SyntaxError,
+      'Invalid property value: (empty string)'
+    );
+  });
+
+  it('should get value', () => {
+    const res = func('-0');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('0');
+    assert.strictEqual(res, 0, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('100');
+    assert.strictEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('ff');
+    assert.strictEqual(res, 1, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('3');
+    assert.strictEqual(res, 0.01, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('2');
+    assert.strictEqual(res, 0.008, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('4');
+    assert.strictEqual(res, 0.016, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('80');
+    assert.strictEqual(res, 0.5, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('88');
+    assert.strictEqual(res, 0.533, 'result');
+  });
+});

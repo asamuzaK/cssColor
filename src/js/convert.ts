@@ -11,7 +11,6 @@ import {
   convertColorToOklab,
   convertColorToOklch,
   convertColorToRgb,
-  numberToHexString,
   parseColorFunc,
   parseColorValue
 } from './color';
@@ -20,6 +19,7 @@ import { cssCalc, resolveVar } from './css-calc-var';
 import { resolveRelativeColor } from './relative-color';
 import { resolveColor } from './resolve';
 import { ColorChannels, ComputedColorChannels, Options } from './typedef';
+import { numberToHexString } from './util';
 
 /* constants */
 import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant';
