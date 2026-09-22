@@ -8,7 +8,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 /* test */
 import * as api from '../src/js/resolve';
 import { lruCache } from '../src/js/cache';
-import { parseColorValue } from '../src/js/color';
+import { parseColorValue } from '../src/js/parse';
 
 beforeEach(() => {
   lruCache.clear();
