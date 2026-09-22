@@ -311,8 +311,11 @@ export const resolveColor = (
  * @returns resolved value
  */
 export const resolve = (value: string, opt: Options = {}): string | null => {
-  opt.nullable = false;
-  return resolveColor(value, opt);
+  const options = {
+    ...opt,
+    nullable: false
+  };
+  return resolveColor(value, options);
 };
 
 /**
@@ -340,9 +343,14 @@ export const isColor = (value: unknown, opt: Options = {}): boolean => {
     return true;
   }
   if (REG_FN_COLOR.test(str)) {
-    const colorOpt = { ...opt, nullable: true };
-    if (!colorOpt.format) colorOpt.format = VAL_SPEC;
-    return !!resolveColor(str, colorOpt);
+    const options = {
+      ...opt,
+      nullable: true
+    };
+    if (!options.format) {
+      options.format = VAL_SPEC;
+    }
+    return !!resolveColor(str, options);
   }
   return false;
 };
