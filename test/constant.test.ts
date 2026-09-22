@@ -11,9 +11,13 @@ import * as constant from '../src/js/constant.js';
 describe('constants', () => {
   const items = Object.entries(constant);
   for (const [key, value] of items) {
-    it('should get string', () => {
+    it('should get string or number', () => {
       assert.strictEqual(/^[A-Z][A-Z_\d]+$/.test(key), true, 'key');
-      assert.strictEqual(typeof value, 'string', 'value');
+      assert.strictEqual(
+        typeof value === 'string' || typeof value === 'number',
+        true,
+        'value'
+      );
     });
   }
 });

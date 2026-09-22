@@ -24,11 +24,16 @@ import {
 import {
   CS_LAB,
   CS_LCH,
+  DEC,
   FN_LIGHT_DARK,
   FN_REL,
   FN_REL_CAPT,
   FN_VAR,
+  HEX,
+  MAX_PCT,
+  MAX_RGB,
   NONE,
+  OCT,
   SYN_COLOR_TYPE,
   SYN_FN_MATH_START,
   SYN_FN_VAR,
@@ -36,6 +41,7 @@ import {
   VAL_SPEC
 } from './constant';
 import { NAMED_COLORS } from './named-color';
+const NAMESPACE = 'relative-color';
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
@@ -50,14 +56,6 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 const { HasNoneKeywords: KEY_NONE } = SyntaxFlag;
-const NAMESPACE = 'relative-color';
-
-/* constants */
-const OCT = 8;
-const DEC = 10;
-const HEX = 16;
-const MAX_PCT = 100;
-const MAX_RGB = 255;
 const COLOR_CHANNELS = new Map([
   ['color', ['r', 'g', 'b', 'alpha']],
   ['hsl', ['h', 's', 'l', 'alpha']],

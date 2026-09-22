@@ -36,7 +36,23 @@ import {
 
 /* constants */
 import {
+  DEC,
+  DEG,
+  DEG_HALF,
+  DOZ,
+  DUO,
+  HEX,
+  LAB_A,
+  LAB_B,
+  LAB_EPSILON,
+  LAB_KAPPA,
+  LAB_L,
+  MAX_PCT,
+  MAX_RGB,
   NONE,
+  OCT,
+  POW_CUBE,
+  POW_SQR,
   SYN_COLOR_TYPE,
   SYN_FN_COLOR,
   SYN_HSL,
@@ -44,30 +60,12 @@ import {
   SYN_LCH,
   SYN_MOD,
   SYN_RGB_LV3,
+  TRIA,
   VAL_COMP,
   VAL_MIX,
   VAL_SPEC
 } from './constant';
 import { NAMED_COLORS } from './named-color';
-
-/* numeric constants */
-const DUO = 2;
-const TRIA = 3;
-const OCT = 8;
-const DEC = 10;
-const DOZ = 12;
-const HEX = 16;
-const DEG_HALF = 180;
-const DEG = 360;
-const MAX_PCT = 100;
-const MAX_RGB = 255;
-const POW_SQR = 2;
-const POW_CUBE = 3;
-const LAB_L = 116;
-const LAB_A = 500;
-const LAB_B = 200;
-const LAB_EPSILON = 216 / 24389;
-const LAB_KAPPA = 24389 / 27;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);

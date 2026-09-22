@@ -8,7 +8,23 @@ import { isString } from './common';
 import { MatchedRegExp, Options, SpecifiedColorChannels } from './typedef';
 
 /* constants */
-import { ANGLE, NONE, NUM, VAL_MIX, VAL_SPEC } from './constant';
+import {
+  ANGLE,
+  DEC,
+  DEG,
+  DEG_HALF,
+  DUO,
+  HEX,
+  MAX_PCT,
+  MAX_RGB,
+  NONE,
+  NUM,
+  PPTH,
+  TRIA,
+  VAL_MIX,
+  VAL_SPEC
+} from './constant';
+const NAMESPACE = 'util';
 const {
   CloseParen: PAREN_CLOSE,
   Comma: COMMA,
@@ -19,18 +35,6 @@ const {
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
-const NAMESPACE = 'util';
-
-/* numeric constants */
-const DEC = 10;
-const DEG = 360;
-const DEG_HALF = 180;
-const DUO = 2;
-const HEX = 16;
-const MAX_PCT = 100;
-const MAX_RGB = 255;
-const PPTH = 0.001;
-const TRIA = 3;
 
 /* regexp */
 const REG_ANGLE_TO_DEG = new RegExp(`^(${NUM})(${ANGLE})?$`);

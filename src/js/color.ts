@@ -42,6 +42,7 @@ import {
 /* constants */
 import {
   FN_COLOR,
+  MAX_RGB,
   NONE,
   SYN_COLOR_TYPE,
   SYN_FN_COLOR,
@@ -55,9 +56,6 @@ import {
 } from './constant';
 import { NAMED_COLORS } from './named-color';
 const NAMESPACE = 'color';
-
-/* numeric constants */
-const MAX_RGB = 255;
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);

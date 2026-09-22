@@ -14,10 +14,8 @@ import { transformLinearRgbToRgb, transformRgbToLinearRgb } from './transform';
 import { numberToHexString, parseHexAlpha } from './util';
 import { ColorChannels, MatchedRegExp } from './typedef';
 
-/* numeric constants */
-const QUAD = 4;
-const HEX = 16;
-const MAX_RGB = 255;
+/* constants */
+import { HEX, QUAD, MAX_RGB } from './constant';
 
 /**
  * convert rgb to hex color

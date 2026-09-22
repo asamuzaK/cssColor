@@ -3,6 +3,27 @@
  */
 
 import {
+  DEG,
+  DEG_HALF,
+  DUO,
+  HALF,
+  HEX,
+  LAB_A,
+  LAB_B,
+  LAB_EPSILON,
+  LAB_KAPPA,
+  LAB_L,
+  LINEAR_COEF,
+  LINEAR_OFFSET,
+  MAX_PCT,
+  MAX_RGB,
+  POW_LINEAR,
+  POW_SQR,
+  QUAD,
+  SEXA,
+  TRIA
+} from './constant';
+import {
   D50,
   MATRIX_D50_TO_D65,
   MATRIX_D65_TO_D50,
@@ -14,27 +35,6 @@ import {
   validateColorComponents
 } from './matrix';
 import { TriColorChannels } from './typedef';
-
-/* numeric constants */
-const HALF = 0.5;
-const DUO = 2;
-const TRIA = 3;
-const QUAD = 4;
-const HEX = 16;
-const SEXA = 60;
-const DEG_HALF = 180;
-const DEG = 360;
-const MAX_PCT = 100;
-const MAX_RGB = 255;
-const POW_SQR = 2;
-const POW_LINEAR = 2.4;
-const LINEAR_COEF = 12.92;
-const LINEAR_OFFSET = 0.055;
-const LAB_L = 116;
-const LAB_A = 500;
-const LAB_B = 200;
-const LAB_EPSILON = 216 / 24389;
-const LAB_KAPPA = 24389 / 27;
 
 /**
  * transform rgb to linear rgb

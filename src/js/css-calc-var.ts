@@ -14,12 +14,15 @@ import { MatchedRegExp, Options } from './typedef';
 import {
   ANGLE,
   FN_VAR,
+  HEX,
   LENGTH,
+  MAX_PCT,
   NUM,
   SYN_FN_CALC,
   SYN_FN_MATH_START,
   SYN_FN_VAR,
   SYN_FN_VAR_START,
+  TRIA,
   VAL_SPEC
 } from './constant';
 
@@ -34,11 +37,6 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 const NAMESPACE = 'css-calc-var';
-
-/* numeric constants */
-const TRIA = 3;
-const HEX = 16;
-const MAX_PCT = 100;
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);

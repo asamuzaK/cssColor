@@ -10,11 +10,7 @@ import {
 } from './typedef';
 
 /* constants */
-import { NONE } from './constant';
-
-/* numeric constants */
-const TRIA = 3;
-const QUAD = 4;
+import { NONE, QUAD, TRIA } from './constant';
 
 /**
  * conversion matrices

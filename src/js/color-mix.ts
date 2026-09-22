@@ -36,22 +36,20 @@ import {
 
 /* constants */
 import {
+  DEG,
   FN_COLOR,
   FN_LIGHT_DARK,
   FN_MIX,
+  HALF,
+  HEX,
+  MAX_PCT,
+  MAX_RGB,
   NONE,
   VAL_COMP,
   VAL_MIX,
   VAL_SPEC
 } from './constant';
 const NAMESPACE = 'color-mix';
-
-/* numeric constants */
-const HALF = 0.5;
-const HEX = 16;
-const DEG = 360;
-const MAX_PCT = 100;
-const MAX_RGB = 255;
 
 /**
  * parse color space
