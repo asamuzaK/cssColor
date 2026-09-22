@@ -1,5 +1,5 @@
 /**
- * hex utilities
+ * hex
  */
 
 import { isString } from './common';
