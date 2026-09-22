@@ -16,14 +16,16 @@ import { NONE } from './constant';
 const TRIA = 3;
 const QUAD = 4;
 
-/* white point */
+/**
+ * conversion matrices
+ * @see https://drafts.csswg.org/css-color-4/#color-conversion-code
+ */
 export const D50: ReadonlyTriColorChannels = [
   0.3457 / 0.3585,
   1.0,
   (1.0 - 0.3457 - 0.3585) / 0.3585
 ] as const;
 
-/* conversion matrices */
 export const MATRIX_D50_TO_D65: ReadonlyColorMatrix = [
   [0.955473421488075, -0.02309845494876471, 0.06325924320057072],
   [-0.0283697093338637, 1.0099953980813041, 0.021041441191917323],

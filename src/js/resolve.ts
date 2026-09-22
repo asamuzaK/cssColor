@@ -3,10 +3,11 @@
  */
 
 import { createCacheKey, getCache, setCache } from './cache';
-import { convertRgbToHex, resolveColorFunc, resolveColorValue } from './color';
+import { resolveColorFunc, resolveColorValue } from './color';
 import { resolveColorMix } from './color-mix';
 import { isString } from './common';
 import { cssCalc, resolveVar } from './css-calc-var';
+import { convertRgbToHex } from './hex';
 import { resolveRelativeColor } from './relative-color';
 import { splitValue } from './util';
 import {
