@@ -643,3 +643,86 @@ describe('resolve length in pixels', () => {
     assert.deepEqual(res, 20, 'result');
   });
 });
+
+describe('cache invalid color value', () => {
+  const func = util.cacheInvalidColorValue;
+
+  it('should get value', () => {
+    const res = func();
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo', 'specifiedValue');
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo', 'computedValue');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo', 'computedValue', true);
+    assert.strictEqual(res, null, 'result');
+  });
+});
+
+describe('resolve invalid color value', () => {
+  const func = util.resolveInvalidColorValue;
+
+  it('should get value', () => {
+    const res = func();
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('foo');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('foo', true);
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('computedValue');
+    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('computedValue', true);
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('hsl');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('hwb');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('mixValue');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
+    const res = func('mixValue');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get empty string', () => {
+    const res = func('specifiedValue');
+    assert.strictEqual(res, '', 'result');
+  });
+});

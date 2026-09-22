@@ -36,7 +36,7 @@ import {
   transformXyzToOklch,
   transformXyzToRgb
 } from './transform';
-import { roundToPrecision } from './util';
+import { resolveInvalidColorValue, roundToPrecision } from './util';
 import {
   ColorChannels,
   ComputedColorChannels,
@@ -104,59 +104,6 @@ const REG_ANGLE_TO_DEG = new RegExp(`^(${NUM})(${ANGLE})?$`);
 const REG_PARSE_RGB = new RegExp(
   `^rgba?\\(\\s*(${SYN_MOD}|${SYN_RGB_LV3})\\s*\\)$`
 );
-
-/**
- * cache invalid color value
- * @param key - cache key
- * @param nullable - is nullable
- * @returns cached value
- */
-export const cacheInvalidColorValue = (
-  cacheKey: string,
-  format: string,
-  nullable: boolean = false
-): SpecifiedColorChannels | string | null => {
-  if (format === VAL_SPEC) {
-    const res = '';
-    setCache(cacheKey, res);
-    return res;
-  }
-  if (nullable) {
-    setCache(cacheKey, null);
-    return null;
-  }
-  const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-  setCache(cacheKey, res);
-  return res;
-};
-
-/**
- * resolve invalid color value
- * @param format - output format
- * @param nullable - is nullable
- * @returns resolved value
- */
-export const resolveInvalidColorValue = (
-  format: string,
-  nullable: boolean = false
-): SpecifiedColorChannels | string | null => {
-  switch (format) {
-    case 'hsl':
-    case 'hwb':
-    case VAL_MIX: {
-      return null;
-    }
-    case VAL_SPEC: {
-      return '';
-    }
-    default: {
-      if (nullable) {
-        return null;
-      }
-      return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
-    }
-  }
-};
 
 /**
  * normalize color components

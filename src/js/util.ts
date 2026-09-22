@@ -5,9 +5,10 @@
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { Options } from './typedef';
+import { Options, SpecifiedColorChannels } from './typedef';
 
 /* constants */
+import { VAL_MIX, VAL_SPEC } from './constant';
 const {
   CloseParen: PAREN_CLOSE,
   Comma: COMMA,
@@ -344,4 +345,57 @@ export const resolveLengthInPixels = (
   }
   // unsupported or invalid value
   return Number.NaN;
+};
+
+/**
+ * cache invalid color value
+ * @param key - cache key
+ * @param nullable - is nullable
+ * @returns cached value
+ */
+export const cacheInvalidColorValue = (
+  cacheKey: string,
+  format: string,
+  nullable: boolean = false
+): SpecifiedColorChannels | string | null => {
+  if (format === VAL_SPEC) {
+    const res = '';
+    setCache(cacheKey, res);
+    return res;
+  }
+  if (nullable) {
+    setCache(cacheKey, null);
+    return null;
+  }
+  const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+  setCache(cacheKey, res);
+  return res;
+};
+
+/**
+ * resolve invalid color value
+ * @param format - output format
+ * @param nullable - is nullable
+ * @returns resolved value
+ */
+export const resolveInvalidColorValue = (
+  format: string,
+  nullable: boolean = false
+): SpecifiedColorChannels | string | null => {
+  switch (format) {
+    case 'hsl':
+    case 'hwb':
+    case VAL_MIX: {
+      return null;
+    }
+    case VAL_SPEC: {
+      return '';
+    }
+    default: {
+      if (nullable) {
+        return null;
+      }
+      return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
+    }
+  }
 };

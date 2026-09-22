@@ -4,7 +4,6 @@
 
 import { createCacheKey, getCache, setCache } from './cache';
 import {
-  cacheInvalidColorValue,
   convertColorToHsl,
   convertColorToHwb,
   convertColorToLab,
@@ -21,7 +20,12 @@ import {
 } from './color';
 import { isString } from './common';
 import { transformXyzD50ToRgb, transformXyzToRgb } from './transform';
-import { interpolateHue, roundToPrecision, splitValue } from './util';
+import {
+  cacheInvalidColorValue,
+  interpolateHue,
+  roundToPrecision,
+  splitValue
+} from './util';
 import {
   ColorChannels,
   ComputedColorChannels,
