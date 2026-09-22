@@ -9,6 +9,9 @@ import {
   TriColorChannels
 } from './typedef';
 
+/* constants */
+import { NONE } from './constant';
+
 /* numeric constants */
 const TRIA = 3;
 const QUAD = 4;
@@ -159,6 +162,54 @@ export const validateColorComponents = (
     arr.push(1);
   }
   return arr;
+};
+
+/**
+ * normalize color components
+ * @param colorA - color components [v1, v2, v3, v4]
+ * @param colorB - color components [v1, v2, v3, v4]
+ * @param [skip] - skip validate
+ * @returns result - [colorA, colorB]
+ */
+export const normalizeColorComponents = (
+  colorA: [number | string, number | string, number | string, number | string],
+  colorB: [number | string, number | string, number | string, number | string],
+  skip: boolean = false
+): [ColorChannels, ColorChannels] => {
+  if (!Array.isArray(colorA)) {
+    throw new TypeError(`${colorA} is not an array.`);
+  } else if (colorA.length !== QUAD) {
+    throw new Error(`Unexpected array length ${colorA.length}.`);
+  }
+  if (!Array.isArray(colorB)) {
+    throw new TypeError(`${colorB} is not an array.`);
+  } else if (colorB.length !== QUAD) {
+    throw new Error(`Unexpected array length ${colorB.length}.`);
+  }
+  let i = 0;
+  while (i < QUAD) {
+    if (colorA[i] === NONE && colorB[i] === NONE) {
+      colorA[i] = 0;
+      colorB[i] = 0;
+    } else if (colorA[i] === NONE) {
+      colorA[i] = colorB[i] as number;
+    } else if (colorB[i] === NONE) {
+      colorB[i] = colorA[i] as number;
+    }
+    i++;
+  }
+  if (skip) {
+    return [colorA as ColorChannels, colorB as ColorChannels];
+  }
+  const validatedColorA = validateColorComponents(colorA as ColorChannels, {
+    minLength: QUAD,
+    validateRange: false
+  });
+  const validatedColorB = validateColorComponents(colorB as ColorChannels, {
+    minLength: QUAD,
+    validateRange: false
+  });
+  return [validatedColorA as ColorChannels, validatedColorB as ColorChannels];
 };
 
 /**

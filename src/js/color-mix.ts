@@ -13,12 +13,12 @@ import {
   convertColorToOklch,
   convertColorToRgb,
   convertColorToXyz,
-  normalizeColorComponents,
   parseColorFunc,
   parseColorValue,
   resolveColorValue
 } from './color';
 import { isString } from './common';
+import { normalizeColorComponents } from './matrix';
 import { transformXyzD50ToRgb, transformXyzToRgb } from './transform';
 import {
   cacheInvalidColorValue,
