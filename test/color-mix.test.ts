@@ -7,9 +7,8 @@ import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest';
 
 /* test */
 import { lruCache } from '../src/js/cache';
-import { cacheInvalidColorValue } from '../src/js/color';
 import { resolveColor } from '../src/js/resolve';
-import { roundToPrecision } from '../src/js/util';
+import { cacheInvalidColorValue, roundToPrecision } from '../src/js/util';
 import * as colorMix from '../src/js/color-mix';
 
 beforeEach(() => {
