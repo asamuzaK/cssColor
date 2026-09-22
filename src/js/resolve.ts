@@ -3,12 +3,7 @@
  */
 
 import { createCacheKey, getCache, setCache } from './cache';
-import {
-  NAMED_COLORS,
-  convertRgbToHex,
-  resolveColorFunc,
-  resolveColorValue
-} from './color';
+import { convertRgbToHex, resolveColorFunc, resolveColorValue } from './color';
 import { resolveColorMix } from './color-mix';
 import { isString } from './common';
 import { cssCalc, resolveVar } from './css-calc-var';
@@ -33,6 +28,7 @@ import {
   VAL_COMP,
   VAL_SPEC
 } from './constant';
+import { NAMED_COLORS } from './named-color';
 const NAMESPACE = 'resolve';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
