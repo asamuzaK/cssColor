@@ -846,3 +846,273 @@ describe('parse parseColorFunc()', () => {
     assert.strictEqual(res[4], 0);
   });
 });
+
+describe('parse parseColorValue()', () => {
+  const func = parse.parseColorValue;
+
+  it('should throw a TypeError if the input is not a string', () => {
+    assert.throws(
+      () => func(null as unknown as string),
+      TypeError,
+      'null is not a string.'
+    );
+    assert.throws(
+      () => func(123 as unknown as string),
+      TypeError,
+      '123 is not a string.'
+    );
+    assert.throws(
+      () => func(undefined as unknown as string),
+      TypeError,
+      'undefined is not a string.'
+    );
+  });
+
+  it('should handle currentcolor keyword', () => {
+    assert.deepEqual(func('currentcolor', { format: 'computedValue' }), [
+      'rgb',
+      0,
+      0,
+      0,
+      0
+    ]);
+    assert.strictEqual(
+      func('currentcolor', { format: 'specifiedValue' }),
+      'currentcolor'
+    );
+  });
+
+  it('should parse named colors correctly', () => {
+    assert.strictEqual(func('red', { format: 'specifiedValue' }), 'red');
+    assert.deepEqual(func('red', { format: 'computedValue' }), [
+      'rgb',
+      255,
+      0,
+      0,
+      1
+    ]);
+
+    const resD65 = func('red');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('red', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should handle "transparent" and unknown named color strings', () => {
+    assert.strictEqual(
+      func('transparent', { format: 'specifiedValue' }),
+      'transparent'
+    );
+    assert.deepEqual(func('transparent', { format: 'computedValue' }), [
+      'rgb',
+      0,
+      0,
+      0,
+      0
+    ]);
+    assert.deepEqual(func('transparent', { format: 'mixValue' }), [
+      'rgb',
+      0,
+      0,
+      0,
+      0
+    ]);
+
+    assert.strictEqual(func('unknowncolor', { format: 'specifiedValue' }), '');
+    assert.deepEqual(func('unknowncolor', { format: 'computedValue' }), [
+      'rgb',
+      0,
+      0,
+      0,
+      0
+    ]);
+    assert.strictEqual(
+      func('unknowncolor', { format: 'computedValue', nullable: true }),
+      null
+    );
+    assert.strictEqual(func('unknowncolor', { format: 'mixValue' }), null);
+  });
+
+  it('should parse hex colors correctly', () => {
+    assert.deepEqual(func('#ff0000', { format: 'specifiedValue' }), [
+      'rgb',
+      255,
+      0,
+      0,
+      1
+    ]);
+
+    const resD65 = func('#ff0000');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('#ff0000', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should parse lab() colors correctly', () => {
+    assert.deepEqual(func('lab(50 20 -30)', { format: 'specifiedValue' }), [
+      'lab',
+      50,
+      20,
+      -30,
+      1
+    ]);
+
+    const resD65 = func('lab(50 20 -30)');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('lab(50 20 -30)', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should parse lch() colors correctly', () => {
+    assert.deepEqual(func('lch(50 20 180)', { format: 'specifiedValue' }), [
+      'lch',
+      50,
+      20,
+      180,
+      1
+    ]);
+
+    const resD65 = func('lch(50 20 180)');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('lch(50 20 180)', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should parse oklab() colors correctly', () => {
+    assert.deepEqual(
+      func('oklab(0.6 0.1 -0.1)', { format: 'specifiedValue' }),
+      ['oklab', 0.6, 0.1, -0.1, 1]
+    );
+
+    const resD65 = func('oklab(0.6 0.1 -0.1)');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('oklab(0.6 0.1 -0.1)', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should parse oklch() colors correctly', () => {
+    assert.deepEqual(func('oklch(0.6 0.1 180)', { format: 'specifiedValue' }), [
+      'oklch',
+      0.6,
+      0.1,
+      180,
+      1
+    ]);
+
+    const resD65 = func('oklch(0.6 0.1 180)');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('oklch(0.6 0.1 180)', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should parse hsl(), hwb(), and rgb() colors correctly', () => {
+    assert.deepEqual(func('hsl(0 100% 50%)', { format: 'specifiedValue' }), [
+      'rgb',
+      255,
+      0,
+      0,
+      1
+    ]);
+    assert.deepEqual(func('hwb(0 0% 0%)', { format: 'specifiedValue' }), [
+      'rgb',
+      255,
+      0,
+      0,
+      1
+    ]);
+    assert.deepEqual(func('rgb(255 0 0)', { format: 'specifiedValue' }), [
+      'rgb',
+      255,
+      0,
+      0,
+      1
+    ]);
+
+    const resD65 = func('hsl(0 100% 50%)');
+    assert.isArray(resD65);
+    assert.strictEqual(resD65[0], 'xyz-d65');
+
+    const resD50 = func('hsl(0 100% 50%)', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+
+  it('should return fallback values for invalid color strings', () => {
+    assert.strictEqual(func('invalid-color', { nullable: true }), null);
+    assert.strictEqual(func('invalid-color', { format: 'specifiedValue' }), '');
+    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+  });
+
+  it('should return the lowercased string for currentcolor', () => {
+    assert.strictEqual(
+      func('currentcolor', { format: 'specifiedValue' }),
+      'currentcolor'
+    );
+    assert.strictEqual(
+      func('CurrentColor', { format: 'specifiedValue' }),
+      'currentcolor'
+    );
+    assert.strictEqual(
+      func('CURRENTCOLOR', { format: 'specifiedValue' }),
+      'currentcolor'
+    );
+  });
+
+  it('should handle currentcolor when format is omitted or set to other values', () => {
+    const resDefault = func('currentcolor');
+    assert.isArray(resDefault);
+    assert.strictEqual(resDefault[0], 'xyz-d65');
+
+    const resEmptyObj = func('currentcolor', {});
+    assert.deepEqual(resEmptyObj, resDefault);
+
+    const resUndefined = func('currentcolor', { format: undefined });
+    assert.deepEqual(resUndefined, resDefault);
+
+    const resD50 = func('currentcolor', { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+
+    const resMix = func('currentcolor', { format: 'mixValue' });
+    assert.isArray(resMix);
+
+    const resCustomFormat = func('currentcolor', { format: 'foo' as any });
+    assert.deepEqual(resCustomFormat, resDefault);
+  });
+
+  it('should return the fallback value when format is unknown', () => {
+    const resUnknownFormat = func('unknowncolor', { format: 'foo' as any });
+    assert.isArray(resUnknownFormat);
+    assert.strictEqual(resUnknownFormat[0], 'xyz-d65');
+
+    const resTransparent = func('transparent', { format: 'bar' as any });
+    assert.isArray(resTransparent);
+    assert.strictEqual(resTransparent[0], 'xyz-d65');
+
+    const resUndefinedFormat = func('unknowncolor', { format: undefined });
+    assert.isArray(resUndefinedFormat);
+    assert.strictEqual(resUndefinedFormat[0], 'xyz-d65');
+
+    const resD50 = func('unknowncolor', { format: 'baz' as any, d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50[0], 'xyz-d50');
+  });
+});

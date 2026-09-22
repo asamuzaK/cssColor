@@ -10,12 +10,11 @@ import {
   convertColorToLch,
   convertColorToOklab,
   convertColorToOklch,
-  convertColorToRgb,
-  parseColorValue
+  convertColorToRgb
 } from './color';
 import { isString } from './common';
 import { cssCalc, resolveVar } from './css-calc-var';
-import { parseColorFunc } from './parse';
+import { parseColorFunc, parseColorValue } from './parse';
 import { resolveRelativeColor } from './relative-color';
 import { resolveColor } from './resolve';
 import { ColorChannels, ComputedColorChannels, Options } from './typedef';

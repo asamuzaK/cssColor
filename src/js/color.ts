@@ -4,26 +4,21 @@
 
 import { createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { convertHexToRgb, convertHexToXyz } from './hex';
+import { convertHexToRgb } from './hex';
+import { MATRIX_XYZ_TO_L_RGB, transformMatrix } from './matrix';
 import {
-  MATRIX_D50_TO_D65,
-  MATRIX_D65_TO_D50,
-  MATRIX_XYZ_TO_L_RGB,
-  transformMatrix
-} from './matrix';
-import {
+  parseColorFunc,
+  parseColorValue,
+  parseHsl,
+  parseHwb,
   parseLab,
   parseLch,
   parseOklab,
   parseOklch,
-  parseHsl,
-  parseHwb,
-  parseRgb,
-  parseColorFunc
+  parseRgb
 } from './parse';
 import {
   transformLinearRgbToRgb,
-  transformRgbToXyz,
   transformXyzD50ToLab,
   transformXyzD50ToLch,
   transformXyzD50ToRgb,
@@ -33,7 +28,7 @@ import {
   transformXyzToOklch,
   transformXyzToRgb
 } from './transform';
-import { parseAlpha, resolveInvalidColorValue, roundToPrecision } from './util';
+import { parseAlpha, resolveInvalidColorValue } from './util';
 import {
   ColorChannels,
   ComputedColorChannels,
@@ -62,7 +57,6 @@ import { NAMED_COLORS } from './named-color';
 const NAMESPACE = 'color';
 
 /* numeric constants */
-const HEX = 16;
 const MAX_RGB = 255;
 
 /* regexp */
@@ -76,160 +70,6 @@ const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_MOD})\\s*\\)$`);
 const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
-
-/**
- * parse color value
- * @param value - CSS color value
- * @param opt - options
- * @returns parsed color
- *   - ['xyz-(d50|d65)', x, y, z, alpha], ['rgb', r, g, b, alpha]
- *   - value, '(empty)', null
- */
-export const parseColorValue = (
-  value: string,
-  opt: Options = {}
-): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-  } else {
-    throw new TypeError(`${value} is not a string.`);
-  }
-  const { d50 = false, format = '', nullable = false } = opt;
-  if (!REG_COLOR.test(value)) {
-    const res = resolveInvalidColorValue(format, nullable);
-    if (res === null) {
-      return null;
-    } else if (isString(res)) {
-      return res as string;
-    }
-    return res as SpecifiedColorChannels;
-  }
-  let x = 0;
-  let y = 0;
-  let z = 0;
-  let alpha = 0;
-  // complement currentcolor as a missing color
-  if (REG_CURRENT.test(value)) {
-    if (format === VAL_COMP) {
-      return ['rgb', 0, 0, 0, 0];
-    }
-    if (format === VAL_SPEC) {
-      return value;
-    }
-    // named-color
-  } else if (/^[a-z]+$/.test(value)) {
-    if (Object.hasOwn(NAMED_COLORS, value)) {
-      if (format === VAL_SPEC) {
-        return value;
-      }
-      const [r, g, b] = NAMED_COLORS[
-        value as keyof typeof NAMED_COLORS
-      ] as TriColorChannels;
-      alpha = 1;
-      if (format === VAL_COMP) {
-        return ['rgb', r, g, b, alpha];
-      }
-      [x, y, z] = transformRgbToXyz([r, g, b], true);
-      if (d50) {
-        [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-      }
-    } else {
-      switch (format) {
-        case VAL_COMP: {
-          if (nullable && value !== 'transparent') {
-            return null;
-          }
-          return ['rgb', 0, 0, 0, 0];
-        }
-        case VAL_SPEC: {
-          if (value === 'transparent') {
-            return value;
-          }
-          return '';
-        }
-        case VAL_MIX: {
-          if (value === 'transparent') {
-            return ['rgb', 0, 0, 0, 0];
-          }
-          return null;
-        }
-        default:
-      }
-    }
-    // hex-color
-  } else if (value[0] === '#') {
-    if (REG_SPEC.test(format)) {
-      const rgb = convertHexToRgb(value);
-      return ['rgb', ...rgb];
-    }
-    [x, y, z, alpha] = convertHexToXyz(value);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-    // lab()
-  } else if (value.startsWith('lab')) {
-    if (REG_SPEC.test(format)) {
-      return parseLab(value, opt);
-    }
-    [, x, y, z, alpha] = parseLab(value) as ComputedColorChannels;
-    if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
-    }
-    // lch()
-  } else if (value.startsWith('lch')) {
-    if (REG_SPEC.test(format)) {
-      return parseLch(value, opt);
-    }
-    [, x, y, z, alpha] = parseLch(value) as ComputedColorChannels;
-    if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
-    }
-    // oklab()
-  } else if (value.startsWith('oklab')) {
-    if (REG_SPEC.test(format)) {
-      return parseOklab(value, opt);
-    }
-    [, x, y, z, alpha] = parseOklab(value) as ComputedColorChannels;
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-    // oklch()
-  } else if (value.startsWith('oklch')) {
-    if (REG_SPEC.test(format)) {
-      return parseOklch(value, opt);
-    }
-    [, x, y, z, alpha] = parseOklch(value) as ComputedColorChannels;
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  } else {
-    let r, g, b;
-    // hsl()
-    if (value.startsWith('hsl')) {
-      [, r, g, b, alpha] = parseHsl(value) as ComputedColorChannels;
-      // hwb()
-    } else if (value.startsWith('hwb')) {
-      [, r, g, b, alpha] = parseHwb(value) as ComputedColorChannels;
-      // rgb()
-    } else {
-      [, r, g, b, alpha] = parseRgb(value, opt) as ComputedColorChannels;
-    }
-    if (REG_SPEC.test(format)) {
-      return ['rgb', Math.round(r), Math.round(g), Math.round(b), alpha];
-    }
-    [x, y, z] = transformRgbToXyz([r, g, b]);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  }
-  return [
-    d50 ? 'xyz-d50' : 'xyz-d65',
-    roundToPrecision(x, HEX),
-    roundToPrecision(y, HEX),
-    roundToPrecision(z, HEX),
-    alpha
-  ];
-};
 
 /**
  * resolve color value
