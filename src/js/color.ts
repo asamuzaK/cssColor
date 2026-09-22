@@ -514,13 +514,14 @@ export const convertRgbToHex = (rgb: ColorChannels): string => {
   return hex;
 };
 
+// TODO: export later
 /**
  * convert linear rgb to hex color
  * @param rgb - [r, g, b, alpha] r|g|b|alpha: 0..1
  * @param [skip] - skip validate
  * @returns hex color
  */
-export const convertLinearRgbToHex = (
+const convertLinearRgbToHex = (
   rgb: ColorChannels,
   skip: boolean = false
 ): string => {
