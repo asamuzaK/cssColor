@@ -9,7 +9,7 @@ import {
 } from '@csstools/css-parser-algorithms';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { createCacheKey, getCache, setCache } from './cache';
-import { NAMED_COLORS, convertColorToRgb } from './color';
+import { convertColorToRgb } from './color';
 import { isString, isStringOrNumber } from './common';
 import { resolveDimension, serializeCalc } from './css-calc-var';
 import { roundToPrecision, splitValue } from './util';
@@ -35,6 +35,7 @@ import {
   SYN_MIX,
   VAL_SPEC
 } from './constant';
+import { NAMED_COLORS } from './named-color';
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
