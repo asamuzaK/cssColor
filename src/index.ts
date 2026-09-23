@@ -5,8 +5,8 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
-import { cssCalc, cssVar } from './resolvers/css-calc-var';
 import { isGradient } from './gradients/gradient';
+import { cssCalc, cssVar } from './resolvers/css-calc-var';
 import { isColor } from './resolvers/resolve';
 import {
   extractDashedIdent,
@@ -15,8 +15,8 @@ import {
 } from './utils/util';
 
 export { convert } from './converters/convert';
-export { resolve } from './resolvers/resolve';
 export { resolveGradient } from './gradients/gradient';
+export { resolve } from './resolvers/resolve';
 
 /* utils */
 export const utils = {
