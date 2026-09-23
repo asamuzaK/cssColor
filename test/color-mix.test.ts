@@ -170,6 +170,82 @@ describe('resolveIfNested', () => {
       'format option should be updated to computedValue'
     );
   });
+
+  it('should format rgb array with alpha === 1 as rgb(r, g, b)', () => {
+    const input = 'color-mix(in srgb, red, blue)';
+    const resolver = () => ['rgb', 255, 0, 0, 1];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'rgb(255, 0, 0)');
+  });
+
+  it('should format rgb array with undefined alpha as rgb(r, g, b)', () => {
+    const input = 'color-mix(in srgb, red, blue)';
+    const resolver = () => ['rgb', 255, 0, 0];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'rgb(255, 0, 0)');
+  });
+
+  it('should format rgb array with alpha !== 1 as rgba(r, g, b, a)', () => {
+    const input = 'color-mix(in srgb, red, blue)';
+    const resolver = () => ['rgb', 255, 0, 0, 0.5];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'rgba(255, 0, 0, 0.5)');
+  });
+
+  it('should format non-rgb array with alpha === 1 as cs(v1 v2 v3)', () => {
+    const input = 'color-mix(in lab, red, blue)';
+    const resolver = () => ['lab', 50, 20, 30, 1];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'lab(50 20 30)');
+  });
+
+  it('should format non-rgb array with alpha !== 1 as cs(v1 v2 v3 / a)', () => {
+    const input = 'color-mix(in oklch, red, blue)';
+    const resolver = () => ['oklch', 0.6, 0.15, 120, 0.5];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'oklch(0.6 0.15 120 / 0.5)');
+  });
+
+  it('should break the loop immediately to prevent an infinite loop', () => {
+    const input = 'color-mix(in srgb, red, blue)';
+    let callCount = 0;
+    const resolver = (v: string) => {
+      callCount++;
+      return v;
+    };
+
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, input);
+    assert.strictEqual(
+      callCount,
+      1,
+      'resolver should only be called once before breaking'
+    );
+  });
+
+  it('should break the loop when resolver returns a number', () => {
+    const input = 'color-mix(in srgb, red, blue)';
+    let callCount = 0;
+    const resolver = () => {
+      callCount++;
+      return 123;
+    };
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, input);
+    assert.strictEqual(callCount, 1);
+  });
+
+  it('should break the loop when resolver returns an object', () => {
+    const input = 'color-mix(in srgb, red, blue)';
+    let callCount = 0;
+    const resolver = () => {
+      callCount++;
+      return {};
+    };
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, input);
+    assert.strictEqual(callCount, 1);
+  });
 });
 
 describe('normalizePercentages', () => {
@@ -529,6 +605,21 @@ describe('formatMixedColor', () => {
 describe('getRawChannels', () => {
   const func = colorMix.getRawChannels;
   const opt = { colorSpace: 'srgb', format: 'mixValue' };
+
+  it('should return the input array as is without calling convertFn', () => {
+    const inputColor: NumStrColorChannels = ['srgb', 1, 0, 0, 1];
+    let convertFnCalled = false;
+    const convertFn = () => {
+      convertFnCalled = true;
+      return null;
+    };
+    const res = func(inputColor, convertFn, {});
+    assert.strictEqual(res, inputColor);
+    assert.isFalse(
+      convertFnCalled,
+      'convertFn should not be called when input is already an array'
+    );
+  });
 
   it('should return none fallback array when color is "currentcolor"', () => {
     let convertFnCalled = false;

@@ -43,6 +43,21 @@ describe('resolve CSS color', () => {
     });
     assert.strictEqual(res, 'rgba(128, 0, 255, 0.5)', 'result');
   });
+
+  it('should resolve 3-level nested color-mix', () => {
+    const res = func(
+      'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, rgb(255 0 0), rgb(0 0 255)), rgb(0 255 0)), rgb(255 255 0))'
+    );
+    assert.strictEqual(res, 'color(srgb 0.625 0.75 0.125)', 'result');
+  });
+
+  it('should resolve 4-level nested color-mix with hex format option', () => {
+    const res = func(
+      'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, #000, #fff), #000), #fff), #000)',
+      { format: 'hex' }
+    );
+    assert.strictEqual(res, '#505050', 'result');
+  });
 });
 
 describe('resolve CSS gradient', () => {

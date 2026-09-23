@@ -121,20 +121,45 @@ export const resolveIfNested = (
   opt: Options,
   resolver: (v: string, o?: Options) => string | null
 ): string => {
-  if (
-    colorStr.startsWith('color-mix(') ||
-    colorStr.startsWith('var(') ||
-    colorStr.startsWith('light-dark(')
+  let current = colorStr;
+  while (
+    isString(current) &&
+    (current.startsWith('color-mix(') ||
+      current.startsWith('var(') ||
+      current.startsWith('light-dark('))
   ) {
-    const resolved = resolver(colorStr, {
+    const resolved = resolver(current, {
       ...opt,
       format: opt.format === VAL_SPEC ? opt.format : VAL_COMP
     });
-    if (resolved) {
-      return resolved;
+    if (!resolved) {
+      break;
+    }
+    if (Array.isArray(resolved)) {
+      const [cs, v1, v2, v3, v4] = resolved;
+      if (v4 === 1 || v4 === undefined) {
+        current =
+          cs === 'rgb'
+            ? `${cs}(${v1}, ${v2}, ${v3})`
+            : `${cs}(${v1} ${v2} ${v3})`;
+      } else {
+        current =
+          cs === 'rgb'
+            ? `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`
+            : `${cs}(${v1} ${v2} ${v3} / ${v4})`;
+      }
+      break;
+    }
+    if (typeof resolved === 'string') {
+      if (resolved === current) {
+        break;
+      }
+      current = resolved;
+    } else {
+      break;
     }
   }
-  return colorStr;
+  return current;
 };
 
 /**
@@ -374,10 +399,13 @@ export const formatMixedColor = (
  * @returns color channel values or null if invalid
  */
 export const getRawChannels = (
-  color: string,
+  color: string | NumStrColorChannels,
   convertFn: (c: string, opt: any) => any,
   opt: any
 ): NumStrColorChannels | null => {
+  if (Array.isArray(color)) {
+    return color as NumStrColorChannels;
+  }
   if (color === 'currentcolor') {
     return [NONE, NONE, NONE, NONE];
   }
