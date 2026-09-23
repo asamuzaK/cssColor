@@ -61,6 +61,174 @@ describe('get gradient type', () => {
   });
 });
 
+describe('validate linear gradient line', () => {
+  const func = grad.validateLinearGradientLine;
+
+  it('should return false for invalid syntax', () => {
+    const res = func('foo');
+    assert.deepEqual(
+      res,
+      {
+        line: 'foo',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should validate angle units', () => {
+    const res = func('45deg');
+    assert.deepEqual(
+      res,
+      {
+        line: '45deg',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should validate side-or-corner keywords', () => {
+    const res = func('to left top');
+    assert.deepEqual(
+      res,
+      {
+        line: 'to left top',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should normalize default "to bottom" to empty string', () => {
+    const res = func('to  bottom');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should keep color space interpolation and remove "to bottom"', () => {
+    const res = func('to bottom in oklab');
+    assert.deepEqual(
+      res,
+      {
+        line: 'in oklab',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should keep color space interpolation with custom angle', () => {
+    const res = func('90deg in hsl longer hue');
+    assert.deepEqual(
+      res,
+      {
+        line: '90deg in hsl longer hue',
+        valid: true
+      },
+      'result'
+    );
+  });
+});
+
+describe('validate radial gradient line', () => {
+  const func = grad.validateRadialGradientLine;
+
+  it('should return false for invalid syntax', () => {
+    const res = func('foo');
+    assert.deepEqual(
+      res,
+      {
+        line: 'foo',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should validate circle shape and normalize center position', () => {
+    const res = func('circle at center');
+    assert.deepEqual(
+      res,
+      {
+        line: 'circle',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should remove default values (ellipse farthest-corner at center)', () => {
+    const res = func('ellipse farthest-corner at center');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should validate size keyword', () => {
+    const res = func('ellipse closest-side');
+    assert.deepEqual(
+      res,
+      {
+        line: 'closest-side',
+        valid: true
+      },
+      'result'
+    );
+  });
+});
+
+describe('validate conic gradient line', () => {
+  const func = grad.validateConicGradientLine;
+
+  it('should return false for invalid syntax', () => {
+    const res = func('foo');
+    assert.deepEqual(
+      res,
+      {
+        line: 'foo',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should validate from angle', () => {
+    const res = func('from 45deg');
+    assert.deepEqual(
+      res,
+      {
+        line: 'from 45deg',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should normalize default "at center"', () => {
+    const res = func('at center');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+});
+
 describe('validate gradient line', () => {
   const func = grad.validateGradientLine;
 
@@ -516,6 +684,66 @@ describe('validate color stop list', () => {
       res,
       {
         colorStops: ['red', '50%'],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if an item is empty or whitespace', () => {
+    const res = func(['red', ''], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red', ''],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if an item has more than 3 tokens', () => {
+    const res = func(['red 10% 20% 30%', 'blue'], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red 10% 20% 30%', 'blue'],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if position unit is invalid for linear-gradient', () => {
+    const res = func(['red 45deg', 'blue'], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red 45deg', 'blue'],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if position unit is invalid for conic-gradient', () => {
+    const res = func(['red 10px', 'blue'], 'conic-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red 10px', 'blue'],
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should get false if position contains an invalid token', () => {
+    const res = func(['red foo', 'blue'], 'linear-gradient');
+    assert.deepEqual(
+      res,
+      {
+        colorStops: ['red foo', 'blue'],
         valid: false
       },
       'result'
