@@ -18,11 +18,51 @@ afterEach(() => {
   lruCache.clear();
 });
 
+describe('check value length', () => {
+  const func = util.checkValueLength;
+
+  it('should return false when value is not a string', () => {
+    assert.isFalse(func());
+  });
+
+  it('should return true when length is lte to MAX_LENGTH', () => {
+    const validStr = 'a'.repeat(2048);
+    assert.isTrue(func(validStr));
+  });
+
+  it('should return false when length exceeds MAX_LENGTH', () => {
+    const invalidStr = 'a'.repeat(2049);
+    assert.isFalse(func(invalidStr));
+  });
+
+  it('should respect custom maxLength option when within limit', () => {
+    const str = 'a'.repeat(10);
+    assert.isTrue(func(str, { maxLength: 10 }));
+  });
+
+  it('should respect custom maxLength option when exceeding limit', () => {
+    const str = 'a'.repeat(11);
+    assert.isFalse(func(str, { maxLength: 10 }));
+  });
+
+  it('should return false when maxLength is set to 0 or negative', () => {
+    const str = 'a';
+    assert.isFalse(func(str, { maxLength: 0 }));
+    assert.isFalse(func(str, { maxLength: -1 }));
+  });
+});
+
 describe('split value', () => {
   const func = util.splitValue;
 
   it('should throw TypeError if value is not a string', () => {
     assert.throws(() => func(123 as any), TypeError);
+  });
+
+  it('should return empty array if value exceeds max length', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, { maxLength: 10 });
+    assert.deepEqual(res, []);
   });
 
   it('should split value by whitespace by default', () => {
@@ -97,6 +137,12 @@ describe('extract dashed ident', () => {
 
   it('should throw TypeError if value is not a string', () => {
     assert.throws(() => func(123 as any), TypeError);
+  });
+
+  it('should return empty array if value exceeds max length', () => {
+    const value = 'a'.repeat(1025).split('').join(' ');
+    const res = func(value);
+    assert.deepEqual(res, []);
   });
 
   it('should extract dashed idents from string', () => {
@@ -185,6 +231,12 @@ describe('interpolate hue', () => {
 
 describe('resolve length in pixels', () => {
   const func = util.resolveLengthInPixels;
+
+  it('should return NaN if value exceeds max length', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, null, { maxLength: 10 });
+    assert.strictEqual(Number.isNaN(res), true);
+  });
 
   it('should resolve absolute font size keywords', () => {
     const opt = { dimension: { rem: 16 } } as any;

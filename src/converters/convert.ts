@@ -9,7 +9,7 @@ import { resolveColor } from '../resolvers/resolve-color';
 import { ColorChannels, ComputedColorChannels, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
-import { numberToHexString } from '../utils/util';
+import { checkValueLength, numberToHexString } from '../utils/util';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -42,6 +42,9 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
  */
 export const preProcess = (value: string, opt: Options = {}): string | null => {
   if (!isString(value)) {
+    return null;
+  }
+  if (!checkValueLength(value, opt)) {
     return null;
   }
   value = value.trim();
@@ -108,7 +111,10 @@ const createColorConverter = (
     if (!isString(value)) {
       throw new TypeError(`${value} is not a string.`);
     }
-    const resolved = preProcess(value, opt);
+    const options = {
+      ...opt
+    };
+    const resolved = preProcess(value, options);
     if (resolved === null) {
       return [0, 0, 0, 0];
     }
@@ -121,7 +127,7 @@ const createColorConverter = (
     if (cached !== false) {
       return cached.item as ColorChannels;
     }
-    const result = convertFn(val, { ...opt, format }) as ColorChannels;
+    const result = convertFn(val, { ...options, format }) as ColorChannels;
     setCache(cacheKey, result);
     return result;
   };
@@ -146,23 +152,26 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  const resolved = preProcess(value, opt);
+  const options = {
+    ...opt
+  };
+  const resolved = preProcess(value, options);
   if (resolved === null) {
     return null;
   }
   const val = resolved.toLowerCase();
   const cacheKey = createCacheKey(
     { namespace: NAMESPACE, name: 'colorToHex', value: val },
-    opt
+    options
   );
   const cached = getCache(cacheKey);
   if (cached !== false) {
     return cached.item as string | null;
   }
   const hex = resolveColor(val, {
-    ...opt,
+    ...options,
     nullable: true,
-    format: opt.alpha ? 'hexAlpha' : 'hex'
+    format: options.alpha ? 'hexAlpha' : 'hex'
   });
   if (isString(hex)) {
     setCache(cacheKey, hex);
@@ -266,14 +275,17 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  const resolved = preProcess(value, opt);
+  const options = {
+    ...opt
+  };
+  const resolved = preProcess(value, options);
   if (resolved === null) {
     return [0, 0, 0, 0];
   }
   const val = resolved.toLowerCase();
   const cacheKey = createCacheKey(
     { namespace: NAMESPACE, name: 'colorToXyz', value: val },
-    opt
+    options
   );
   const cached = getCache(cacheKey);
   if (cached !== false) {
@@ -281,9 +293,9 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   }
   let parsed;
   if (val.startsWith('color(')) {
-    parsed = parseColorFunc(val, opt);
+    parsed = parseColorFunc(val, options);
   } else {
-    parsed = parseColorValue(val, opt);
+    parsed = parseColorValue(val, options);
   }
   const [, ...xyz] = parsed as ComputedColorChannels;
   setCache(cacheKey, xyz);

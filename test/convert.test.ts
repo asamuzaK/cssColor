@@ -30,6 +30,14 @@ describe('pre process', () => {
     assert.strictEqual(res, null, 'result');
   });
 
+  it('should get null object', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, {
+      maxLength: 10
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
   it('should get value as is', () => {
     const res = func('foo');
     assert.strictEqual(res, 'foo', 'result');

@@ -15,6 +15,7 @@ import {
   DEG_HALF,
   DUO,
   HEX,
+  MAX_LENGTH,
   MAX_PCT,
   MAX_RGB,
   NONE,
@@ -83,6 +84,19 @@ const relativeLength = new Map([
 ]);
 
 /**
+ * check value length
+ * @param value - CSS value
+ * @returns result
+ */
+export const checkValueLength = (value: string, opt: Options = {}): boolean => {
+  if (!isString(value)) {
+    return false;
+  }
+  const maxLength = opt?.maxLength ?? MAX_LENGTH;
+  return maxLength > 0 && value.length <= maxLength;
+};
+
+/**
  * split value
  * NOTE: comments are stripped, it can be preserved if, in the options param,
  * `delimiter` is either ',' or '/' and with `preserveComment` set to `true`
@@ -93,6 +107,9 @@ const relativeLength = new Map([
 export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
+  }
+  if (!checkValueLength(value, opt)) {
+    return [];
   }
   const strValue = value.trim();
   const { delimiter = ' ', preserveComment = false } = opt;
@@ -192,6 +209,9 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
 export const extractDashedIdent = (value: string): string[] => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
+  }
+  if (!checkValueLength(value, {})) {
+    return [];
   }
   const strValue = value.trim();
   const cacheKey: string = createCacheKey({
@@ -306,6 +326,9 @@ export const resolveLengthInPixels = (
     vw: number;
   };
   if (isString(value)) {
+    if (!checkValueLength(value, opt)) {
+      return Number.NaN;
+    }
     const str = value.toLowerCase().trim();
     const ratio = absoluteFontSize.get(str);
     if (ratio !== undefined) {

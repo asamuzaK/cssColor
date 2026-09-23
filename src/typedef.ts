@@ -24,6 +24,7 @@ export interface Options {
   delimiter?: string | string[];
   dimension?: Record<string, number | ((K: string) => number)>;
   format?: string;
+  maxLength?: number;
   nullable?: boolean;
   preserveComment?: boolean;
 }
