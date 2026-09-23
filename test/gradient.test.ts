@@ -135,6 +135,16 @@ describe('resolve CSS gradient', () => {
       'result'
     );
   });
+
+  it('should return "none" when color stops are not enough', () => {
+    const res = func('linear-gradient(red)');
+    assert.strictEqual(res, 'none', 'result');
+  });
+
+  it('should return empty string when color stops are not enough', () => {
+    const res = func('linear-gradient(red)', { format: 'specifiedValue' });
+    assert.strictEqual(res, '', 'result');
+  });
 });
 
 describe('is CSS gradient', () => {

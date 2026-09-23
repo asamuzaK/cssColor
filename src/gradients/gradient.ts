@@ -21,12 +21,10 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
   const gradient = parseGradient(value, options);
   if (gradient) {
     const { type = '', gradientLine = '', colorStopList = [] } = gradient;
-    if (type && Array.isArray(colorStopList) && colorStopList.length > 1) {
-      if (gradientLine) {
-        return `${type}(${gradientLine}, ${colorStopList.join(', ')})`;
-      }
-      return `${type}(${colorStopList.join(', ')})`;
+    if (gradientLine) {
+      return `${type}(${gradientLine}, ${colorStopList.join(', ')})`;
     }
+    return `${type}(${colorStopList.join(', ')})`;
   }
   if (options.format === VAL_SPEC) {
     return '';
