@@ -136,8 +136,8 @@ export const validateLinearGradientLine = (
     return { line: '', valid: true };
   }
   const line = normalized
-    .replace(/^to\s+bottom\s+/i, '')
-    .replace(/\s+to\s+bottom$/i, '')
+    .replace(/^to\sbottom\s/i, '')
+    .replace(/\sto\sbottom$/i, '')
     .trim();
   return { line, valid: true };
 };
