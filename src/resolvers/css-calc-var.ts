@@ -1211,7 +1211,9 @@ export function parseVarTokens(
   const res: string[] = [];
   while (tokens.length) {
     const token = tokens.shift();
-    if (!token) break;
+    if (!token) {
+      break;
+    }
     const [type = '', value = ''] = token as [TokenType, string];
     if (value === FN_VAR) {
       const [, resolvedValue] = resolveCustomProperty(tokens, opt);

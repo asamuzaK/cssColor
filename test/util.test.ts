@@ -45,10 +45,12 @@ describe('check value length', () => {
     assert.isFalse(func(str, { maxLength: 10 }));
   });
 
-  it('should return false when maxLength is set to 0 or negative', () => {
-    const str = 'a';
-    assert.isFalse(func(str, { maxLength: 0 }));
-    assert.isFalse(func(str, { maxLength: -1 }));
+  it('should verify with default max length', () => {
+    const str = 'a'.repeat(2048);
+    assert.isTrue(func(str, { maxLength: 0 }));
+    assert.isTrue(func(str, { maxLength: -1 }));
+    assert.isFalse(func(`${str}a`, { maxLength: 0 }));
+    assert.isFalse(func(`${str}a`, { maxLength: -1 }));
   });
 });
 

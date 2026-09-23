@@ -92,8 +92,16 @@ export const checkValueLength = (value: string, opt: Options = {}): boolean => {
   if (!isString(value)) {
     return false;
   }
-  const maxLength = opt?.maxLength ?? MAX_LENGTH;
-  return maxLength > 0 && value.length <= maxLength;
+  const { maxLength: optMaxLength } = opt;
+  let maxLength = MAX_LENGTH;
+  if (
+    Number.isInteger(optMaxLength) &&
+    (optMaxLength as number) > 0 &&
+    (optMaxLength as number) < maxLength
+  ) {
+    maxLength = optMaxLength as number;
+  }
+  return value.length <= maxLength;
 };
 
 /**
