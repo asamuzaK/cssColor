@@ -1,7 +1,7 @@
 /**
  * named-color
  */
-import type { ReadonlyTriColorChannels } from './typedef';
+import type { ReadonlyTriColorChannels } from '../typedef';
 
 /**
  * named colors

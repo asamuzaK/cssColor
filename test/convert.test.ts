@@ -6,8 +6,8 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import * as convert from '../src/js/convert.js';
-import { lruCache } from '../src/js/cache.js';
+import { lruCache } from '../src/utils/cache';
+import * as convert from '../src/converters/convert';
 
 beforeEach(() => {
   lruCache.clear();

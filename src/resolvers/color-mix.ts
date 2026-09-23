@@ -2,7 +2,6 @@
  * color-mix
  */
 
-import { createCacheKey, getCache, setCache } from './cache';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -12,19 +11,8 @@ import {
   convertColorToOklab,
   convertColorToOklch,
   convertColorToRgb,
-  convertColorToXyz,
-  resolveColorValue
-} from './color';
-import { isString } from './common';
-import { normalizeColorComponents } from './matrix';
-import { parseColorFunc, parseColorValue } from './parse';
-import { transformXyzD50ToRgb, transformXyzToRgb } from './transform';
-import {
-  cacheInvalidColorValue,
-  interpolateHue,
-  roundToPrecision,
-  splitValue
-} from './util';
+  convertColorToXyz
+} from '../converters/convert-color';
 import {
   ColorChannels,
   ComputedColorChannels,
@@ -32,7 +20,22 @@ import {
   Options,
   SpecifiedColorChannels,
   TriColorChannels
-} from './typedef';
+} from '../typedef';
+import {
+  normalizeColorComponents,
+  transformXyzD50ToRgb,
+  transformXyzToRgb
+} from '../matrix/transform';
+import { parseColorFunc, parseColorValue } from '../resolvers/parse';
+import { resolveColorValue } from '../resolvers/resolve-color';
+import { createCacheKey, getCache, setCache } from '../utils/cache';
+import { isString } from '../utils/common';
+import {
+  cacheInvalidColorValue,
+  interpolateHue,
+  roundToPrecision,
+  splitValue
+} from '../utils/util';
 
 /* constants */
 import {
@@ -48,7 +51,7 @@ import {
   VAL_COMP,
   VAL_MIX,
   VAL_SPEC
-} from './constant';
+} from '../utils/constant';
 const NAMESPACE = 'color-mix';
 
 /**

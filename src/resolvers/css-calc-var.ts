@@ -4,11 +4,11 @@
 
 import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import { createCacheKey, getCache, setCache } from './cache';
-import { isString, isStringOrNumber } from './common';
-import { isColor } from './resolve';
-import { resolveLengthInPixels, roundToPrecision } from './util';
-import { MatchedRegExp, Options } from './typedef';
+import { isValidColor } from '../resolvers/resolve-color';
+import { MatchedRegExp, Options } from '../typedef';
+import { createCacheKey, getCache, setCache } from '../utils/cache';
+import { isString, isStringOrNumber } from '../utils/common';
+import { resolveLengthInPixels, roundToPrecision } from '../utils/util';
 
 /* constants */
 import {
@@ -24,7 +24,7 @@ import {
   SYN_FN_VAR_START,
   TRIA,
   VAL_SPEC
-} from './constant';
+} from '../utils/constant';
 
 const {
   CloseParen: PAREN_CLOSE,
@@ -1158,7 +1158,7 @@ export function resolveCustomProperty(
   }
   let resolveAsColor = false;
   if (items.length > 1) {
-    resolveAsColor = isColor(items.at(-1));
+    resolveAsColor = isValidColor(items.at(-1));
   }
   let resolvedValue = '';
   for (let item of items) {
@@ -1167,17 +1167,17 @@ export function resolveCustomProperty(
       // recurse resolveVar()
       const resolvedItem = resolveVar(item, opt);
       if (isString(resolvedItem)) {
-        if (!resolveAsColor || isColor(resolvedItem)) {
+        if (!resolveAsColor || isValidColor(resolvedItem)) {
           resolvedValue = resolvedItem;
         }
       }
     } else if (REG_FN_CALC.test(item)) {
       item = cssCalc(item, opt);
-      if (!resolveAsColor || isColor(item)) {
+      if (!resolveAsColor || isValidColor(item)) {
         resolvedValue = item;
       }
     } else if (item && !REG_CSS_WIDE_KEYWORD.test(item)) {
-      if (!resolveAsColor || isColor(item)) {
+      if (!resolveAsColor || isValidColor(item)) {
         resolvedValue = item;
       }
     }

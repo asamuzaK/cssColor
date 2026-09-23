@@ -3,6 +3,13 @@
  */
 
 import {
+  ColorChannels,
+  ReadonlyColorMatrix,
+  TriColorChannels
+} from '../typedef';
+
+/* constants */
+import {
   DEG,
   DEG_HALF,
   DUO,
@@ -17,12 +24,13 @@ import {
   LINEAR_OFFSET,
   MAX_PCT,
   MAX_RGB,
+  NONE,
   POW_LINEAR,
   POW_SQR,
   QUAD,
   SEXA,
   TRIA
-} from './constant';
+} from '../utils/constant';
 import {
   D50,
   MATRIX_D50_TO_D65,
@@ -30,11 +38,164 @@ import {
   MATRIX_LMS_TO_OKLAB,
   MATRIX_L_RGB_TO_XYZ,
   MATRIX_XYZ_TO_LMS,
-  MATRIX_XYZ_TO_L_RGB,
-  transformMatrix,
-  validateColorComponents
+  MATRIX_XYZ_TO_L_RGB
 } from './matrix';
-import { TriColorChannels } from './typedef';
+
+/**
+ * validate color components
+ * @param arr - color components
+ * @param opt - options
+ * @param opt.alpha - alpha channel
+ * @param opt.minLength - min length
+ * @param opt.maxLength - max length
+ * @param opt.minRange - min range
+ * @param opt.maxRange - max range
+ * @param opt.validateRange - validate range
+ * @returns result - validated color components
+ */
+export const validateColorComponents = (
+  arr: ColorChannels | TriColorChannels,
+  opt: {
+    alpha?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    minRange?: number;
+    maxRange?: number;
+    validateRange?: boolean;
+  } = {}
+): ColorChannels | TriColorChannels => {
+  if (!Array.isArray(arr)) {
+    throw new TypeError(`${arr} is not an array.`);
+  }
+  const {
+    alpha = false,
+    minLength = TRIA,
+    maxLength = QUAD,
+    minRange = 0,
+    maxRange = 1,
+    validateRange = true
+  } = opt;
+  if (!Number.isFinite(minLength)) {
+    throw new TypeError(`${minLength} is not a number.`);
+  }
+  if (!Number.isFinite(maxLength)) {
+    throw new TypeError(`${maxLength} is not a number.`);
+  }
+  if (!Number.isFinite(minRange)) {
+    throw new TypeError(`${minRange} is not a number.`);
+  }
+  if (!Number.isFinite(maxRange)) {
+    throw new TypeError(`${maxRange} is not a number.`);
+  }
+  const l = arr.length;
+  if (l < minLength || l > maxLength) {
+    throw new Error(`Unexpected array length ${l}.`);
+  }
+  let i = 0;
+  while (i < l) {
+    const v = arr[i] as number;
+    if (!Number.isFinite(v)) {
+      throw new TypeError(`${v} is not a number.`);
+    } else if (i < TRIA && validateRange && (v < minRange || v > maxRange)) {
+      throw new RangeError(`${v} is not between ${minRange} and ${maxRange}.`);
+    } else if (i === TRIA && (v < 0 || v > 1)) {
+      throw new RangeError(`${v} is not between 0 and 1.`);
+    }
+    i++;
+  }
+  if (alpha && l === TRIA) {
+    arr.push(1);
+  }
+  return arr;
+};
+
+/**
+ * normalize color components
+ * @param colorA - color components [v1, v2, v3, v4]
+ * @param colorB - color components [v1, v2, v3, v4]
+ * @param [skip] - skip validate
+ * @returns result - [colorA, colorB]
+ */
+export const normalizeColorComponents = (
+  colorA: [number | string, number | string, number | string, number | string],
+  colorB: [number | string, number | string, number | string, number | string],
+  skip: boolean = false
+): [ColorChannels, ColorChannels] => {
+  if (!Array.isArray(colorA)) {
+    throw new TypeError(`${colorA} is not an array.`);
+  } else if (colorA.length !== QUAD) {
+    throw new Error(`Unexpected array length ${colorA.length}.`);
+  }
+  if (!Array.isArray(colorB)) {
+    throw new TypeError(`${colorB} is not an array.`);
+  } else if (colorB.length !== QUAD) {
+    throw new Error(`Unexpected array length ${colorB.length}.`);
+  }
+  let i = 0;
+  while (i < QUAD) {
+    if (colorA[i] === NONE && colorB[i] === NONE) {
+      colorA[i] = 0;
+      colorB[i] = 0;
+    } else if (colorA[i] === NONE) {
+      colorA[i] = colorB[i] as number;
+    } else if (colorB[i] === NONE) {
+      colorB[i] = colorA[i] as number;
+    }
+    i++;
+  }
+  if (skip) {
+    return [colorA as ColorChannels, colorB as ColorChannels];
+  }
+  const validatedColorA = validateColorComponents(colorA as ColorChannels, {
+    minLength: QUAD,
+    validateRange: false
+  });
+  const validatedColorB = validateColorComponents(colorB as ColorChannels, {
+    minLength: QUAD,
+    validateRange: false
+  });
+  return [validatedColorA as ColorChannels, validatedColorB as ColorChannels];
+};
+
+/**
+ * transform matrix
+ * @param mtx - 3 * 3 matrix
+ * @param vct - vector
+ * @param [skip] - skip validate
+ * @returns TriColorChannels - [p1, p2, p3]
+ */
+export const transformMatrix = (
+  mtx: ReadonlyColorMatrix,
+  vct: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  if (!Array.isArray(mtx)) {
+    throw new TypeError(`${mtx} is not an array.`);
+  } else if (mtx.length !== TRIA) {
+    throw new Error(`Unexpected array length ${mtx.length}.`);
+  } else if (!skip) {
+    for (let i of mtx) {
+      i = validateColorComponents(i as TriColorChannels, {
+        maxLength: TRIA,
+        validateRange: false
+      }) as TriColorChannels;
+    }
+  }
+  const [[r1c1, r1c2, r1c3], [r2c1, r2c2, r2c3], [r3c1, r3c2, r3c3]] = mtx;
+  let v1, v2, v3;
+  if (skip) {
+    [v1, v2, v3] = vct;
+  } else {
+    [v1, v2, v3] = validateColorComponents(vct, {
+      maxLength: TRIA,
+      validateRange: false
+    });
+  }
+  const p1 = r1c1 * v1 + r1c2 * v2 + r1c3 * v3;
+  const p2 = r2c1 * v1 + r2c2 * v2 + r2c3 * v3;
+  const p3 = r3c1 * v1 + r3c2 * v2 + r3c3 * v3;
+  return [p1, p2, p3];
+};
 
 /**
  * transform rgb to linear rgb

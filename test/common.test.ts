@@ -6,7 +6,7 @@
 import { assert, describe, it } from 'vitest';
 
 /* test */
-import * as common from '../src/js/common';
+import * as common from '../src/utils/common';
 
 describe('get type', () => {
   const func = common.getType;

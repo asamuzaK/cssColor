@@ -3,7 +3,7 @@
  */
 
 import { LRUCache } from 'lru-cache';
-import { Options } from './typedef';
+import { Options } from '../typedef';
 
 /* constants */
 const CACHE_SIZE = 4096;

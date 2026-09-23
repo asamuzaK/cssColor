@@ -2,7 +2,14 @@
  * convert
  */
 
-import { createCacheKey, getCache, setCache } from './cache';
+import { cssCalc, resolveVar } from '../resolvers/css-calc-var';
+import { parseColorFunc, parseColorValue } from '../resolvers/parse';
+import { resolveRelativeColor } from '../resolvers/relative-color';
+import { resolveColor } from '../resolvers/resolve-color';
+import { ColorChannels, ComputedColorChannels, Options } from '../typedef';
+import { createCacheKey, getCache, setCache } from '../utils/cache';
+import { isString } from '../utils/common';
+import { numberToHexString } from '../utils/util';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -11,17 +18,15 @@ import {
   convertColorToOklab,
   convertColorToOklch,
   convertColorToRgb
-} from './color';
-import { isString } from './common';
-import { cssCalc, resolveVar } from './css-calc-var';
-import { parseColorFunc, parseColorValue } from './parse';
-import { resolveRelativeColor } from './relative-color';
-import { resolveColor } from './resolve';
-import { ColorChannels, ComputedColorChannels, Options } from './typedef';
-import { numberToHexString } from './util';
+} from './convert-color';
 
 /* constants */
-import { SYN_FN_CALC, SYN_FN_REL, SYN_FN_VAR, VAL_COMP } from './constant';
+import {
+  SYN_FN_CALC,
+  SYN_FN_REL,
+  SYN_FN_VAR,
+  VAL_COMP
+} from '../utils/constant';
 const NAMESPACE = 'convert';
 
 /* regexp */

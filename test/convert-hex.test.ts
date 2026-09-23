@@ -1,13 +1,13 @@
 /**
- * hex.test
+ * convert-hex.test
  */
 
 /* api */
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
-import * as hex from '../src/js/hex';
+import { lruCache } from '../src/utils/cache';
+import * as hex from '../src/converters/convert-hex';
 
 beforeEach(() => {
   lruCache.clear();

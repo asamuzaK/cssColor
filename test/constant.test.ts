@@ -6,7 +6,7 @@
 import { assert, describe, it } from 'vitest';
 
 /* test */
-import * as constant from '../src/js/constant.js';
+import * as constant from '../src/utils/constant.js';
 
 describe('constants', () => {
   const items = Object.entries(constant);

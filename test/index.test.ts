@@ -45,6 +45,19 @@ describe('resolve CSS color', () => {
   });
 });
 
+describe('resolve CSS gradient', () => {
+  const func = api.resolveGradient;
+
+  it('should get value', () => {
+    const res = func('linear-gradient(red, blue)');
+    assert.strictEqual(
+      res,
+      'linear-gradient(rgb(255, 0, 0), rgb(0, 0, 255))',
+      'result'
+    );
+  });
+});
+
 describe('convert', () => {
   const { convert } = api;
 
