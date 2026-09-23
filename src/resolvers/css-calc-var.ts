@@ -8,7 +8,11 @@ import { isValidColor } from '../resolvers/resolve-color';
 import { MatchedRegExp, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString, isStringOrNumber } from '../utils/common';
-import { resolveLengthInPixels, roundToPrecision } from '../utils/util';
+import {
+  checkValueLength,
+  resolveLengthInPixels,
+  roundToPrecision
+} from '../utils/util';
 
 /* constants */
 import {
@@ -1041,13 +1045,19 @@ export const parseCalcTokens = (
  * @returns resolved value
  */
 export const cssCalc = (value: string, opt: Options = {}): string => {
-  const { format = '' } = opt;
+  const options = {
+    ...opt
+  };
+  const { format = '' } = options;
   if (isString(value)) {
+    if (!checkValueLength(value, options)) {
+      return '';
+    }
     if (REG_FN_VAR.test(value)) {
       if (format === VAL_SPEC) {
         return value;
       } else {
-        const resolvedValue = resolveVar(value, opt);
+        const resolvedValue = resolveVar(value, options);
         if (isString(resolvedValue)) {
           return resolvedValue;
         } else {
@@ -1067,14 +1077,14 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
       name: 'cssCalc',
       value
     },
-    opt
+    options
   );
   const cachedResult = getCache(cacheKey);
   if (cachedResult !== false) {
     return cachedResult.item as string;
   }
   const tokens = tokenize({ css: value });
-  const values = parseCalcTokens(tokens, opt);
+  const values = parseCalcTokens(tokens, options);
   let resolvedValue: string = calc(values.join(''), {
     toCanonicalUnits: true
   });
@@ -1096,7 +1106,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   }
   if (format === VAL_SPEC) {
     if (/\s[-+*/]\s/.test(resolvedValue) && !resolvedValue.includes('NaN')) {
-      resolvedValue = serializeCalc(resolvedValue, opt);
+      resolvedValue = serializeCalc(resolvedValue, options);
     } else if (REG_FN_CALC_NUM.test(resolvedValue)) {
       const [, val] = resolvedValue.match(REG_FN_CALC_NUM) as MatchedRegExp;
       resolvedValue = `calc(${roundToPrecision(Number(val), HEX)})`;
@@ -1256,6 +1266,9 @@ export function parseVarTokens(
 export function resolveVar(value: string, opt: Options = {}): string | null {
   const { format = '' } = opt;
   if (isString(value)) {
+    if (!checkValueLength(value, opt)) {
+      return null;
+    }
     if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
       return value;
     }
@@ -1297,7 +1310,10 @@ export function resolveVar(value: string, opt: Options = {}): string | null {
  * @returns resolved value
  */
 export const cssVar = (value: string, opt: Options = {}): string => {
-  const resolvedValue = resolveVar(value, opt);
+  const options = {
+    ...opt
+  };
+  const resolvedValue = resolveVar(value, options);
   if (isString(resolvedValue)) {
     return resolvedValue;
   }

@@ -3,6 +3,7 @@
  */
 
 import { Options } from '../typedef';
+import { checkValueLength } from '../utils/util';
 import { parseGradient } from './parse-gradient';
 
 /* constants */
@@ -18,6 +19,12 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
   const options = {
     ...opt
   };
+  if (!checkValueLength(value, options)) {
+    if (options.format === VAL_SPEC) {
+      return '';
+    }
+    return 'none';
+  }
   const gradient = parseGradient(value, options);
   if (gradient) {
     const { type = '', gradientLine = '', colorStopList = [] } = gradient;

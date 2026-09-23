@@ -1377,6 +1377,12 @@ describe('CSS calc()', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
   });
 
+  it('should return empty string if value exceeds max length', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, { maxLength: 10 });
+    assert.strictEqual(res, '');
+  });
+
   it('should get value', () => {
     const res = func('var(--foo)');
     assert.strictEqual(res, '', 'result');
@@ -2482,6 +2488,12 @@ describe('resolve CSS var()', () => {
 
   it('should throw', () => {
     assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should return null if value exceeds max length', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, { maxLength: 10 });
+    assert.strictEqual(res, null);
   });
 
   it('should get value', () => {

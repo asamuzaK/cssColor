@@ -33,6 +33,23 @@ describe('resolve CSS gradient', () => {
   });
 
   it('should get none', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, {
+      maxLength: 10
+    });
+    assert.strictEqual(res, 'none', 'result');
+  });
+
+  it('should get none', () => {
+    const value = 'a'.repeat(11);
+    const res = func(value, {
+      format: 'specifiedValue',
+      maxLength: 10
+    });
+    assert.strictEqual(res, '', 'result');
+  });
+
+  it('should get none', () => {
     const res = func('foo(red, blue)');
     assert.strictEqual(res, 'none', 'result');
   });
