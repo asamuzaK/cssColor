@@ -28,7 +28,7 @@ import {
   parseOklab,
   parseOklch,
   parseRgb
-} from './parse';
+} from './parse-color';
 import { resolveRelativeColor } from './relative-color';
 
 /* constants */

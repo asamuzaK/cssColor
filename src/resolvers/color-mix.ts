@@ -26,7 +26,7 @@ import {
   transformXyzD50ToRgb,
   transformXyzToRgb
 } from '../matrix/transform';
-import { parseColorFunc, parseColorValue } from '../resolvers/parse';
+import { parseColorFunc, parseColorValue } from '../resolvers/parse-color';
 import { resolveColorValue } from '../resolvers/resolve-color';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';

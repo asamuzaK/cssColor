@@ -21,7 +21,7 @@ import {
   parseLch,
   parseOklab,
   parseOklch
-} from '../resolvers/parse';
+} from '../resolvers/parse-color';
 import {
   resolveColorFunc,
   resolveColorValue

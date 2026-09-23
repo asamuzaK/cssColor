@@ -3,7 +3,7 @@
  */
 
 import { cssCalc, resolveVar } from '../resolvers/css-calc-var';
-import { parseColorFunc, parseColorValue } from '../resolvers/parse';
+import { parseColorFunc, parseColorValue } from '../resolvers/parse-color';
 import { resolveRelativeColor } from '../resolvers/relative-color';
 import { resolveColor } from '../resolvers/resolve-color';
 import { ColorChannels, ComputedColorChannels, Options } from '../typedef';
