@@ -119,3 +119,43 @@ export type MatchedRegExp = [
   gr3: string,
   gr4: string
 ];
+
+/* css gradients */
+/**
+ * @typedef Gradient - parsed CSS gradient
+ * @property value - input value
+ * @property type - gradient type
+ * @property [gradientLine] - gradient line
+ * @property colorStopList - list of color stops
+ */
+export interface Gradient {
+  value: string;
+  type: string;
+  gradientLine?: string;
+  colorStopList: ColorStopList;
+}
+
+/**
+ * @typedef ValidateColorStops - validate color stops
+ * @property colorStops - list of color stops
+ * @property valid - result
+ */
+export interface ValidateColorStops {
+  colorStops: string[];
+  valid: boolean;
+}
+
+/**
+ * @typedef ValidateGradientLine - validate gradient line
+ * @property line - gradient line
+ * @property valid - result
+ */
+export interface ValidateGradientLine {
+  line: string;
+  valid: boolean;
+}
+
+/**
+ * @type ColorStopList - list of color stops
+ */
+export type ColorStopList = [string, string, ...string[]];
