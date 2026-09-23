@@ -2,14 +2,11 @@
  * gradient-util
  */
 
+import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
-import {
-  MatchedRegExp,
-  Options,
-  ValidateGradientLine,
-  ValidateColorStops
-} from '../typedef';
+import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
+import { splitValue } from '../utils/util';
 
 /* constants */
 import {
@@ -22,6 +19,7 @@ import {
   PCT,
   VAL_SPEC
 } from '../utils/constant';
+const { Function: FUNC } = TokenType;
 const DIM_ANGLE = `${NUM}(?:${ANGLE})`;
 const DIM_ANGLE_PCT = `${DIM_ANGLE}|${PCT}`;
 const DIM_LEN = `${NUM}(?:${LENGTH})|0`;
@@ -48,7 +46,7 @@ const POS_2 = [
 const POS_4 = [
   `(?:${AXIS_X})\\s+(?:${DIM_LEN_PCT})\\s+(?:${AXIS_Y})\\s+(?:${DIM_LEN_PCT})`,
   `(?:${AXIS_Y})\\s+(?:${DIM_LEN_PCT})\\s+(?:${AXIS_X})\\s+(?:${DIM_LEN_PCT})`,
-  `(?:${BLOCK})\\s+(?:${DIM_LEN_PCT})\\s+(?:${INLINE})\\s+(?:${DIM_LEN_PCT})`,
+  `(?:${BLOCK})\\s+(?:${DIM_LEN_PCT})\\s+(?:${AXIS_Y})\\s+(?:${DIM_LEN_PCT})`,
   `(?:${INLINE})\\s+(?:${DIM_LEN_PCT})\\s+(?:${BLOCK})\\s+(?:${DIM_LEN_PCT})`,
   `(?:${S_E})\\s+(?:${DIM_LEN_PCT})\\s+(?:${S_E})\\s+(?:${DIM_LEN_PCT})`
 ].join('|');
@@ -80,7 +78,6 @@ const LINE_SYNTAX_CONIC = [
   `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
   `${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?`
 ].join('|');
-const DEFAULT_LINEAR = [/to\s+bottom/];
 const DEFAULT_RADIAL = [/ellipse/, /farthest-corner/, /at\s+center/];
 const DEFAULT_CONIC = [/at\s+center/];
 const COLOR_OPT = {
@@ -92,15 +89,13 @@ const COLOR_OPT = {
 const IS_CONIC = /^(?:repeating-)?conic-gradient$/;
 const IS_LINEAR = /^(?:repeating-)?linear-gradient$/;
 const IS_RADIAL = /^(?:repeating-)?radial-gradient$/;
+const IS_GRADIENT_FN = /^(?:repeating-)?(?:conic|linear|radial)-gradient$/i;
 const REG_COLOR_HINT_CONIC = new RegExp(`^(?:${DIM_ANGLE_PCT})$`);
 const REG_COLOR_HINT_NON_CONIC = new RegExp(`^(?:${DIM_LEN_PCT})$`);
-const REG_DIM_CONIC = new RegExp(`(?:\\s+(?:${DIM_ANGLE_PCT})){1,2}$`);
-const REG_DIM_NON_CONIC = new RegExp(`(?:\\s+(?:${DIM_LEN_PCT})){1,2}$`);
-const REG_GRAD = /^(?:repeating-)?(?:conic|linear|radial)-gradient\(/;
-const REG_GRAD_CAPT = /^((?:repeating-)?(?:conic|linear|radial)-gradient)\(/;
 const REG_LINE_CONIC = new RegExp(`^(?:${LINE_SYNTAX_CONIC})$`);
 const REG_LINE_LINEAR = new RegExp(`^(?:${LINE_SYNTAX_LINEAR})$`);
 const REG_LINE_RADIAL = new RegExp(`^(?:${LINE_SYNTAX_RADIAL})$`);
+const REG_TO_BOTTOM = /^to\s+bottom$/i;
 
 /**
  * get gradient type
@@ -109,13 +104,82 @@ const REG_LINE_RADIAL = new RegExp(`^(?:${LINE_SYNTAX_RADIAL})$`);
  */
 export const getGradientType = (value: string): string => {
   if (isString(value)) {
-    value = value.trim();
-    if (REG_GRAD.test(value)) {
-      const [, type] = value.match(REG_GRAD_CAPT) as MatchedRegExp;
-      return type;
+    const trimmed = value.trim();
+    if (trimmed) {
+      const tokens = tokenize({ css: trimmed });
+      const [firstToken] = tokens;
+      if (firstToken && firstToken[0] === FUNC) {
+        const fnName = firstToken[1].slice(0, -1).toLowerCase();
+        if (IS_GRADIENT_FN.test(fnName)) {
+          return fnName;
+        }
+      }
     }
   }
   return '';
+};
+
+/**
+ * validate linear-gradient line
+ * @param value - line value
+ * @returns result
+ */
+export const validateLinearGradientLine = (
+  value: string
+): ValidateGradientLine => {
+  const valid = REG_LINE_LINEAR.test(value);
+  if (!valid) {
+    return { line: value, valid: false };
+  }
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (REG_TO_BOTTOM.test(normalized)) {
+    return { line: '', valid: true };
+  }
+  const line = normalized
+    .replace(/^to\sbottom\s/i, '')
+    .replace(/\sto\sbottom$/i, '')
+    .trim();
+  return { line, valid: true };
+};
+
+/**
+ * validate radial-gradient line
+ * @param value - line value
+ * @returns result
+ */
+export const validateRadialGradientLine = (
+  value: string
+): ValidateGradientLine => {
+  const valid = REG_LINE_RADIAL.test(value);
+  if (!valid) {
+    return { line: value, valid: false };
+  }
+  let line = value;
+  for (const defaultValue of DEFAULT_RADIAL) {
+    line = line.replace(defaultValue, '');
+  }
+  line = line.replace(/\s{2,}/g, ' ').trim();
+  return { line, valid: true };
+};
+
+/**
+ * validate conic-gradient line
+ * @param value - line value
+ * @returns result
+ */
+export const validateConicGradientLine = (
+  value: string
+): ValidateGradientLine => {
+  const valid = REG_LINE_CONIC.test(value);
+  if (!valid) {
+    return { line: value, valid: false };
+  }
+  let line = value;
+  for (const defaultValue of DEFAULT_CONIC) {
+    line = line.replace(defaultValue, '');
+  }
+  line = line.replace(/\s{2,}/g, ' ').trim();
+  return { line, valid: true };
 };
 
 /**
@@ -129,32 +193,16 @@ export const validateGradientLine = (
   type: string
 ): ValidateGradientLine => {
   if (isString(value) && isString(type)) {
-    value = value.trim();
-    type = type.trim();
-    let reg: RegExp | null = null;
-    let defaultValues: RegExp[] = [];
-
-    if (IS_LINEAR.test(type)) {
-      reg = REG_LINE_LINEAR;
-      defaultValues = DEFAULT_LINEAR;
-    } else if (IS_RADIAL.test(type)) {
-      reg = REG_LINE_RADIAL;
-      defaultValues = DEFAULT_RADIAL;
-    } else if (IS_CONIC.test(type)) {
-      reg = REG_LINE_CONIC;
-      defaultValues = DEFAULT_CONIC;
+    const trimmedValue = value.trim();
+    const trimmedType = type.trim();
+    if (IS_LINEAR.test(trimmedType)) {
+      return validateLinearGradientLine(trimmedValue);
     }
-    if (reg) {
-      const valid = reg.test(value);
-      if (valid) {
-        let line = value;
-        for (const defaultValue of defaultValues) {
-          line = line.replace(defaultValue, '');
-        }
-        line = line.replace(/\s{2,}/g, ' ').trim();
-        return { line, valid };
-      }
-      return { valid, line: value };
+    if (IS_RADIAL.test(trimmedType)) {
+      return validateRadialGradientLine(trimmedValue);
+    }
+    if (IS_CONIC.test(trimmedType)) {
+      return validateConicGradientLine(trimmedValue);
     }
   }
   return { line: value, valid: false };
@@ -177,32 +225,43 @@ export const validateColorStopList = (
     const regColorHint = isConic
       ? REG_COLOR_HINT_CONIC
       : REG_COLOR_HINT_NON_CONIC;
-    const regDimension = isConic ? REG_DIM_CONIC : REG_DIM_NON_CONIC;
     const valueList: string[] = [];
     // State tracker: 'color' or 'hint'
     let prevType = '';
     for (let i = 0; i < list.length; i++) {
       const item = list[i];
-      if (isString(item)) {
-        if (regColorHint.test(item)) {
-          // Hints cannot be the first item, and two hints cannot be adjacent
-          if (i === 0 || prevType === 'hint') {
-            return { colorStops: list, valid: false };
-          }
-          prevType = 'hint';
-          valueList.push(item);
-        } else {
-          const itemColor = item.replace(regDimension, '');
-          if (isValidColor(itemColor, COLOR_OPT)) {
-            const resolvedColor = resolveColor(itemColor, opt) as string;
-            prevType = 'color';
-            valueList.push(item.replace(itemColor, resolvedColor));
-          } else {
-            return { colorStops: list, valid: false };
-          }
-        }
-      } else {
+      if (!isString(item)) {
         return { colorStops: list, valid: false };
+      }
+      const parts = splitValue(item);
+      const [firstPart, ...posParts] = parts;
+      if (!firstPart || parts.length > 3) {
+        return { colorStops: list, valid: false };
+      }
+      if (parts.length === 1 && regColorHint.test(firstPart)) {
+        // Color hint
+        if (i === 0 || prevType === 'hint') {
+          return { colorStops: list, valid: false };
+        }
+        prevType = 'hint';
+        valueList.push(firstPart);
+      } else {
+        // Color stop (1 color + 0 to 2 stop positions)
+        const validPositions = posParts.every(pos => regColorHint.test(pos));
+        if (!validPositions) {
+          return { colorStops: list, valid: false };
+        }
+        if (isValidColor(firstPart, COLOR_OPT)) {
+          const resolvedColor = resolveColor(firstPart, opt) as string;
+          prevType = 'color';
+          const resolvedItem =
+            posParts.length > 0
+              ? `${resolvedColor} ${posParts.join(' ')}`
+              : resolvedColor;
+          valueList.push(resolvedItem);
+        } else {
+          return { colorStops: list, valid: false };
+        }
       }
     }
     // The last item must be a color, not a hint
