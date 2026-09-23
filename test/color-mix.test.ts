@@ -6,14 +6,15 @@
 import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
-import { resolveColor } from '../src/js/resolve';
-import { cacheInvalidColorValue, roundToPrecision } from '../src/js/util';
-import * as colorMix from '../src/js/color-mix';
+import { lruCache } from '../src/utils/cache';
+import { resolveColor } from '../src/resolvers/resolve-color';
+import { cacheInvalidColorValue, roundToPrecision } from '../src/utils/util';
+import * as colorMix from '../src/resolvers/color-mix';
 
 beforeEach(() => {
   lruCache.clear();
 });
+
 afterEach(() => {
   lruCache.clear();
 });

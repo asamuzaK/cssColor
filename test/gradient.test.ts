@@ -1,13 +1,13 @@
 /**
- * css-gradient.test
+ * gradient.test
  */
 
 /* api */
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
-import * as grad from '../src/js/css-gradient';
+import { lruCache } from '../src/utils/cache';
+import * as grad from '../src/gradients/gradient';
 
 beforeEach(() => {
   lruCache.clear();

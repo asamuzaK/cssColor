@@ -6,8 +6,8 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
-import * as parse from '../src/js/parse';
+import { lruCache } from '../src/utils/cache';
+import * as parse from '../src/resolvers/parse';
 
 beforeEach(() => {
   lruCache.clear();

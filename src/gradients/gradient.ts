@@ -1,12 +1,12 @@
 /**
- * css-gradient
+ * gradient
  */
 
-import { createCacheKey, getCache, setCache } from './cache';
-import { isString } from './common';
-import { isColor, resolveColor } from './resolve';
-import { MatchedRegExp, Options } from './typedef';
-import { splitValue } from './util';
+import { isValidColor, resolveColor } from '../resolvers/resolve-color';
+import { MatchedRegExp, Options } from '../typedef';
+import { createCacheKey, getCache, setCache } from '../utils/cache';
+import { isString } from '../utils/common';
+import { splitValue } from '../utils/util';
 
 /* constants */
 import {
@@ -17,10 +17,9 @@ import {
   NUM,
   NUM_POSITIVE,
   PCT,
-  VAL_COMP,
   VAL_SPEC
-} from './constant';
-const NAMESPACE = 'css-gradient';
+} from '../utils/constant';
+const NAMESPACE = 'gradient';
 const DIM_ANGLE = `${NUM}(?:${ANGLE})`;
 const DIM_ANGLE_PCT = `${DIM_ANGLE}|${PCT}`;
 const DIM_LEN = `${NUM}(?:${LENGTH})|0`;
@@ -82,6 +81,10 @@ const LINE_SYNTAX_CONIC = [
 const DEFAULT_LINEAR = [/to\s+bottom/];
 const DEFAULT_RADIAL = [/ellipse/, /farthest-corner/, /at\s+center/];
 const DEFAULT_CONIC = [/at\s+center/];
+const COLOR_OPT = {
+  format: VAL_SPEC,
+  nullable: true
+};
 
 /* type definitions */
 /**
@@ -228,7 +231,7 @@ export const validateColorStopList = (
           valueList.push(item);
         } else {
           const itemColor = item.replace(regDimension, '');
-          if (isColor(itemColor, { format: VAL_SPEC })) {
+          if (isValidColor(itemColor, COLOR_OPT)) {
             const resolvedColor = resolveColor(itemColor, opt) as string;
             prevType = 'color';
             valueList.push(item.replace(itemColor, resolvedColor));
@@ -284,11 +287,11 @@ export const parseGradient = (
       let colorStop = '';
       if (regDimension.test(lineOrColorStop)) {
         const itemColor = lineOrColorStop.replace(regDimension, '');
-        if (isColor(itemColor, { format: VAL_SPEC })) {
+        if (isValidColor(itemColor, COLOR_OPT)) {
           const resolvedColor = resolveColor(itemColor, opt) as string;
           colorStop = lineOrColorStop.replace(itemColor, resolvedColor);
         }
-      } else if (isColor(lineOrColorStop, { format: VAL_SPEC })) {
+      } else if (isValidColor(lineOrColorStop, COLOR_OPT)) {
         colorStop = resolveColor(lineOrColorStop, opt) as string;
       }
       if (colorStop) {
@@ -342,8 +345,10 @@ export const parseGradient = (
  * @returns result
  */
 export const resolveGradient = (value: string, opt: Options = {}): string => {
-  const { format = VAL_COMP } = opt;
-  const gradient = parseGradient(value, opt);
+  const options = {
+    ...opt
+  };
+  const gradient = parseGradient(value, options);
   if (gradient) {
     const { type = '', gradientLine = '', colorStopList = [] } = gradient;
     if (type && Array.isArray(colorStopList) && colorStopList.length > 1) {
@@ -353,7 +358,7 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
       return `${type}(${colorStopList.join(', ')})`;
     }
   }
-  if (format === VAL_SPEC) {
+  if (options.format === VAL_SPEC) {
     return '';
   }
   return 'none';
@@ -366,6 +371,9 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
  * @returns result
  */
 export const isGradient = (value: string, opt: Options = {}): boolean => {
-  const gradient = parseGradient(value, opt);
-  return gradient !== null;
+  const options = {
+    ...opt
+  };
+  const gradient = parseGradient(value, options);
+  return !!gradient;
 };

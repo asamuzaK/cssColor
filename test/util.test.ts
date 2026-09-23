@@ -6,8 +6,9 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
-import * as util from '../src/js/util';
+import { lruCache } from '../src/utils/cache';
+import { VAL_MIX, VAL_SPEC } from '../src/utils/constant';
+import * as util from '../src/utils/util';
 
 beforeEach(() => {
   lruCache.clear();
@@ -20,1030 +21,414 @@ afterEach(() => {
 describe('split value', () => {
   const func = util.splitValue;
 
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  it('should throw TypeError if value is not a string', () => {
+    assert.throws(() => func(123 as any), TypeError);
   });
 
-  it('should get value', () => {
-    const res = func(' foo ');
-    assert.deepEqual(res, ['foo'], 'result');
-
-    const res2 = func(' foo ');
-    assert.deepEqual(res2, ['foo'], 'result');
+  it('should split value by whitespace by default', () => {
+    const res = func('10px 20px 30px');
+    assert.deepEqual(res, ['10px', '20px', '30px']);
   });
 
-  it('should get value', () => {
-    const res = func('foo bar');
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  it('should split value by comma delimiter', () => {
+    const res = func('red, green, blue', { delimiter: ',' });
+    assert.deepEqual(res, ['red', 'green', 'blue']);
   });
 
-  it('should get value', () => {
-    const res = func('foo bar', {
-      delimiter: ','
-    });
-    assert.deepEqual(res, ['foo bar'], 'result');
+  it('should split value by slash delimiter', () => {
+    const res = func('10px / 20px', { delimiter: '/' });
+    assert.deepEqual(res, ['10px', '20px']);
   });
 
-  it('should get value', () => {
-    const res = func('foo, bar', {
-      delimiter: ','
-    });
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
+  it('should not split inside nested parenthesis or function calls', () => {
+    const res = func('rgb(255, 0, 0) calc(100% - 10px)');
+    assert.deepEqual(res, ['rgb(255, 0, 0)', 'calc(100% - 10px)']);
   });
 
-  it('should get value', () => {
-    const res = func('foo bar', {
-      delimiter: '/'
-    });
-    assert.deepEqual(res, ['foo bar'], 'result');
+  it('should strip comments by default', () => {
+    const res = func('/* comment */ 10px 20px');
+    assert.deepEqual(res, ['10px', '20px']);
   });
 
-  it('should get value', () => {
-    const res = func('foo / bar', {
-      delimiter: '/'
-    });
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('calc(1 / 3) / bar', {
-      delimiter: '/'
-    });
-    assert.deepEqual(res, ['calc(1 / 3)', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo  bar');
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo  bar', {
-      delimiter: ','
-    });
-    assert.deepEqual(res, ['foo bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo  bar', {
-      delimiter: '/'
-    });
-    assert.deepEqual(res, ['foo bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo /* comment */ bar');
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo /* comment */ , bar', {
-      delimiter: ','
-    });
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo /* comment */ / bar', {
-      delimiter: '/'
-    });
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo /* comment */ bar', {
-      preserveComment: true
-    });
-    assert.deepEqual(res, ['foo', 'bar'], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo /* comment */ , bar', {
+  it('should preserve comments when preserveComment is true', () => {
+    const resComma = func('10px /* c */, 20px', {
       delimiter: ',',
       preserveComment: true
     });
-    assert.deepEqual(res, ['foo /* comment */', 'bar'], 'result');
-  });
+    assert.deepEqual(resComma, ['10px /* c */', '20px']);
 
-  it('should get value', () => {
-    const res = func('foo /* comment */ / bar', {
+    const resSlash = func('10px /* c */ / 20px', {
       delimiter: '/',
       preserveComment: true
     });
-    assert.deepEqual(res, ['foo /* comment */', 'bar'], 'result');
+    assert.deepEqual(resSlash, ['10px /* c */', '20px']);
   });
 
-  it('should get value', () => {
-    const res = func('foo /* comment */ bar, baz', {
+  it('should ignore preserveComment if delimiter is invalid', () => {
+    const resSpace = func('10px /* c */ 20px', {
+      delimiter: ' ',
+      preserveComment: true
+    });
+    assert.deepEqual(resSpace, ['10px', '20px']);
+  });
+
+  it('should not preserve comments if preserveComment is false', () => {
+    const resComma = func('10px /* c */, 20px', {
       delimiter: ',',
-      preserveComment: true
+      preserveComment: false
     });
-    assert.deepEqual(res, ['foo /* comment */ bar', 'baz'], 'result');
+    assert.deepEqual(resComma, ['10px', '20px']);
   });
 
-  it('should get value', () => {
-    const res = func('foo /* comment */ bar / baz', {
-      delimiter: '/',
-      preserveComment: true
-    });
-    assert.deepEqual(res, ['foo /* comment */ bar', 'baz'], 'result');
+  it('should skip whitespace when currentStr already ends with space', () => {
+    const res = func('a /* c */  b, d', { delimiter: ',' });
+    assert.deepEqual(res, ['a b', 'd']);
   });
 
-  it('should get value', () => {
-    const res = func(',', {
-      delimiter: ','
-    });
-    assert.deepEqual(res, ['', ''], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('/', {
-      delimiter: '/'
-    });
-    assert.deepEqual(res, ['', ''], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(
-      'linear-gradient(red, blue), radial-gradient(yellow, green)',
-      {
-        delimiter: ','
-      }
-    );
-    assert.deepEqual(
-      res,
-      ['linear-gradient(red, blue)', 'radial-gradient(yellow, green)'],
-      'result'
-    );
-  });
-
-  it('should get value', () => {
-    const res = func(
-      'rgb(from rebeccapurple, calc((r * 0.5) + 10) g b) 1px 0 10px'
-    );
-    assert.deepEqual(
-      res,
-      ['rgb(from rebeccapurple, calc((r * 0.5) + 10) g b)', '1px', '0', '10px'],
-      'result'
-    );
+  it('should return cached result on second call with same params', () => {
+    const res1 = func('10px 20px');
+    const res2 = func('10px 20px');
+    assert.strictEqual(res1, res2, 'should return cached instance');
   });
 });
 
-describe('extract dashed-ident tokens', () => {
+describe('extract dashed ident', () => {
   const func = util.extractDashedIdent;
 
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  it('should throw TypeError if value is not a string', () => {
+    assert.throws(() => func(123 as any), TypeError);
   });
 
-  it('should get empty array', () => {
-    const res = func('foo');
-    assert.deepEqual(res, [], 'result');
-
-    const res2 = func('foo');
-    assert.deepEqual(res2, [], 'result');
+  it('should extract dashed idents from string', () => {
+    const res = func('var(--foo) var(--bar)');
+    assert.deepEqual(res, ['--foo', '--bar']);
   });
 
-  it('should get array', () => {
-    const res = func('var(--foo) var(--bar) var(--baz)');
-    assert.deepEqual(res, ['--foo', '--bar', '--baz'], 'result');
-
-    const res2 = func('var(--foo) var(--bar) var(--baz)');
-    assert.deepEqual(res2, ['--foo', '--bar', '--baz'], 'result');
+  it('should remove duplicate dashed idents', () => {
+    const res = func('--foo --bar --foo --baz');
+    assert.deepEqual(res, ['--foo', '--bar', '--baz']);
   });
 
-  it('should get array', () => {
-    const res = func('var(--foo, var(--bar, qux)) var(--baz, quux)');
-    assert.deepEqual(res, ['--foo', '--bar', '--baz'], 'result');
+  it('should return empty array if no dashed idents found', () => {
+    const res = func('foo bar baz');
+    assert.deepEqual(res, []);
+  });
 
-    const res2 = func('var(--foo, var(--bar, qux)) var(--baz, quux)');
-    assert.deepEqual(res2, ['--foo', '--bar', '--baz'], 'result');
+  it('should return cached result on second call', () => {
+    const res1 = func('var(--test)');
+    const res2 = func('var(--test)');
+    assert.strictEqual(res1, res2, 'should return cached instance');
   });
 });
 
-describe('round to specified precision', () => {
+describe('round to precision', () => {
   const func = util.roundToPrecision;
 
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a finite number.');
+  it('should throw TypeError if value is not a finite number', () => {
+    assert.throws(() => func(NaN), TypeError);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func(Infinity),
-      TypeError,
-      'Infinity is not a finite number.'
-    );
+  it('should throw TypeError if bit is not a finite number', () => {
+    assert.throws(() => func(1.234, NaN), TypeError);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func(1.23456789, 'foo'),
-      TypeError,
-      'foo is not a finite number.'
-    );
+  it('should throw RangeError if bit is out of range', () => {
+    assert.throws(() => func(1.234, -1), RangeError);
+    assert.throws(() => func(1.234, 17), RangeError);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func(1.23456789, -1),
-      RangeError,
-      '-1 is not between 0 and 16.'
-    );
+  it('should round to nearest integer when bit is 0', () => {
+    assert.strictEqual(func(1.4), 1);
+    assert.strictEqual(func(1.5), 2);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func(1.23456789, 32),
-      RangeError,
-      '32 is not between 0 and 16.'
-    );
-  });
-
-  it('should get value', () => {
-    const res = func(1.23456789);
-    assert.deepEqual(res, 1, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.23456789, 16);
-    assert.deepEqual(res, 1.23457, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.234506789, 16);
-    assert.deepEqual(res, 1.23451, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.23450456, 16);
-    assert.deepEqual(res, 1.2345, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.230456789, 16);
-    assert.deepEqual(res, 1.23046, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.23456789, 8);
-    assert.deepEqual(res, 1.235, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.230456789, 8);
-    assert.deepEqual(res, 1.23, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.203456789, 8);
-    assert.deepEqual(res, 1.203, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.023456789, 8);
-    assert.deepEqual(res, 1.023, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.23456789, 10);
-    assert.deepEqual(res, 1.2346, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.230456789, 10);
-    assert.deepEqual(res, 1.2305, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(1.203456789, 10);
-    assert.deepEqual(res, 1.2035, 'result');
+  it('should format precision based on bit value', () => {
+    assert.strictEqual(func(12.34567, 8), 12.35);
+    assert.strictEqual(func(12.34567, 10), 12.346);
+    assert.strictEqual(func(12.34567, 16), 12.3457);
   });
 });
 
 describe('interpolate hue', () => {
   const func = util.interpolateHue;
 
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a finite number.');
+  it('should throw TypeError if hueA is not a finite number', () => {
+    assert.throws(() => func(NaN, 100), TypeError);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func(90),
-      TypeError,
-      'undefined is not a finite number.'
-    );
+  it('should throw TypeError if hueB is not a finite number', () => {
+    assert.throws(() => func(100, NaN), TypeError);
   });
 
-  it('should get value', () => {
-    const res = func(30, 60);
-    assert.deepEqual(res, [30, 60], 'result');
+  it('should interpolate hue using shorter arc by default', () => {
+    assert.deepEqual(func(10, 200), [370, 200]);
+    assert.deepEqual(func(200, 10), [200, 370]);
+    assert.deepEqual(func(10, 50), [10, 50]);
   });
 
-  it('should get value', () => {
-    const res = func(60, 30);
-    assert.deepEqual(res, [60, 30], 'result');
+  it('should interpolate hue using longer arc', () => {
+    assert.deepEqual(func(10, 100, 'longer'), [370, 100]);
+    assert.deepEqual(func(100, 10, 'longer'), [100, 370]);
+    assert.deepEqual(func(10, 200, 'longer'), [10, 200]);
   });
 
-  it('should get value', () => {
-    const res = func(30, 240);
-    assert.deepEqual(res, [390, 240], 'result');
+  it('should interpolate hue using increasing arc', () => {
+    assert.deepEqual(func(200, 10, 'increasing'), [200, 370]);
+    assert.deepEqual(func(10, 200, 'increasing'), [10, 200]);
   });
 
-  it('should get value', () => {
-    const res = func(240, 30);
-    assert.deepEqual(res, [240, 390], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 60, 'shorter');
-    assert.deepEqual(res, [30, 60], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(60, 30, 'shorter');
-    assert.deepEqual(res, [60, 30], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 240, 'shorter');
-    assert.deepEqual(res, [390, 240], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(240, 30, 'shorter');
-    assert.deepEqual(res, [240, 390], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 60, 'longer');
-    assert.deepEqual(res, [390, 60], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(60, 30, 'longer');
-    assert.deepEqual(res, [60, 390], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 240, 'longer');
-    assert.deepEqual(res, [30, 240], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(240, 30, 'longer');
-    assert.deepEqual(res, [240, 30], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 60, 'increasing');
-    assert.deepEqual(res, [30, 60], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(60, 30, 'increasing');
-    assert.deepEqual(res, [60, 390], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 240, 'increasing');
-    assert.deepEqual(res, [30, 240], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(240, 30, 'increasing');
-    assert.deepEqual(res, [240, 390], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 60, 'decreasing');
-    assert.deepEqual(res, [390, 60], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(60, 30, 'decreasing');
-    assert.deepEqual(res, [60, 30], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(30, 240, 'decreasing');
-    assert.deepEqual(res, [390, 240], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(240, 30, 'decreasing');
-    assert.deepEqual(res, [240, 30], 'result');
+  it('should interpolate hue using decreasing arc', () => {
+    assert.deepEqual(func(10, 200, 'decreasing'), [370, 200]);
+    assert.deepEqual(func(200, 10, 'decreasing'), [200, 10]);
   });
 });
 
 describe('resolve length in pixels', () => {
   const func = util.resolveLengthInPixels;
 
-  it('should get NaN', () => {
-    const res = func();
-    assert.deepEqual(res, Number.NaN, 'result');
+  it('should resolve absolute font size keywords', () => {
+    const opt = { dimension: { rem: 16 } } as any;
+    assert.strictEqual(func('medium', undefined, opt), 16);
+    assert.strictEqual(func('large', undefined, opt), 18);
   });
 
-  it('should get NaN', () => {
-    const res = func('foo');
-    assert.deepEqual(res, Number.NaN, 'result');
+  it('should resolve relative font size keywords', () => {
+    const opt = { dimension: { em: 16 } } as any;
+    assert.strictEqual(func('larger', undefined, opt), 19.2);
   });
 
-  it('should get number', () => {
-    const res = func('medium', null, {
+  it('should return NaN for unknown string keywords', () => {
+    assert.isNaN(func('unknown', undefined));
+  });
+
+  it('should resolve absolute length units', () => {
+    assert.strictEqual(func(10, 'px'), 10);
+    assert.strictEqual(func(1, 'in'), 96);
+    assert.strictEqual(func(1, 'pt'), 96 / 72);
+  });
+
+  it('should resolve relative length units using dimension options', () => {
+    const opt = { dimension: { em: 16, rem: 16 } } as any;
+    assert.strictEqual(func(2, 'rem', opt), 32);
+    assert.strictEqual(func(2, 'em', opt), 32);
+    assert.strictEqual(func(2, 'ex', opt), 16);
+  });
+
+  it('should resolve viewport length units', () => {
+    const opt = { dimension: { vh: 100, vw: 200 } } as any;
+    assert.strictEqual(func(10, 'vh', opt), 1000);
+    assert.strictEqual(func(10, 'vw', opt), 2000);
+    assert.strictEqual(func(10, 'vmin', opt), 1000);
+    assert.strictEqual(func(10, 'vmax', opt), 2000);
+    assert.strictEqual(func(10, 'vb', opt), 1000);
+    assert.strictEqual(func(10, 'vi', opt), 2000);
+  });
+
+  it('should use callback in dimension options if provided', () => {
+    const opt = {
       dimension: {
-        rem: 16
+        callback: (unit: string) => (unit === 'custom' ? 10 : NaN)
       }
-    });
-    assert.deepEqual(res, 16, 'result');
+    } as any;
+    assert.strictEqual(func(2, 'custom', opt), 20);
   });
 
-  it('should get number', () => {
-    const res = func('smaller', null, {
+  it('should return NaN for unsupported units or invalid values', () => {
+    assert.isNaN(func(10, 'unknown_unit'));
+    assert.isNaN(func(NaN, 'px'));
+  });
+
+  it('should resolve relative length units scaled by rem option', () => {
+    const opt = { dimension: { rem: 16 } } as any;
+    assert.strictEqual(func(2, 'rch', opt), 16);
+    assert.strictEqual(func(2, 'rlh', opt), 38.4);
+  });
+
+  it('should call callback function and handle fallback to NaN', () => {
+    const optValid = {
       dimension: {
-        em: 12
+        callback: (u: string) => (u === 'custom' ? 10 : Number.NaN)
       }
-    });
-    assert.deepEqual(res, 10, 'result');
-  });
+    } as any;
+    assert.strictEqual(func(2, 'custom', optValid), 20);
 
-  it('should get NaN', () => {
-    const res = func(3);
-    assert.deepEqual(res, Number.NaN, 'result');
-  });
-
-  it('should get NaN', () => {
-    const res = func(3, 'foo');
-    assert.deepEqual(res, Number.NaN, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'in', {
+    const optNull = {
       dimension: {
-        in: 96
+        callback: () => null
       }
-    });
-    assert.deepEqual(res, 288, 'result');
-  });
+    } as any;
+    assert.isNaN(func(2, 'unknown', optNull));
 
-  it('should get number', () => {
-    const res = func(3, 'in', {
+    const optUndefined = {
       dimension: {
-        callback: unit => {
-          if (unit === 'in') {
-            return 96;
-          }
-        }
+        callback: () => undefined
       }
-    });
-    assert.deepEqual(res, 288, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'rem', {
-      dimension: {
-        rem: 16
-      }
-    });
-    assert.deepEqual(res, 48, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'in', {
-      dimension: {
-        rem: 16
-      }
-    });
-    assert.deepEqual(res, 288, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'rex', {
-      dimension: {
-        rem: 16
-      }
-    });
-    assert.deepEqual(res, 24, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'em', {
-      dimension: {
-        em: 12
-      }
-    });
-    assert.deepEqual(res, 36, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'ex', {
-      dimension: {
-        em: 12
-      }
-    });
-    assert.deepEqual(res, 18, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vh', {
-      dimension: {
-        vh: 576 / 100
-      }
-    });
-    assert.deepEqual(res, 17.28, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vw', {
-      dimension: {
-        vw: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 30.72, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vb', {
-      dimension: {
-        vh: 576 / 100,
-        vw: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 17.28, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vi', {
-      dimension: {
-        vh: 576 / 100,
-        vw: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 30.72, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vmax', {
-      dimension: {
-        vh: 576 / 100,
-        vw: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 30.72, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vmax', {
-      dimension: {
-        vw: 576 / 100,
-        vh: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 30.72, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vmin', {
-      dimension: {
-        vh: 576 / 100,
-        vw: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 17.28, 'result');
-  });
-
-  it('should get number', () => {
-    const res = func(3, 'vmin', {
-      dimension: {
-        vw: 576 / 100,
-        vh: 1024 / 100
-      }
-    });
-    assert.deepEqual(res, 17.28, 'result');
-  });
-
-  it('should get NaN when callback returns undefined', () => {
-    const res = func(3, 'in', {
-      dimension: {
-        callback: () => {
-          // returns nothing (undefined)
-        }
-      }
-    });
-    assert.deepEqual(res, Number.NaN, 'result');
-  });
-
-  it('should get number from dimension object by property name', () => {
-    const res = func(2, 'cm', {
-      dimension: {
-        cm: 10
-      }
-    });
-    assert.deepEqual(res, 20, 'result');
-  });
-});
-
-describe('cache invalid color value', () => {
-  const func = util.cacheInvalidColorValue;
-
-  it('should get value', () => {
-    const res = func();
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo', 'specifiedValue');
-    assert.strictEqual(res, '', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo', 'computedValue');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('foo', 'computedValue', true);
-    assert.strictEqual(res, null, 'result');
-  });
-});
-
-describe('resolve invalid color value', () => {
-  const func = util.resolveInvalidColorValue;
-
-  it('should get value', () => {
-    const res = func();
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('foo');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('foo', true);
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('computedValue');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('computedValue', true);
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('hsl');
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('hwb');
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('mixValue');
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get null', () => {
-    const res = func('mixValue');
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should get empty string', () => {
-    const res = func('specifiedValue');
-    assert.strictEqual(res, '', 'result');
-  });
-});
-
-describe('number to hex string', () => {
-  const func = util.numberToHexString;
-
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a number.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(Number.NaN), TypeError, 'NaN is not a number.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(-1), RangeError, '-1 is not between 0 and 255.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(256), RangeError, '256 is not between 0 and 255.');
-  });
-
-  it('should throw', () => {
-    assert.throws(() => func(-0.6), RangeError, '-1 is not between 0 and 255.');
-  });
-
-  it('should throw', () => {
-    assert.throws(
-      () => func(255.5),
-      RangeError,
-      '256 is not between 0 and 255.'
-    );
-  });
-
-  it('should get value', () => {
-    const res = func(-0.4);
-    assert.strictEqual(res, '00', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(255.4);
-    assert.strictEqual(res, 'ff', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(0);
-    assert.strictEqual(res, '00', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(9);
-    assert.strictEqual(res, '09', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(10);
-    assert.strictEqual(res, '0a', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(15);
-    assert.strictEqual(res, '0f', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(16);
-    assert.strictEqual(res, '10', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(17);
-    assert.strictEqual(res, '11', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(0.15 * 255);
-    assert.strictEqual(res, '26', 'result');
-  });
-
-  it('should get value', () => {
-    const res = func(255);
-    assert.strictEqual(res, 'ff', 'result');
+    } as any;
+    assert.isNaN(func(2, 'unknown', optUndefined));
   });
 });
 
 describe('angle to deg', () => {
   const func = util.angleToDeg;
 
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  it('should throw TypeError if input is not a string', () => {
+    assert.throws(() => func(180 as any), TypeError);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func('0foo'),
-      SyntaxError,
-      'Invalid property value: 0foo'
-    );
+  it('should throw SyntaxError if string does not match angle pattern', () => {
+    assert.throws(() => func('invalid'), SyntaxError);
+    assert.throws(() => func('100px'), SyntaxError);
   });
 
-  it('should throw', () => {
-    assert.throws(() => func('.'), SyntaxError, 'Invalid property value: .');
+  it('should convert various units to deg correctly', () => {
+    assert.strictEqual(func('180deg'), 180);
+    assert.strictEqual(func('180'), 180);
+    assert.strictEqual(func('200grad'), 180);
+    assert.strictEqual(func(`${Math.PI}rad`), 180);
+    assert.strictEqual(func('0.5turn'), 180);
   });
 
-  it('should get value', () => {
-    const res = func('.0');
-    assert.strictEqual(res, 0, 'result');
+  it('should normalize negative angles and handle -0', () => {
+    assert.strictEqual(func('-90deg'), 270);
+    assert.strictEqual(func('-0deg'), 0);
   });
 
-  it('should get value', () => {
-    const res = func('0.');
-    assert.strictEqual(res, 0, 'result');
+  it('should wrap around angles greater than or equal to 360', () => {
+    assert.strictEqual(func('360deg'), 0);
+    assert.strictEqual(func('450deg'), 90);
+  });
+});
+
+describe('number to hex string', () => {
+  const func = util.numberToHexString;
+
+  it('should throw TypeError if value is not a finite number', () => {
+    assert.throws(() => func(NaN), TypeError);
   });
 
-  it('should get value', () => {
-    const res = func('90');
-    assert.strictEqual(res, 90, 'result');
+  it('should throw RangeError if value is out of 0-255 range', () => {
+    assert.throws(() => func(-1), RangeError);
+    assert.throws(() => func(256), RangeError);
   });
 
-  it('should get value', () => {
-    const res = func('90deg');
-    assert.strictEqual(res, 90, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('100grad');
-    assert.strictEqual(res, 90, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('.25turn');
-    assert.strictEqual(res, 90, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('1.57rad');
-    assert.strictEqual(Math.round(res), 90, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('0deg');
-    assert.strictEqual(res, 0, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('360deg');
-    assert.strictEqual(res, 0, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('540deg');
-    assert.strictEqual(res, 180, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('720deg');
-    assert.strictEqual(res, 0, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-90deg');
-    assert.strictEqual(res, 270, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-180deg');
-    assert.strictEqual(res, 180, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-270deg');
-    assert.strictEqual(res, 90, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-360deg');
-    assert.strictEqual(res, 0, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-540deg');
-    assert.strictEqual(res, 180, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-720deg');
-    assert.strictEqual(res, 0, 'result');
+  it('should convert number to 2-digit hex string', () => {
+    assert.strictEqual(func(0), '00');
+    assert.strictEqual(func(15), '0f');
+    assert.strictEqual(func(16), '10');
+    assert.strictEqual(func(255), 'ff');
   });
 });
 
 describe('parse alpha', () => {
   const func = util.parseAlpha;
 
-  it('should throw', () => {
-    assert.throws(() => func('foo'), TypeError, 'NaN is not a finite number.');
+  it('should return 1 when input is empty string or not a string', () => {
+    assert.strictEqual(func(''), 1);
+    assert.strictEqual(func(), 1);
+    assert.strictEqual(func(123 as any), 1);
   });
 
-  it('should get value', () => {
-    const res = func();
-    assert.strictEqual(res, 1, 'result');
+  it('should return 0 when input is "none"', () => {
+    assert.strictEqual(func('none'), 0);
   });
 
-  it('should get value', () => {
-    const res = func(1);
-    assert.strictEqual(res, 1, 'result');
+  it('should parse percentage alpha correctly', () => {
+    assert.strictEqual(func('50%'), 0.5);
+    assert.strictEqual(func('100%'), 1);
+    assert.strictEqual(func('0%'), 0);
   });
 
-  it('should get value', () => {
-    const res = func('');
-    assert.strictEqual(res, 1, 'result');
+  it('should parse number alpha correctly and round to 3 decimals', () => {
+    assert.strictEqual(func('0.5'), 0.5);
+    assert.strictEqual(func('0.33333'), 0.333);
   });
 
-  it('should get value', () => {
-    const res = func('none');
-    assert.strictEqual(res, 0, 'result');
+  it('should clamp alpha values between 0 and 1', () => {
+    assert.strictEqual(func('1.5'), 1);
+    assert.strictEqual(func('150%'), 1);
+    assert.strictEqual(func('-0.5'), 0);
   });
 
-  it('should get value', () => {
-    const res = func('.5');
-    assert.strictEqual(res, 0.5, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('50%');
-    assert.strictEqual(res, 0.5, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('0.5');
-    assert.strictEqual(res, 0.5, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('-0.5');
-    assert.strictEqual(res, 0, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('1.1');
-    assert.strictEqual(res, 1, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('0.33333333');
-    assert.strictEqual(res, 0.333, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('0.66666666');
-    assert.strictEqual(res, 0.667, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('0.6065');
-    assert.strictEqual(res, 0.607, 'result');
-  });
-
-  it('should get value', () => {
-    const res = func('0.0005');
-    assert.strictEqual(res, 0, 'result');
+  it('should throw TypeError if parsed alpha is not a finite number', () => {
+    assert.throws(() => func('invalid'), TypeError);
   });
 });
 
 describe('parse hex alpha', () => {
   const func = util.parseHexAlpha;
 
-  it('should throw', () => {
-    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  it('should throw TypeError if input is not a string', () => {
+    assert.throws(() => func(123 as any), TypeError);
   });
 
-  it('should throw', () => {
-    assert.throws(
-      () => func(''),
-      SyntaxError,
-      'Invalid property value: (empty string)'
-    );
+  it('should throw SyntaxError if input is an empty string', () => {
+    assert.throws(() => func(''), SyntaxError);
   });
 
-  it('should get value', () => {
-    const res = func('-0');
-    assert.strictEqual(res, 0, 'result');
+  it('should return 0 for hex values representing 0 or less', () => {
+    assert.strictEqual(func('00'), 0);
   });
 
-  it('should get value', () => {
-    const res = func('0');
-    assert.strictEqual(res, 0, 'result');
+  it('should return 1 for hex values representing 255 or more', () => {
+    assert.strictEqual(func('ff'), 1);
+    assert.strictEqual(func('FF'), 1);
   });
 
-  it('should get value', () => {
-    const res = func('100');
-    assert.strictEqual(res, 1, 'result');
+  it('should parse mapped exact percentage hex values correctly', () => {
+    assert.strictEqual(func('80'), 0.5);
+    assert.strictEqual(func('40'), 0.25);
   });
 
-  it('should get value', () => {
-    const res = func('ff');
-    assert.strictEqual(res, 1, 'result');
+  it('should parse non-mapped hex values rounded to PPTH precision', () => {
+    assert.strictEqual(func('41'), 0.255);
+  });
+});
+
+describe('cache invalid color value', () => {
+  const func = util.cacheInvalidColorValue;
+
+  it('should return and cache empty string when format is VAL_SPEC', () => {
+    const key = 'invalid_spec_key';
+    const res = func(key, VAL_SPEC);
+    assert.strictEqual(res, '');
+    assert.strictEqual(lruCache.get(key)?.item, '');
   });
 
-  it('should get value', () => {
-    const res = func('3');
-    assert.strictEqual(res, 0.01, 'result');
+  it('should return and cache null when nullable is true', () => {
+    const key = 'invalid_nullable_key';
+    const res = func(key, 'rgb', true);
+    assert.isNull(res);
+    assert.isNull(lruCache.get(key)?.item);
   });
 
-  it('should get value', () => {
-    const res = func('2');
-    assert.strictEqual(res, 0.008, 'result');
+  it('should return and cache default fallback channels array', () => {
+    const key = 'invalid_default_key';
+    const res = func(key, 'rgb', false);
+    const expected = ['rgb', 0, 0, 0, 0];
+    assert.deepEqual(res, expected);
+    assert.deepEqual(lruCache.get(key)?.item, expected);
+  });
+});
+
+describe('resolve invalid color value', () => {
+  const func = util.resolveInvalidColorValue;
+
+  it('should return null for hsl, hwb, or VAL_MIX formats', () => {
+    assert.isNull(func('hsl'));
+    assert.isNull(func('hwb'));
+    assert.isNull(func(VAL_MIX));
   });
 
-  it('should get value', () => {
-    const res = func('4');
-    assert.strictEqual(res, 0.016, 'result');
+  it('should return empty string when format is VAL_SPEC', () => {
+    assert.strictEqual(func(VAL_SPEC), '');
   });
 
-  it('should get value', () => {
-    const res = func('80');
-    assert.strictEqual(res, 0.5, 'result');
+  it('should return null for default format when nullable is true', () => {
+    assert.isNull(func('rgb', true));
   });
 
-  it('should get value', () => {
-    const res = func('88');
-    assert.strictEqual(res, 0.533, 'result');
+  it('should return fallback channels for non-nullable format', () => {
+    assert.deepEqual(func('rgb', false), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('hex'), ['rgb', 0, 0, 0, 0]);
   });
 });

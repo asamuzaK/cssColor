@@ -7,9 +7,9 @@ import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
-import { lruCache } from '../src/js/cache';
-import { resolveColor } from '../src/js/resolve';
-import * as relColor from '../src/js/relative-color';
+import { lruCache } from '../src/utils/cache';
+import { resolveColor } from '../src/resolvers/resolve-color';
+import * as relColor from '../src/resolvers/relative-color';
 
 beforeEach(() => {
   lruCache.clear();

@@ -3,9 +3,9 @@
  */
 
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
+import { MatchedRegExp, Options, SpecifiedColorChannels } from '../typedef';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
-import { MatchedRegExp, Options, SpecifiedColorChannels } from './typedef';
 
 /* constants */
 import {
@@ -42,6 +42,45 @@ const REG_COMMA = /^,$/;
 const REG_DASHED_IDENT = /--[\w-]+/g;
 const REG_SLASH = /^\/$/;
 const REG_WHITESPACE = /^\s+$/;
+
+/* absolute font size to pixel ratio */
+const absoluteFontSize = new Map([
+  ['xx-small', 9 / 16],
+  ['x-small', 5 / 8],
+  ['small', 13 / 16],
+  ['medium', 1],
+  ['large', 9 / 8],
+  ['x-large', 3 / 2],
+  ['xx-large', 2],
+  ['xxx-large', 3]
+]);
+
+/* relative font size to pixel ratio */
+const relativeFontSize = new Map([
+  ['smaller', 1 / 1.2],
+  ['larger', 1.2]
+]);
+
+/* absolute length to pixel ratio */
+const absoluteLength = new Map([
+  ['cm', 96 / 2.54],
+  ['mm', 96 / 25.4],
+  ['q', 96 / 101.6],
+  ['in', 96],
+  ['pc', 16],
+  ['pt', 96 / 72],
+  ['px', 1]
+]);
+
+/* relative length to pixel ratio */
+const relativeLength = new Map([
+  ['rcap', 1],
+  ['rch', 0.5],
+  ['rem', 1],
+  ['rex', 0.5],
+  ['ric', 1],
+  ['rlh', 1.2]
+]);
 
 /**
  * split value
@@ -246,45 +285,6 @@ export const interpolateHue = (
   return [a, b];
 };
 
-/* absolute font size to pixel ratio */
-const absoluteFontSize = new Map([
-  ['xx-small', 9 / 16],
-  ['x-small', 5 / 8],
-  ['small', 13 / 16],
-  ['medium', 1],
-  ['large', 9 / 8],
-  ['x-large', 3 / 2],
-  ['xx-large', 2],
-  ['xxx-large', 3]
-]);
-
-/* relative font size to pixel ratio */
-const relativeFontSize = new Map([
-  ['smaller', 1 / 1.2],
-  ['larger', 1.2]
-]);
-
-/* absolute length to pixel ratio */
-const absoluteLength = new Map([
-  ['cm', 96 / 2.54],
-  ['mm', 96 / 25.4],
-  ['q', 96 / 101.6],
-  ['in', 96],
-  ['pc', 16],
-  ['pt', 96 / 72],
-  ['px', 1]
-]);
-
-/* relative length to pixel ratio */
-const relativeLength = new Map([
-  ['rcap', 1],
-  ['rch', 0.5],
-  ['rem', 1],
-  ['rex', 0.5],
-  ['ric', 1],
-  ['rlh', 1.2]
-]);
-
 /**
  * resolve length in pixels
  * @param value - value
@@ -358,80 +358,6 @@ export const resolveLengthInPixels = (
 };
 
 /**
- * cache invalid color value
- * @param key - cache key
- * @param nullable - is nullable
- * @returns cached value
- */
-export const cacheInvalidColorValue = (
-  cacheKey: string,
-  format: string,
-  nullable: boolean = false
-): SpecifiedColorChannels | string | null => {
-  if (format === VAL_SPEC) {
-    const res = '';
-    setCache(cacheKey, res);
-    return res;
-  }
-  if (nullable) {
-    setCache(cacheKey, null);
-    return null;
-  }
-  const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-  setCache(cacheKey, res);
-  return res;
-};
-
-/**
- * resolve invalid color value
- * @param format - output format
- * @param nullable - is nullable
- * @returns resolved value
- */
-export const resolveInvalidColorValue = (
-  format: string,
-  nullable: boolean = false
-): SpecifiedColorChannels | string | null => {
-  switch (format) {
-    case 'hsl':
-    case 'hwb':
-    case VAL_MIX: {
-      return null;
-    }
-    case VAL_SPEC: {
-      return '';
-    }
-    default: {
-      if (nullable) {
-        return null;
-      }
-      return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
-    }
-  }
-};
-
-/**
- * number to hex string
- * @param value - numeric value
- * @returns hex string
- */
-export const numberToHexString = (value: number): string => {
-  if (!Number.isFinite(value)) {
-    throw new TypeError(`${value} is not a number.`);
-  } else {
-    value = Math.round(value);
-    if (value < 0 || value > MAX_RGB) {
-      throw new RangeError(`${value} is not between 0 and ${MAX_RGB}.`);
-    }
-  }
-  let hex = value.toString(HEX);
-  if (hex.length === 1) {
-    hex = `0${hex}`;
-  }
-  return hex;
-};
-
-/**
  * angle to deg
  * @param angle
  * @returns deg: 0..360
@@ -469,6 +395,27 @@ export const angleToDeg = (angle: string): number => {
     deg = 0;
   }
   return deg;
+};
+
+/**
+ * number to hex string
+ * @param value - numeric value
+ * @returns hex string
+ */
+export const numberToHexString = (value: number): string => {
+  if (!Number.isFinite(value)) {
+    throw new TypeError(`${value} is not a number.`);
+  } else {
+    value = Math.round(value);
+    if (value < 0 || value > MAX_RGB) {
+      throw new RangeError(`${value} is not between 0 and ${MAX_RGB}.`);
+    }
+  }
+  let hex = value.toString(HEX);
+  if (hex.length === 1) {
+    hex = `0${hex}`;
+  }
+  return hex;
 };
 
 /**
@@ -538,4 +485,57 @@ export const parseHexAlpha = (value: string): number => {
     alpha = Math.round(alpha / MAX_RGB / PPTH) * PPTH;
   }
   return parseFloat(alpha.toFixed(TRIA));
+};
+
+/**
+ * cache invalid color value
+ * @param key - cache key
+ * @param nullable - is nullable
+ * @returns cached value
+ */
+export const cacheInvalidColorValue = (
+  cacheKey: string,
+  format: string,
+  nullable: boolean = false
+): SpecifiedColorChannels | string | null => {
+  if (format === VAL_SPEC) {
+    const res = '';
+    setCache(cacheKey, res);
+    return res;
+  }
+  if (nullable) {
+    setCache(cacheKey, null);
+    return null;
+  }
+  const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+  setCache(cacheKey, res);
+  return res;
+};
+
+/**
+ * resolve invalid color value
+ * @param format - output format
+ * @param nullable - is nullable
+ * @returns resolved value
+ */
+export const resolveInvalidColorValue = (
+  format: string,
+  nullable: boolean = false
+): SpecifiedColorChannels | string | null => {
+  switch (format) {
+    case 'hsl':
+    case 'hwb':
+    case VAL_MIX: {
+      return null;
+    }
+    case VAL_SPEC: {
+      return '';
+    }
+    default: {
+      if (nullable) {
+        return null;
+      }
+      return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
+    }
+  }
 };

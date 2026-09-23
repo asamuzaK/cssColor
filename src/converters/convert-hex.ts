@@ -1,21 +1,24 @@
 /**
- * hex
+ * convert-hex
  */
 
-import { isString } from './common';
+import {
+  transformMatrix,
+  validateColorComponents,
+  transformLinearRgbToRgb,
+  transformRgbToLinearRgb
+} from '../matrix/transform';
+import { ColorChannels, MatchedRegExp } from '../typedef';
+import { isString } from '../utils/common';
+import { numberToHexString, parseHexAlpha } from '../utils/util';
+
+/* constants */
 import {
   MATRIX_D50_TO_D65,
   MATRIX_L_RGB_TO_XYZ,
-  MATRIX_XYZ_TO_L_RGB,
-  transformMatrix,
-  validateColorComponents
-} from './matrix';
-import { transformLinearRgbToRgb, transformRgbToLinearRgb } from './transform';
-import { numberToHexString, parseHexAlpha } from './util';
-import { ColorChannels, MatchedRegExp } from './typedef';
-
-/* constants */
-import { HEX, QUAD, MAX_RGB } from './constant';
+  MATRIX_XYZ_TO_L_RGB
+} from '../matrix/matrix';
+import { HEX, QUAD, MAX_RGB } from '../utils/constant';
 
 /**
  * convert rgb to hex color

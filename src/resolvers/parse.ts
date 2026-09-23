@@ -2,8 +2,30 @@
  * parse
  */
 
-import { isString } from './common';
-import { convertHexToRgb, convertHexToXyz } from './hex';
+import { convertHexToRgb, convertHexToXyz } from '../converters/convert-hex';
+import {
+  transformMatrix,
+  transformRgbToLinearRgb,
+  transformRgbToXyz
+} from '../matrix/transform';
+import {
+  ComputedColorChannels,
+  Options,
+  MatchedRegExp,
+  SpecifiedColorChannels,
+  StringColorChannels,
+  StringColorSpacedChannels,
+  TriColorChannels
+} from '../typedef';
+import { isString } from '../utils/common';
+import {
+  angleToDeg,
+  parseAlpha,
+  resolveInvalidColorValue,
+  roundToPrecision
+} from '../utils/util';
+
+/* constants */
 import {
   D50,
   MATRIX_A98_TO_XYZ,
@@ -14,27 +36,8 @@ import {
   MATRIX_OKLAB_TO_LMS,
   MATRIX_P3_TO_XYZ,
   MATRIX_PROPHOTO_TO_XYZ_D50,
-  MATRIX_REC2020_TO_XYZ,
-  transformMatrix
-} from './matrix';
-import { transformRgbToLinearRgb, transformRgbToXyz } from './transform';
-import {
-  angleToDeg,
-  parseAlpha,
-  resolveInvalidColorValue,
-  roundToPrecision
-} from './util';
-import {
-  ComputedColorChannels,
-  Options,
-  MatchedRegExp,
-  SpecifiedColorChannels,
-  StringColorChannels,
-  StringColorSpacedChannels,
-  TriColorChannels
-} from './typedef';
-
-/* constants */
+  MATRIX_REC2020_TO_XYZ
+} from '../matrix/matrix';
 import {
   DEC,
   DEG,
@@ -64,7 +67,7 @@ import {
   VAL_COMP,
   VAL_MIX,
   VAL_SPEC
-} from './constant';
+} from '../utils/constant';
 import { NAMED_COLORS } from './named-color';
 
 /* regexp */

@@ -8,17 +8,17 @@ import {
   parseComponentValue
 } from '@csstools/css-parser-algorithms';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
-import { createCacheKey, getCache, setCache } from './cache';
-import { convertColorToRgb } from './color';
-import { isString, isStringOrNumber } from './common';
-import { resolveDimension, serializeCalc } from './css-calc-var';
-import { roundToPrecision, splitValue } from './util';
+import { convertColorToRgb } from '../converters/convert-color';
 import {
   ColorChannels,
   MatchedRegExp,
   Options,
   StringColorChannels
-} from './typedef';
+} from '../typedef';
+import { createCacheKey, getCache, setCache } from '../utils/cache';
+import { isString, isStringOrNumber } from '../utils/common';
+import { roundToPrecision, splitValue } from '../utils/util';
+import { resolveDimension, serializeCalc } from './css-calc-var';
 
 /* constants */
 import {
@@ -39,7 +39,7 @@ import {
   SYN_FN_VAR,
   SYN_MIX,
   VAL_SPEC
-} from './constant';
+} from '../utils/constant';
 import { NAMED_COLORS } from './named-color';
 const NAMESPACE = 'relative-color';
 const {
@@ -56,7 +56,9 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 const { HasNoneKeywords: KEY_NONE } = SyntaxFlag;
-const COLOR_CHANNELS = new Map([
+
+/* color channels */
+const colorChannels = new Map([
   ['color', ['r', 'g', 'b', 'alpha']],
   ['hsl', ['h', 's', 'l', 'alpha']],
   ['hsla', ['h', 's', 'l', 'alpha']],
@@ -138,7 +140,7 @@ export function resolveColorChannels(
     throw new TypeError(`${tokens} is not an array.`);
   }
   const { colorSpace = '', format = '' } = opt;
-  const colorChannel = COLOR_CHANNELS.get(colorSpace);
+  const colorChannel = colorChannels.get(colorSpace);
   // invalid color channel
   if (!colorChannel) {
     return null;
