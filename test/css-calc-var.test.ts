@@ -1948,7 +1948,7 @@ describe('serialize calc edge cases', () => {
     assert.strictEqual(res, 'calc()', 'result');
   });
 
-  it('should throw if top-level flat items >= 3 but not matching sortCalcValues pattern', () => {
+  it('should throw if top-level items >= 3 but not matching pattern', () => {
     assert.throws(
       () => func('calc(1) + 2', { format: 'specifiedValue' }),
       Error,
@@ -2398,6 +2398,21 @@ describe('resolve CSS variable', () => {
     const res = func([undefined] as any);
     assert.deepEqual(res, [[], ''], 'result');
   });
+
+  it('should return null when var() resolves to falsy value', () => {
+    const res = css.resolveVar('var(--a, var(--missing))', {
+      customProperty: {}
+    });
+    assert.strictEqual(res, null);
+  });
+
+  it('should fallback to next valid value if available', () => {
+    const res = css.resolveVar('var(--a, var(--missing, red))', {
+      customProperty: {}
+    });
+
+    assert.strictEqual(res, 'red');
+  });
 });
 
 describe('parse CSS var() tokens', () => {
@@ -2619,6 +2634,26 @@ describe('resolve CSS var()', () => {
       }
     });
     assert.strictEqual(res2, 'rgb(0 127.5 0)', 'result');
+  });
+
+  it('should return null when resolved color length exceeds maxLength', () => {
+    const value = 'var(--a)';
+    const resolvedValue = '12345678901';
+    const res = css.resolveVar(value, {
+      maxLength: 10,
+      customProperty: {
+        '--a': resolvedValue
+      }
+    });
+    assert.strictEqual(res, null);
+
+    const cachedRes = css.resolveVar(value, {
+      maxLength: 10,
+      customProperty: {
+        '--a': resolvedValue
+      }
+    });
+    assert.strictEqual(cachedRes, null);
   });
 });
 

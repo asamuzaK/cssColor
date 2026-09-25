@@ -9,7 +9,7 @@ import { MatchedRegExp, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString, isStringOrNumber } from '../utils/common';
 import {
-  checkValueLength,
+  getMaxLength,
   resolveLengthInPixels,
   roundToPrecision
 } from '../utils/util';
@@ -853,15 +853,14 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
  * @returns serialized value
  */
 export const serializeCalc = (value: string, opt: Options = {}): string => {
-  const { format = '' } = opt;
-  if (isString(value)) {
-    if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
-      return value;
-    }
-    value = value.toLowerCase().trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  const { format = '' } = opt;
+  if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
+    return value;
+  }
+  value = value.toLowerCase().trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -1045,32 +1044,32 @@ export const parseCalcTokens = (
  * @returns resolved value
  */
 export const cssCalc = (value: string, opt: Options = {}): string => {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
   const options = {
     ...opt
   };
-  const { format = '' } = options;
-  if (isString(value)) {
-    if (!checkValueLength(value, options)) {
-      return '';
-    }
-    if (REG_FN_VAR.test(value)) {
-      if (format === VAL_SPEC) {
-        return value;
-      } else {
-        const resolvedValue = resolveVar(value, options);
-        if (isString(resolvedValue)) {
-          return resolvedValue;
-        } else {
-          return '';
-        }
-      }
-    } else if (!REG_FN_CALC.test(value)) {
-      return value;
-    }
-    value = value.toLowerCase().trim();
-  } else {
-    throw new TypeError(`${value} is not a string.`);
+  const maxLength = getMaxLength(options);
+  if (value.length > maxLength) {
+    return '';
   }
+  const { format } = options;
+  if (REG_FN_VAR.test(value)) {
+    if (format === VAL_SPEC) {
+      return value;
+    } else {
+      const resolvedValue = resolveVar(value, options);
+      if (isString(resolvedValue)) {
+        return resolvedValue;
+      } else {
+        return '';
+      }
+    }
+  } else if (!REG_FN_CALC.test(value)) {
+    return value;
+  }
+  value = value.toLowerCase().trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -1266,18 +1265,17 @@ export function parseVarTokens(
  * @returns resolved value
  */
 export function resolveVar(value: string, opt: Options = {}): string | null {
-  const { format = '' } = opt;
-  if (isString(value)) {
-    if (!checkValueLength(value, opt)) {
-      return null;
-    }
-    if (!REG_FN_VAR.test(value) || format === VAL_SPEC) {
-      return value;
-    }
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  const maxLength = getMaxLength(opt);
+  if (value.length > maxLength) {
+    return null;
+  }
+  if (!REG_FN_VAR.test(value) || opt.format === VAL_SPEC) {
+    return value;
+  }
+  value = value.trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -1294,6 +1292,11 @@ export function resolveVar(value: string, opt: Options = {}): string | null {
   const values = parseVarTokens(tokens, opt);
   if (Array.isArray(values)) {
     let color = values.join('');
+    // Check color length
+    if (color.length > maxLength) {
+      setCache(cacheKey, null);
+      return null;
+    }
     if (REG_FN_CALC.test(color)) {
       color = cssCalc(color, opt);
     }

@@ -9,7 +9,7 @@ import { resolveColor } from '../resolvers/resolve-color';
 import { ColorChannels, ComputedColorChannels, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
-import { checkValueLength, numberToHexString } from '../utils/util';
+import { getMaxLength, numberToHexString } from '../utils/util';
 import {
   convertColorToHsl,
   convertColorToHwb,
@@ -37,18 +37,16 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 /**
  * pre process
  * @param value - CSS color value
- * @param [opt] - options
+ * @param opt - options
  * @returns value
  */
-export const preProcess = (value: string, opt: Options = {}): string | null => {
+export const preProcess = (value: string, opt: Options): string | null => {
   if (!isString(value)) {
     return null;
   }
-  if (!checkValueLength(value, opt)) {
-    return null;
-  }
   value = value.trim();
-  if (!value) {
+  const maxLength = getMaxLength(opt);
+  if (!value || value.length > maxLength) {
     return null;
   }
   const cacheKey: string = createCacheKey(
@@ -87,6 +85,10 @@ export const preProcess = (value: string, opt: Options = {}): string | null => {
       nullable: true
     });
     res = typeof resolvedColorMix === 'string' ? resolvedColorMix : null;
+  }
+  if (!res || res.length > maxLength) {
+    setCache(cacheKey, null);
+    return null;
   }
   setCache(cacheKey, res);
   return res;

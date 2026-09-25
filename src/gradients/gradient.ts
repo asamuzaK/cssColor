@@ -3,7 +3,7 @@
  */
 
 import { Options } from '../typedef';
-import { checkValueLength } from '../utils/util';
+import { getMaxLength } from '../utils/util';
 import { parseGradient } from './parse-gradient';
 
 /* constants */
@@ -19,7 +19,8 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
   const options = {
     ...opt
   };
-  if (!checkValueLength(value, options)) {
+  const maxLength = getMaxLength(options);
+  if (!value || value.length > maxLength) {
     if (options.format === VAL_SPEC) {
       return '';
     }
