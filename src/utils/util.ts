@@ -84,24 +84,20 @@ const relativeLength = new Map([
 ]);
 
 /**
- * check value length
- * @param value - CSS value
- * @returns result
+ * get max length
+ * @param [opt] - options
+ * @returns max length
  */
-export const checkValueLength = (value: string, opt: Options = {}): boolean => {
-  if (!isString(value)) {
-    return false;
-  }
-  const { maxLength: optMaxLength } = opt;
-  let maxLength = MAX_LENGTH;
+export const getMaxLength = (opt: Options = {}): number => {
+  const { maxLength } = opt;
   if (
-    Number.isInteger(optMaxLength) &&
-    (optMaxLength as number) > 0 &&
-    (optMaxLength as number) < maxLength
+    Number.isInteger(maxLength) &&
+    (maxLength as number) > 0 &&
+    (maxLength as number) < MAX_LENGTH
   ) {
-    maxLength = optMaxLength as number;
+    return maxLength as number;
   }
-  return value.length <= maxLength;
+  return MAX_LENGTH;
 };
 
 /**
@@ -116,11 +112,15 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  if (!checkValueLength(value, opt)) {
+  const options = {
+    ...opt
+  };
+  const strValue = value.trim();
+  const maxLength = getMaxLength(options);
+  if (!strValue || strValue.length > maxLength) {
     return [];
   }
-  const strValue = value.trim();
-  const { delimiter = ' ', preserveComment = false } = opt;
+  const { delimiter = ' ', preserveComment = false } = options;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -218,10 +218,10 @@ export const extractDashedIdent = (value: string): string[] => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  if (!checkValueLength(value, {})) {
+  const strValue = value.trim();
+  if (!strValue) {
     return [];
   }
-  const strValue = value.trim();
   const cacheKey: string = createCacheKey({
     namespace: NAMESPACE,
     name: 'extractDashedIdent',
@@ -334,10 +334,11 @@ export const resolveLengthInPixels = (
     vw: number;
   };
   if (isString(value)) {
-    if (!checkValueLength(value, opt)) {
+    const str = value.toLowerCase().trim();
+    const maxLength = getMaxLength(opt);
+    if (str.length > maxLength) {
       return Number.NaN;
     }
-    const str = value.toLowerCase().trim();
     const ratio = absoluteFontSize.get(str);
     if (ratio !== undefined) {
       return ratio * rem;

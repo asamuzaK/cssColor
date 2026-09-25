@@ -7,7 +7,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
-import { VAL_MIX, VAL_SPEC } from '../src/utils/constant';
+import { MAX_LENGTH, VAL_MIX, VAL_SPEC } from '../src/utils/constant';
 import * as util from '../src/utils/util';
 
 beforeEach(() => {
@@ -18,39 +18,26 @@ afterEach(() => {
   lruCache.clear();
 });
 
-describe('check value length', () => {
-  const func = util.checkValueLength;
+describe('get max length', () => {
+  const func = util.getMaxLength;
 
-  it('should return false when value is not a string', () => {
-    assert.isFalse(func());
+  it('should return default max length when value is not a string', () => {
+    assert.strictEqual(func(), MAX_LENGTH);
   });
 
-  it('should return true when length is lte to MAX_LENGTH', () => {
-    const validStr = 'a'.repeat(2048);
-    assert.isTrue(func(validStr));
+  it('should return default max length when maxLength exceeds', () => {
+    const opt = { maxLength: 1025 };
+    assert.strictEqual(func(opt), MAX_LENGTH);
   });
 
-  it('should return false when length exceeds MAX_LENGTH', () => {
-    const invalidStr = 'a'.repeat(2049);
-    assert.isFalse(func(invalidStr));
+  it('should return default max length when maxLength equals default', () => {
+    const opt = { maxLength: 1024 };
+    assert.strictEqual(func(opt), MAX_LENGTH);
   });
 
-  it('should respect custom maxLength option when within limit', () => {
-    const str = 'a'.repeat(10);
-    assert.isTrue(func(str, { maxLength: 10 }));
-  });
-
-  it('should respect custom maxLength option when exceeding limit', () => {
-    const str = 'a'.repeat(11);
-    assert.isFalse(func(str, { maxLength: 10 }));
-  });
-
-  it('should verify with default max length', () => {
-    const str = 'a'.repeat(2048);
-    assert.isTrue(func(str, { maxLength: 0 }));
-    assert.isTrue(func(str, { maxLength: -1 }));
-    assert.isFalse(func(`${str}a`, { maxLength: 0 }));
-    assert.isFalse(func(`${str}a`, { maxLength: -1 }));
+  it('should respect maxLength option when within limit', () => {
+    const opt = { maxLength: 1023 };
+    assert.strictEqual(func(opt), 1023);
   });
 });
 
@@ -141,9 +128,8 @@ describe('extract dashed ident', () => {
     assert.throws(() => func(123 as any), TypeError);
   });
 
-  it('should return empty array if value exceeds max length', () => {
-    const value = 'a'.repeat(1025).split('').join(' ');
-    const res = func(value);
+  it('should return empty array if value is trimmed to empty string', () => {
+    const res = func(' ');
     assert.deepEqual(res, []);
   });
 
