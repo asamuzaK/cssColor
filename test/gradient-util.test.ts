@@ -59,6 +59,12 @@ describe('get gradient type', () => {
     const res = func('repeating-conic-gradient(green, blue)');
     assert.strictEqual(res, 'repeating-conic-gradient', 'result');
   });
+
+  it('should return empty string when trimmed value is falsy', () => {
+    assert.strictEqual(func(''), '');
+    assert.strictEqual(func('   '), '');
+    assert.strictEqual(func('\t\n'), '');
+  });
 });
 
 describe('validate linear gradient line', () => {

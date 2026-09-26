@@ -556,11 +556,8 @@ export const sortCalcValues = (
   const sortedValues = [];
   const cal = new Calculator();
   let operator: string = '';
-  const l = values.length;
-  // Array traversal optimization for operator check
   let hasAddSub = false;
-  for (let i = 0; i < l; i++) {
-    const value = values[i];
+  for (const value of values) {
     if (!isStringOrNumber(value)) {
       throw new Error(`Unexpected token ${value}.`);
     }
@@ -615,76 +612,64 @@ export const sortCalcValues = (
         }
       }
     }
-    if (i === l - 1) {
-      const sortedValue = cal.multiply();
-      if (sortedValue) {
-        sortedValues.push(sortedValue);
-      }
-      cal.clear();
-      operator = '';
-    }
+  }
+  const sortedValue = cal.multiply();
+  if (sortedValue) {
+    sortedValues.push(sortedValue);
   }
   let resolvedValue = '';
   if (finalize && hasAddSub) {
     const finalizedValues = [];
     cal.clear();
     operator = '';
-    const l = sortedValues.length;
-    for (let i = 0; i < l; i++) {
-      const value = sortedValues[i];
-      if (isStringOrNumber(value)) {
-        if (value === '+' || value === '-') {
-          operator = value;
-        } else {
-          const numValue = Number(value);
-          const strValue = `${value}`;
-          switch (operator) {
-            case '-': {
-              if (Number.isFinite(numValue)) {
-                cal.hasNum = true;
-                cal.numSum.push(-1 * numValue);
-              } else if (REG_TYPE_PCT.test(strValue)) {
-                const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
-                cal.hasPct = true;
-                cal.pctSum.push(-1 * Number(val));
-              } else if (REG_TYPE_DIM.test(strValue)) {
-                cal.hasDim = true;
-                cal.dimSub.push(strValue);
-              } else {
-                cal.hasEtc = true;
-                cal.etcSub.push(strValue);
-              }
-              break;
+    for (const value of sortedValues) {
+      if (value === '+' || value === '-') {
+        operator = value;
+      } else {
+        const numValue = Number(value);
+        const strValue = `${value}`;
+        switch (operator) {
+          case '-': {
+            if (Number.isFinite(numValue)) {
+              cal.hasNum = true;
+              cal.numSum.push(-1 * numValue);
+            } else if (REG_TYPE_PCT.test(strValue)) {
+              const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
+              cal.hasPct = true;
+              cal.pctSum.push(-1 * Number(val));
+            } else if (REG_TYPE_DIM.test(strValue)) {
+              cal.hasDim = true;
+              cal.dimSub.push(strValue);
+            } else {
+              cal.hasEtc = true;
+              cal.etcSub.push(strValue);
             }
-            case '+':
-            default: {
-              if (Number.isFinite(numValue)) {
-                cal.hasNum = true;
-                cal.numSum.push(numValue);
-              } else if (REG_TYPE_PCT.test(strValue)) {
-                const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
-                cal.hasPct = true;
-                cal.pctSum.push(Number(val));
-              } else if (REG_TYPE_DIM.test(strValue)) {
-                cal.hasDim = true;
-                cal.dimSum.push(strValue);
-              } else {
-                cal.hasEtc = true;
-                cal.etcSum.push(strValue);
-              }
+            break;
+          }
+          case '+':
+          default: {
+            if (Number.isFinite(numValue)) {
+              cal.hasNum = true;
+              cal.numSum.push(numValue);
+            } else if (REG_TYPE_PCT.test(strValue)) {
+              const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
+              cal.hasPct = true;
+              cal.pctSum.push(Number(val));
+            } else if (REG_TYPE_DIM.test(strValue)) {
+              cal.hasDim = true;
+              cal.dimSum.push(strValue);
+            } else {
+              cal.hasEtc = true;
+              cal.etcSum.push(strValue);
             }
           }
         }
       }
-      if (i === l - 1) {
-        const sortedValue = cal.sum();
-        if (sortedValue) {
-          finalizedValues.push(sortedValue);
-        }
-        cal.clear();
-        operator = '';
-      }
     }
+    const sortedValue = cal.sum();
+    finalizedValues.push(sortedValue);
+    cal.clear();
+    operator = '';
     resolvedValue = finalizedValues.join(' ').replace(/\+\s-/g, '- ');
   } else {
     resolvedValue = sortedValues.join(' ').replace(/\+\s-/g, '- ');
@@ -736,10 +721,10 @@ export const sortMathFnTerms = (expr: string): string => {
     const matchA = a.match(reg);
     const matchB = b.match(reg);
     if (matchA && matchB) {
-      const numA = Number(matchA[1] ?? '0');
-      const numB = Number(matchB[1] ?? '0');
-      const unitA = matchA[2] ?? '';
-      const unitB = matchB[2] ?? '';
+      const numA = Number(matchA[1] as string);
+      const numB = Number(matchB[1] as string);
+      const unitA = matchA[2] as string;
+      const unitB = matchB[2] as string;
       if (unitA === unitB) {
         return numA - numB;
       }
@@ -755,11 +740,10 @@ export const sortMathFnTerms = (expr: string): string => {
     return expr;
   }
   let res: string = firstTerm;
-  for (let i = 1; i < terms.length; i++) {
-    const term = terms[i] ?? '';
+  for (const term of terms.slice(1)) {
     if (term.startsWith('-')) {
       res += ' - ' + term.substring(1);
-    } else if (term) {
+    } else {
       res += ' + ' + term;
     }
   }
@@ -772,7 +756,7 @@ export const sortMathFnTerms = (expr: string): string => {
  * @param isRoot - is root node
  * @returns resolved value
  */
-const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
+export const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
   const firstItemRaw = node[0];
   const isCommaMathFnNode =
     isString(firstItemRaw) && REG_FN_MATH_START.test(firstItemRaw);
@@ -830,9 +814,7 @@ const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
       if (first.endsWith('(')) {
         return flatItems.join('');
       }
-      return first.startsWith('calc(') || /^[a-z-]+\(/.test(first)
-        ? first
-        : `calc(${first})`;
+      return /^[a-z-]+\(/.test(first) ? first : `calc(${first})`;
     }
     return flatItems.join('').replace(/,\s*/g, ', ');
   }
@@ -883,42 +865,32 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
       return res;
     })
     .filter(v => v);
-  const stack: CalcASTNode[][] = [[]];
+  const stack: [CalcASTNode[], ...CalcASTNode[][]] = [[]];
   for (const item of items) {
     if (REG_PAREN_OPEN.test(item)) {
       const newNode: CalcASTNode[] = [item];
-      const parent = stack.at(-1);
-      if (parent) {
-        parent.push(newNode);
-      }
+      const parent = stack.at(-1) as CalcASTNode[];
+      parent.push(newNode);
       stack.push(newNode);
     } else if (item === ')') {
       if (stack.length > 1) {
-        const currentLevel = stack.pop();
-        if (currentLevel) {
-          currentLevel.push(item);
-        }
+        const currentLevel = stack.pop() as CalcASTNode[];
+        currentLevel.push(item);
       } else {
-        const root = stack[0];
-        if (root) {
-          root.push(item);
-        }
+        const root = stack[0] as CalcASTNode[];
+        root.push(item);
       }
     } else {
-      const parent = stack.at(-1);
-      if (parent) {
-        parent.push(item);
-      }
+      const parent = stack.at(-1) as CalcASTNode[];
+      parent.push(item);
     }
   }
   let serializedCalc = '';
   const rootItems = stack[0];
-  if (rootItems) {
-    if (rootItems.length === 1 && Array.isArray(rootItems[0])) {
-      serializedCalc = resolveNode(rootItems[0], true);
-    } else {
-      serializedCalc = resolveNode(rootItems, true);
-    }
+  if (rootItems.length === 1 && Array.isArray(rootItems[0])) {
+    serializedCalc = resolveNode(rootItems[0], true);
+  } else {
+    serializedCalc = resolveNode(rootItems, true);
   }
   setCache(cacheKey, serializedCalc);
   return serializedCalc;

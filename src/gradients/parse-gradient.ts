@@ -41,78 +41,74 @@ export const parseGradient = (
   value: string,
   opt: Options = {}
 ): Gradient | null => {
-  if (isString(value)) {
-    value = value.trim();
-    const cacheKey: string = createCacheKey(
-      {
-        namespace: NAMESPACE,
-        name: 'parseGradient',
-        value
-      },
-      opt
-    );
-    const cachedResult = getCache(cacheKey);
-    if (cachedResult !== false) {
-      return cachedResult.item as Gradient | null;
-    }
-    const type = getGradientType(value);
-    const gradValue = value.replace(REG_GRAD, '').replace(/\)$/, '');
-    if (type && gradValue) {
-      const [lineOrColorStop = '', ...itemList] = splitValue(gradValue, {
-        delimiter: ','
-      });
-      const isConic = IS_CONIC.test(type);
-      const regDimension = isConic ? REG_DIM_CONIC : REG_DIM_NON_CONIC;
-      let colorStop = '';
-      if (regDimension.test(lineOrColorStop)) {
-        const itemColor = lineOrColorStop.replace(regDimension, '');
-        if (isValidColor(itemColor, COLOR_OPT)) {
-          const resolvedColor = resolveColor(itemColor, opt) as string;
-          colorStop = lineOrColorStop.replace(itemColor, resolvedColor);
-        }
-      } else if (isValidColor(lineOrColorStop, COLOR_OPT)) {
-        colorStop = resolveColor(lineOrColorStop, opt) as string;
-      }
-      if (colorStop) {
-        itemList.unshift(colorStop);
-        const { colorStops, valid } = validateColorStopList(
-          itemList,
-          type,
-          opt
-        );
-        if (valid) {
-          const res: Gradient = {
-            value,
-            type,
-            colorStopList: colorStops as ColorStopList
-          };
-          setCache(cacheKey, res);
-          return res;
-        }
-      } else if (itemList.length > 1) {
-        const { line: gradientLine, valid: validLine } = validateGradientLine(
-          lineOrColorStop,
-          type
-        );
-        const { colorStops, valid: validColorStops } = validateColorStopList(
-          itemList,
-          type,
-          opt
-        );
-        if (validLine && validColorStops) {
-          const res: Gradient = {
-            value,
-            type,
-            gradientLine,
-            colorStopList: colorStops as ColorStopList
-          };
-          setCache(cacheKey, res);
-          return res;
-        }
-      }
-    }
-    setCache(cacheKey, null);
+  if (!isString(value)) {
     return null;
   }
+  const trimmedValue = value.trim();
+  const cacheKey: string = createCacheKey(
+    { namespace: NAMESPACE, name: 'parseGradient', value: trimmedValue },
+    opt
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult !== false) {
+    return cachedResult.item as Gradient | null;
+  }
+  const type = getGradientType(trimmedValue);
+  const gradValue = trimmedValue.replace(REG_GRAD, '').replace(/\)$/, '');
+  if (type && gradValue) {
+    const [lineOrColorStop, ...itemList] = splitValue(gradValue, {
+      delimiter: ','
+    });
+    if (!lineOrColorStop) {
+      setCache(cacheKey, null);
+      return null;
+    }
+    const isConic = IS_CONIC.test(type);
+    const regDimension = isConic ? REG_DIM_CONIC : REG_DIM_NON_CONIC;
+    let colorStop = '';
+    if (regDimension.test(lineOrColorStop)) {
+      const itemColor = lineOrColorStop.replace(regDimension, '');
+      if (isValidColor(itemColor, COLOR_OPT)) {
+        const resolvedColor = resolveColor(itemColor, opt) as string;
+        colorStop = lineOrColorStop.replace(itemColor, resolvedColor);
+      }
+    } else if (isValidColor(lineOrColorStop, COLOR_OPT)) {
+      colorStop = resolveColor(lineOrColorStop, opt) as string;
+    }
+    if (colorStop) {
+      itemList.unshift(colorStop);
+      const { colorStops, valid } = validateColorStopList(itemList, type, opt);
+      if (valid) {
+        const res: Gradient = {
+          value: trimmedValue,
+          type,
+          colorStopList: colorStops as ColorStopList
+        };
+        setCache(cacheKey, res);
+        return res;
+      }
+    } else if (itemList.length > 1) {
+      const { line: gradientLine, valid: validLine } = validateGradientLine(
+        lineOrColorStop,
+        type
+      );
+      const { colorStops, valid: validColorStops } = validateColorStopList(
+        itemList,
+        type,
+        opt
+      );
+      if (validLine && validColorStops) {
+        const res: Gradient = {
+          value: trimmedValue,
+          type,
+          gradientLine,
+          colorStopList: colorStops as ColorStopList
+        };
+        setCache(cacheKey, res);
+        return res;
+      }
+    }
+  }
+  setCache(cacheKey, null);
   return null;
 };

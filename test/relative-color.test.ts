@@ -106,6 +106,75 @@ describe('resolve relative color channels', () => {
     });
     assert.deepEqual(res, ['r', 'calc((0.5 * b) - (0.5 * g))', 10], 'result');
   });
+
+  it('should skip W_SPACE when outside of a math function', () => {
+    const css = ' r g b)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, { colorSpace: 'rgb', format: 'specifiedValue' });
+    assert.deepEqual(res, ['r', 'g', 'b']);
+  });
+
+  it('should push W_SPACE when lastValue is a number', () => {
+    const css = ' r calc(10 + r) b)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, { colorSpace: 'rgb', format: 'specifiedValue' });
+    assert.deepEqual(res, ['r', 'calc(10 + r)', 'b']);
+  });
+
+  it('should push W_SPACE when lastValue is a valid string token', () => {
+    const css = ' r calc(r + 10) b)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, { colorSpace: 'rgb', format: 'specifiedValue' });
+    assert.deepEqual(res, ['r', 'calc(10 + r)', 'b']);
+  });
+
+  it('should skip W_SPACE right after opening function paren', () => {
+    const css = ' r calc( 10 + r) b)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, { colorSpace: 'rgb', format: 'specifiedValue' });
+    assert.deepEqual(res, ['r', 'calc(10 + r)', 'b']);
+  });
+
+  it('should skip duplicate W_SPACE tokens', () => {
+    const css = ' r calc(r  +  10) b)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, { colorSpace: 'rgb', format: 'specifiedValue' });
+    assert.deepEqual(res, ['r', 'calc(10 + r)', 'b']);
+  });
+
+  it('should push resolvedValue when channel.length is 1', () => {
+    const css = ' r 10 b / 0.5)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, {
+      colorSpace: 'rgb',
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, ['r', 10, 'b', 0.5]);
+  });
+
+  it('should skip pushing when resolvedValue is not a string or number', () => {
+    const css = ' r g b (';
+    const tokens = tokenize({ css });
+    const parenToken = tokens.find(t => t[1] === '(');
+    if (parenToken) {
+      parenToken[1] = null as any;
+    }
+    const res = func(tokens, {
+      colorSpace: 'rgb',
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, ['r', 'g', 'b']);
+  });
+
+  it('should proceed to else-if when channel.length is greater than 1', () => {
+    const css = ' calc(r + 10) g b / alpha)';
+    const tokens = tokenize({ css });
+    const res = func(tokens, {
+      colorSpace: 'rgb',
+      format: 'specifiedValue'
+    });
+    assert.deepEqual(res, ['calc(10 + r)', 'g', 'b', 'alpha']);
+  });
 });
 
 describe('extract origin color', () => {
@@ -395,6 +464,57 @@ describe('extract origin color', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(res, null, 'result');
+  });
+
+  it('should process replacement when originColor resolves to a color', () => {
+    const res = func('rgb(from #ff0000 r g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(from rgb(255, 0, 0) r g b)');
+  });
+
+  it('should skip replacement when default resolver returns null', () => {
+    const res = func('rgb(from rgb(255, 0, 0) r g b)', {
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(from rgb(255, 0, 0) r g b)');
+  });
+
+  it('should extract "rgb" as colorSpace for rgb relative color syntax', () => {
+    const opt: any = { format: 'specifiedValue' };
+    const res = func('rgb(from #ff0000 r g b)', opt);
+    assert.strictEqual(opt.colorSpace, 'rgb');
+    assert.strictEqual(res, 'rgb(from rgb(255, 0, 0) r g b)');
+  });
+
+  it('should extract "hsl" as colorSpace for hsl relative color syntax', () => {
+    const opt: any = { format: 'specifiedValue' };
+    const res = func('hsl(from #ff0000 h s l)', opt);
+    assert.strictEqual(opt.colorSpace, 'hsl');
+    assert.strictEqual(res, 'hsl(from rgb(255, 0, 0) h s l)');
+  });
+
+  it('should extract "lab" as colorSpace for lab relative color syntax', () => {
+    const opt: any = { format: 'specifiedValue' };
+    const res = func('lab(from #ff0000 l a b)', opt);
+    assert.strictEqual(opt.colorSpace, 'lab');
+    assert.strictEqual(res, 'lab(from rgb(255, 0, 0) l a b)');
+  });
+
+  it('should extract origin color using real resolver without mocks', () => {
+    const input = 'rgb(from light-dark(red, blue) r g b)';
+    const result = func(input, { colorScheme: 'light' }, resolveColor);
+    assert.notStrictEqual(result, null);
+  });
+
+  it('should return as-is if it does not start with relative color', () => {
+    assert.strictEqual(func('#ff0000'), '#ff0000');
+    assert.strictEqual(func('red'), 'red');
+  });
+
+  it('should return null for non-string or empty inputs', () => {
+    assert.strictEqual(func('' as any), null);
+    assert.strictEqual(func(123 as any), null);
   });
 });
 

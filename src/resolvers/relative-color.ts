@@ -353,16 +353,15 @@ export function extractOriginColor(
       return null;
     }
   }
-  let colorSpace = '';
-  if (REG_FN_REL_CAPT.test(value)) {
-    [, colorSpace] = value.match(REG_FN_REL_CAPT) as MatchedRegExp;
-  }
+  const matchRelFunc = value.match(REG_FN_REL_CAPT);
+  const [, colorSpace] = matchRelFunc as MatchedRegExp;
   opt.colorSpace = colorSpace;
   if (value.includes(FN_LIGHT_DARK)) {
     const colorParts = value
       .replace(new RegExp(`^${colorSpace}\\(`), '')
       .replace(/\)$/, '');
-    const [, originColor = ''] = splitValue(colorParts);
+    const matchedColorParts = splitValue(colorParts);
+    const [, originColor] = matchedColorParts as MatchedRegExp;
     const specifiedOriginColor = resolver(originColor, {
       colorScheme,
       format: VAL_SPEC
@@ -395,10 +394,8 @@ export function extractOriginColor(
         return null;
       }
     } else if (format === VAL_SPEC) {
-      const resolvedOriginColor = resolver(originColor, opt);
-      if (resolvedOriginColor && isString(resolvedOriginColor)) {
-        value = value.replace(originColor, resolvedOriginColor);
-      }
+      const resolvedOriginColor = resolver(originColor, opt) as string;
+      value = value.replace(originColor, resolvedOriginColor);
     }
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue });

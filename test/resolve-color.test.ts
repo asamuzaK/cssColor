@@ -516,6 +516,91 @@ describe('resolve color', () => {
     assert.strictEqual(func('rgb(255, 0, 0)'), 'rgb(255, 0, 0)');
     assert.strictEqual(func('rgba(255, 0, 0, 0.5)'), 'rgba(255, 0, 0, 0.5)');
   });
+
+  it('should return RGB_TRANSPARENT when resolved is null', () => {
+    const resDefault = func('invalid-color-value');
+    assert.strictEqual(resDefault, 'rgba(0, 0, 0, 0)');
+
+    const resExplicitFalse = func('invalid-color-value', { nullable: false });
+    assert.strictEqual(resExplicitFalse, 'rgba(0, 0, 0, 0)');
+  });
+
+  it('should return null when resolved is null and nullable is true', () => {
+    const resNullable = func('invalid-color-value', { nullable: true });
+    assert.isNull(resNullable);
+  });
+
+  it('should return resolved color value when resolved is not null', () => {
+    const resValidWithoutNullable = func('red');
+    assert.strictEqual(resValidWithoutNullable, 'rgb(255, 0, 0)');
+
+    const resValidWithNullable = func('red', { nullable: true });
+    assert.strictEqual(resValidWithNullable, 'rgb(255, 0, 0)');
+  });
+
+  it('should return empty string when VAL_SPEC and invalid color', () => {
+    assert.strictEqual(func('invalid-color-name', { format: VAL_SPEC }), '');
+  });
+
+  it('should return transparent when invalid color and not nullable', () => {
+    const res = func('invalid-color-name', { nullable: false });
+    assert.strictEqual(res, 'rgba(0, 0, 0, 0)');
+  });
+
+  it('should resolve valid color-mix string (outer true, inner true)', () => {
+    const validMix = 'color-mix(in srgb, red, blue)';
+    const res = func(validMix);
+    assert.strictEqual(res, 'color(srgb 0.5 0 0.5)');
+  });
+
+  it('should handle invalid color-mix', () => {
+    const invalidMix = 'color-mix(in invalid-space, red, blue)';
+    const resNull = func(invalidMix, { nullable: true });
+    assert.isNull(resNull);
+
+    const resDefault = func(invalidMix);
+    assert.strictEqual(resDefault, 'rgba(0, 0, 0, 0)');
+  });
+
+  it('should skip color-mix check for standard colors', () => {
+    const standardColor = 'rgb(255, 0, 0)';
+    const res = func(standardColor);
+    assert.strictEqual(res, 'rgb(255, 0, 0)');
+  });
+
+  it('should skip inner if block when mixRes is null', () => {
+    const invalidMix = 'color-mix(in invalid-space, red, blue)';
+    const resNullable = func(invalidMix, { nullable: true });
+    assert.isNull(resNullable);
+
+    const resDefault = func(invalidMix);
+    assert.strictEqual(resDefault, 'rgba(0, 0, 0, 0)');
+  });
+
+  it('should skip inner if block when mixRes is empty string', () => {
+    const invalidMixSpec = 'color-mix(in srgb, invalid-color, blue)';
+    const resSpec = func(invalidMixSpec, { format: VAL_SPEC });
+    assert.strictEqual(resSpec, '');
+  });
+
+  it('should pass true branch when funcRes is an array', () => {
+    const res = resolve.resolveColor('color(srgb 1 0 0)');
+    assert.strictEqual(res, 'color(srgb 1 0 0)');
+  });
+
+  it('should pass false branch when funcRes is null (nullable: true)', () => {
+    const res = resolve.resolveColor('color(invalid-space 1 0 0)', {
+      nullable: true
+    });
+    assert.isNull(res);
+  });
+
+  it('should pass false branch when funcRes is empty string (VAL_SPEC)', () => {
+    const res = resolve.resolveColor('color(invalid-space 1 0 0)', {
+      format: VAL_SPEC
+    });
+    assert.strictEqual(res, '');
+  });
 });
 
 describe('is valid color', () => {

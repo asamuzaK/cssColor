@@ -20,24 +20,17 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
     ...opt
   };
   const maxLength = getMaxLength(options);
-  if (!value || value.length > maxLength) {
-    if (options.format === VAL_SPEC) {
-      return '';
+  if (value && value.length <= maxLength) {
+    const gradient = parseGradient(value, options);
+    if (gradient) {
+      const { type, gradientLine, colorStopList } = gradient;
+      if (gradientLine) {
+        return `${type}(${gradientLine}, ${colorStopList.join(', ')})`;
+      }
+      return `${type}(${colorStopList.join(', ')})`;
     }
-    return 'none';
   }
-  const gradient = parseGradient(value, options);
-  if (gradient) {
-    const { type = '', gradientLine = '', colorStopList = [] } = gradient;
-    if (gradientLine) {
-      return `${type}(${gradientLine}, ${colorStopList.join(', ')})`;
-    }
-    return `${type}(${colorStopList.join(', ')})`;
-  }
-  if (options.format === VAL_SPEC) {
-    return '';
-  }
-  return 'none';
+  return options.format === VAL_SPEC ? '' : 'none';
 };
 
 /**

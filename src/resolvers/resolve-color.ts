@@ -347,9 +347,8 @@ export const resolveColor = (
       }
       const chosen = colorScheme === 'dark' ? dark : light;
       const resolved = resolveColor(chosen, opt);
-      const res = resolved === null && !nullable ? RGB_TRANSPARENT : resolved;
-      setCache(cacheKey, res);
-      return res;
+      setCache(cacheKey, resolved);
+      return resolved;
     }
     // fallback for invalid light-dark
     let invalidRes;
@@ -442,7 +441,7 @@ export const resolveColor = (
     let res = '';
     if (value.startsWith(FN_MIX)) {
       const mixRes = resolveColorMix(value, opt, resolveColor);
-      if (mixRes && isString(mixRes)) {
+      if (isString(mixRes) && mixRes) {
         res = mixRes;
       }
     } else if (value.startsWith(FN_COLOR)) {

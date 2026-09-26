@@ -261,4 +261,20 @@ describe('parse CSS gradient', () => {
       'result'
     );
   });
+
+  it('should return null and cache null when first item is empty', () => {
+    const resultWithLeadingComma = func('linear-gradient(, red, blue)');
+    assert.strictEqual(resultWithLeadingComma, null);
+
+    const resultWithSpaceOnly = func('linear-gradient(   )');
+    assert.strictEqual(resultWithSpaceOnly, null);
+  });
+
+  it('should hit cache for subsequent calls of leading empty values', () => {
+    const value = 'linear-gradient(, red, blue)';
+    func(value);
+
+    const cachedResult = func(value);
+    assert.strictEqual(cachedResult, null);
+  });
 });

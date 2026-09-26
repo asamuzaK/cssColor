@@ -789,6 +789,251 @@ describe('sort calc values', () => {
   });
 });
 
+describe('sort calc values by steps', () => {
+  const func = css.sortCalcValues;
+
+  describe('Guard clauses & errors', () => {
+    it('should throw error when values.length < TRIA', () => {
+      assert.throws(() => func(['calc(']), /Unexpected array length/);
+    });
+
+    it('should throw error when start is not a string ending with "("', () => {
+      assert.throws(
+        () => func([123 as any, '10px', ')']),
+        /Unexpected token 123/
+      );
+      assert.throws(() => func(['calc', '10px', ')']), /Unexpected token calc/);
+    });
+
+    it('should throw error when end is not ")"', () => {
+      assert.throws(
+        () => func(['calc(', '10px', '20px']),
+        /Unexpected token 20px/
+      );
+    });
+
+    it('should handle single item inside function', () => {
+      assert.strictEqual(func(['calc(', '10px', ')']), 'calc(10px)');
+      assert.throws(
+        () => func(['calc(', null as any, ')']),
+        /Unexpected token null/
+      );
+    });
+
+    it('should throw error on invalid token inside calculation loop', () => {
+      assert.throws(
+        () => func(['calc(', '10px', '+', null as any, ')']),
+        /Unexpected token null/
+      );
+    });
+  });
+
+  describe('Loop 1 - Division (/) & Multiplication (*) data types', () => {
+    it('should classify types under division operator (/)', () => {
+      const input = [
+        'calc(',
+        '100px',
+        '/',
+        '2',
+        '/',
+        '50%',
+        '/',
+        '2px',
+        '/',
+        'var(--a)',
+        ')'
+      ];
+      assert.doesNotThrow(() => func(input));
+    });
+
+    it('should classify types under multiplication or default operator', () => {
+      const input = [
+        'calc(',
+        '10',
+        '*',
+        '2',
+        '*',
+        '50%',
+        '*',
+        '2px',
+        '*',
+        'var(--a)',
+        ')'
+      ];
+      assert.doesNotThrow(() => func(input));
+    });
+
+    it('should handle empty calculator state on + or - operator', () => {
+      const input = ['calc(', '+', '10px', ')'];
+      assert.doesNotThrow(() => func(input));
+    });
+
+    it('should push sortedValue when cal contains remaining terms', () => {
+      assert.strictEqual(func(['calc(', '10px', '*', '2', ')']), 'calc(20px)');
+    });
+
+    it('should skip pushing when cal is empty at loop end', () => {
+      assert.strictEqual(func(['calc(', '10px', '+', ')']), 'calc(10px +)');
+    });
+  });
+
+  describe('Finalize processing - addition & subtraction', () => {
+    it('should finalize subtraction (-) for all data types', () => {
+      const input = [
+        'calc(',
+        '100px',
+        '-',
+        '10',
+        '-',
+        '10%',
+        '-',
+        '10px',
+        '-',
+        'var(--a)',
+        ')'
+      ];
+      assert.doesNotThrow(() => func(input, true));
+    });
+
+    it('should finalize addition (+) / default for all data types', () => {
+      const input = [
+        'calc(',
+        '10px',
+        '+',
+        '10',
+        '+',
+        '10%',
+        '+',
+        '10px',
+        '+',
+        'var(--a)',
+        ')'
+      ];
+      assert.doesNotThrow(() => func(input, true));
+    });
+
+    it('should bypass finalize', () => {
+      assert.strictEqual(
+        func(['calc(', '10px', '+', '20px', ')'], false),
+        'calc(10px + 20px)'
+      );
+      assert.strictEqual(
+        func(['calc(', '10px', '*', '2', ')'], true),
+        'calc(20px)'
+      );
+    });
+
+    it('should push sortedValue when cal.sum() returns non-empty', () => {
+      assert.strictEqual(
+        func(['calc(', '10px', '+', '20px', ')'], true),
+        'calc(30px)'
+      );
+    });
+
+    it('should calculate zero values correctly when terms cancel out', () => {
+      assert.strictEqual(
+        func(['calc(', '10px', '-', '10px', ')'], true),
+        'calc(0px)'
+      );
+    });
+  });
+
+  describe('Outer parentheses unwrapping', () => {
+    it('should unwrap single outer parentheses', () => {
+      assert.strictEqual(
+        func(['calc(', '(10px + 20px)', ')']),
+        'calc((10px + 20px))'
+      );
+      assert.strictEqual(
+        func(['calc(', '(10px', '+', '20px)', ')']),
+        'calc(10px + 20px)'
+      );
+    });
+
+    it('should not unwrap when multiple parentheses exist', () => {
+      const input = ['calc(', '(10px)', '+', '(20px)', ')'];
+      assert.strictEqual(func(input), 'calc((10px) + (20px))');
+    });
+  });
+});
+
+describe('resolve node', () => {
+  const func = css.resolveNode;
+
+  it('should handle empty node where flatItems[0] is undefined', () => {
+    assert.strictEqual(func([], true), 'calc()');
+    assert.strictEqual(func([], false), '');
+  });
+
+  it('should resolve math function nodes with comma separated args', () => {
+    const nodeWithComplexArg = [
+      'clamp(',
+      '10px',
+      '+',
+      '5px',
+      ',',
+      '20px',
+      ',',
+      '30px',
+      ')'
+    ];
+    assert.strictEqual(
+      func(nodeWithComplexArg, false),
+      'clamp(15px, 20px, 30px)'
+    );
+
+    const nodeWithCalcArg = ['min(', 'calc(10px + 5px)', ',', '20px', ')'];
+    assert.strictEqual(func(nodeWithCalcArg, false), 'min(5px + 10px, 20px)');
+
+    const nodeWithSimpleArg = ['max(', '10px', ',', '20px', ')'];
+    assert.strictEqual(func(nodeWithSimpleArg, false), 'max(10px, 20px)');
+  });
+
+  it('should handle isRoot = true branches correctly', () => {
+    assert.strictEqual(
+      func(['calc(', '10px', '+', '20px', ')'], true),
+      'calc(30px)'
+    );
+    assert.strictEqual(func(['calc('], true), 'calc(');
+    assert.strictEqual(func(['var(--foo)'], true), 'var(--foo)');
+    assert.strictEqual(func(['10px'], true), 'calc(10px)');
+    assert.strictEqual(func(['10px', ',', '20px'], true), '10px, 20px');
+  });
+
+  it('should handle isRoot = false branches correctly', () => {
+    assert.strictEqual(
+      func(['calc(', '10px', '+', '20px', ')'], false),
+      '30px'
+    );
+    assert.strictEqual(func(['10px', ',', '20px'], false), '10px, 20px');
+  });
+
+  it('should recursively resolve nested AST array nodes', () => {
+    const nestedNode = ['calc(', ['(', '10px', '+', '20px', ')'], ')'];
+    assert.strictEqual(func(nestedNode, true), 'calc((10px + 20px))');
+  });
+
+  it('should return joined argNodes for single non-calc values', () => {
+    const node = ['min(', '10px', ',', 'var(--a)', ')'];
+    assert.strictEqual(func(node, false), 'min(10px, var(--a))');
+  });
+
+  it('should return joined argNodes for 2-element arguments', () => {
+    const node = ['max(', '-', '10px', ',', '20px', ')'];
+    assert.strictEqual(func(node, false), 'max(-10px, 20px)');
+  });
+
+  it('should push last currentArg when currentArg.length > 0', () => {
+    const node = ['min(', '10px', ',', '20px', ')'];
+    assert.strictEqual(func(node, false), 'min(10px, 20px)');
+  });
+
+  it('should skip pushing currentArg when currentArg.length is 0', () => {
+    const node = ['min(', '10px', ',', ')'];
+    assert.strictEqual(func(node, false), 'min(10px)');
+  });
+});
+
 describe('serialize calc', () => {
   const func = css.serializeCalc;
 
@@ -1367,6 +1612,19 @@ describe('sort math function terms', () => {
     assert.strictEqual(res2, 'max(1px) + min(1px)', 'result');
     const res3 = func('calc(1vw) + 10px');
     assert.strictEqual(res3, '10px + calc(1vw)', 'result');
+  });
+
+  it('should push term when currentTerm is not empty (true branch)', () => {
+    assert.strictEqual(func('10px + 20px'), '10px + 20px');
+  });
+
+  it('should skip pushing when expression starts with an operator sign', () => {
+    assert.strictEqual(func('+ 10px + 20px'), '10px + 20px');
+    assert.strictEqual(func('- 10px + 20px'), '-10px + 20px');
+  });
+
+  it('should retain explicit sign when attached to token', () => {
+    assert.strictEqual(func('+10px + 20px'), '+10px + 20px');
   });
 });
 
@@ -1964,6 +2222,16 @@ describe('serialize calc edge cases', () => {
   it('should join and format incomplete comma math function', () => {
     const res = func('min(1px,   2px', { format: 'specifiedValue' });
     assert.strictEqual(res, 'min(1px, 2px', 'result');
+  });
+
+  it('should return as-is when first starts with calc(', () => {
+    const res = func('calc(10px)', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(10px)');
+  });
+
+  it('should return as-is when first is another CSS function', () => {
+    const res = func('calc(var(--foo))', { format: 'specifiedValue' });
+    assert.strictEqual(res, 'calc(var(--foo))');
   });
 });
 

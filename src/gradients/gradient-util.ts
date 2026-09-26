@@ -228,8 +228,8 @@ export const validateColorStopList = (
     const valueList: string[] = [];
     // State tracker: 'color' or 'hint'
     let prevType = '';
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i];
+    // for (let i = 0; i < list.length; i++) から entries() に変更
+    for (const [i, item] of list.entries()) {
       if (!isString(item)) {
         return { colorStops: list, valid: false };
       }
