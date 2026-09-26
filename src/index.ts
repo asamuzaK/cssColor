@@ -5,7 +5,7 @@
  * @see {@link https://github.com/asamuzaK/cssColor/blob/main/LICENSE}
  */
 
-import { isGradient } from './gradients/gradient';
+import { isGradient, resolveGradient } from './gradients/gradient';
 import { cssCalc, cssVar } from './resolvers/css-calc-var';
 import { isColor } from './resolvers/resolve';
 import {
@@ -25,6 +25,10 @@ export const utils = {
   extractDashedIdent,
   isColor,
   isGradient,
+  /**
+   * @deprecated Use `resolveGradient` directly instead.
+   */
+  resolveGradient,
   resolveLengthInPixels,
   splitValue
 };
