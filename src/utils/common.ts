@@ -27,5 +27,5 @@ export const isString = (o: unknown): o is string =>
  * @param o - object to check
  * @returns result
  */
-export const isStringOrNumber = (o: unknown): boolean =>
+export const isStringOrNumber = (o: unknown): o is string | number =>
   isString(o) || typeof o === 'number';

@@ -6,7 +6,12 @@ import { cssCalc, resolveVar } from '../resolvers/css-calc-var';
 import { parseColorFunc, parseColorValue } from '../resolvers/parse-color';
 import { resolveRelativeColor } from '../resolvers/relative-color';
 import { resolveColor } from '../resolvers/resolve-color';
-import { ColorChannels, ComputedColorChannels, Options } from '../typedef';
+import {
+  ColorChannels,
+  ColorConvertFn,
+  ComputedColorChannels,
+  Options
+} from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
 import { getMaxLength, numberToHexString } from '../utils/util';
@@ -104,7 +109,7 @@ export const preProcess = (value: string, opt: Options): string | null => {
 const createColorConverter = (
   name: string,
   format: string,
-  convertFn: Function
+  convertFn: ColorConvertFn
 ) => {
   const colorConverterFn = (
     value: string,

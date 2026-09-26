@@ -511,7 +511,9 @@ export const parseOklab = (
     ];
   }
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [l, a, b]);
-  const xyzLms = lms.map(c => Math.pow(c, POW_CUBE)) as TriColorChannels;
+  const xyzLms = lms.map((c: number) =>
+    Math.pow(c, POW_CUBE)
+  ) as TriColorChannels;
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',
@@ -590,7 +592,9 @@ export const parseOklch = (
   const a = c * Math.cos((h * Math.PI) / DEG_HALF);
   const b = c * Math.sin((h * Math.PI) / DEG_HALF);
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [l, a, b]);
-  const xyzLms = lms.map(cc => Math.pow(cc, POW_CUBE)) as TriColorChannels;
+  const xyzLms = lms.map((cc: number) =>
+    Math.pow(cc, POW_CUBE)
+  ) as TriColorChannels;
   const [x, y, z] = transformMatrix(MATRIX_LMS_TO_XYZ, xyzLms, true);
   return [
     'xyz-d65',

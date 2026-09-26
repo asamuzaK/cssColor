@@ -3,7 +3,12 @@
  */
 
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
-import { MatchedRegExp, Options, SpecifiedColorChannels } from '../typedef';
+import {
+  HueArc,
+  MatchedRegExp,
+  Options,
+  SpecifiedColorChannels
+} from '../typedef';
 import { CacheItem, createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 
@@ -129,9 +134,9 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
     },
     { delimiter, preserveComment }
   );
-  const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
-    return cachedResult.item as string[];
+  const cachedResult = getCache<string[]>(cacheKey);
+  if (cachedResult) {
+    return cachedResult.item;
   }
   let regDelimiter;
   switch (delimiter) {
@@ -270,7 +275,7 @@ export const roundToPrecision = (value: number, bit: number = 0): number => {
 export const interpolateHue = (
   hueA: number,
   hueB: number,
-  arc: string = 'shorter'
+  arc: HueArc | string = 'shorter'
 ): [number, number] => {
   if (!Number.isFinite(hueA)) {
     throw new TypeError(`${hueA} is not a finite number.`);
@@ -326,13 +331,7 @@ export const resolveLengthInPixels = (
   opt: Options = {}
 ): number => {
   const { dimension = {} } = opt;
-  const { callback, em, rem, vh, vw } = dimension as {
-    callback: (K: string) => number;
-    em: number;
-    rem: number;
-    vh: number;
-    vw: number;
-  };
+  const { callback, em, rem, vh, vw } = dimension;
   if (isString(value)) {
     const str = value.toLowerCase().trim();
     const maxLength = getMaxLength(opt);
@@ -340,11 +339,11 @@ export const resolveLengthInPixels = (
       return Number.NaN;
     }
     const ratio = absoluteFontSize.get(str);
-    if (ratio !== undefined) {
+    if (ratio !== undefined && typeof rem === 'number') {
       return ratio * rem;
     }
     const relRatio = relativeFontSize.get(str);
-    if (relRatio !== undefined) {
+    if (relRatio !== undefined && typeof em === 'number') {
       return relRatio * em;
     }
     return Number.NaN;
@@ -352,35 +351,43 @@ export const resolveLengthInPixels = (
   if (Number.isFinite(value) && unit) {
     const u = unit.toLowerCase();
     if (Object.hasOwn(dimension, u)) {
-      return value * Number(dimension[u]);
+      const dimVal = dimension[u];
+      return typeof dimVal === 'number'
+        ? (value as number) * dimVal
+        : Number.NaN;
     }
     if (typeof callback === 'function') {
-      return value * (callback(u) ?? Number.NaN);
+      const cbVal = callback(u);
+      return typeof cbVal === 'number' ? (value as number) * cbVal : Number.NaN;
     }
     const absRatio = absoluteLength.get(u);
     if (absRatio !== undefined) {
-      return value * absRatio;
+      return (value as number) * absRatio;
     }
     const relRatio = relativeLength.get(u);
-    if (relRatio !== undefined) {
-      return value * relRatio * rem;
+    if (relRatio !== undefined && typeof rem === 'number') {
+      return (value as number) * relRatio * rem;
     }
     const rUnitRatio = relativeLength.get(`r${u}`);
-    if (rUnitRatio !== undefined) {
-      return value * rUnitRatio * em;
+    if (rUnitRatio !== undefined && typeof em === 'number') {
+      return (value as number) * rUnitRatio * em;
     }
     switch (u) {
       case 'vb': {
-        return value * vh;
+        return typeof vh === 'number' ? (value as number) * vh : Number.NaN;
       }
       case 'vi': {
-        return value * vw;
+        return typeof vw === 'number' ? (value as number) * vw : Number.NaN;
       }
       case 'vmax': {
-        return value * Math.max(vh, vw);
+        return typeof vh === 'number' && typeof vw === 'number'
+          ? (value as number) * Math.max(vh, vw)
+          : Number.NaN;
       }
       case 'vmin': {
-        return value * Math.min(vh, vw);
+        return typeof vh === 'number' && typeof vw === 'number'
+          ? (value as number) * Math.min(vh, vw)
+          : Number.NaN;
       }
       default:
     }

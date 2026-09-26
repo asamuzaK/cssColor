@@ -11,15 +11,15 @@ const CACHE_SIZE = 4096;
 /**
  * CacheItem
  */
-export class CacheItem {
+export class CacheItem<T = unknown> {
   /* private */
-  #item: unknown;
+  #item: T;
 
-  constructor(item: unknown) {
+  constructor(item: T) {
     this.#item = item;
   }
 
-  get item() {
+  get item(): T {
     return this.#item;
   }
 }
@@ -27,7 +27,7 @@ export class CacheItem {
 /*
  * lru cache instance
  */
-export const lruCache = new LRUCache<string, CacheItem>({
+export const lruCache = new LRUCache<string, CacheItem<any>>({
   max: CACHE_SIZE
 });
 
@@ -37,14 +37,12 @@ export const lruCache = new LRUCache<string, CacheItem>({
  * @param value - value to cache
  * @returns void
  */
-export const setCache = (key: string, value: unknown): void => {
-  if (!key) {
-    return;
-  }
+export const setCache = <T>(key: string, value: T | CacheItem<T>): void => {
+  if (!key) return;
   if (value instanceof CacheItem) {
     lruCache.set(key, value);
   } else {
-    lruCache.set(key, new CacheItem(value));
+    lruCache.set(key, new CacheItem<T>(value));
   }
 };
 
@@ -53,13 +51,11 @@ export const setCache = (key: string, value: unknown): void => {
  * @param key - cache key
  * @returns cached item or false otherwise
  */
-export const getCache = (key: string): CacheItem | false => {
-  if (!key) {
-    return false;
-  }
+export const getCache = <T = unknown>(key: string): CacheItem<T> | false => {
+  if (!key) return false;
   const item = lruCache.get(key);
   if (item !== undefined) {
-    return item as CacheItem;
+    return item as CacheItem<T>;
   }
   return false;
 };

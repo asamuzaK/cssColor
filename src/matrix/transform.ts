@@ -4,8 +4,10 @@
 
 import {
   ColorChannels,
+  NumStrColorChannels,
   ReadonlyColorMatrix,
-  TriColorChannels
+  TriColorChannels,
+  ValidateColorComponentsOptions
 } from '../typedef';
 
 /* constants */
@@ -55,14 +57,7 @@ import {
  */
 export const validateColorComponents = (
   arr: ColorChannels | TriColorChannels,
-  opt: {
-    alpha?: boolean;
-    minLength?: number;
-    maxLength?: number;
-    minRange?: number;
-    maxRange?: number;
-    validateRange?: boolean;
-  } = {}
+  opt: ValidateColorComponentsOptions = {}
 ): ColorChannels | TriColorChannels => {
   if (!Array.isArray(arr)) {
     throw new TypeError(`${arr} is not an array.`);
@@ -117,8 +112,8 @@ export const validateColorComponents = (
  * @returns result - [colorA, colorB]
  */
 export const normalizeColorComponents = (
-  colorA: [number | string, number | string, number | string, number | string],
-  colorB: [number | string, number | string, number | string, number | string],
+  colorA: NumStrColorChannels,
+  colorB: NumStrColorChannels,
   skip: boolean = false
 ): [ColorChannels, ColorChannels] => {
   if (!Array.isArray(colorA)) {
@@ -442,7 +437,7 @@ export const transformXyzToOklab = (
     }) as TriColorChannels;
   }
   const lms = transformMatrix(MATRIX_XYZ_TO_LMS, xyz, true);
-  const xyzLms = lms.map(c => Math.cbrt(c)) as TriColorChannels;
+  const xyzLms = lms.map((c: number) => Math.cbrt(c)) as TriColorChannels;
   let [l, a, b] = transformMatrix(MATRIX_LMS_TO_OKLAB, xyzLms, true);
   l = Math.min(Math.max(l, 0), 1);
   const lPct = Math.round(parseFloat(l.toFixed(QUAD)) * MAX_PCT);
@@ -520,9 +515,9 @@ export const transformXyzD50ToLab = (
       validateRange: false
     }) as TriColorChannels;
   }
-  const xyzD50 = xyz.map((val, i) => val / (D50[i] as number));
-  const [f0, f1, f2] = xyzD50.map(val =>
-    val > LAB_EPSILON ? Math.cbrt(val) : (val * LAB_KAPPA + HEX) / LAB_L
+  const xyzD50 = xyz.map((val: number, i: number) => val / (D50[i] as number));
+  const [f0, f1, f2] = xyzD50.map((val: number) =>
+    val > LAB_EPSILON ? Math.cbrt(val) : (LAB_KAPPA * val + 16) / LAB_L
   ) as TriColorChannels;
   const l = Math.min(Math.max(LAB_L * f1 - HEX, 0), MAX_PCT);
   let a, b;
