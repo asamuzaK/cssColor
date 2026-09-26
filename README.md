@@ -26,7 +26,12 @@ npm i @asamuzakjp/css-color
 ## Quick Start
 
 ```javascript
-import { convert, resolve, resolveGradient, utils } from '@asamuzakjp/css-color';
+import {
+  convert,
+  resolve,
+  resolveGradient,
+  utils
+} from '@asamuzakjp/css-color';
 ```
 
 ### Samples
