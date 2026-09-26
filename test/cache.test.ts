@@ -172,7 +172,7 @@ describe('create cache key', () => {
 
   it('should create default cache key with default option fallbacks', () => {
     const res = func({ namespace: 'ns', name: 'foo', value: 'bar' });
-    const expected = 'ns:foo:bar::||||0|0|0|::::';
+    const expected = 'ns:foo:bar:::';
     assert.strictEqual(res, expected, 'should format key with default values');
   });
 
@@ -190,7 +190,8 @@ describe('create cache key', () => {
         delimiter: '-'
       }
     );
-    const expected = 'ns:foo:bar::hex|srgb|dark|#fff|1|1|1|-::::';
+    const expected =
+      'ns:foo:bar:colorScheme_dark|colorSpace_srgb|currentColor_#fff|d50_true|delimiter_-|format_hex|nullable_true|preserveComment_true::';
     assert.strictEqual(res, expected, 'should format key with custom options');
   });
 
@@ -202,8 +203,7 @@ describe('create cache key', () => {
         dimension: { height: 100, width: 200 }
       }
     );
-    const expected =
-      'ns:foo:bar::||||0|0|0|::a:"test";z:1;::height:100;width:200;';
+    const expected = 'ns:foo:bar::a:"test";z:1;:height:100;width:200;';
     assert.strictEqual(
       res,
       expected,
@@ -219,7 +219,7 @@ describe('create cache key', () => {
         dimension: {}
       }
     );
-    const expected = 'ns:foo:bar::||||0|0|0|::::';
+    const expected = 'ns:foo:bar:::';
     assert.strictEqual(
       res,
       expected,

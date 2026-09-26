@@ -106,12 +106,17 @@ export const createCacheKey = (
     return '';
   }
   const baseKey = `${namespace}:${name}:${value}`;
-  const optStr = `${opt.format || ''}|${opt.colorSpace || ''}|${opt.colorScheme || ''}|${opt.currentColor || ''}|${opt.d50 ? '1' : '0'}|${opt.nullable ? '1' : '0'}|${opt.preserveComment ? '1' : '0'}|${opt.delimiter || ''}`;
+  const opts = [];
+  for (const [key, val] of Object.entries(opt)) {
+    if (key !== 'customProperty' && key !== 'dimension') {
+      opts.push(`${key}_${val}`);
+    }
+  }
   const customPropStr = opt.customProperty
     ? stringifySorted(opt.customProperty as Record<string, unknown>)
     : '';
   const dimStr = opt.dimension
     ? stringifySorted(opt.dimension as Record<string, unknown>)
     : '';
-  return `${baseKey}::${optStr}::${customPropStr}::${dimStr}`;
+  return `${baseKey}:${opts.sort().join('|')}:${customPropStr}:${dimStr}`;
 };

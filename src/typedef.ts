@@ -5,14 +5,17 @@
 /* type definitions */
 /**
  * @typedef Options - options
- * @property [alpha] - enable alpha
+ * @property [alpha] - enable alpha channel
  * @property [colorSpace] - color space
  * @property [currentColor] - color for currentcolor
  * @property [customProperty] - custom properties
  * @property [d50] - white point in d50
+ * @property [delimiter] - delimiter
  * @property [dimension] - dimension
  * @property [format] - output format
- * @property [key] - key
+ * @property [maxLength] - max length
+ * @property [nullable] - nullable
+ * @property [preserveComment] - preserve comment
  */
 export interface Options {
   alpha?: boolean;
