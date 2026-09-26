@@ -298,13 +298,75 @@ describe('resolve length in pixels', () => {
       }
     } as any;
     assert.isNaN(func(2, 'unknown', optNull));
-
     const optUndefined = {
       dimension: {
         callback: () => undefined
       }
     } as any;
     assert.isNaN(func(2, 'unknown', optUndefined));
+  });
+
+  it('should resolve length when dimension has a matching unit', () => {
+    const opt = {
+      dimension: {
+        pt: 2,
+        custom: 10
+      }
+    };
+    assert.strictEqual(func(2, 'custom', opt), 20);
+    assert.strictEqual(func(5, 'pt', opt), 10);
+  });
+
+  it('should handle case-insensitive unit lookup in dimension object', () => {
+    const opt = {
+      dimension: {
+        rem: 20
+      }
+    };
+    assert.strictEqual(func(3, 'REM', opt), 60);
+  });
+
+  it('should return NaN when the dimension value is not a number', () => {
+    const opt = {
+      dimension: {
+        custom: '10px',
+        invalid: null
+      }
+    } as any;
+    assert.isNaN(func(2, 'custom', opt));
+    assert.isNaN(func(2, 'invalid', opt));
+  });
+
+  it('should resolve "vb" when vh is a number, otherwise return NaN', () => {
+    const optValid = { dimension: { vh: 10 } };
+    const optInvalid = { dimension: {} };
+    assert.strictEqual(func(2, 'vb', optValid), 20);
+    assert.isNaN(func(2, 'vb', optInvalid));
+  });
+
+  it('should resolve "vi" when vw is a number, otherwise return NaN', () => {
+    const optValid = { dimension: { vw: 15 } };
+    const optInvalid = { dimension: {} };
+    assert.strictEqual(func(2, 'vi', optValid), 30);
+    assert.isNaN(func(2, 'vi', optInvalid));
+  });
+
+  it('should resolve "vmax" unit using the larger dimension', () => {
+    const optValid = { dimension: { vh: 10, vw: 20 } };
+    const optMissingVh = { dimension: { vw: 20 } };
+    const optMissingVw = { dimension: { vh: 10 } };
+    assert.strictEqual(func(2, 'vmax', optValid), 40);
+    assert.isNaN(func(2, 'vmax', optMissingVh));
+    assert.isNaN(func(2, 'vmax', optMissingVw));
+  });
+
+  it('should resolve "vmin" unit using the smaller dimension', () => {
+    const optValid = { dimension: { vh: 10, vw: 20 } };
+    const optMissingVh = { dimension: { vw: 20 } };
+    const optMissingVw = { dimension: { vh: 10 } };
+    assert.strictEqual(func(2, 'vmin', optValid), 20);
+    assert.isNaN(func(2, 'vmin', optMissingVh));
+    assert.isNaN(func(2, 'vmin', optMissingVw));
   });
 });
 

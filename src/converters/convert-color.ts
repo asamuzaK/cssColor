@@ -28,9 +28,11 @@ import {
 } from '../resolvers/resolve-color';
 import {
   ColorChannels,
+  ColorChannelsWithPowerless,
   ComputedColorChannels,
-  Options,
+  LinearRgbOptions,
   MatchedRegExp,
+  Options,
   StringColorSpacedChannels,
   TriColorChannels
 } from '../typedef';
@@ -68,10 +70,7 @@ const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
  */
 export const convertColorToLinearRgb = (
   value: string,
-  opt: {
-    colorSpace?: string;
-    format?: string;
-  } = {}
+  opt: LinearRgbOptions = {}
 ): ColorChannels | null => {
   if (isString(value)) {
     value = value.trim();
@@ -235,7 +234,7 @@ export const convertColorToXyz = (
 export const convertColorToHsl = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number | string, number, number, number] | null => {
+): ColorChannels | ColorChannelsWithPowerless | null => {
   if (isString(value)) {
     value = value.trim();
   } else {

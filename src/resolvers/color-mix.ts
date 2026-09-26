@@ -14,8 +14,16 @@ import {
   convertColorToXyz
 } from '../converters/convert-color';
 import {
+  ChannelNoneFlags,
+  ColorAndPct,
   ColorChannels,
+  ColorFormat,
+  ColorResolverFn,
+  ColorSpace,
+  ColorSpaceParseResult,
   ComputedColorChannels,
+  InterpolatedComponents,
+  NormalizedPercentages,
   NumStrColorChannels,
   Options,
   SpecifiedColorChannels,
@@ -59,9 +67,7 @@ const NAMESPACE = 'color-mix';
  * @param arg - color space argument string
  * @returns object containing colorSpace and hueArc, or null if invalid
  */
-export const parseColorSpace = (
-  arg: string
-): { colorSpace: string; hueArc: string } | null => {
+export const parseColorSpace = (arg: string): ColorSpaceParseResult | null => {
   const csTokens = splitValue(arg).filter(Boolean);
   if (csTokens[0] !== 'in' || csTokens.length < 2) {
     return null;
@@ -84,9 +90,7 @@ export const parseColorSpace = (
  * @param arg - color and percentage argument string
  * @returns object containing color string and percentage string
  */
-export const parseColorAndPct = (
-  arg: string
-): { color: string; pct: string } => {
+export const parseColorAndPct = (arg: string): ColorAndPct => {
   const tokens = splitValue(arg).filter(Boolean);
   let color = '';
   let pct = '';
@@ -119,7 +123,7 @@ export const parseColorAndPct = (
 export const resolveIfNested = (
   colorStr: string,
   opt: Options,
-  resolver: (v: string, o?: Options) => string | null
+  resolver: ColorResolverFn
 ): string => {
   let current = colorStr;
   while (
@@ -168,16 +172,10 @@ export const resolveIfNested = (
  * @param pctB - percentage for color B
  * @returns object containing normalized percentages and multiplier, or null if invalid
  */
-/**
- * normalize percentages
- * @param pctA - percentage for color A
- * @param pctB - percentage for color B
- * @returns object containing normalized percentages and multiplier, or null if invalid
- */
 export const normalizePercentages = (
   pctA: string,
   pctB: string
-): { pA: number; pB: number; m: number } | null => {
+): NormalizedPercentages | null => {
   let pA, pB, m;
   if (pctA && pctB) {
     const p1 = parseFloat(pctA) / MAX_PCT;
@@ -328,7 +326,7 @@ export const interpolateComponents = (
   alphaB: number,
   pA: number,
   pB: number
-): { comps: TriColorChannels; alpha: number } => {
+): InterpolatedComponents => {
   const factorA = alphaA * pA;
   const factorB = alphaB * pB;
   let alpha = factorA + factorB;
@@ -362,13 +360,13 @@ export const interpolateComponents = (
  * @returns specified color channels array
  */
 export const formatMixedColor = (
-  colorSpace: string,
+  colorSpace: ColorSpace,
   comps: TriColorChannels,
-  nones: [boolean, boolean, boolean, boolean],
+  nones: ChannelNoneFlags,
   alpha: number,
   m: number,
-  format: string,
-  rgbOverride?: [number, number, number]
+  format: ColorFormat,
+  rgbOverride?: TriColorChannels
 ): SpecifiedColorChannels => {
   const [c1None, c2None, c3None, alphaNone] = nones;
   const [c1, c2, c3] = comps;
@@ -424,12 +422,12 @@ export const getRawChannels = (
  * @returns mixed color channels or null
  */
 export const mixSrgbSpace = (
-  colorSpace: string,
+  colorSpace: ColorSpace,
   colorA: string,
   colorB: string,
   pA: number,
   pB: number,
-  format: string,
+  format: ColorFormat,
   m: number
 ): SpecifiedColorChannels | null => {
   const convertFn =
@@ -811,7 +809,7 @@ export const computeMixedColor = (
 export const resolveColorMix = (
   value: string,
   opt: Options = {},
-  resolver: (v: string, o?: Options) => string | null = () => null
+  resolver: ColorResolverFn = () => null
 ): SpecifiedColorChannels | string | null => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);

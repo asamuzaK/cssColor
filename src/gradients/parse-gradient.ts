@@ -3,7 +3,7 @@
  */
 
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
-import { ColorStopList, Gradient, Options } from '../typedef';
+import { ColorStopList, Gradient, GradientType, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
 import { splitValue } from '../utils/util';
@@ -81,7 +81,7 @@ export const parseGradient = (
       if (valid) {
         const res: Gradient = {
           value: trimmedValue,
-          type,
+          type: type as GradientType,
           colorStopList: colorStops as ColorStopList
         };
         setCache(cacheKey, res);
@@ -100,7 +100,7 @@ export const parseGradient = (
       if (validLine && validColorStops) {
         const res: Gradient = {
           value: trimmedValue,
-          type,
+          type: type as GradientType,
           gradientLine,
           colorStopList: colorStops as ColorStopList
         };

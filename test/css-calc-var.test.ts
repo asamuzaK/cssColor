@@ -4,6 +4,7 @@
 
 /* api */
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
+import { tokenize } from '@csstools/css-tokenizer';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
@@ -2678,8 +2679,27 @@ describe('resolve CSS variable', () => {
     const res = css.resolveVar('var(--a, var(--missing, red))', {
       customProperty: {}
     });
-
     assert.strictEqual(res, 'red');
+  });
+
+  it('should resolve value using a plain function resolver', () => {
+    const tokens = tokenize({ css: '--foo)' });
+    const [, resolvedValue] = func(tokens, {
+      customProperty: {
+        '--foo': name => `${name}-resolved`
+      }
+    });
+    assert.strictEqual(resolvedValue, '--foo-resolved');
+  });
+
+  it('should resolve value using a static string resolver', () => {
+    const tokens = tokenize({ css: '--foo)' });
+    const [, resolvedValue] = func(tokens, {
+      customProperty: {
+        '--foo': '20px'
+      }
+    });
+    assert.strictEqual(resolvedValue, '20px');
   });
 });
 

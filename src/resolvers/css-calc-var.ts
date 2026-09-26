@@ -5,7 +5,7 @@
 import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor } from '../resolvers/resolve-color';
-import { MatchedRegExp, Options } from '../typedef';
+import { CalcASTNode, MatchedRegExp, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString, isStringOrNumber } from '../utils/common';
 import {
@@ -54,11 +54,6 @@ const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
 const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
 const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
 const REG_CSS_WIDE_KEYWORD = /^(?:inherit|initial|revert(?:-layer)?|unset)$/;
-
-/**
- * @type CalcASTNode - AST node for calc()
- */
-type CalcASTNode = string | CalcASTNode[];
 
 /**
  * Calclator
@@ -1123,9 +1118,10 @@ export function resolveCustomProperty(
       }
     } else if (value && type === IDENT) {
       if (value.startsWith('--')) {
-        let item;
-        if (Object.hasOwn(customProperty, value)) {
-          item = customProperty[value] as string;
+        let item: string | undefined;
+        if (customProperty[value]) {
+          const resolver = customProperty[value];
+          item = typeof resolver === 'function' ? resolver(value) : resolver;
         } else if (typeof customProperty.callback === 'function') {
           item = customProperty.callback(value);
         }

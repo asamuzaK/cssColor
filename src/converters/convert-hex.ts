@@ -8,7 +8,7 @@ import {
   transformLinearRgbToRgb,
   transformRgbToLinearRgb
 } from '../matrix/transform';
-import { ColorChannels, MatchedRegExp } from '../typedef';
+import { ColorChannels, MatchedRegExp3, MatchedRegExp4 } from '../typedef';
 import { isString } from '../utils/common';
 import { numberToHexString, parseHexAlpha } from '../utils/util';
 
@@ -128,7 +128,7 @@ export const convertHexToRgb = (value: string): ColorChannels => {
   if (/^#[\da-f]{3}$/.test(value)) {
     const [, r, g, b] = value.match(
       /^#([\da-f])([\da-f])([\da-f])$/
-    ) as MatchedRegExp;
+    ) as MatchedRegExp3;
     arr.push(
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
@@ -138,7 +138,7 @@ export const convertHexToRgb = (value: string): ColorChannels => {
   } else if (/^#[\da-f]{4}$/.test(value)) {
     const [, r, g, b, alpha] = value.match(
       /^#([\da-f])([\da-f])([\da-f])([\da-f])$/
-    ) as MatchedRegExp;
+    ) as MatchedRegExp4;
     arr.push(
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
@@ -148,7 +148,7 @@ export const convertHexToRgb = (value: string): ColorChannels => {
   } else if (/^#[\da-f]{8}$/.test(value)) {
     const [, r, g, b, alpha] = value.match(
       /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
-    ) as MatchedRegExp;
+    ) as MatchedRegExp4;
     arr.push(
       parseInt(r, HEX),
       parseInt(g, HEX),
@@ -158,7 +158,7 @@ export const convertHexToRgb = (value: string): ColorChannels => {
   } else {
     const [, r, g, b] = value.match(
       /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
-    ) as MatchedRegExp;
+    ) as MatchedRegExp3;
     arr.push(parseInt(r, HEX), parseInt(g, HEX), parseInt(b, HEX), 1);
   }
   return arr as ColorChannels;
