@@ -11,7 +11,7 @@ Supports the latest CSS Color Module Level 4 & 5 specifications.
 
 - **Modern CSS Color Support:** Accurately resolves `color-mix()`, `color()`, modern color spaces (`oklch`, `oklab`, `lch`, `lab`, `hwb`, etc.), and relative colors (`lab(from red l a b)`, `color(from red xyz-d50 x y z)`).
 - **Deep Resolution:** Deeply resolves `var()` and `calc()` functions embedded within color values.
-- **Gradient Parsing:** Supports parsing and validation for `linear-gradient`, `radial-gradient`, and `conic-gradient`.
+- **Gradient Resolution & Parsing:** Supports resolving, parsing, and validation for `linear-gradient`, `radial-gradient`, and `conic-gradient`.
 - **Comprehensive Color Conversion:** Highly accurate converters between HEX, HSL, HWB, LAB, LCH, Oklab, Oklch, RGB, and XYZ color spaces.
 - **Bonus Utilities:** Includes convenient functions to validate colors or gradients, extract CSS variables, and safely split CSS values.
 - **Used in jsdom:** Adopted as the CSS color parser and resolver for `jsdom`.
@@ -26,7 +26,7 @@ npm i @asamuzakjp/css-color
 ## Quick Start
 
 ```javascript
-import { convert, resolve, utils } from '@asamuzakjp/css-color';
+import { convert, resolve, resolveGradient, utils } from '@asamuzakjp/css-color';
 ```
 
 ### Samples
@@ -49,14 +49,23 @@ const resolvedVar = resolve('hsl(calc(var(--base-hue) * 3) 100% 50% / .5)', {
 // => 'rgba(128, 0, 255, 0.5)'
 ```
 
-3. Convert between color spaces:
+3. Resolve gradients:
+
+```javascript
+const resolvedGradient = resolveGradient(
+  'linear-gradient(to right, red, blue)'
+);
+// => 'linear-gradient(to right, rgb(255 0 0), rgb(0 0 255))'
+```
+
+4. Convert between color spaces:
 
 ```javascript
 const hex = convert.colorToHex('lab(46.2775% -47.5621 48.5837)');
 // => '#008000'
 ```
 
-4. Validate colors and gradients:
+5. Validate colors and gradients:
 
 ```javascript
 const isColor = utils.isColor('light-dark(red, blue)');
@@ -81,6 +90,13 @@ Resolves a CSS color string into its computed or specified value. System colors 
   - `opt.dimension`: Object mapping units (e.g., `em`, `rem`, `vw`) to pixel numbers, or a `callback(unit)` function for dynamic length resolution.
   - `opt.format`: Output format. Options: `computedValue` (default), `specifiedValue`, `hex`, `hexAlpha`.
   - `opt.colorScheme`: `normal` (default), `light`, or `dark` (useful for `light-dark()` resolution).
+
+### `resolveGradient(gradient, opt?)`
+
+Resolves a CSS gradient string (e.g., `linear-gradient`, `radial-gradient`, `conic-gradient`) into its resolved form.
+
+- **`gradient`** `<string>`: The CSS gradient string to resolve.
+- **`opt`** `<object>` _(optional)_: Same options as `resolve`.
 
 ### `convert`
 
@@ -112,7 +128,7 @@ Helpful internal tools exposed for advanced usage, parsing, and validation.
 | `utils.extractDashedIdent(value)` | `string[]` | _None_ | Extracts custom property names (dashed-ident tokens) from a value. |
 | `utils.isColor(value, opt?)` | `boolean` | _See `resolve` options_ | Returns `true` if the string is a valid CSS color. |
 | `utils.isGradient(value, opt?)` | `boolean` | _See `resolve` options_ | Returns `true` if the string is a valid CSS gradient. |
-| `utils.resolveGradient(value, opt?)` | `string` | _See `resolve` options_ | Resolves CSS gradient strings. |
+| `utils.resolveGradient(value, opt?)` | `string` | _See `resolve` options_ | **Deprecated:** Use `resolveGradient` directly instead. |
 | `utils.resolveLengthInPixels(value, unit, opt?)` | `number` | `opt.dimension`<br>_(+ see `resolve` options)_ | Converts an absolute or relative CSS length to pixels. |
 | `utils.splitValue(value, opt?)` | `string[]` | `opt.delimiter` `<string>`<br>`opt.preserveComment` `<boolean>` | Safely splits a CSS value by a specified delimiter (` `, `,`, `/`). |
 
