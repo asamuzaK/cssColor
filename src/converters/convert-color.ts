@@ -352,11 +352,14 @@ export const convertColorToLab = (
   let x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    opt.d50 = true;
+    const options = {
+      ...opt,
+      d50: true
+    };
     if (value.startsWith(FN_COLOR)) {
-      xyz = parseColorFunc(value, opt);
+      xyz = parseColorFunc(value, options);
     } else {
-      xyz = parseColorValue(value, opt);
+      xyz = parseColorValue(value, options);
     }
     if (xyz === null) {
       return null;
@@ -401,11 +404,14 @@ export const convertColorToLch = (
   let x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    opt.d50 = true;
+    const options = {
+      ...opt,
+      d50: true
+    };
     if (value.startsWith(FN_COLOR)) {
-      xyz = parseColorFunc(value, opt);
+      xyz = parseColorFunc(value, options);
     } else {
-      xyz = parseColorValue(value, opt);
+      xyz = parseColorValue(value, options);
     }
     if (xyz === null) {
       return null;

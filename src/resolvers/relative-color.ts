@@ -355,7 +355,10 @@ export function extractOriginColor(
   }
   const matchRelFunc = value.match(REG_FN_REL_CAPT);
   const [, colorSpace] = matchRelFunc as MatchedRegExp;
-  opt.colorSpace = colorSpace;
+  const options = {
+    ...opt,
+    colorSpace
+  };
   if (value.includes(FN_LIGHT_DARK)) {
     const colorParts = value
       .replace(new RegExp(`^${colorSpace}\\(`), '')
@@ -373,7 +376,7 @@ export function extractOriginColor(
     if (format === VAL_SPEC) {
       value = value.replace(originColor, specifiedOriginColor);
     } else {
-      const resolvedOriginColor = resolver(specifiedOriginColor, opt);
+      const resolvedOriginColor = resolver(specifiedOriginColor, options);
       if (isString(resolvedOriginColor)) {
         value = value.replace(originColor, resolvedOriginColor);
       } else {
@@ -394,12 +397,12 @@ export function extractOriginColor(
         return null;
       }
     } else if (format === VAL_SPEC) {
-      const resolvedOriginColor = resolver(originColor, opt) as string;
+      const resolvedOriginColor = resolver(originColor, options) as string;
       value = value.replace(originColor, resolvedOriginColor);
     }
     if (format === VAL_SPEC) {
       const tokens = tokenize({ css: restValue });
-      const channelValues = resolveColorChannels(tokens, opt);
+      const channelValues = resolveColorChannels(tokens, options);
       if (channelValues === null) {
         setCache(cacheKey, null);
         return null;
@@ -464,14 +467,17 @@ export function extractOriginColor(
     }
     const resolvedOriginColor = resolveRelativeColor(
       originColor.join('').trim(),
-      opt,
+      options,
       resolver
     );
     if (resolvedOriginColor === null) {
       setCache(cacheKey, null);
       return null;
     }
-    const channelValues = resolveColorChannels(tokens.slice(tokenIndex), opt);
+    const channelValues = resolveColorChannels(
+      tokens.slice(tokenIndex),
+      options
+    );
     if (channelValues === null) {
       setCache(cacheKey, null);
       return null;
@@ -501,7 +507,10 @@ export function resolveRelativeColor(
   opt: Options = {},
   resolver: (v: string, o?: Options) => string | null = () => null
 ): string | null {
-  const { format = '' } = opt;
+  const options = {
+    ...opt
+  };
+  const { format = '' } = options;
   if (isString(value)) {
     if (REG_FN_VAR.test(value)) {
       // var() must be resolved before resolveRelativeColor()
@@ -522,13 +531,13 @@ export function resolveRelativeColor(
       name: 'resolveRelativeColor',
       value
     },
-    opt
+    options
   );
   const cachedResult = getCache(cacheKey);
   if (cachedResult !== false) {
     return cachedResult.item as string | null;
   }
-  const originColor = extractOriginColor(value, opt, resolver);
+  const originColor = extractOriginColor(value, options, resolver);
   if (originColor === null) {
     setCache(cacheKey, null);
     return null;
