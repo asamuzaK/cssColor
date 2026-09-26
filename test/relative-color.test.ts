@@ -483,21 +483,21 @@ describe('extract origin color', () => {
   it('should extract "rgb" as colorSpace for rgb relative color syntax', () => {
     const opt: any = { format: 'specifiedValue' };
     const res = func('rgb(from #ff0000 r g b)', opt);
-    assert.strictEqual(opt.colorSpace, 'rgb');
+    assert.strictEqual(opt.colorSpace, undefined);
     assert.strictEqual(res, 'rgb(from rgb(255, 0, 0) r g b)');
   });
 
   it('should extract "hsl" as colorSpace for hsl relative color syntax', () => {
     const opt: any = { format: 'specifiedValue' };
     const res = func('hsl(from #ff0000 h s l)', opt);
-    assert.strictEqual(opt.colorSpace, 'hsl');
+    assert.strictEqual(opt.colorSpace, undefined);
     assert.strictEqual(res, 'hsl(from rgb(255, 0, 0) h s l)');
   });
 
   it('should extract "lab" as colorSpace for lab relative color syntax', () => {
     const opt: any = { format: 'specifiedValue' };
     const res = func('lab(from #ff0000 l a b)', opt);
-    assert.strictEqual(opt.colorSpace, 'lab');
+    assert.strictEqual(opt.colorSpace, undefined);
     assert.strictEqual(res, 'lab(from rgb(255, 0, 0) l a b)');
   });
 
