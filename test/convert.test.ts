@@ -1004,6 +1004,15 @@ describe('convert color to xyz-d50', () => {
     const res2 = func('color(srgb 0 0.5 0)');
     assert.deepEqual(res2, [0.0824383, 0.153443, 0.0207794, 1], 'result');
   });
+
+  it('should get value', () => {
+    const opt = {
+      currentColor: 'red'
+    };
+    const res = func('color-mix(in oklab, currentColor, green)', opt);
+    assert.strictEqual(opt.d50, undefined, 'opt');
+    assert.deepEqual(res, [0.22122, 0.186614, 0.0191235, 1], 'result');
+  });
 });
 
 describe('convert', () => {

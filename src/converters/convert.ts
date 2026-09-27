@@ -319,8 +319,11 @@ export const colorToXyzD50 = (
   value: string,
   opt: Options = {}
 ): ColorChannels => {
-  opt.d50 = true;
-  return colorToXyz(value, opt);
+  const options = {
+    ...opt,
+    d50: true
+  };
+  return colorToXyz(value, options);
 };
 
 /* convert */
