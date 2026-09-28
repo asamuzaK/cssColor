@@ -9,7 +9,7 @@ import {
   Options,
   SpecifiedColorChannels
 } from '../typedef';
-import { CacheItem, createCacheKey, getCache, setCache } from './cache';
+import { createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 
 /* constants */
@@ -136,7 +136,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
   );
   const cachedResult = getCache<string[]>(cacheKey);
   if (cachedResult) {
-    return cachedResult.item;
+    return [...cachedResult.item];
   }
   let regDelimiter;
   switch (delimiter) {
@@ -211,7 +211,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
     }
   }
   setCache(cacheKey, res);
-  return res;
+  return [...res];
 };
 
 /**
@@ -232,14 +232,14 @@ export const extractDashedIdent = (value: string): string[] => {
     name: 'extractDashedIdent',
     value: strValue
   });
-  const cachedResult = getCache(cacheKey);
-  if (cachedResult instanceof CacheItem) {
-    return cachedResult.item as string[];
+  const cachedResult = getCache<string[]>(cacheKey);
+  if (cachedResult) {
+    return [...cachedResult.item];
   }
   const matches = strValue.match(REG_DASHED_IDENT);
   const res = matches ? [...new Set(matches)] : [];
   setCache(cacheKey, res);
-  return res;
+  return [...res];
 };
 
 /**

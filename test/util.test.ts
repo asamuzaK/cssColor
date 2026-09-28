@@ -117,7 +117,7 @@ describe('split value', () => {
   it('should return cached result on second call with same params', () => {
     const res1 = func('10px 20px');
     const res2 = func('10px 20px');
-    assert.strictEqual(res1, res2, 'should return cached instance');
+    assert.deepEqual(res1, res2, 'should return cached instance');
   });
 });
 
@@ -151,7 +151,7 @@ describe('extract dashed ident', () => {
   it('should return cached result on second call', () => {
     const res1 = func('var(--test)');
     const res2 = func('var(--test)');
-    assert.strictEqual(res1, res2, 'should return cached instance');
+    assert.deepEqual(res1, res2, 'should return cached instance');
   });
 });
 
