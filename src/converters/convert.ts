@@ -132,11 +132,11 @@ const createColorConverter = (
     );
     const cached = getCache(cacheKey);
     if (cached !== false) {
-      return cached.item as ColorChannels;
+      return [...(cached.item as ColorChannels)] as ColorChannels;
     }
     const result = convertFn(val, { ...options, format }) as ColorChannels;
     setCache(cacheKey, result);
-    return result;
+    return [...result];
   };
   return colorConverterFn;
 };
@@ -296,7 +296,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   );
   const cached = getCache(cacheKey);
   if (cached !== false) {
-    return cached.item as ColorChannels;
+    return [...(cached.item as ColorChannels)] as ColorChannels;
   }
   let parsed;
   if (val.startsWith('color(')) {
@@ -306,7 +306,7 @@ export const colorToXyz = (value: string, opt: Options = {}): ColorChannels => {
   }
   const [, ...xyz] = parsed as ComputedColorChannels;
   setCache(cacheKey, xyz);
-  return xyz as ColorChannels;
+  return [...xyz] as ColorChannels;
 };
 
 /**
