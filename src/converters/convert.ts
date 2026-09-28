@@ -111,10 +111,7 @@ const createColorConverter = (
   format: string,
   convertFn: ColorConvertFn
 ) => {
-  const colorConverterFn = (
-    value: string,
-    opt: Options = {}
-  ): ColorChannels => {
+  return (value: string, opt: Options = {}): ColorChannels => {
     if (!isString(value)) {
       throw new TypeError(`${value} is not a string.`);
     }
@@ -128,7 +125,7 @@ const createColorConverter = (
     const val = resolved.toLowerCase();
     const cacheKey = createCacheKey(
       { namespace: NAMESPACE, name, value: val },
-      opt
+      options
     );
     const cached = getCache(cacheKey);
     if (cached !== false) {
@@ -138,7 +135,6 @@ const createColorConverter = (
     setCache(cacheKey, result);
     return [...result];
   };
-  return colorConverterFn;
 };
 
 /**
