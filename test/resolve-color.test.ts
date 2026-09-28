@@ -109,7 +109,7 @@ describe('resolve color value', () => {
   it('should return cached result on consecutive calls', () => {
     const res1 = func('red');
     const res2 = func('red');
-    assert.strictEqual(res1, res2);
+    assert.deepEqual(res1, res2);
   });
 
   it('should return null when nullable and value is not transparent', () => {
@@ -185,7 +185,7 @@ describe('resolve color func', () => {
   it('should return cached result on consecutive calls', () => {
     const res1 = func('color(srgb 0 1 0)');
     const res2 = func('color(srgb 0 1 0)');
-    assert.strictEqual(res1, res2);
+    assert.deepEqual(res1, res2);
   });
 });
 

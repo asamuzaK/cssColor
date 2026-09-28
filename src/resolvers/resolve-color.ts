@@ -91,7 +91,11 @@ export const resolveColorValue = (
   );
   const cachedResult = getCache(cacheKey);
   if (cachedResult !== false) {
-    return cachedResult.item as SpecifiedColorChannels | string | null;
+    const { item } = cachedResult;
+    if (Array.isArray(item)) {
+      return [...item] as SpecifiedColorChannels;
+    }
+    return item as string | null;
   }
   if (!REG_COLOR.test(value)) {
     const res = resolveInvalidColorValue(format, nullable);
@@ -142,7 +146,7 @@ export const resolveColorValue = (
           if (value === 'transparent') {
             const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
             setCache(cacheKey, res);
-            return res;
+            return [...res];
           }
           setCache(cacheKey, null);
           return null;
@@ -155,7 +159,7 @@ export const resolveColorValue = (
           }
           const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
           setCache(cacheKey, res);
-          return res;
+          return [...res];
         }
       }
     }
@@ -179,7 +183,7 @@ export const resolveColorValue = (
     if (REG_SPEC.test(format)) {
       const res: SpecifiedColorChannels = [cs, x, y, z, alpha];
       setCache(cacheKey, res);
-      return res;
+      return [...res];
     }
     [r, g, b] = transformXyzD50ToRgb([x, y, z]);
     // oklab(), oklch()
@@ -193,7 +197,7 @@ export const resolveColorValue = (
     if (REG_SPEC.test(format)) {
       const res: SpecifiedColorChannels = [cs, x, y, z, alpha];
       setCache(cacheKey, res);
-      return res;
+      return [...res];
     }
     [r, g, b] = transformXyzToRgb([x, y, z]);
     // rgb()
@@ -209,7 +213,7 @@ export const resolveColorValue = (
       alpha
     ];
     setCache(cacheKey, res);
-    return res;
+    return [...res];
   }
   const res: SpecifiedColorChannels = [
     'rgb',
@@ -219,7 +223,7 @@ export const resolveColorValue = (
     alpha
   ];
   setCache(cacheKey, res);
-  return res;
+  return [...res];
 };
 
 /**
@@ -248,7 +252,11 @@ export const resolveColorFunc = (
   );
   const cachedResult = getCache(cacheKey);
   if (cachedResult !== false) {
-    return cachedResult.item as SpecifiedColorChannels | string | null;
+    const { item } = cachedResult;
+    if (Array.isArray(item)) {
+      return [...item] as SpecifiedColorChannels;
+    }
+    return item as string | null;
   }
   if (!REG_COLOR_FUNC.test(value)) {
     const res = resolveInvalidColorValue(format, nullable);
@@ -269,7 +277,7 @@ export const resolveColorFunc = (
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
     const res: SpecifiedColorChannels = [cs, v1, v2, v3, v4];
     setCache(cacheKey, res);
-    return res;
+    return [...res];
   }
   const x = parseFloat(`${v1}`);
   const y = parseFloat(`${v2}`);
@@ -278,7 +286,7 @@ export const resolveColorFunc = (
   const [r, g, b] = transformXyzToRgb([x, y, z], true);
   const res: SpecifiedColorChannels = ['rgb', r, g, b, alpha];
   setCache(cacheKey, res);
-  return res;
+  return [...res];
 };
 
 /**
