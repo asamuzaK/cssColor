@@ -329,7 +329,7 @@ export const interpolateComponents = (
 ): InterpolatedComponents => {
   const factorA = alphaA * pA;
   const factorB = alphaB * pB;
-  let alpha = factorA + factorB;
+  const alpha = factorA + factorB;
   let comps: TriColorChannels;
   if (alpha === 0) {
     comps = [
@@ -343,7 +343,6 @@ export const interpolateComponents = (
       (compA[1] * factorA + compB[1] * factorB) / alpha,
       (compA[2] * factorA + compB[2] * factorB) / alpha
     ];
-    alpha = parseFloat(alpha.toFixed(3));
   }
   return { comps, alpha };
 };
@@ -822,7 +821,14 @@ export const resolveColorMix = (
   );
   const cachedResult = getCache(cacheKey);
   if (cachedResult !== false) {
-    return cachedResult.item as SpecifiedColorChannels | string | null;
+    const { item } = cachedResult;
+    if (Array.isArray(item)) {
+      return [...item] as SpecifiedColorChannels;
+    }
+    if (isString(item)) {
+      return item;
+    }
+    return null;
   }
   if (!value.startsWith('color-mix(') || !value.endsWith(')')) {
     return cacheInvalidColorValue(cacheKey, format, nullable);

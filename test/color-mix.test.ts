@@ -482,14 +482,14 @@ describe('interpolateComponents', () => {
       assert.closeTo(res.comps[2], 2 / 3, 1e-5);
     });
 
-    it('should round alpha value to 3 decimal places', () => {
+    it('should not clamp alpha value', () => {
       const compA: TriColorChannels = [0.5, 0.5, 0.5];
       const compB: TriColorChannels = [0.5, 0.5, 0.5];
       const res = func(compA, compB, 0.3333, 0.3333, 0.5, 0.5);
       assert.strictEqual(
         res.alpha,
-        0.333,
-        'alpha should be rounded to 3 decimal places'
+        0.3333,
+        'alpha should not be rounded to 3 decimal places'
       );
     });
   });
