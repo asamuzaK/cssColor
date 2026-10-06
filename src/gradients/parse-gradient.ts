@@ -50,13 +50,14 @@ export const parseGradient = (
   const gradValue = trimmedValue.replace(REG_GRAD, '').replace(/\)$/, '');
   if (type && gradValue) {
     const [lineOrColorStop, ...itemList] = splitValue(gradValue, {
-      delimiter: ','
+      delimiter: ',',
+      preserveComment: true
     });
     if (!lineOrColorStop) {
       setCache(cacheKey, null);
       return null;
     }
-    const [firstPart] = splitValue(lineOrColorStop);
+    const [firstPart] = splitValue(lineOrColorStop, { preserveComment: true });
     if (isValidColor(firstPart, COLOR_OPT)) {
       itemList.unshift(lineOrColorStop);
       const { colorStops, valid } = validateColorStopList(itemList, type, opt);
@@ -71,7 +72,7 @@ export const parseGradient = (
       }
     } else if (itemList.length > 1) {
       const { line: gradientLine, valid: validLine } = validateGradientLine(
-        lineOrColorStop,
+        splitValue(lineOrColorStop).join(' '),
         type
       );
       const { colorStops, valid: validColorStops } = validateColorStopList(

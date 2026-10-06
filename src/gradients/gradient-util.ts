@@ -237,7 +237,7 @@ export const validateColorStopList = (
       if (!isString(item)) {
         return { colorStops: list, valid: false };
       }
-      const parts = splitValue(item);
+      const parts = splitValue(item, { preserveComment: true });
       const [firstPart, ...posParts] = parts;
       if (!firstPart || parts.length > 3) {
         return { colorStops: list, valid: false };
@@ -256,7 +256,10 @@ export const validateColorStopList = (
           return { colorStops: list, valid: false };
         }
         if (isValidColor(firstPart, COLOR_OPT)) {
-          const resolvedColor = resolveColor(firstPart, opt) as string;
+          const resolvedColor = resolveColor(firstPart, opt);
+          if (!resolvedColor || !isValidColor(resolvedColor, COLOR_OPT)) {
+            return { colorStops: list, valid: false };
+          }
           prevType = 'color';
           const resolvedItem =
             posParts.length > 0

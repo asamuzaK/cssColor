@@ -164,6 +164,67 @@ describe('resolve CSS gradient', () => {
   });
 });
 
+describe('gradient color output', () => {
+  it.each(['linear-gradient', 'radial-gradient', 'conic-gradient'])(
+    'should reject unresolved colors in %s',
+    type => {
+      for (const color of ['transparent', '#ff000000', 'currentcolor']) {
+        for (const stops of [
+          `${color}, blue`,
+          `${color} 0, blue`,
+          `red, ${color}`
+        ]) {
+          assert.strictEqual(
+            grad.resolveGradient(`${type}(${stops})`, { format: 'hex' }),
+            'none'
+          );
+        }
+      }
+      assert.strictEqual(
+        grad.resolveGradient(`${type}(currentcolor, blue)`, {
+          format: 'hexAlpha'
+        }),
+        'none'
+      );
+      assert.strictEqual(
+        grad.resolveGradient(`${type}(currentcolor, blue)`, {
+          format: 'mixValue'
+        }),
+        'none'
+      );
+    }
+  );
+
+  it.each(['hex', 'hexAlpha'])(
+    'should resolve supplied currentColor in %s',
+    format => {
+      assert.strictEqual(
+        grad.resolveGradient('linear-gradient(currentcolor, blue)', {
+          format,
+          currentColor: 'red'
+        }),
+        'linear-gradient(#ff0000, #0000ff)'
+      );
+    }
+  );
+
+  it('should retain transparent first colors in supported formats', () => {
+    const value = 'linear-gradient(transparent, blue)';
+    assert.strictEqual(
+      grad.resolveGradient(value, { format: 'specifiedValue' }),
+      value
+    );
+    assert.strictEqual(
+      grad.resolveGradient(value),
+      'linear-gradient(rgba(0, 0, 0, 0), rgb(0, 0, 255))'
+    );
+    assert.strictEqual(
+      grad.resolveGradient(value, { format: 'hexAlpha' }),
+      'linear-gradient(#00000000, #0000ff)'
+    );
+  });
+});
+
 describe('gradient math positions', () => {
   const options = { format: 'specifiedValue' as const };
 
@@ -271,6 +332,11 @@ describe('gradient math positions', () => {
     'calc(1px + /*unterminated)',
     'calc("unterminated)',
     'calc(1px/**/+/**/2px)',
+    'calc(1p/**/x)',
+    'calc(1/**/px)',
+    'calc(1px * 2/**/0)',
+    'calc(1px * 1/**/.5)',
+    'calc(1px * 1/**/e2)',
     'calc(1px + (2px)'
   ])('should reject an invalid math position %s', position => {
     for (const type of [
@@ -296,6 +362,58 @@ describe('gradient math positions', () => {
     'conic-gradient(#000 0deg, transparent calc(100% - 24px))'
   ])('should retain gradient validation for %s', value => {
     assert.strictEqual(grad.resolveGradient(value, options), '');
+  });
+});
+
+describe('gradient math comments', () => {
+  it.each(['calc(1p/**/x)', 'calc(1/**/px)', 'calc(1px * 2/**/0)'])(
+    'should reject split tokens in first stops, double stops and hints: %s',
+    position => {
+      for (const stops of [
+        `red ${position}, blue`,
+        `red ${position} calc(4px), blue`,
+        `red, ${position}, blue`
+      ]) {
+        assert.strictEqual(
+          grad.resolveGradient(`linear-gradient(${stops})`, {
+            format: 'specifiedValue'
+          }),
+          ''
+        );
+      }
+    }
+  );
+
+  it.each([
+    'linear-gradient',
+    'radial-gradient',
+    'repeating-linear-gradient',
+    'repeating-radial-gradient'
+  ])('should retain valid comments in math stops and hints in %s', type => {
+    const position = 'calc(1px/**/ +/**/ 2px)';
+    const stops = [
+      `red ${position}, blue`,
+      `red, blue ${position}`,
+      `red ${position} calc(4px), blue`,
+      `red, ${position}, blue`
+    ];
+    for (const list of stops) {
+      const value = `${type}(${list})`;
+      assert.isTrue(grad.isGradient(value));
+      assert.strictEqual(
+        grad.resolveGradient(value, { format: 'specifiedValue' }),
+        value
+      );
+    }
+  });
+
+  it('should preserve comment handling outside calculations', () => {
+    const value =
+      'linear-gradient(/* line */ to right, /* color */ red, blue calc(1px /* term */ + 2px))';
+    assert.strictEqual(
+      grad.resolveGradient(value, { format: 'specifiedValue' }),
+      'linear-gradient(to right, red, blue calc(1px /* term */ + 2px))'
+    );
   });
 });
 
