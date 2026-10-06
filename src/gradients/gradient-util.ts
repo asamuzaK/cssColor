@@ -7,6 +7,7 @@ import { isValidColor, resolveColor } from '../resolvers/resolve-color';
 import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
 import { splitValue } from '../utils/util';
+import { isLengthPercentageCalculation } from './gradient-position';
 
 /* constants */
 import {
@@ -225,6 +226,9 @@ export const validateColorStopList = (
     const regColorHint = isConic
       ? REG_COLOR_HINT_CONIC
       : REG_COLOR_HINT_NON_CONIC;
+    const isValidPosition = (value: string): boolean =>
+      regColorHint.test(value) ||
+      (!isConic && isLengthPercentageCalculation(value));
     const valueList: string[] = [];
     // State tracker: 'color' or 'hint'
     let prevType = '';
@@ -238,7 +242,7 @@ export const validateColorStopList = (
       if (!firstPart || parts.length > 3) {
         return { colorStops: list, valid: false };
       }
-      if (parts.length === 1 && regColorHint.test(firstPart)) {
+      if (parts.length === 1 && isValidPosition(firstPart)) {
         // Color hint
         if (i === 0 || prevType === 'hint') {
           return { colorStops: list, valid: false };
@@ -247,7 +251,7 @@ export const validateColorStopList = (
         valueList.push(firstPart);
       } else {
         // Color stop (1 color + 0 to 2 stop positions)
-        const validPositions = posParts.every(pos => regColorHint.test(pos));
+        const validPositions = posParts.every(isValidPosition);
         if (!validPositions) {
           return { colorStops: list, valid: false };
         }
