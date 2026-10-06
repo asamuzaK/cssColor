@@ -6,8 +6,8 @@ import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
 import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
+import { isLengthPercentageCalculation } from '../utils/length-percentage';
 import { splitValue } from '../utils/util';
-import { isLengthPercentageCalculation } from './gradient-position';
 
 /* constants */
 import {
