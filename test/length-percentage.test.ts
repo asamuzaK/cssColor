@@ -91,10 +91,13 @@ describe('parse calculation product', () => {
     '1 / 2px',
     '1px * 2px / 1px',
     '1px / 2px * 3em'
-  ])('should reject an invalid product %s', value => {
-    const state = createState(value);
-    assert.isNull(func(state));
-  });
+  ])(
+    'should reject a product outside the supported scalar grammar %s',
+    value => {
+      const state = createState(value);
+      assert.isNull(func(state));
+    }
+  );
 
   it('should leave adjacent operands for the caller to reject', () => {
     const state = createState('1px * 2/**/0');
@@ -302,7 +305,10 @@ describe('is length-percentage calculation', () => {
     'calc(1px * 1/**/.5)',
     'calc(1px * 1/**/e2)',
     'calc(1px + (2px)'
-  ])('should reject invalid or mismatched calculations %s', value => {
-    assert.isFalse(func(value));
-  });
+  ])(
+    'should reject calculations outside the supported length-percentage grammar %s',
+    value => {
+      assert.isFalse(func(value));
+    }
+  );
 });

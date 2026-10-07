@@ -274,8 +274,6 @@ describe('gradient math positions', () => {
     'calc(10px +)',
     'calc(100% + 20deg)',
     'calc(1px / 2px)',
-    'calc(1px * 2px / 1px)',
-    'calc(1px / 2px * 3em)',
     'calc(0)',
     'calc(1p/**/x)'
   ])('should reject an invalid math position %s', position => {
@@ -292,6 +290,15 @@ describe('gradient math positions', () => {
     }
   });
 
+  it.each(['calc(1px * 2px / 1px)', 'calc(1px / 2px * 3em)'])(
+    'should reject typed arithmetic outside the supported subset: %s',
+    position => {
+      const value = `linear-gradient(red ${position}, blue)`;
+      assert.isFalse(grad.isGradient(value));
+      assert.strictEqual(grad.resolveGradient(value, options), '');
+    }
+  );
+
   it.each([
     'linear-gradient(to sideways, #000 0, transparent calc(100% - 24px))',
     'linear-gradient(invalid-color 0, transparent calc(100% - 24px))',
@@ -306,6 +313,51 @@ describe('gradient math positions', () => {
 });
 
 describe('gradient math comments', () => {
+  it.each([
+    'calc/**/(1px)',
+    'c/**/alc(1px)',
+    'min/**/(1px, 2px)',
+    'max/**/(1px, 2px)',
+    'clamp/**/(1px, 2px, 3px)'
+  ])(
+    'should reject a function manufactured by comment removal: %s',
+    position => {
+      for (const type of [
+        'linear-gradient',
+        'radial-gradient',
+        'repeating-linear-gradient',
+        'repeating-radial-gradient'
+      ]) {
+        for (const stops of [
+          `red ${position}, blue`,
+          `red, blue ${position}`,
+          `red ${position} calc(4px), blue`,
+          `red, ${position}, blue`
+        ]) {
+          const value = `${type}(${stops})`;
+          assert.isFalse(grad.isGradient(value));
+          assert.strictEqual(grad.resolveGradient(value), 'none');
+          assert.strictEqual(
+            grad.resolveGradient(value, { format: 'specifiedValue' }),
+            ''
+          );
+        }
+      }
+    }
+  );
+
+  it.each([
+    'calc(1px/**/ +/**/ 2px)',
+    'calc(1px + m\\69n(2px, 3px))',
+    'min(calc(1px /* term */ + 2px), 4%)'
+  ])('should preserve the meaning of an accepted calculation: %s', position => {
+    const value = `linear-gradient(red ${position}, blue)`;
+    assert.strictEqual(
+      grad.resolveGradient(value, { format: 'specifiedValue' }),
+      value
+    );
+  });
+
   it.each(['calc(1p/**/x)', 'calc(1/**/px)', 'calc(1px * 2/**/0)'])(
     'should reject split tokens in first stops, double stops and hints: %s',
     position => {

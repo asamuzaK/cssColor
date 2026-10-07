@@ -58,6 +58,7 @@ export const hasCalculationWhitespace = (
 /**
  * Parse multiplication and division of calculation operands.
  * Multiplication requires a number on one side, division a number divisor.
+ * This subset intentionally excludes CSS Values Level 4 typed arithmetic.
  * @param state - token stream and cursor
  * @returns calculation type or null on failure
  */
@@ -176,7 +177,7 @@ export function parseCalculationValue(state: CalculationState): number | null {
 
 /**
  * Validate a calculation in a length-percentage context. Types are represented
- * as 0 for numbers and 1 for lengths/percentages.
+ * as 0 for numbers and 1 for lengths/percentages, with scalar products only.
  * @param value - calculation
  * @returns whether the calculation has type length-percentage
  */
