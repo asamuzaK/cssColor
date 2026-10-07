@@ -255,8 +255,10 @@ export const validateColorStopList = (
         if (!validPositions) {
           return { colorStops: list, valid: false };
         }
-        if (isValidColor(firstPart, COLOR_OPT)) {
-          const resolvedColor = resolveColor(firstPart, opt);
+        // Comments are only preserved for math positions
+        const color = splitValue(firstPart).join(' ');
+        if (isValidColor(color, COLOR_OPT)) {
+          const resolvedColor = resolveColor(color, opt);
           if (!resolvedColor || !isValidColor(resolvedColor, COLOR_OPT)) {
             return { colorStops: list, valid: false };
           }

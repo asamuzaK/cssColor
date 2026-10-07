@@ -57,7 +57,7 @@ export const parseGradient = (
       setCache(cacheKey, null);
       return null;
     }
-    const [firstPart] = splitValue(lineOrColorStop, { preserveComment: true });
+    const [firstPart] = splitValue(lineOrColorStop);
     if (isValidColor(firstPart, COLOR_OPT)) {
       itemList.unshift(lineOrColorStop);
       const { colorStops, valid } = validateColorStopList(itemList, type, opt);

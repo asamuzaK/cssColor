@@ -347,6 +347,28 @@ describe('gradient math comments', () => {
     }
   });
 
+  it.each([
+    [
+      'linear-gradient(rgb(0 /*c*/ 0 0), #fff)',
+      'linear-gradient(rgb(0, 0, 0), rgb(255, 255, 255))'
+    ],
+    [
+      'linear-gradient(#000, rgb(0 /*c*/ 0 0) 10%)',
+      'linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0) 10%)'
+    ],
+    [
+      'linear-gradient(rgb(0 /*c*/ 0 0) calc(1px/**/ +/**/ 2px), #fff)',
+      'linear-gradient(rgb(0, 0, 0) calc(1px/**/ +/**/ 2px), rgb(255, 255, 255))'
+    ],
+    [
+      'conic-gradient(#000, rgb(0 /*c*/ 0 0) 10deg)',
+      'conic-gradient(rgb(0, 0, 0), rgb(0, 0, 0) 10deg)'
+    ]
+  ])('should strip comments in stop colors %s', (value, expected) => {
+    assert.isTrue(grad.isGradient(value));
+    assert.strictEqual(grad.resolveGradient(value), expected);
+  });
+
   it('should preserve comment handling outside calculations', () => {
     const value =
       'linear-gradient(/* line */ to right, /* color */ red, blue calc(1px /* term */ + 2px))';
