@@ -169,12 +169,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
         break;
       }
       case COMMENT: {
-        if (
-          preserveComment &&
-          (delimiter === ',' ||
-            delimiter === '/' ||
-            (delimiter === ' ' && nest > 0))
-        ) {
+        if (preserveComment && (delimiter === ',' || delimiter === '/')) {
           currentStr += val;
         }
         break;

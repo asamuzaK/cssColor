@@ -9,6 +9,20 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 import { lruCache } from '../src/utils/cache';
 import * as grad from '../src/gradients/gradient';
 
+const gradientTypes = [
+  'linear-gradient',
+  'radial-gradient',
+  'repeating-linear-gradient',
+  'repeating-radial-gradient'
+];
+
+const mathStopLists = (position: string): string[] => [
+  `red ${position}, blue`,
+  `red, blue ${position}`,
+  `red ${position} calc(4px), blue`,
+  `red, ${position}, blue`
+];
+
 beforeEach(() => {
   lruCache.clear();
 });
@@ -174,9 +188,11 @@ describe('gradient color output', () => {
           `${color} 0, blue`,
           `red, ${color}`
         ]) {
+          const value = `${type}(${stops})`;
           assert.strictEqual(
-            grad.resolveGradient(`${type}(${stops})`, { format: 'hex' }),
-            'none'
+            grad.resolveGradient(value, { format: 'hex' }),
+            'none',
+            value
           );
         }
       }
@@ -228,19 +244,17 @@ describe('gradient color output', () => {
 describe('gradient math positions', () => {
   const options = { format: 'specifiedValue' as const };
 
-  it.each([
-    'linear-gradient',
-    'radial-gradient',
-    'repeating-linear-gradient',
-    'repeating-radial-gradient'
-  ])('should resolve mixed length-percentage stops in %s', type => {
-    const value = `${type}(#000 0, #000 24px, #000 calc(100% - 24px), transparent 100%)`;
-    assert.strictEqual(
-      grad.resolveGradient(value, options),
-      `${type}(rgb(0, 0, 0) 0, rgb(0, 0, 0) 24px, rgb(0, 0, 0) calc(100% - 24px), transparent 100%)`
-    );
-    assert.isTrue(grad.isGradient(value, options));
-  });
+  it.each(gradientTypes)(
+    'should resolve mixed length-percentage stops in %s',
+    type => {
+      const value = `${type}(#000 0, #000 24px, #000 calc(100% - 24px), transparent 100%)`;
+      assert.strictEqual(
+        grad.resolveGradient(value, options),
+        `${type}(rgb(0, 0, 0) 0, rgb(0, 0, 0) 24px, rgb(0, 0, 0) calc(100% - 24px), transparent 100%)`
+      );
+      assert.isTrue(grad.isGradient(value, options));
+    }
+  );
 
   it.each([
     'calc(100% - 24px)',
@@ -277,16 +291,11 @@ describe('gradient math positions', () => {
     'calc(0)',
     'calc(1p/**/x)'
   ])('should reject an invalid math position %s', position => {
-    for (const type of [
-      'linear-gradient',
-      'radial-gradient',
-      'repeating-linear-gradient',
-      'repeating-radial-gradient'
-    ]) {
+    for (const type of gradientTypes) {
       const value = `${type}(#000 0, transparent ${position})`;
-      assert.strictEqual(grad.resolveGradient(value, options), '');
-      assert.strictEqual(grad.resolveGradient(value), 'none');
-      assert.isFalse(grad.isGradient(value));
+      assert.strictEqual(grad.resolveGradient(value, options), '', value);
+      assert.strictEqual(grad.resolveGradient(value), 'none', value);
+      assert.isFalse(grad.isGradient(value), value);
     }
   });
 
@@ -322,24 +331,15 @@ describe('gradient math comments', () => {
   ])(
     'should reject a function manufactured by comment removal: %s',
     position => {
-      for (const type of [
-        'linear-gradient',
-        'radial-gradient',
-        'repeating-linear-gradient',
-        'repeating-radial-gradient'
-      ]) {
-        for (const stops of [
-          `red ${position}, blue`,
-          `red, blue ${position}`,
-          `red ${position} calc(4px), blue`,
-          `red, ${position}, blue`
-        ]) {
+      for (const type of gradientTypes) {
+        for (const stops of mathStopLists(position)) {
           const value = `${type}(${stops})`;
-          assert.isFalse(grad.isGradient(value));
-          assert.strictEqual(grad.resolveGradient(value), 'none');
+          assert.isFalse(grad.isGradient(value), value);
+          assert.strictEqual(grad.resolveGradient(value), 'none', value);
           assert.strictEqual(
             grad.resolveGradient(value, { format: 'specifiedValue' }),
-            ''
+            '',
+            value
           );
         }
       }
@@ -351,53 +351,32 @@ describe('gradient math comments', () => {
     'calc(1px + m\\69n(2px, 3px))',
     'min(calc(1px /* term */ + 2px), 4%)'
   ])('should preserve the meaning of an accepted calculation: %s', position => {
-    const value = `linear-gradient(red ${position}, blue)`;
-    assert.strictEqual(
-      grad.resolveGradient(value, { format: 'specifiedValue' }),
-      value
-    );
+    for (const type of gradientTypes) {
+      for (const stops of mathStopLists(position)) {
+        const value = `${type}(${stops})`;
+        assert.isTrue(grad.isGradient(value), value);
+        assert.strictEqual(
+          grad.resolveGradient(value, { format: 'specifiedValue' }),
+          value,
+          value
+        );
+      }
+    }
   });
 
   it.each(['calc(1p/**/x)', 'calc(1/**/px)', 'calc(1px * 2/**/0)'])(
     'should reject split tokens in first stops, double stops and hints: %s',
     position => {
-      for (const stops of [
-        `red ${position}, blue`,
-        `red ${position} calc(4px), blue`,
-        `red, ${position}, blue`
-      ]) {
+      for (const stops of mathStopLists(position)) {
+        const value = `linear-gradient(${stops})`;
         assert.strictEqual(
-          grad.resolveGradient(`linear-gradient(${stops})`, {
-            format: 'specifiedValue'
-          }),
-          ''
+          grad.resolveGradient(value, { format: 'specifiedValue' }),
+          '',
+          value
         );
       }
     }
   );
-
-  it.each([
-    'linear-gradient',
-    'radial-gradient',
-    'repeating-linear-gradient',
-    'repeating-radial-gradient'
-  ])('should retain valid comments in math stops and hints in %s', type => {
-    const position = 'calc(1px/**/ +/**/ 2px)';
-    const stops = [
-      `red ${position}, blue`,
-      `red, blue ${position}`,
-      `red ${position} calc(4px), blue`,
-      `red, ${position}, blue`
-    ];
-    for (const list of stops) {
-      const value = `${type}(${list})`;
-      assert.isTrue(grad.isGradient(value));
-      assert.strictEqual(
-        grad.resolveGradient(value, { format: 'specifiedValue' }),
-        value
-      );
-    }
-  });
 
   it.each([
     [

@@ -93,21 +93,12 @@ describe('split value', () => {
     assert.deepEqual(resSlash, ['10px /* c */', '20px']);
   });
 
-  it('should discard top-level comments when splitting by whitespace', () => {
+  it('should ignore preserveComment if delimiter is invalid', () => {
     const resSpace = func('10px /* c */ 20px', {
       delimiter: ' ',
       preserveComment: true
     });
     assert.deepEqual(resSpace, ['10px', '20px']);
-  });
-
-  it('should preserve nested comments when splitting by whitespace', () => {
-    const value = 'red /* stop */ calc(1p/**/x + 2px)';
-    assert.deepEqual(func(value, { preserveComment: true }), [
-      'red',
-      'calc(1p/**/x + 2px)'
-    ]);
-    assert.deepEqual(func(value), ['red', 'calc(1px + 2px)']);
   });
 
   it('should not preserve comments if preserveComment is false', () => {

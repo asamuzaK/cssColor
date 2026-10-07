@@ -146,26 +146,24 @@ export function parseCalculationValue(state: CalculationState): number | null {
       if (!['calc', 'min', 'max', 'clamp'].includes(name)) {
         return null;
       }
-      const types = [parseCalculationSum(state)];
-      while (state.tokens[state.index]![0] === TokenType.Comma) {
-        state.index++;
-        types.push(parseCalculationSum(state));
-      }
-      if (
-        state.tokens[state.index]![0] !== TokenType.CloseParen ||
-        (name === 'calc' && types.length !== 1) ||
-        (name === 'clamp' && types.length !== 3)
-      ) {
-        return null;
-      }
-      const type = types[0]!;
+      const type = parseCalculationSum(state);
       if (type === null) {
         return null;
       }
-      for (const argumentType of types) {
-        if (argumentType !== type) {
+      let count = 1;
+      while (state.tokens[state.index]![0] === TokenType.Comma) {
+        state.index++;
+        if (parseCalculationSum(state) !== type) {
           return null;
         }
+        count++;
+      }
+      if (
+        state.tokens[state.index]![0] !== TokenType.CloseParen ||
+        (name === 'calc' && count !== 1) ||
+        (name === 'clamp' && count !== 3)
+      ) {
+        return null;
       }
       state.index++;
       return type;
