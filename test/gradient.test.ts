@@ -369,6 +369,32 @@ describe('gradient math comments', () => {
     assert.strictEqual(grad.resolveGradient(value), expected);
   });
 
+  it.each([
+    ['linear-gradient(red /* a */, blue)', 'linear-gradient(red, blue)'],
+    ['linear-gradient(red, blue /* a */)', 'linear-gradient(red, blue)'],
+    [
+      'linear-gradient(red 10% /* a */, blue 20% 30% /* b */)',
+      'linear-gradient(red 10%, blue 20% 30%)'
+    ],
+    [
+      'linear-gradient(red, 50% /* hint */, blue)',
+      'linear-gradient(red, 50%, blue)'
+    ],
+    [
+      'linear-gradient(red calc(1px + 2px) /* a */, blue)',
+      'linear-gradient(red calc(1px + 2px), blue)'
+    ],
+    [
+      'linear-gradient(\n  red, /* start */\n  blue /* end */\n)',
+      'linear-gradient(red, blue)'
+    ]
+  ])('should ignore trailing comments in stops %s', (value, expected) => {
+    assert.strictEqual(
+      grad.resolveGradient(value, { format: 'specifiedValue' }),
+      expected
+    );
+  });
+
   it('should preserve comment handling outside calculations', () => {
     const value =
       'linear-gradient(/* line */ to right, /* color */ red, blue calc(1px /* term */ + 2px))';

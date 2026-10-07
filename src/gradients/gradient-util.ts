@@ -237,7 +237,7 @@ export const validateColorStopList = (
       if (!isString(item)) {
         return { colorStops: list, valid: false };
       }
-      const parts = splitValue(item, { preserveComment: true });
+      const parts = splitValue(item, { preserveComment: true }).filter(Boolean);
       const [firstPart, ...posParts] = parts;
       if (!firstPart || parts.length > 3) {
         return { colorStops: list, valid: false };
