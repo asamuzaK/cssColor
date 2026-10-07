@@ -71,11 +71,9 @@ describe('parse calculation product', () => {
   it.each<[string, number]>([
     ['2 * 3', 0],
     ['1px * 2', 1],
-    ['1px * 2px', 2],
-    ['1px / 2px', 0],
-    ['1px * 2px / 3em', 1],
-    ['1 / 2px', -1],
+    ['2 * 1px', 1],
     ['50% / 2', 1],
+    ['1px * 2 / 4', 1],
     ['2 * (1px + 2px)', 1],
     ['1px/**/ * 2', 1]
   ])('should return the product type for %s', (value, type) => {
@@ -84,13 +82,19 @@ describe('parse calculation product', () => {
     assert.strictEqual(state.tokens[state.index]![0], TokenType.EOF);
   });
 
-  it.each(['', '1px *', '1px / bananas'])(
-    'should reject an invalid product %s',
-    value => {
-      const state = createState(value);
-      assert.isNull(func(state));
-    }
-  );
+  it.each([
+    '',
+    '1px *',
+    '1px / bananas',
+    '1px * 2px',
+    '1px / 2px',
+    '1 / 2px',
+    '1px * 2px / 1px',
+    '1px / 2px * 3em'
+  ])('should reject an invalid product %s', value => {
+    const state = createState(value);
+    assert.isNull(func(state));
+  });
 
   it('should leave adjacent operands for the caller to reject', () => {
     const state = createState('1px * 2/**/0');
@@ -111,7 +115,7 @@ describe('parse calculation sum', () => {
   it.each<[string, number]>([
     ['1px + 2% - 3em', 1],
     ['1 + 2 * 3', 0],
-    ['1px * 2px + 3px * 4px', 2],
+    ['1px * 2 + 3 * 4px', 1],
     ['1px + 2px * 3', 1],
     ['1px/**/ +/**/ 2px', 1],
     ['1px - -2px', 1]
@@ -153,7 +157,6 @@ describe('parse calculation value', () => {
     ['-infinity', 0],
     ['NaN', 0],
     ['(1px + 2%)', 1],
-    ['calc(1px * 2px)', 2],
     ['min(1px, 2%)', 1],
     ['max(1, 2)', 0],
     ['clamp(1em, 50% + 1px, 100px)', 1],
@@ -222,8 +225,7 @@ describe('is length-percentage calculation', () => {
     'calc(10% + 1em)',
     'calc((100% - 2rem) / 2)',
     'calc(2 * (1px + 2vh))',
-    'calc(1px * 2px / 1px)',
-    'calc(1px / 2px * 3em)',
+    'calc(1px * 2 / 4)',
     'calc(-2px)',
     'calc(0px)',
     'calc(calc(100% - 1em) + 2px)',
@@ -269,6 +271,9 @@ describe('is length-percentage calculation', () => {
     'calc(1px +2px)',
     'calc(1px * 2px)',
     'calc(1px / 2px)',
+    'calc(1px * 2px / 1px)',
+    'calc(1px / 2px * 3em)',
+    'calc(2 / 1px)',
     'calc(1px + 0)',
     'calc(0)',
     'calc(10bananas * 0)',

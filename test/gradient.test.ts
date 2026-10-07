@@ -274,6 +274,8 @@ describe('gradient math positions', () => {
     'calc(10px +)',
     'calc(100% + 20deg)',
     'calc(1px / 2px)',
+    'calc(1px * 2px / 1px)',
+    'calc(1px / 2px * 3em)',
     'calc(0)',
     'calc(1p/**/x)'
   ])('should reject an invalid math position %s', position => {

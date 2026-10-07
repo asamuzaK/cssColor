@@ -57,8 +57,9 @@ export const hasCalculationWhitespace = (
 
 /**
  * Parse multiplication and division of calculation operands.
+ * Multiplication requires a number on one side, division a number divisor.
  * @param state - token stream and cursor
- * @returns length exponent or null on failure
+ * @returns calculation type or null on failure
  */
 export const parseCalculationProduct = (
   state: CalculationState
@@ -75,10 +76,13 @@ export const parseCalculationProduct = (
   ) {
     const operator = state.tokens[state.index++]![1];
     const right = parseCalculationValue(state);
-    if (right === null) {
+    if (
+      right === null ||
+      (operator === '*' ? type !== 0 && right !== 0 : right !== 0)
+    ) {
       return null;
     }
-    type += operator === '*' ? right : -right;
+    type += right;
     skipCalculationWhitespace(state);
   }
   return type;
@@ -87,7 +91,7 @@ export const parseCalculationProduct = (
 /**
  * Parse addition and subtraction, requiring matching operand types.
  * @param state - token stream and cursor
- * @returns length exponent or null on failure
+ * @returns calculation type or null on failure
  */
 export const parseCalculationSum = (state: CalculationState): number | null => {
   const type = parseCalculationProduct(state);
@@ -117,7 +121,7 @@ export const parseCalculationSum = (state: CalculationState): number | null => {
  * Parse a scalar, length, percentage, parenthesized sum or math function.
  * Percentages receive the length percent hint in this context.
  * @param state - token stream and cursor
- * @returns length exponent or null on failure
+ * @returns calculation type or null on failure
  */
 export function parseCalculationValue(state: CalculationState): number | null {
   skipCalculationWhitespace(state);
@@ -172,7 +176,7 @@ export function parseCalculationValue(state: CalculationState): number | null {
 
 /**
  * Validate a calculation in a length-percentage context. Types are represented
- * by length exponents: numbers have exponent 0 and lengths/percentages have 1.
+ * as 0 for numbers and 1 for lengths/percentages.
  * @param value - calculation
  * @returns whether the calculation has type length-percentage
  */
