@@ -3,6 +3,7 @@
  */
 
 /* api */
+import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
@@ -15,6 +16,56 @@ beforeEach(() => {
 
 afterEach(() => {
   lruCache.clear();
+});
+
+describe('split color stop', () => {
+  const func = grad.splitColorStop;
+
+  it.each<[string, string[]]>([
+    ['red calc/**/(1px)', ['red', 'calc', '(1px)']],
+    ['red c/**/alc(1px)', ['red', 'c', 'alc(1px)']],
+    ['red/**/calc(1px)', ['red', 'calc(1px)']],
+    ['red calc(1px/**/ +/**/ 2px)', ['red', 'calc(1px/**/ +/**/ 2px)']],
+    ['rgb(0 /* c */ 0 0) 10%', ['rgb(0 /* c */ 0 0)', '10%']],
+    ['/* start */ red 10% /* end */', ['red', '10%']],
+    ['red calc(1px', ['red', 'calc(1px']],
+    ['/**/ ', []]
+  ])('should preserve original component values in %s', (value, expected) => {
+    assert.deepEqual(func(value), expected);
+  });
+
+  it('should preserve the tokens inside a calculation', () => {
+    const value = 'calc(1px + m\\69/**/n(2px, 3px))';
+    const [position] = func(`red ${value}`).slice(1);
+    assert.deepEqual(tokenize({ css: position! }), tokenize({ css: value }));
+  });
+});
+
+describe('is valid gradient position', () => {
+  const func = grad.isValidPosition;
+
+  it.each<[string, boolean, boolean]>([
+    ['0', false, true],
+    ['10px', false, true],
+    ['50%', false, true],
+    ['10deg', false, false],
+    ['calc(100% - 24px)', false, true],
+    ['min(1px, 2%)', false, true],
+    ['calc(1px/**/ +/**/ 2px)', false, true],
+    ['calc/**/(1px)', false, false],
+    ['c/**/alc(1px)', false, false],
+    ['calc(1px/**/+/**/2px)', false, false],
+    ['calc(1px + m\\69/**/n(2px, 3px))', false, false],
+    ['calc(1px * 2px / 1px)', false, false],
+    ['0', true, false],
+    ['10deg', true, true],
+    ['50%', true, true],
+    ['10px', true, false],
+    ['calc(10%)', true, false],
+    ['red', false, false]
+  ])('should validate %s with conic=%s', (value, isConic, expected) => {
+    assert.strictEqual(func(value, isConic), expected);
+  });
 });
 
 describe('get gradient type', () => {

@@ -2,6 +2,8 @@
  * typedef
  */
 
+import { CSSToken } from '@csstools/css-tokenizer';
+
 /**
  * Supported CSS gradient function types.
  */
@@ -73,6 +75,14 @@ export type ChannelNoneFlags = [
  * AST node representation for the calc() parser.
  */
 export type CalcASTNode = string | CalcASTNode[];
+
+/**
+ * Calculation token stream, including its terminal EOF token, and cursor.
+ */
+export interface CalculationState {
+  tokens: CSSToken[];
+  index: number;
+}
 
 /**
  * Custom property resolver value or callback function.

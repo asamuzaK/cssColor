@@ -2,10 +2,16 @@
  * gradient-util
  */
 
+import {
+  isCommentNode,
+  isWhitespaceNode,
+  parseListOfComponentValues
+} from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
 import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
+import { isLengthPercentageCalculation } from '../utils/length-percentage';
 import { splitValue } from '../utils/util';
 
 /* constants */
@@ -209,6 +215,38 @@ export const validateGradientLine = (
 };
 
 /**
+ * Split a color stop into its original component values.
+ * @param value - color stop or transition hint
+ * @returns color and position components, retaining comments inside functions
+ */
+export const splitColorStop = (value: string): string[] => {
+  const components = parseListOfComponentValues(tokenize({ css: value }));
+  const parts: string[] = [];
+  for (const component of components) {
+    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
+      parts.push(component.toString());
+    }
+  }
+  return parts;
+};
+
+/**
+ * Validate a position in a gradient color stop or transition hint.
+ * @param value - original position component
+ * @param isConic - whether the gradient uses angle-percentage positions
+ * @returns whether the position is valid in this gradient context
+ */
+export const isValidPosition = (value: string, isConic: boolean): boolean => {
+  const regColorHint = isConic
+    ? REG_COLOR_HINT_CONIC
+    : REG_COLOR_HINT_NON_CONIC;
+  return (
+    regColorHint.test(value) ||
+    (!isConic && isLengthPercentageCalculation(value))
+  );
+};
+
+/**
  * validate color stop list
  * @param list
  * @param type
@@ -222,9 +260,6 @@ export const validateColorStopList = (
 ): ValidateColorStops => {
   if (Array.isArray(list) && list.length > 1) {
     const isConic = IS_CONIC.test(type);
-    const regColorHint = isConic
-      ? REG_COLOR_HINT_CONIC
-      : REG_COLOR_HINT_NON_CONIC;
     const valueList: string[] = [];
     // State tracker: 'color' or 'hint'
     let prevType = '';
@@ -233,12 +268,12 @@ export const validateColorStopList = (
       if (!isString(item)) {
         return { colorStops: list, valid: false };
       }
-      const parts = splitValue(item);
+      const parts = splitColorStop(item);
       const [firstPart, ...posParts] = parts;
       if (!firstPart || parts.length > 3) {
         return { colorStops: list, valid: false };
       }
-      if (parts.length === 1 && regColorHint.test(firstPart)) {
+      if (parts.length === 1 && isValidPosition(firstPart, isConic)) {
         // Color hint
         if (i === 0 || prevType === 'hint') {
           return { colorStops: list, valid: false };
@@ -247,12 +282,18 @@ export const validateColorStopList = (
         valueList.push(firstPart);
       } else {
         // Color stop (1 color + 0 to 2 stop positions)
-        const validPositions = posParts.every(pos => regColorHint.test(pos));
-        if (!validPositions) {
-          return { colorStops: list, valid: false };
+        for (const position of posParts) {
+          if (!isValidPosition(position, isConic)) {
+            return { colorStops: list, valid: false };
+          }
         }
-        if (isValidColor(firstPart, COLOR_OPT)) {
-          const resolvedColor = resolveColor(firstPart, opt) as string;
+        // Comments are only preserved for math positions
+        const color = splitValue(firstPart).join(' ');
+        if (isValidColor(color, COLOR_OPT)) {
+          const resolvedColor = resolveColor(color, opt);
+          if (!resolvedColor || !isValidColor(resolvedColor, COLOR_OPT)) {
+            return { colorStops: list, valid: false };
+          }
           prevType = 'color';
           const resolvedItem =
             posParts.length > 0
