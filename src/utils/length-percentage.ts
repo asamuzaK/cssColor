@@ -131,14 +131,18 @@ export function parseCalculationValue(state: CalculationState): number | null {
   }
   const token = state.tokens[state.index++]!;
   switch (token[0]) {
-    case TokenType.Number:
+    case TokenType.Number: {
       return 0;
-    case TokenType.Percentage:
+    }
+    case TokenType.Percentage: {
       return 1;
-    case TokenType.Dimension:
+    }
+    case TokenType.Dimension: {
       return REG_LENGTH.test(token[4].unit) ? 1 : null;
-    case TokenType.Ident:
+    }
+    case TokenType.Ident: {
       return REG_CALC_KEYWORD.test(token[4].value) ? 0 : null;
+    }
     case TokenType.OpenParen:
     case TokenType.Function: {
       const name =
@@ -168,8 +172,9 @@ export function parseCalculationValue(state: CalculationState): number | null {
       state.index++;
       return type;
     }
-    default:
+    default: {
       return null;
+    }
   }
 }
 

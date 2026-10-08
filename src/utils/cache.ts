@@ -38,7 +38,9 @@ export const lruCache = new LRUCache<string, CacheItem<any>>({
  * @returns void
  */
 export const setCache = <T>(key: string, value: T | CacheItem<T>): void => {
-  if (!key) return;
+  if (!key) {
+    return;
+  }
   if (value instanceof CacheItem) {
     lruCache.set(key, value);
   } else {
@@ -52,7 +54,9 @@ export const setCache = <T>(key: string, value: T | CacheItem<T>): void => {
  * @returns cached item or false otherwise
  */
 export const getCache = <T = unknown>(key: string): CacheItem<T> | false => {
-  if (!key) return false;
+  if (!key) {
+    return false;
+  }
   const item = lruCache.get(key);
   if (item !== undefined) {
     return item as CacheItem<T>;
