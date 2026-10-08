@@ -263,9 +263,13 @@ describe('is length-percentage calculation', () => {
     'calc(1px - -2px)',
     'calc(pi * 1px)',
     'calc(infinity * 1px)',
+    'calc(-infinity * 1px)',
     'calc(NaN * 1px)',
     'CALC(10% + 1EM)',
-    'calc(1px/**/ +/**/ 2px)'
+    'calc(1px/**/ +/**/ 2px)',
+    'calc(1px * -infinity)',
+    'calc(1px * infinity)',
+    'calc(1px * nan)'
   ])('should accept a length-percentage calculation %s', value => {
     assert.isTrue(func(value));
   });
