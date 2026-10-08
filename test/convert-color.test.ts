@@ -15,7 +15,9 @@ const assertDeepCloseTo = (
   delta = 1e-4
 ) => {
   assert.isNotNull(actual);
-  if (!actual) return;
+  if (!actual) {
+    return;
+  }
   assert.strictEqual(actual.length, expected.length);
   for (let i = 0; i < expected.length; i++) {
     assert.closeTo(actual[i], expected[i], delta, `at index ${i}`);

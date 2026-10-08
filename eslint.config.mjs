@@ -27,6 +27,7 @@ export default [
       regexp
     },
     rules: {
+      curly: ['error', 'all'],
       'no-await-in-loop': 'error',
       'no-loss-of-precision': 'off',
       'no-use-before-define': [

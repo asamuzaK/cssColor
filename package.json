@@ -42,6 +42,7 @@
     "mitata": "^1.0.34",
     "neostandard": "^0.14.0-next.1",
     "prettier": "^3.9.9",
+    "prettier-plugin-brace-style": "^0.10.3",
     "publint": "^0.3.25",
     "rimraf": "^6.1.3",
     "tsx": "^4.23.15",
