@@ -189,6 +189,29 @@ describe('parse calculation value', () => {
     assert.isNull(func(createState(value)));
   });
 
+  it.each([
+    'calc(/* comment */ -infinity)',
+    'calc(InFiNiTy)',
+    'calc(-INFINITY)',
+    'calc(NaN)',
+    'calc(nan)',
+    'calc(nAn)',
+    'calc(NAN)'
+  ])('should accept a numeric keyword case-insensitively in %s', value => {
+    const state = createState(value);
+    assert.strictEqual(func(state), 0);
+    assert.strictEqual(state.tokens[state.index]![0], TokenType.EOF);
+  });
+
+  it.each([
+    'calc(- infinity)',
+    'calc(+ infinity)',
+    'calc(-NaN)',
+    'calc(- NaN)'
+  ])('should reject a signed numeric keyword %s', value => {
+    assert.isNull(func(createState(value)));
+  });
+
   it('should leave the cursor at EOF when no operand remains', () => {
     const state = createState(' /**/ ');
     assert.isNull(func(state));

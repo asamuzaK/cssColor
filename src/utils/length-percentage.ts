@@ -17,7 +17,7 @@ import { LENGTH } from './constant';
 /* regexp */
 const REG_LENGTH = new RegExp(`^(?:${LENGTH})$`, 'i');
 const REG_CALC = /^(?:calc|min|max|clamp)\(/i;
-const REG_CONSTANT = /^(?:e|pi|NaN|infinity|-infinity)$/i;
+const REG_CALC_KEYWORD = /^(?:e|pi|-?infinity|NaN)$/i;
 
 /**
  * Advance past whitespace and comments in a calculation.
@@ -138,7 +138,7 @@ export function parseCalculationValue(state: CalculationState): number | null {
     case TokenType.Dimension:
       return REG_LENGTH.test(token[4].unit) ? 1 : null;
     case TokenType.Ident:
-      return REG_CONSTANT.test(token[4].value) ? 0 : null;
+      return REG_CALC_KEYWORD.test(token[4].value) ? 0 : null;
     case TokenType.OpenParen:
     case TokenType.Function: {
       const name =
