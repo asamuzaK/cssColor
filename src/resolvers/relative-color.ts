@@ -17,8 +17,8 @@ import {
 } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString, isStringOrNumber } from '../utils/common';
+import { resolveDimension, serializeCalc } from '../utils/css-calc-var';
 import { roundToPrecision, splitValue } from '../utils/util';
-import { resolveDimension, serializeCalc } from './css-calc-var';
 
 /* constants */
 import {

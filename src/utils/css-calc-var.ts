@@ -6,13 +6,9 @@ import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
 import { CSSToken, TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor } from '../resolvers/resolve-color';
 import { CalcASTNode, MatchedRegExp, Options } from '../typedef';
-import { createCacheKey, getCache, setCache } from '../utils/cache';
-import { isString, isStringOrNumber } from '../utils/common';
-import {
-  getMaxLength,
-  resolveLengthInPixels,
-  roundToPrecision
-} from '../utils/util';
+import { createCacheKey, getCache, setCache } from './cache';
+import { isString, isStringOrNumber } from './common';
+import { getMaxLength, resolveLengthInPixels, roundToPrecision } from './util';
 
 /* constants */
 import {

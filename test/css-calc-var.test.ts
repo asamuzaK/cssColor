@@ -8,7 +8,7 @@ import { tokenize } from '@csstools/css-tokenizer';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
-import * as css from '../src/resolvers/css-calc-var';
+import * as css from '../src/utils/css-calc-var';
 
 beforeEach(() => {
   lruCache.clear();

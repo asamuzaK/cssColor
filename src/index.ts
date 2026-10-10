@@ -6,8 +6,8 @@
  */
 
 import { isGradient, resolveGradient } from './gradients/gradient';
-import { cssCalc, cssVar } from './resolvers/css-calc-var';
 import { isColor } from './resolvers/resolve';
+import { cssCalc, cssVar } from './utils/css-calc-var';
 import {
   extractDashedIdent,
   resolveLengthInPixels,
