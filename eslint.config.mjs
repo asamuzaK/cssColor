@@ -1,16 +1,19 @@
-import regexp from 'eslint-plugin-regexp';
 import globals from 'globals';
+import jsdoc from 'eslint-plugin-jsdoc';
 import neostandard from 'neostandard';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import regexp from 'eslint-plugin-regexp';
 
 export default [
   ...neostandard({
     noStyle: true,
-    semi: true,
     ts: true
   }),
+  jsdoc.configs['flat/recommended-typescript'],
+  prettierRecommended,
   regexp.configs['flat/recommended'],
   {
-    ignores: ['dist/browser']
+    ignores: ['dist/']
   },
   {
     languageOptions: {

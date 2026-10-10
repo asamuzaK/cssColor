@@ -195,7 +195,6 @@ export class Calculator {
 
   /**
    * clear values
-   * @returns void
    */
   clear() {
     // number

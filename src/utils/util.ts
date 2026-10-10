@@ -398,7 +398,7 @@ export const resolveLengthInPixels = (
 
 /**
  * angle to deg
- * @param angle
+ * @param angle - angle
  * @returns deg: 0..360
  */
 export const angleToDeg = (angle: string): number => {
@@ -528,7 +528,8 @@ export const parseHexAlpha = (value: string): number => {
 
 /**
  * cache invalid color value
- * @param key - cache key
+ * @param cacheKey - cache key
+ * @param format - format
  * @param nullable - is nullable
  * @returns cached value
  */
