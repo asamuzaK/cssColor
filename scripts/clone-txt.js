@@ -24,7 +24,7 @@ if (fs.existsSync(srcDir)) {
     if (typeof relativePath === 'string' && relativePath.endsWith('.ts')) {
       const srcPath = path.join(srcDir, relativePath);
       if (fs.statSync(srcPath).isFile()) {
-        const safeName = `src_${relativePath.replace(/[\/\\]/g, '_').replace(/\.ts$/, '.txt')}`;
+        const safeName = `src_${relativePath.replace(/[/\\]/g, '_').replace(/\.ts$/, '.txt')}`;
         const destPath = path.join(txtDir, safeName);
         fs.copyFileSync(srcPath, destPath);
         copiedCount++;
@@ -39,7 +39,7 @@ if (fs.existsSync(testDir)) {
     if (typeof relativePath === 'string' && relativePath.endsWith('.ts')) {
       const testPath = path.join(testDir, relativePath);
       if (fs.statSync(testPath).isFile()) {
-        const safeName = `test_${relativePath.replace(/[\/\\]/g, '_').replace(/\.ts$/, '.txt')}`;
+        const safeName = `test_${relativePath.replace(/[/\\]/g, '_').replace(/\.ts$/, '.txt')}`;
         const destPath = path.join(txtDir, safeName);
         fs.copyFileSync(testPath, destPath);
         copiedCount++;
