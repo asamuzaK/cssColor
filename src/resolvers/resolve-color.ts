@@ -12,13 +12,13 @@ import {
 } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
+import { cssCalc, resolveVar } from '../utils/css-calc-var';
 import {
   parseAlpha,
   resolveInvalidColorValue,
   splitValue
 } from '../utils/util';
 import { resolveColorMix } from './color-mix';
-import { cssCalc, resolveVar } from './css-calc-var';
 import {
   parseColorFunc,
   parseHsl,

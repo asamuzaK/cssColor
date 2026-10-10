@@ -2,7 +2,6 @@
  * convert
  */
 
-import { cssCalc, resolveVar } from '../resolvers/css-calc-var';
 import { parseColorFunc, parseColorValue } from '../resolvers/parse-color';
 import { resolveRelativeColor } from '../resolvers/relative-color';
 import { resolveColor } from '../resolvers/resolve-color';
@@ -14,6 +13,7 @@ import {
 } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
+import { cssCalc, resolveVar } from '../utils/css-calc-var';
 import { getMaxLength, numberToHexString } from '../utils/util';
 import {
   convertColorToHsl,
