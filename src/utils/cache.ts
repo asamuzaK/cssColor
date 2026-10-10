@@ -35,7 +35,6 @@ export const lruCache = new LRUCache<string, CacheItem<any>>({
  * set cache
  * @param key - cache key
  * @param value - value to cache
- * @returns void
  */
 export const setCache = <T>(key: string, value: T | CacheItem<T>): void => {
   if (!key) {

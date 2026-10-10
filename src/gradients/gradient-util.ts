@@ -248,10 +248,10 @@ export const isValidPosition = (value: string, isConic: boolean): boolean => {
 
 /**
  * validate color stop list
- * @param list
- * @param type
- * @param [opt]
- * @returns result
+ * @param list - color stop list
+ * @param type - gradient type
+ * @param [opt] - options
+ * @returns validated result
  */
 export const validateColorStopList = (
   list: string[],

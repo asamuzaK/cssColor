@@ -73,7 +73,7 @@ const colorChannels = new Map([
 
 /* type definitions */
 /**
- * @type NumberOrStringColorChannels - color channel
+ * NumberOrStringColorChannels - color channel
  */
 type NumberOrStringColorChannels = ColorChannels & StringColorChannels;
 
@@ -92,9 +92,7 @@ const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /**
  * resolve relative color channels
- * @param value
- *   - CSS color value
- *   - system colors are not supported
+ * @param tokens - tokens
  * @param [opt] - options
  * @param [opt.currentColor]
  *   - color to use for `currentcolor` keyword
