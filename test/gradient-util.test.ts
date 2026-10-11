@@ -44,6 +44,26 @@ describe('split color stop', () => {
 describe('is valid gradient position', () => {
   const func = grad.isValidPosition;
 
+  it('should return false for undefined value', () => {
+    const res = func();
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should return false for non-string value', () => {
+    const res = func(1);
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should return empty string and true for empty string value', () => {
+    const res = func('');
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should return empty string and true for space', () => {
+    const res = func(' ');
+    assert.strictEqual(res, false, 'result');
+  });
+
   it.each<[string, boolean, boolean]>([
     ['0', false, true],
     ['10px', false, true],
@@ -121,6 +141,66 @@ describe('get gradient type', () => {
 describe('validate linear gradient line', () => {
   const func = grad.validateLinearGradientLine;
 
+  it('should return false for undefined value', () => {
+    const res = func();
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should return false for non-string value', () => {
+    const res = func(1);
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should return empty string and true for empty string value', () => {
+    const res = func('');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should return empty string and true for space', () => {
+    const res = func(' ');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should return false for comment', () => {
+    const res = func('/* comment */');
+    assert.deepEqual(
+      res,
+      {
+        line: '/* comment */',
+        valid: false
+      },
+      'result'
+    );
+  });
+
   it('should return false for invalid syntax', () => {
     const res = func('foo');
     assert.deepEqual(
@@ -197,6 +277,66 @@ describe('validate linear gradient line', () => {
 describe('validate radial gradient line', () => {
   const func = grad.validateRadialGradientLine;
 
+  it('should return false for undefined value', () => {
+    const res = func();
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should return false for non-string value', () => {
+    const res = func(1);
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should return empty string and true for empty string value', () => {
+    const res = func('');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should return empty string and true for space', () => {
+    const res = func(' ');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should return false for comment', () => {
+    const res = func('/* comment */');
+    assert.deepEqual(
+      res,
+      {
+        line: '/* comment */',
+        valid: false
+      },
+      'result'
+    );
+  });
+
   it('should return false for invalid syntax', () => {
     const res = func('foo');
     assert.deepEqual(
@@ -248,6 +388,66 @@ describe('validate radial gradient line', () => {
 
 describe('validate conic gradient line', () => {
   const func = grad.validateConicGradientLine;
+
+  it('should return false for undefined value', () => {
+    const res = func();
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should return false for non-string value', () => {
+    const res = func(1);
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: false
+      },
+      'result'
+    );
+  });
+
+  it('should return empty string and true for empty string value', () => {
+    const res = func('');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should return empty string and true for space', () => {
+    const res = func(' ');
+    assert.deepEqual(
+      res,
+      {
+        line: '',
+        valid: true
+      },
+      'result'
+    );
+  });
+
+  it('should return false for comment', () => {
+    const res = func('/* comment */');
+    assert.deepEqual(
+      res,
+      {
+        line: '/* comment */',
+        valid: false
+      },
+      'result'
+    );
+  });
 
   it('should return false for invalid syntax', () => {
     const res = func('foo');
