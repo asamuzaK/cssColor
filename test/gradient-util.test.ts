@@ -143,6 +143,20 @@ describe('get gradient type', () => {
   });
 });
 
+describe('parse calc components', () => {
+  const func = grad.parseCalcComponents;
+
+  it('should return component parts ignoring comments and whitespace', () => {
+    const res = func('/* comment */ 10px   20px /* another */');
+    assert.deepEqual(res, ['10px', '20px']);
+  });
+
+  it('should handle single value correctly', () => {
+    const res = func('100px');
+    assert.deepEqual(res, ['100px']);
+  });
+});
+
 describe('validate linear gradient line', () => {
   const func = grad.validateLinearGradientLine;
 

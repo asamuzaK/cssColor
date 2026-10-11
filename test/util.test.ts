@@ -534,17 +534,3 @@ describe('resolve invalid color value', () => {
     assert.deepEqual(func('hex'), ['rgb', 0, 0, 0, 0]);
   });
 });
-
-describe('parse calc components', () => {
-  const func = util.parseCalcComponents;
-
-  it('should return component parts ignoring comments and whitespace', () => {
-    const res = func('/* comment */ 10px   20px /* another */');
-    assert.deepEqual(res, ['10px', '20px']);
-  });
-
-  it('should handle single value correctly', () => {
-    const res = func('100px');
-    assert.deepEqual(res, ['100px']);
-  });
-});

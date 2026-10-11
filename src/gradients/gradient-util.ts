@@ -2,13 +2,18 @@
  * gradient-util
  */
 
+import {
+  isCommentNode,
+  isWhitespaceNode,
+  parseListOfComponentValues
+} from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
 import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
 import { cssCalc } from '../utils/css-calc-var';
 import { isLengthPercentageCalculation } from '../utils/length-percentage';
-import { parseCalcComponents, splitValue } from '../utils/util';
+import { splitValue } from '../utils/util';
 
 /* constants */
 import {
@@ -139,6 +144,22 @@ export const getGradientType = (value: string): string => {
     }
   }
   return '';
+};
+
+/**
+ * parse a CSS string into an array of component parts
+ * @param css - CSS string to parse
+ * @returns array of component parts
+ */
+export const parseCalcComponents = (css: string): string[] => {
+  const components = parseListOfComponentValues(tokenize({ css }));
+  const parts: string[] = [];
+  for (const component of components) {
+    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
+      parts.push(component.toString().trim());
+    }
+  }
+  return parts;
 };
 
 /**
