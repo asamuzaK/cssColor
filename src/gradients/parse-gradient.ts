@@ -2,20 +2,24 @@
  * gradient
  */
 
+import {
+  isFunctionNode,
+  parseListOfComponentValues
+} from '@csstools/css-parser-algorithms';
+import { tokenize } from '@csstools/css-tokenizer';
 import { isValidColor } from '../resolvers/resolve-color';
 import { ColorStopList, Gradient, GradientType, Options } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
 import { splitValue } from '../utils/util';
 import {
-  getGradientType,
   splitColorStop,
   validateColorStopList,
   validateGradientLine
 } from './gradient-util';
 
 /* constants */
-import { VAL_SPEC } from '../utils/constant';
+import { FN_GRADIENT, VAL_SPEC } from '../utils/constant';
 const NAMESPACE = 'gradient';
 const COLOR_OPT = {
   format: VAL_SPEC,
@@ -23,7 +27,7 @@ const COLOR_OPT = {
 };
 
 /* regexp */
-const REG_GRAD = /^(?:repeating-)?(?:conic|linear|radial)-gradient\(/;
+const IS_GRADIENT = new RegExp(`^${FN_GRADIENT}$`, 'i');
 
 /**
  * parse CSS gradient
@@ -47,9 +51,22 @@ export const parseGradient = (
   if (cachedResult !== false) {
     return cachedResult.item as Gradient | null;
   }
-  const type = getGradientType(trimmedValue);
-  const gradValue = trimmedValue.replace(REG_GRAD, '').replace(/\)$/, '');
-  if (type && gradValue) {
+  // Tokenize and parse component values to extract the gradient function node
+  const tokens = tokenize({ css: trimmedValue });
+  const componentValues = parseListOfComponentValues(tokens);
+  if (componentValues.length !== 1 || !isFunctionNode(componentValues[0])) {
+    setCache(cacheKey, null);
+    return null;
+  }
+  const fnNode = componentValues[0];
+  const type = fnNode.getName().toLowerCase();
+  if (!IS_GRADIENT.test(type)) {
+    setCache(cacheKey, null);
+    return null;
+  }
+  // Extract the inner value of the gradient function from its node children
+  const gradValue = fnNode.value.map(node => node.toString()).join('');
+  if (gradValue) {
     const [lineOrColorStop, ...itemList] = splitValue(gradValue, {
       delimiter: ',',
       preserveComment: true

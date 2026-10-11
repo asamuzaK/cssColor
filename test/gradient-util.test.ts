@@ -101,6 +101,11 @@ describe('get gradient type', () => {
     assert.strictEqual(res, '', 'result');
   });
 
+  it('should get empty string', () => {
+    const res = func('foo-gradient(red, blue)');
+    assert.strictEqual(res, '', 'result');
+  });
+
   it('should get value', () => {
     const res = func('linear-gradient(green, blue)');
     assert.strictEqual(res, 'linear-gradient', 'result');

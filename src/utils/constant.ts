@@ -62,7 +62,9 @@ export const SYN_MIX_PART = `(?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?`;
 export const SYN_MIX = `color-mix\\(\\s*in\\s+(?:${CS_MIX})\\s*,\\s*${SYN_MIX_PART}\\s*,\\s*${SYN_MIX_PART}\\s*\\)`;
 export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MIX_PART})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)`;
 
-/* formats */
+/* gradients */
+export const FN_GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
+
 /* formats */
 export const VAL_COMP = 'computedValue' as const;
 export const VAL_MIX = 'mixValue' as const;
