@@ -20,6 +20,7 @@ import {
   ANGLE,
   CS_HUE,
   CS_RECT,
+  FN_GRADIENT,
   LENGTH,
   NUM,
   NUM_POSITIVE,
@@ -95,7 +96,7 @@ const COLOR_OPT = {
 const IS_CONIC = /^(?:repeating-)?conic-gradient$/;
 const IS_LINEAR = /^(?:repeating-)?linear-gradient$/;
 const IS_RADIAL = /^(?:repeating-)?radial-gradient$/;
-const IS_GRADIENT_FN = /^(?:repeating-)?(?:conic|linear|radial)-gradient$/i;
+const IS_GRADIENT = new RegExp(`^${FN_GRADIENT}$`, 'i');
 const IS_LENGTH = new RegExp(`^(?:${LENGTH})$`, 'i');
 const REG_LINE_CONIC = new RegExp(`^(?:${LINE_SYNTAX_CONIC})$`);
 const REG_LINE_LINEAR = new RegExp(`^(?:${LINE_SYNTAX_LINEAR})$`);
@@ -115,7 +116,7 @@ export const getGradientType = (value: string): string => {
       const [firstToken] = tokens;
       if (firstToken && firstToken[0] === FUNC) {
         const fnName = firstToken[1].slice(0, -1).toLowerCase();
-        if (IS_GRADIENT_FN.test(fnName)) {
+        if (IS_GRADIENT.test(fnName)) {
           return fnName;
         }
       }

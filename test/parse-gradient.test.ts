@@ -26,6 +26,11 @@ describe('parse CSS gradient', () => {
   });
 
   it('should get null', () => {
+    const res = func('');
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should get null', () => {
     const res = func('foo(red, blue)');
     assert.strictEqual(res, null, 'result');
 
