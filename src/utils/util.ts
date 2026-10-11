@@ -2,6 +2,11 @@
  * util
  */
 
+import {
+  isCommentNode,
+  isWhitespaceNode,
+  parseListOfComponentValues
+} from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import {
   HueArc,
@@ -578,4 +583,20 @@ export const resolveInvalidColorValue = (
       return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
     }
   }
+};
+
+/**
+ * parse a CSS string into an array of component parts
+ * @param css - CSS string to parse
+ * @returns array of component parts
+ */
+export const parseCalcComponents = (css: string): string[] => {
+  const components = parseListOfComponentValues(tokenize({ css }));
+  const parts: string[] = [];
+  for (const component of components) {
+    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
+      parts.push(component.toString().trim());
+    }
+  }
+  return parts;
 };
