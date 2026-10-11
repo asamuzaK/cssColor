@@ -68,23 +68,6 @@ const FROM_ANGLE = `from\\s+${DIM_ANGLE}`;
 const AT_POSITION = `at\\s+(?:${POS_1}|${POS_2}|${POS_4})`;
 const TO_SIDE_CORNER = `to\\s+(?:(?:${L_R})(?:\\s(?:${T_B}))?|(?:${T_B})(?:\\s(?:${L_R}))?)`;
 const IN_COLOR_SPACE = `in\\s+(?:${CS_RECT}|${CS_HUE})`;
-const LINE_SYNTAX_LINEAR = [
-  `(?:${DIM_ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?`,
-  `${IN_COLOR_SPACE}(?:\\s+(?:${DIM_ANGLE}|${TO_SIDE_CORNER}))?`
-].join('|');
-const LINE_SYNTAX_RADIAL = [
-  `(?:${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
-  `(?:${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
-  `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
-  `${IN_COLOR_SPACE}(?:\\s+${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(?:\\s+${AT_POSITION})?`,
-  `${IN_COLOR_SPACE}(?:\\s+${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?`,
-  `${IN_COLOR_SPACE}(?:\\s+${AT_POSITION})?`
-].join('|');
-const LINE_SYNTAX_CONIC = [
-  `${FROM_ANGLE}(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?`,
-  `${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?`,
-  `${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?`
-].join('|');
 const DEFAULT_RADIAL = [/ellipse/, /farthest-corner/, /at\s+center/];
 const DEFAULT_CONIC = [/at\s+center/];
 const COLOR_OPT = {
@@ -98,10 +81,48 @@ const IS_LINEAR = /^(?:repeating-)?linear-gradient$/;
 const IS_RADIAL = /^(?:repeating-)?radial-gradient$/;
 const IS_GRADIENT = new RegExp(`^${FN_GRADIENT}$`, 'i');
 const IS_LENGTH = new RegExp(`^(?:${LENGTH})$`, 'i');
-const REG_LINE_CONIC = new RegExp(`^(?:${LINE_SYNTAX_CONIC})$`);
-const REG_LINE_LINEAR = new RegExp(`^(?:${LINE_SYNTAX_LINEAR})$`);
-const REG_LINE_RADIAL = new RegExp(`^(?:${LINE_SYNTAX_RADIAL})$`);
-const REG_TO_BOTTOM = /^to\s+bottom$/i;
+const IS_TO_BOTTOM = /^to\s+bottom$/i;
+const LINE_CONIC = [
+  new RegExp(
+    `^${FROM_ANGLE}(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?$`,
+    'i'
+  ),
+  new RegExp(`^${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?$`, 'i'),
+  new RegExp(
+    `^${IN_COLOR_SPACE}(?:\\s+${FROM_ANGLE})?(?:\\s+${AT_POSITION})?$`,
+    'i'
+  )
+];
+const LINE_LINEAR = [
+  new RegExp(
+    `^(?:${DIM_ANGLE}|${TO_SIDE_CORNER})(?:\\s+${IN_COLOR_SPACE})?$`,
+    'i'
+  ),
+  new RegExp(
+    `^${IN_COLOR_SPACE}(?:\\s+(?:${DIM_ANGLE}|${TO_SIDE_CORNER}))?$`,
+    'i'
+  )
+];
+const LINE_RADIAL = [
+  new RegExp(
+    `^(?:${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?$`,
+    'i'
+  ),
+  new RegExp(
+    `^(?:${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?(?:\\s+${IN_COLOR_SPACE})?$`,
+    'i'
+  ),
+  new RegExp(`^${AT_POSITION}(?:\\s+${IN_COLOR_SPACE})?$`, 'i'),
+  new RegExp(
+    `^${IN_COLOR_SPACE}(?:\\s+${RAD_SHAPE})(?:\\s+(?:${RAD_SIZE}))?(?:\\s+${AT_POSITION})?$`,
+    'i'
+  ),
+  new RegExp(
+    `^${IN_COLOR_SPACE}(?:\\s+${RAD_SIZE})(?:\\s+(?:${RAD_SHAPE}))?(?:\\s+${AT_POSITION})?$`,
+    'i'
+  ),
+  new RegExp(`^${IN_COLOR_SPACE}(?:\\s+${AT_POSITION})?$`, 'i')
+];
 
 /**
  * get gradient type
@@ -151,12 +172,12 @@ export const validateLinearGradientLine = (
     return { line: value, valid: false };
   }
   const cleaned = parts.join(' ');
-  const valid = REG_LINE_LINEAR.test(cleaned);
+  const valid = LINE_LINEAR.some(reg => reg.test(cleaned));
   if (!valid) {
     return { line: value, valid: false };
   }
   const normalized = cleaned.replace(/\s+/g, ' ').trim();
-  if (REG_TO_BOTTOM.test(normalized)) {
+  if (IS_TO_BOTTOM.test(normalized)) {
     return { line: '', valid: true };
   }
   const line = normalized
@@ -192,7 +213,7 @@ export const validateRadialGradientLine = (
     return { line: value, valid: false };
   }
   const cleaned = parts.join(' ');
-  const valid = REG_LINE_RADIAL.test(cleaned);
+  const valid = LINE_RADIAL.some(reg => reg.test(cleaned));
   if (!valid) {
     return { line: value, valid: false };
   }
@@ -230,7 +251,7 @@ export const validateConicGradientLine = (
     return { line: value, valid: false };
   }
   const cleaned = parts.join(' ');
-  const valid = REG_LINE_CONIC.test(cleaned);
+  const valid = LINE_CONIC.some(reg => reg.test(cleaned));
   if (!valid) {
     return { line: value, valid: false };
   }
