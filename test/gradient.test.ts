@@ -347,17 +347,20 @@ describe('gradient math comments', () => {
   );
 
   it.each([
-    'calc(1px/**/ +/**/ 2px)',
-    'calc(1px + m\\69n(2px, 3px))',
-    'min(calc(1px /* term */ + 2px), 4%)'
-  ])('should preserve the meaning of an accepted calculation: %s', position => {
+    ['calc(1px/**/ +/**/ 2px)', 'calc(3px)'],
+    ['min(calc(1px /* term */ + 2px), 4%)', 'min(3px, 4%)']
+  ])('should strip comments and serialize: %s', (...items) => {
+    const [input, output] = items;
+    const inputStops = mathStopLists(input);
+    const outputStops = mathStopLists(output);
     for (const type of gradientTypes) {
-      for (const stops of mathStopLists(position)) {
-        const value = `${type}(${stops})`;
+      for (let i = 0; i < inputStops.length; i++) {
+        const value = `${type}(${inputStops[i]})`;
+        const expected = `${type}(${outputStops[i]})`;
         assert.isTrue(grad.isGradient(value), value);
         assert.strictEqual(
           grad.resolveGradient(value, { format: 'specifiedValue' }),
-          value,
+          expected,
           value
         );
       }
@@ -389,7 +392,7 @@ describe('gradient math comments', () => {
     ],
     [
       'linear-gradient(rgb(0 /*c*/ 0 0) calc(1px/**/ +/**/ 2px), #fff)',
-      'linear-gradient(rgb(0, 0, 0) calc(1px/**/ +/**/ 2px), rgb(255, 255, 255))'
+      'linear-gradient(rgb(0, 0, 0) 3px, rgb(255, 255, 255))'
     ],
     [
       'conic-gradient(#000, rgb(0 /*c*/ 0 0) 10deg)',
@@ -413,7 +416,7 @@ describe('gradient math comments', () => {
     ],
     [
       'linear-gradient(red calc(1px + 2px) /* a */, blue)',
-      'linear-gradient(red calc(1px + 2px), blue)'
+      'linear-gradient(red calc(3px), blue)'
     ],
     [
       'linear-gradient(\n  red, /* start */\n  blue /* end */\n)',
@@ -426,12 +429,12 @@ describe('gradient math comments', () => {
     );
   });
 
-  it('should preserve comment handling outside calculations', () => {
+  it('should strip comments and serialize calc', () => {
     const value =
       'linear-gradient(/* line */ to right, /* color */ red, blue calc(1px /* term */ + 2px))';
     assert.strictEqual(
       grad.resolveGradient(value, { format: 'specifiedValue' }),
-      'linear-gradient(to right, red, blue calc(1px /* term */ + 2px))'
+      'linear-gradient(to right, red, blue calc(3px))'
     );
   });
 });

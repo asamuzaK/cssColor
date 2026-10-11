@@ -11,6 +11,7 @@ import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
 import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
+import { cssCalc } from '../utils/css-calc-var';
 import { isLengthPercentageCalculation } from '../utils/length-percentage';
 import { splitValue } from '../utils/util';
 
@@ -279,15 +280,24 @@ export const validateColorStopList = (
           return { colorStops: list, valid: false };
         }
         prevType = 'hint';
-        valueList.push(firstPart);
+        // Resolve calc() expressions and clean up comments
+        const resolvedHint = isLengthPercentageCalculation(firstPart)
+          ? cssCalc(firstPart, opt)
+          : firstPart;
+        valueList.push(resolvedHint);
       } else {
         // Color stop (1 color + 0 to 2 stop positions)
+        const resolvedPosParts: string[] = [];
         for (const position of posParts) {
           if (!isValidPosition(position, isConic)) {
             return { colorStops: list, valid: false };
           }
+          // Resolve calc() expressions and clean up comments
+          const resolvedPosition = isLengthPercentageCalculation(position)
+            ? cssCalc(position, opt)
+            : position;
+          resolvedPosParts.push(resolvedPosition);
         }
-        // Comments are only preserved for math positions
         const color = splitValue(firstPart).join(' ');
         if (isValidColor(color, COLOR_OPT)) {
           const resolvedColor = resolveColor(color, opt);
@@ -296,8 +306,8 @@ export const validateColorStopList = (
           }
           prevType = 'color';
           const resolvedItem =
-            posParts.length > 0
-              ? `${resolvedColor} ${posParts.join(' ')}`
+            resolvedPosParts.length > 0
+              ? `${resolvedColor} ${resolvedPosParts.join(' ')}`
               : resolvedColor;
           valueList.push(resolvedItem);
         } else {
