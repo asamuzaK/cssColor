@@ -44,7 +44,7 @@
     "knip": "^6.41.0",
     "mitata": "^1.0.34",
     "neostandard": "^0.14.0",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "prettier-plugin-brace-style": "^0.10.3",
     "publint": "^0.3.25",
     "rimraf": "^6.1.3",
@@ -63,7 +63,6 @@
     "clone": "node ./scripts/clone-txt.js",
     "knip": "knip",
     "lint": "eslint . --fix",
-    "prettier": "prettier . --ignore-unknown --write",
     "publint": "publint --strict",
     "test": "npm run lint && npm run test:types && npm run test:unit",
     "test:types": "tsc",
@@ -72,5 +71,5 @@
   "engines": {
     "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   },
-  "version": "7.1.4"
+  "version": "7.1.5"
 }
