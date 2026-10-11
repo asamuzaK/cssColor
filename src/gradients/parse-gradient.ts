@@ -1,5 +1,5 @@
 /**
- * gradient
+ * parse-gradient
  */
 
 import {

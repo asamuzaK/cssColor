@@ -2,18 +2,13 @@
  * gradient-util
  */
 
-import {
-  isCommentNode,
-  isWhitespaceNode,
-  parseListOfComponentValues
-} from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
 import { isValidColor, resolveColor } from '../resolvers/resolve-color';
 import { Options, ValidateGradientLine, ValidateColorStops } from '../typedef';
 import { isString } from '../utils/common';
 import { cssCalc } from '../utils/css-calc-var';
 import { isLengthPercentageCalculation } from '../utils/length-percentage';
-import { splitValue } from '../utils/util';
+import { parseCalcComponents, splitValue } from '../utils/util';
 
 /* constants */
 import {
@@ -161,13 +156,7 @@ export const validateLinearGradientLine = (
   if (!trimmed) {
     return { line: '', valid: true };
   }
-  const components = parseListOfComponentValues(tokenize({ css: trimmed }));
-  const parts: string[] = [];
-  for (const component of components) {
-    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
-      parts.push(component.toString().trim());
-    }
-  }
+  const parts = parseCalcComponents(trimmed);
   if (parts.length === 0) {
     return { line: value, valid: false };
   }
@@ -202,13 +191,7 @@ export const validateRadialGradientLine = (
   if (!trimmed) {
     return { line: '', valid: true };
   }
-  const components = parseListOfComponentValues(tokenize({ css: trimmed }));
-  const parts: string[] = [];
-  for (const component of components) {
-    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
-      parts.push(component.toString().trim());
-    }
-  }
+  const parts = parseCalcComponents(trimmed);
   if (parts.length === 0) {
     return { line: value, valid: false };
   }
@@ -240,13 +223,7 @@ export const validateConicGradientLine = (
   if (!trimmed) {
     return { line: '', valid: true };
   }
-  const components = parseListOfComponentValues(tokenize({ css: trimmed }));
-  const parts: string[] = [];
-  for (const component of components) {
-    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
-      parts.push(component.toString().trim());
-    }
-  }
+  const parts = parseCalcComponents(trimmed);
   if (parts.length === 0) {
     return { line: value, valid: false };
   }
@@ -295,13 +272,7 @@ export const validateGradientLine = (
  * @returns color and position components, retaining comments inside functions
  */
 export const splitColorStop = (value: string): string[] => {
-  const components = parseListOfComponentValues(tokenize({ css: value }));
-  const parts: string[] = [];
-  for (const component of components) {
-    if (!isCommentNode(component) && !isWhitespaceNode(component)) {
-      parts.push(component.toString());
-    }
-  }
+  const parts = parseCalcComponents(value);
   return parts;
 };
 
