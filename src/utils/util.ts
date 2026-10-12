@@ -2,9 +2,12 @@
  * util
  */
 
+import { ColorData, color as colorParser } from '@csstools/css-color-parser';
 import {
+  ComponentValue,
   isCommentNode,
   isWhitespaceNode,
+  parseComponentValue,
   parseListOfComponentValues
 } from '@csstools/css-parser-algorithms';
 import { TokenType, tokenize } from '@csstools/css-tokenizer';
@@ -529,6 +532,20 @@ export const parseHexAlpha = (value: string): number => {
     alpha = Math.round(alpha / MAX_RGB / PPTH) * PPTH;
   }
   return parseFloat(alpha.toFixed(TRIA));
+};
+
+/**
+ * parse a CSS color string generically into color data
+ * @param value - CSS color value string
+ * @returns parsed color data object, or null if invalid
+ */
+export const parseColorGeneric = (value: string): ColorData | null => {
+  const tokens = tokenize({ css: value });
+  const parsed = colorParser(parseComponentValue(tokens) as ComponentValue);
+  if (!parsed) {
+    return null;
+  }
+  return parsed;
 };
 
 /**

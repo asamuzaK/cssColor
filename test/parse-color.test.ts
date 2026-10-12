@@ -89,6 +89,11 @@ describe('parse rgb()', () => {
     assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
   });
 
+  it('should return invalid color fallback when a non-rgb color notation is passed', () => {
+    assert.deepEqual(func('hsl(0 100% 50%)'), ['rgb', 0, 0, 0, 0]);
+    assert.strictEqual(func('lab(50 0 0)', { nullable: true }), null);
+  });
+
   it('should preserve "none" for alpha when format is "mixValue" and alpha is "none"', () => {
     assert.deepEqual(func('rgb(255 0 153 / none)', { format: 'mixValue' }), [
       'rgb',
@@ -111,6 +116,10 @@ describe('parse rgb()', () => {
       153,
       0.5
     ]);
+  });
+
+  it('should default alpha to 1 when alpha is omitted and no none keyword is present', () => {
+    assert.deepEqual(func('rgb(255, 0, 153)'), ['rgb', 255, 0, 153, 1]);
   });
 });
 
@@ -204,6 +213,11 @@ describe('parse hsl()', () => {
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
     assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+  });
+
+  it('should return invalid color fallback when a non-hsl color notation is passed', () => {
+    assert.deepEqual(func('rgb(255, 0, 0)'), ['rgb', 0, 0, 0, 0]);
+    assert.strictEqual(func('lab(50 0 0)', { nullable: true }), null);
   });
 });
 
@@ -844,6 +858,12 @@ describe('parse parseColorFunc()', () => {
     assert.isArray(res);
     assert.strictEqual(res[0], 'xyz-d65');
     assert.strictEqual(res[4], 0);
+  });
+
+  it('should normalize xyz to xyz-d65 in standard conversion path', () => {
+    const res = func('color(xyz 0.2 0.2 0.2)');
+    assert.isArray(res);
+    assert.strictEqual(res[0], 'xyz-d65');
   });
 });
 
