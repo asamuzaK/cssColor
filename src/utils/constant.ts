@@ -66,9 +66,9 @@ export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MI
 export const FN_GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
 
 /* formats */
-export const VAL_COMP = 'computedValue' as const;
-export const VAL_MIX = 'mixValue' as const;
-export const VAL_SPEC = 'specifiedValue' as const;
+export const VAL_COMP = 'computedValue';
+export const VAL_MIX = 'mixValue';
+export const VAL_SPEC = 'specifiedValue';
 
 export type SpecialValueFormat =
   typeof VAL_COMP | typeof VAL_MIX | typeof VAL_SPEC;
