@@ -486,6 +486,37 @@ describe('parse hex alpha', () => {
   });
 });
 
+describe('parse color generic', () => {
+  const func = util.parseColorGeneric;
+
+  it('should parse valid color string into color data', () => {
+    const res = func('rgb(255, 0, 0)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'rgb');
+  });
+
+  it('should parse valid color function with spaces or different color spaces', () => {
+    const res = func('oklab(0.5 0.1 0.1)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'oklab');
+  });
+
+  it('should return null when components cannot be parsed', () => {
+    assert.isNull(func(''));
+    assert.isNull(func('   '));
+  });
+
+  it('should return null for invalid color string', () => {
+    const res = func('invalid-color-value');
+    assert.isNull(res);
+  });
+
+  it('should return null when parsing an invalid syntax', () => {
+    const res = func(')');
+    assert.isNull(res);
+  });
+});
+
 describe('cache invalid color value', () => {
   const func = util.cacheInvalidColorValue;
 

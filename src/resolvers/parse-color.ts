@@ -2,6 +2,7 @@
  * parse
  */
 
+import { SyntaxFlag } from '@csstools/css-color-parser';
 import { convertHexToRgb, convertHexToXyz } from '../converters/convert-hex';
 import {
   transformMatrix,
@@ -11,16 +12,13 @@ import {
 import {
   ComputedColorChannels,
   Options,
-  MatchedRegExp,
   SpecifiedColorChannels,
-  StringColorChannels,
-  StringColorSpacedChannels,
   TriColorChannels
 } from '../typedef';
 import { isString } from '../utils/common';
 import {
-  angleToDeg,
   parseAlpha,
+  parseColorGeneric,
   resolveInvalidColorValue,
   roundToPrecision
 } from '../utils/util';
@@ -57,12 +55,6 @@ import {
   POW_CUBE,
   POW_SQR,
   SYN_COLOR_TYPE,
-  SYN_FN_COLOR,
-  SYN_HSL,
-  SYN_HSL_LV3,
-  SYN_LCH,
-  SYN_MOD,
-  SYN_RGB_LV3,
   TRIA,
   VAL_COMP,
   VAL_MIX,
@@ -73,17 +65,7 @@ import { NAMED_COLORS } from './named-color';
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_CURRENT = /^currentColor$/i;
-const REG_FN_COLOR = new RegExp(`^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`);
-const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
-const REG_HWB = new RegExp(`^hwb\\(\\s*(${SYN_HSL})\\s*\\)$`);
-const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_MOD})\\s*\\)$`);
-const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
-const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_MOD})\\s*\\)$`);
-const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
-const REG_PARSE_RGB = new RegExp(
-  `^rgba?\\(\\s*(${SYN_MOD}|${SYN_RGB_LV3})\\s*\\)$`
-);
 
 /**
  * parse rgb()
@@ -95,13 +77,13 @@ export const parseRgb = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.toLowerCase().trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_PARSE_RGB.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'rgb') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -110,41 +92,28 @@ export const parseRgb = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val] = value.match(REG_PARSE_RGB) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let r, g, b;
-  if (v1 === NONE) {
-    r = 0;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  const r = Number.isNaN(v1)
+    ? 0
+    : Math.min(Math.max(roundToPrecision(v1 * MAX_RGB, OCT), 0), MAX_RGB);
+  const g = Number.isNaN(v2)
+    ? 0
+    : Math.min(Math.max(roundToPrecision(v2 * MAX_RGB, OCT), 0), MAX_RGB);
+  const b = Number.isNaN(v3)
+    ? 0
+    : Math.min(Math.max(roundToPrecision(v3 * MAX_RGB, OCT), 0), MAX_RGB);
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    if (v1.endsWith('%')) {
-      r = (parseFloat(v1) * MAX_RGB) / MAX_PCT;
-    } else {
-      r = parseFloat(v1);
-    }
-    r = Math.min(Math.max(roundToPrecision(r, OCT), 0), MAX_RGB);
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    g = 0;
-  } else {
-    if (v2.endsWith('%')) {
-      g = (parseFloat(v2) * MAX_RGB) / MAX_PCT;
-    } else {
-      g = parseFloat(v2);
-    }
-    g = Math.min(Math.max(roundToPrecision(g, OCT), 0), MAX_RGB);
-  }
-  if (v3 === NONE) {
-    b = 0;
-  } else {
-    if (v3.endsWith('%')) {
-      b = (parseFloat(v3) * MAX_RGB) / MAX_PCT;
-    } else {
-      b = parseFloat(v3);
-    }
-    b = Math.min(Math.max(roundToPrecision(b, OCT), 0), MAX_RGB);
-  }
-  const alpha = parseAlpha(v4);
-  return ['rgb', r, g, b, format === VAL_MIX && v4 === NONE ? NONE : alpha];
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
+  return ['rgb', r, g, b, format === VAL_MIX && isAlphaNone ? NONE : alpha];
 };
 
 /**
@@ -157,13 +126,13 @@ export const parseHsl = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_HSL.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'hsl') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -172,32 +141,28 @@ export const parseHsl = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val] = value.match(REG_HSL) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let h, s, l;
-  if (v1 === NONE) {
-    h = 0;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  let h = Number.isNaN(v1) ? 0 : v1;
+  const s = Number.isNaN(v2) ? 0 : Math.min(Math.max(v2, 0), MAX_PCT);
+  let l = Number.isNaN(v3) ? 0 : Math.min(Math.max(v3, 0), MAX_PCT);
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    h = angleToDeg(v1);
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    s = 0;
-  } else {
-    s = Math.min(Math.max(parseFloat(v2), 0), MAX_PCT);
-  }
-  if (v3 === NONE) {
-    l = 0;
-  } else {
-    l = Math.min(Math.max(parseFloat(v3), 0), MAX_PCT);
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (format === 'hsl') {
     return [
       format,
-      v1 === NONE ? v1 : h,
-      v2 === NONE ? v2 : s,
-      v3 === NONE ? v3 : l,
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : h,
+      Number.isNaN(v2) ? NONE : s,
+      Number.isNaN(v3) ? NONE : l,
+      isAlphaNone ? NONE : alpha
     ];
   }
   h = (h / DEG) * DOZ;
@@ -228,13 +193,13 @@ export const parseHwb = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_HWB.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'hwb') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -243,32 +208,32 @@ export const parseHwb = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val] = value.match(REG_HWB) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let h, wh, bk;
-  if (v1 === NONE) {
-    h = 0;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  const h = Number.isNaN(v1) ? 0 : v1;
+  const wh = Number.isNaN(v2)
+    ? 0
+    : Math.min(Math.max(v2, 0), MAX_PCT) / MAX_PCT;
+  const bk = Number.isNaN(v3)
+    ? 0
+    : Math.min(Math.max(v3, 0), MAX_PCT) / MAX_PCT;
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    h = angleToDeg(v1);
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    wh = 0;
-  } else {
-    wh = Math.min(Math.max(parseFloat(v2), 0), MAX_PCT) / MAX_PCT;
-  }
-  if (v3 === NONE) {
-    bk = 0;
-  } else {
-    bk = Math.min(Math.max(parseFloat(v3), 0), MAX_PCT) / MAX_PCT;
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (format === 'hwb') {
     return [
       format,
-      v1 === NONE ? v1 : h,
-      v2 === NONE ? v2 : wh * MAX_PCT,
-      v3 === NONE ? v3 : bk * MAX_PCT,
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : h,
+      Number.isNaN(v2) ? NONE : wh * MAX_PCT,
+      Number.isNaN(v3) ? NONE : bk * MAX_PCT,
+      isAlphaNone ? NONE : alpha
     ];
   }
   if (wh + bk >= 1) {
@@ -300,13 +265,13 @@ export const parseLab = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_LAB.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'lab') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -315,44 +280,29 @@ export const parseLab = (
     }
     return res as SpecifiedColorChannels;
   }
-  const COEF_PCT = 1.25;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
   const COND_POW = 8;
-  const [, val] = value.match(REG_LAB) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let l, a, b;
-  if (v1 === NONE) {
-    l = 0;
+  const l = Number.isNaN(v1) ? 0 : Math.max(v1, 0);
+  const a = Number.isNaN(v2) ? 0 : v2;
+  const b = Number.isNaN(v3) ? 0 : v3;
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    if (v1.endsWith('%')) {
-      l = parseFloat(v1);
-      if (l > MAX_PCT) {
-        l = MAX_PCT;
-      }
-    } else {
-      l = parseFloat(v1);
-    }
-    if (l < 0) {
-      l = 0;
-    }
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    a = 0;
-  } else {
-    a = v2.endsWith('%') ? parseFloat(v2) * COEF_PCT : parseFloat(v2);
-  }
-  if (v3 === NONE) {
-    b = 0;
-  } else {
-    b = v3.endsWith('%') ? parseFloat(v3) * COEF_PCT : parseFloat(v3);
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (REG_SPEC.test(format)) {
     return [
       'lab',
-      v1 === NONE ? v1 : roundToPrecision(l, HEX),
-      v2 === NONE ? v2 : roundToPrecision(a, HEX),
-      v3 === NONE ? v3 : roundToPrecision(b, HEX),
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : roundToPrecision(l, HEX),
+      Number.isNaN(v2) ? NONE : roundToPrecision(a, HEX),
+      Number.isNaN(v3) ? NONE : roundToPrecision(b, HEX),
+      isAlphaNone ? NONE : alpha
     ];
   }
   const fl = (l + HEX) / LAB_L;
@@ -389,13 +339,13 @@ export const parseLch = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_LCH.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'lch') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -404,36 +354,28 @@ export const parseLch = (
     }
     return res as SpecifiedColorChannels;
   }
-  const COEF_PCT = 1.5;
-  const [, val] = value.match(REG_LCH) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let l, c, h;
-  if (v1 === NONE) {
-    l = 0;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  const l = Number.isNaN(v1) ? 0 : Math.max(v1, 0);
+  const c = Number.isNaN(v2) ? 0 : Math.max(v2, 0);
+  const h = Number.isNaN(v3) ? 0 : v3;
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    l = parseFloat(v1);
-    if (l < 0) {
-      l = 0;
-    }
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    c = 0;
-  } else {
-    c = v2.endsWith('%') ? parseFloat(v2) * COEF_PCT : parseFloat(v2);
-  }
-  if (v3 === NONE) {
-    h = 0;
-  } else {
-    h = angleToDeg(v3);
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (REG_SPEC.test(format)) {
     return [
       'lch',
-      v1 === NONE ? v1 : roundToPrecision(l, HEX),
-      v2 === NONE ? v2 : roundToPrecision(c, HEX),
-      v3 === NONE ? v3 : roundToPrecision(h, HEX),
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : roundToPrecision(l, HEX),
+      Number.isNaN(v2) ? NONE : roundToPrecision(c, HEX),
+      Number.isNaN(v3) ? NONE : roundToPrecision(h, HEX),
+      isAlphaNone ? NONE : alpha
     ];
   }
   const a = c * Math.cos((h * Math.PI) / DEG_HALF);
@@ -444,7 +386,7 @@ export const parseLch = (
     roundToPrecision(x, HEX),
     roundToPrecision(y, HEX),
     roundToPrecision(z, HEX),
-    alpha as number
+    alpha
   ];
 };
 
@@ -459,13 +401,13 @@ export const parseOklab = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_OKLAB.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'oklab') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -474,40 +416,28 @@ export const parseOklab = (
     }
     return res as SpecifiedColorChannels;
   }
-  const COEF_PCT = 0.4;
-  const [, val] = value.match(REG_OKLAB) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let l, a, b;
-  if (v1 === NONE) {
-    l = 0;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  const l = Number.isNaN(v1) ? 0 : Math.max(v1, 0);
+  const a = Number.isNaN(v2) ? 0 : v2;
+  const b = Number.isNaN(v3) ? 0 : v3;
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    l = v1.endsWith('%') ? parseFloat(v1) / MAX_PCT : parseFloat(v1);
-    if (l < 0) {
-      l = 0;
-    }
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    a = 0;
-  } else if (v2.endsWith('%')) {
-    a = (parseFloat(v2) * COEF_PCT) / MAX_PCT;
-  } else {
-    a = parseFloat(v2);
-  }
-  if (v3 === NONE) {
-    b = 0;
-  } else if (v3.endsWith('%')) {
-    b = (parseFloat(v3) * COEF_PCT) / MAX_PCT;
-  } else {
-    b = parseFloat(v3);
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (REG_SPEC.test(format)) {
     return [
       'oklab',
-      v1 === NONE ? v1 : roundToPrecision(l, HEX),
-      v2 === NONE ? v2 : roundToPrecision(a, HEX),
-      v3 === NONE ? v3 : roundToPrecision(b, HEX),
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : roundToPrecision(l, HEX),
+      Number.isNaN(v2) ? NONE : roundToPrecision(a, HEX),
+      Number.isNaN(v3) ? NONE : roundToPrecision(b, HEX),
+      isAlphaNone ? NONE : alpha
     ];
   }
   const lms = transformMatrix(MATRIX_OKLAB_TO_LMS, [l, a, b]);
@@ -535,13 +465,13 @@ export const parseOklch = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '', nullable = false } = opt;
-  if (!REG_OKLCH.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed || parsed.colorNotation !== 'oklch') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -550,43 +480,28 @@ export const parseOklch = (
     }
     return res as SpecifiedColorChannels;
   }
-  const COEF_PCT = 0.4;
-  const [, val] = value.match(REG_OKLCH) as MatchedRegExp;
-  const [v1, v2, v3, v4 = ''] = val.match(/[^\s,/]+/g) as StringColorChannels;
-  let l, c, h;
-  if (v1 === NONE) {
-    l = 0;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  const l = Number.isNaN(v1) ? 0 : Math.max(v1, 0);
+  const c = Number.isNaN(v2) ? 0 : Math.max(v2, 0);
+  const h = Number.isNaN(v3) ? 0 : v3;
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    l = v1.endsWith('%') ? parseFloat(v1) / MAX_PCT : parseFloat(v1);
-    if (l < 0) {
-      l = 0;
-    }
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    c = 0;
-  } else {
-    if (v2.endsWith('%')) {
-      c = (parseFloat(v2) * COEF_PCT) / MAX_PCT;
-    } else {
-      c = parseFloat(v2);
-    }
-    if (c < 0) {
-      c = 0;
-    }
-  }
-  if (v3 === NONE) {
-    h = 0;
-  } else {
-    h = angleToDeg(v3);
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (REG_SPEC.test(format)) {
     return [
       'oklch',
-      v1 === NONE ? v1 : roundToPrecision(l, HEX),
-      v2 === NONE ? v2 : roundToPrecision(c, HEX),
-      v3 === NONE ? v3 : roundToPrecision(h, HEX),
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : roundToPrecision(l, HEX),
+      Number.isNaN(v2) ? NONE : roundToPrecision(c, HEX),
+      Number.isNaN(v3) ? NONE : roundToPrecision(h, HEX),
+      isAlphaNone ? NONE : alpha
     ];
   }
   const a = c * Math.cos((h * Math.PI) / DEG_HALF);
@@ -616,13 +531,13 @@ export const parseColorFunc = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { colorSpace = '', d50 = false, format = '', nullable = false } = opt;
-  if (!REG_FN_COLOR.test(value)) {
+  const parsed = parseColorGeneric(value);
+  if (!parsed) {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -631,37 +546,29 @@ export const parseColorFunc = (
     }
     return res as SpecifiedColorChannels;
   }
-  const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-  let [cs, v1, v2, v3, v4 = ''] = val.match(
-    /[^\s,/]+/g
-  ) as StringColorSpacedChannels;
-  let r, g, b;
-  if (cs === 'xyz') {
-    cs = 'xyz-d65';
-  }
-  if (v1 === NONE) {
-    r = 0;
+  const cs = parsed.colorNotation;
+  const [v1, v2, v3] = parsed.channels;
+  const alphaVal = parsed.alpha;
+  const hasNone =
+    parsed.syntaxFlags instanceof Set &&
+    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
+  const r = Number.isNaN(v1) ? 0 : v1;
+  const g = Number.isNaN(v2) ? 0 : v2;
+  const b = Number.isNaN(v3) ? 0 : v3;
+  let alpha: number;
+  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
+    alpha = parseAlpha(String(alphaVal));
   } else {
-    r = v1.endsWith('%') ? parseFloat(v1) / MAX_PCT : parseFloat(v1);
+    alpha = 0;
   }
-  if (v2 === NONE) {
-    g = 0;
-  } else {
-    g = v2.endsWith('%') ? parseFloat(v2) / MAX_PCT : parseFloat(v2);
-  }
-  if (v3 === NONE) {
-    b = 0;
-  } else {
-    b = v3.endsWith('%') ? parseFloat(v3) / MAX_PCT : parseFloat(v3);
-  }
-  const alpha = parseAlpha(v4);
+  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
     return [
       cs,
-      v1 === NONE ? v1 : roundToPrecision(r, DEC),
-      v2 === NONE ? v2 : roundToPrecision(g, DEC),
-      v3 === NONE ? v3 : roundToPrecision(b, DEC),
-      v4 === NONE ? v4 : alpha
+      Number.isNaN(v1) ? NONE : roundToPrecision(r, DEC),
+      Number.isNaN(v2) ? NONE : roundToPrecision(g, DEC),
+      Number.isNaN(v3) ? NONE : roundToPrecision(b, DEC),
+      isAlphaNone ? NONE : alpha
     ];
   }
   let x = 0;
@@ -673,8 +580,8 @@ export const parseColorFunc = (
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // display-p3
   } else if (cs === 'display-p3') {
+    // display-p3
     const linearRgb = transformRgbToLinearRgb([
       r * MAX_RGB,
       g * MAX_RGB,
@@ -684,8 +591,8 @@ export const parseColorFunc = (
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // rec2020
   } else if (cs === 'rec2020') {
+    // rec2020
     const ALPHA = 1.09929682680944;
     const BETA = 0.018053968510807;
     const REC_COEF = 0.45;
@@ -702,8 +609,8 @@ export const parseColorFunc = (
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // a98-rgb
   } else if (cs === 'a98-rgb') {
+    // a98-rgb
     const POW_A98 = 563 / 256;
     const rgb = [r, g, b].map(c => {
       const cl = Math.pow(c, POW_A98);
@@ -713,8 +620,8 @@ export const parseColorFunc = (
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // prophoto-rgb
   } else if (cs === 'prophoto-rgb') {
+    // prophoto-rgb
     const POW_PROPHOTO = 1.8;
     const rgb = [r, g, b].map(c => {
       let cl;
@@ -729,8 +636,8 @@ export const parseColorFunc = (
     if (!d50) {
       [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
     }
-    // xyz, xyz-d50, xyz-d65
   } else if (/^xyz(?:-d(?:50|65))?$/.test(cs)) {
+    // xyz, xyz-d50, xyz-d65
     [x, y, z] = [r, g, b];
     if (cs === 'xyz-d50') {
       if (!d50) {
@@ -739,8 +646,8 @@ export const parseColorFunc = (
     } else if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // srgb
   } else {
+    // srgb
     [x, y, z] = transformRgbToXyz([r * MAX_RGB, g * MAX_RGB, b * MAX_RGB]);
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
@@ -751,7 +658,7 @@ export const parseColorFunc = (
     roundToPrecision(x, HEX),
     roundToPrecision(y, HEX),
     roundToPrecision(z, HEX),
-    format === VAL_MIX && v4 === NONE ? v4 : alpha
+    format === VAL_MIX && isAlphaNone ? NONE : alpha
   ];
 };
 
@@ -767,11 +674,10 @@ export const parseColorValue = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.toLowerCase().trim();
   const { d50 = false, format = '', nullable = false } = opt;
   if (!REG_COLOR.test(value)) {
     const res = resolveInvalidColorValue(format, nullable);
@@ -794,8 +700,8 @@ export const parseColorValue = (
     if (format === VAL_SPEC) {
       return value;
     }
-    // named-color
   } else if (/^[a-z]+$/.test(value)) {
+    // named-color
     if (Object.hasOwn(NAMED_COLORS, value)) {
       if (format === VAL_SPEC) {
         return value;
@@ -834,8 +740,8 @@ export const parseColorValue = (
         default:
       }
     }
-    // hex-color
   } else if (value[0] === '#') {
+    // hex-color
     if (REG_SPEC.test(format)) {
       const rgb = convertHexToRgb(value);
       return ['rgb', ...rgb];
@@ -844,8 +750,8 @@ export const parseColorValue = (
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // lab()
   } else if (value.startsWith('lab')) {
+    // lab()
     if (REG_SPEC.test(format)) {
       return parseLab(value, opt);
     }
@@ -853,8 +759,8 @@ export const parseColorValue = (
     if (!d50) {
       [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
     }
-    // lch()
   } else if (value.startsWith('lch')) {
+    // lch()
     if (REG_SPEC.test(format)) {
       return parseLch(value, opt);
     }
@@ -862,8 +768,8 @@ export const parseColorValue = (
     if (!d50) {
       [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
     }
-    // oklab()
   } else if (value.startsWith('oklab')) {
+    // oklab()
     if (REG_SPEC.test(format)) {
       return parseOklab(value, opt);
     }
@@ -871,8 +777,8 @@ export const parseColorValue = (
     if (d50) {
       [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
     }
-    // oklch()
   } else if (value.startsWith('oklch')) {
+    // oklch()
     if (REG_SPEC.test(format)) {
       return parseOklch(value, opt);
     }
@@ -885,11 +791,11 @@ export const parseColorValue = (
     // hsl()
     if (value.startsWith('hsl')) {
       [, r, g, b, alpha] = parseHsl(value) as ComputedColorChannels;
-      // hwb()
     } else if (value.startsWith('hwb')) {
+      // hwb()
       [, r, g, b, alpha] = parseHwb(value) as ComputedColorChannels;
-      // rgb()
     } else {
+      // rgb()
       [, r, g, b, alpha] = parseRgb(value, opt) as ComputedColorChannels;
     }
     if (REG_SPEC.test(format)) {
