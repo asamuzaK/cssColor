@@ -44,6 +44,7 @@ const CSS_WIDE_KEYWORDS = new Set([
   'revert-layer',
   'unset'
 ]);
+const OPERATORS = new Set(['+', '-', '*', '/']);
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
@@ -51,6 +52,7 @@ const REG_FN_CALC_NUM = new RegExp(`^calc\\((${NUM})\\)$`);
 const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
+const REG_OPERATOR = /\s[-+*/]\s/;
 
 /**
  * parse term to number and unit
@@ -501,8 +503,7 @@ export class Calculator {
           .map(item => {
             let res;
             const hasOperator = tokenize({ css: item }).some(
-              ([type, val]) =>
-                type === DELIM && ['+', '-', '*', '/'].includes(val)
+              ([type, val]) => type === DELIM && OPERATORS.has(val)
             );
             if (hasOperator && !item.startsWith('(') && !item.endsWith(')')) {
               res = `(${item})`;
@@ -527,8 +528,7 @@ export class Calculator {
           .map(item => {
             let res;
             const hasOperator = tokenize({ css: item }).some(
-              ([type, val]) =>
-                type === DELIM && ['+', '-', '*', '/'].includes(val)
+              ([type, val]) => type === DELIM && OPERATORS.has(val)
             );
             if (hasOperator && !item.startsWith('(') && !item.endsWith(')')) {
               res = `(${item})`;
@@ -1099,7 +1099,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     }
   }
   if (format === VAL_SPEC) {
-    if (/\s[-+*/]\s/.test(resolvedValue) && !resolvedValue.includes('NaN')) {
+    if (REG_OPERATOR.test(resolvedValue) && !resolvedValue.includes('NaN')) {
       resolvedValue = serializeCalc(resolvedValue, options);
     } else if (REG_FN_CALC_NUM.test(resolvedValue)) {
       const [, val] = resolvedValue.match(REG_FN_CALC_NUM) as MatchedRegExp;
