@@ -12,10 +12,8 @@ import { getMaxLength, resolveLengthInPixels, roundToPrecision } from './util';
 
 /* constants */
 import {
-  ANGLE,
   FN_VAR,
   HEX,
-  LENGTH,
   MAX_PCT,
   NUM,
   SYN_FN_CALC,
@@ -29,14 +27,23 @@ import {
 const {
   CloseParen: PAREN_CLOSE,
   Comment: COMMENT,
+  Delim: DELIM,
   Dimension: DIM,
   EOF,
   Function: FUNC,
   Ident: IDENT,
+  Number: NUMBER_TOKEN,
   OpenParen: PAREN_OPEN,
   Whitespace: W_SPACE
 } = TokenType;
 const NAMESPACE = 'css-calc-var';
+const CSS_WIDE_KEYWORDS = new Set([
+  'inherit',
+  'initial',
+  'revert',
+  'revert-layer',
+  'unset'
+]);
 
 /* regexp */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
@@ -44,12 +51,46 @@ const REG_FN_CALC_NUM = new RegExp(`^calc\\((${NUM})\\)$`);
 const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
-const REG_OPERATOR = /\s[*+/-]\s/;
-const REG_PAREN_OPEN = /\($/;
-const REG_TYPE_DIM = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH})$`);
-const REG_TYPE_DIM_PCT = new RegExp(`^(${NUM})(${ANGLE}|${LENGTH}|%)$`);
-const REG_TYPE_PCT = new RegExp(`^(${NUM})%$`);
-const REG_CSS_WIDE_KEYWORD = /^(?:inherit|initial|revert(?:-layer)?|unset)$/;
+
+/**
+ * parse term to number and unit
+ * @param term - term string or number
+ * @returns parsed value
+ */
+export const parseTerm = (
+  term: string | number
+): { num: number; unit: string } | null => {
+  if (typeof term === 'number') {
+    return { num: term, unit: '' };
+  }
+  if (!isString(term)) {
+    return null;
+  }
+  const tokens = tokenize({ css: term }).filter(
+    ([type]) => type !== W_SPACE && type !== COMMENT && type !== EOF
+  );
+  if (tokens.length !== 1) {
+    return null;
+  }
+  const token = tokens[0] as [
+    TokenType,
+    string,
+    unknown,
+    unknown,
+    { value?: number; unit?: string } | undefined
+  ];
+  const [type, val, , , detail] = token;
+  if (type === NUMBER_TOKEN) {
+    return { num: Number(val), unit: '' };
+  }
+  if (type === DIM && detail) {
+    return { num: Number(detail.value), unit: detail.unit as string };
+  }
+  if (val.endsWith('%')) {
+    return { num: parseFloat(val), unit: '%' };
+  }
+  return null;
+};
 
 /**
  * Calclator
@@ -225,13 +266,15 @@ export class Calculator {
     if (arr.length > 1) {
       arr.sort((a, b) => {
         let res;
-        if (REG_TYPE_DIM_PCT.test(a) && REG_TYPE_DIM_PCT.test(b)) {
-          const [, valA, unitA] = a.match(REG_TYPE_DIM_PCT) as MatchedRegExp;
-          const [, valB, unitB] = b.match(REG_TYPE_DIM_PCT) as MatchedRegExp;
+        const termA = parseTerm(a);
+        const termB = parseTerm(b);
+        if (termA && termB && termA.unit && termB.unit) {
+          const { num: valA, unit: unitA } = termA;
+          const { num: valB, unit: unitB } = termB;
           if (unitA === unitB) {
-            if (Number(valA) === Number(valB)) {
+            if (valA === valB) {
               res = 0;
-            } else if (Number(valA) > Number(valB)) {
+            } else if (valA > valB) {
               res = 1;
             } else {
               res = -1;
@@ -457,11 +500,11 @@ export class Calculator {
         const sum = this.sort(this.#etcSum)
           .map(item => {
             let res;
-            if (
-              REG_OPERATOR.test(item) &&
-              !item.startsWith('(') &&
-              !item.endsWith(')')
-            ) {
+            const hasOperator = tokenize({ css: item }).some(
+              ([type, val]) =>
+                type === DELIM && ['+', '-', '*', '/'].includes(val)
+            );
+            if (hasOperator && !item.startsWith('(') && !item.endsWith(')')) {
               res = `(${item})`;
             } else {
               res = item;
@@ -483,11 +526,11 @@ export class Calculator {
         const sub = this.sort(this.#etcSub)
           .map(item => {
             let res;
-            if (
-              REG_OPERATOR.test(item) &&
-              !item.startsWith('(') &&
-              !item.endsWith(')')
-            ) {
+            const hasOperator = tokenize({ css: item }).some(
+              ([type, val]) =>
+                type === DELIM && ['+', '-', '*', '/'].includes(val)
+            );
+            if (hasOperator && !item.startsWith('(') && !item.endsWith(')')) {
               res = `(${item})`;
             } else {
               res = item;
@@ -565,16 +608,18 @@ export const sortCalcValues = (
     } else {
       const numValue = Number(value);
       const strValue = `${value}`;
+      const parsedTerm = parseTerm(strValue);
+      const isDim =
+        parsedTerm && parsedTerm.unit !== '' && parsedTerm.unit !== '%';
       switch (operator) {
         case '/': {
           if (Number.isFinite(numValue)) {
             cal.hasNum = true;
             cal.numMul.push(1 / numValue);
-          } else if (REG_TYPE_PCT.test(strValue)) {
-            const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
+          } else if (parsedTerm && parsedTerm.unit === '%') {
             cal.hasPct = true;
-            cal.pctMul.push((MAX_PCT * MAX_PCT) / Number(val));
-          } else if (REG_TYPE_DIM.test(strValue)) {
+            cal.pctMul.push((MAX_PCT * MAX_PCT) / parsedTerm.num);
+          } else if (isDim) {
             cal.hasDim = true;
             cal.dimDiv.push(strValue);
           } else {
@@ -588,11 +633,10 @@ export const sortCalcValues = (
           if (Number.isFinite(numValue)) {
             cal.hasNum = true;
             cal.numMul.push(numValue);
-          } else if (REG_TYPE_PCT.test(strValue)) {
-            const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
+          } else if (parsedTerm && parsedTerm.unit === '%') {
             cal.hasPct = true;
-            cal.pctMul.push(Number(val));
-          } else if (REG_TYPE_DIM.test(strValue)) {
+            cal.pctMul.push(parsedTerm.num);
+          } else if (isDim) {
             cal.hasDim = true;
             cal.dimMul.push(strValue);
           } else {
@@ -618,16 +662,18 @@ export const sortCalcValues = (
       } else {
         const numValue = Number(value);
         const strValue = `${value}`;
+        const parsedTerm = parseTerm(strValue);
+        const isDim =
+          parsedTerm && parsedTerm.unit !== '' && parsedTerm.unit !== '%';
         switch (operator) {
           case '-': {
             if (Number.isFinite(numValue)) {
               cal.hasNum = true;
               cal.numSum.push(-1 * numValue);
-            } else if (REG_TYPE_PCT.test(strValue)) {
-              const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
+            } else if (parsedTerm && parsedTerm.unit === '%') {
               cal.hasPct = true;
-              cal.pctSum.push(-1 * Number(val));
-            } else if (REG_TYPE_DIM.test(strValue)) {
+              cal.pctSum.push(-1 * parsedTerm.num);
+            } else if (isDim) {
               cal.hasDim = true;
               cal.dimSub.push(strValue);
             } else {
@@ -641,11 +687,10 @@ export const sortCalcValues = (
             if (Number.isFinite(numValue)) {
               cal.hasNum = true;
               cal.numSum.push(numValue);
-            } else if (REG_TYPE_PCT.test(strValue)) {
-              const [, val] = strValue.match(REG_TYPE_PCT) as MatchedRegExp;
+            } else if (parsedTerm && parsedTerm.unit === '%') {
               cal.hasPct = true;
-              cal.pctSum.push(Number(val));
-            } else if (REG_TYPE_DIM.test(strValue)) {
+              cal.pctSum.push(parsedTerm.num);
+            } else if (isDim) {
               cal.hasDim = true;
               cal.dimSum.push(strValue);
             } else {
@@ -707,18 +752,13 @@ export const sortMathFnTerms = (expr: string): string => {
     terms.push((currentSign === '-' ? '-' : '') + currentTerm.trim());
   }
   terms.sort((a, b) => {
-    const reg = /^(-?(?:\d+(?:\.\d+)?|\.\d+))([a-z%]*)$/i;
-    const matchA = a.match(reg);
-    const matchB = b.match(reg);
-    if (matchA && matchB) {
-      const numA = Number(matchA[1] as string);
-      const numB = Number(matchB[1] as string);
-      const unitA = matchA[2] as string;
-      const unitB = matchB[2] as string;
-      if (unitA === unitB) {
-        return numA - numB;
+    const parsedA = parseTerm(a);
+    const parsedB = parseTerm(b);
+    if (parsedA && parsedB) {
+      if (parsedA.unit === parsedB.unit) {
+        return parsedA.num - parsedB.num;
       }
-      return unitA > unitB ? 1 : -1;
+      return parsedA.unit > parsedB.unit ? 1 : -1;
     }
     if (a === b) {
       return 0;
@@ -845,34 +885,29 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   if (cachedResult !== false) {
     return cachedResult.item as string;
   }
-  const items: string[] = tokenize({ css: value })
-    .map((token: CSSToken): string => {
-      const [type, val] = token as [TokenType, string];
-      let res = '';
-      if (type !== W_SPACE && type !== COMMENT) {
-        res = val;
-      }
-      return res;
-    })
-    .filter(v => v);
+  const tokens = tokenize({ css: value }).filter((token: CSSToken) => {
+    const [type] = token as [TokenType, string];
+    return type !== W_SPACE && type !== COMMENT && type !== EOF;
+  });
   const stack: [CalcASTNode[], ...CalcASTNode[][]] = [[]];
-  for (const item of items) {
-    if (REG_PAREN_OPEN.test(item)) {
-      const newNode: CalcASTNode[] = [item];
+  for (const token of tokens) {
+    const [type, val] = token as [TokenType, string];
+    if (type === PAREN_OPEN || type === FUNC) {
+      const newNode: CalcASTNode[] = [val];
       const parent = stack.at(-1) as CalcASTNode[];
       parent.push(newNode);
       stack.push(newNode);
-    } else if (item === ')') {
+    } else if (type === PAREN_CLOSE) {
       if (stack.length > 1) {
         const currentLevel = stack.pop() as CalcASTNode[];
-        currentLevel.push(item);
+        currentLevel.push(val);
       } else {
         const root = stack[0] as CalcASTNode[];
-        root.push(item);
+        root.push(val);
       }
     } else {
       const parent = stack.at(-1) as CalcASTNode[];
-      parent.push(item);
+      parent.push(val);
     }
   }
   let serializedCalc = '';
@@ -1050,11 +1085,9 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
     toCanonicalUnits: true
   });
   if (REG_FN_VAR_START.test(value)) {
-    if (REG_TYPE_DIM_PCT.test(resolvedValue)) {
-      const [, val, unit] = resolvedValue.match(
-        REG_TYPE_DIM_PCT
-      ) as MatchedRegExp;
-      resolvedValue = `${roundToPrecision(Number(val), HEX)}${unit}`;
+    const parsedResolved = parseTerm(resolvedValue);
+    if (parsedResolved && parsedResolved.unit !== '') {
+      resolvedValue = `${roundToPrecision(Number(parsedResolved.num), HEX)}${parsedResolved.unit}`;
     }
     // wrap with `calc()`
     if (
@@ -1138,20 +1171,23 @@ export function resolveCustomProperty(
     if (REG_FN_VAR.test(item)) {
       // recurse resolveVar()
       const resolvedItem = resolveVar(item, opt);
-      if (isString(resolvedItem)) {
-        if (!resolveAsColor || isValidColor(resolvedItem)) {
-          resolvedValue = resolvedItem;
-        }
+      if (
+        isString(resolvedItem) &&
+        (!resolveAsColor || isValidColor(resolvedItem))
+      ) {
+        resolvedValue = resolvedItem;
       }
     } else if (REG_FN_CALC.test(item)) {
       item = cssCalc(item, opt);
       if (!resolveAsColor || isValidColor(item)) {
         resolvedValue = item;
       }
-    } else if (item && !REG_CSS_WIDE_KEYWORD.test(item)) {
-      if (!resolveAsColor || isValidColor(item)) {
-        resolvedValue = item;
-      }
+    } else if (
+      item &&
+      !CSS_WIDE_KEYWORDS.has(item) &&
+      (!resolveAsColor || isValidColor(item))
+    ) {
+      resolvedValue = item;
     }
     if (resolvedValue) {
       break;

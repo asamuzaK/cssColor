@@ -18,6 +18,46 @@ afterEach(() => {
   lruCache.clear();
 });
 
+describe('parse term', () => {
+  const func = css.parseTerm;
+
+  it('should parse number type directly', () => {
+    assert.deepEqual(func(10), { num: 10, unit: '' });
+    assert.deepEqual(func(-42), { num: -42, unit: '' });
+  });
+
+  it('should return null for non-string/non-number inputs', () => {
+    assert.strictEqual(func(null as any), null);
+    assert.strictEqual(func(undefined as any), null);
+    assert.strictEqual(func({} as any), null);
+  });
+
+  it('should parse number terms', () => {
+    assert.deepEqual(func('10'), { num: 10, unit: '' });
+    assert.deepEqual(func('-5.5'), { num: -5.5, unit: '' });
+  });
+
+  it('should parse dimension terms', () => {
+    assert.deepEqual(func('10px'), { num: 10, unit: 'px' });
+    assert.deepEqual(func('2em'), { num: 2, unit: 'em' });
+  });
+
+  it('should parse percentage terms', () => {
+    assert.deepEqual(func('50%'), { num: 50, unit: '%' });
+  });
+
+  it('should return null for invalid or multi-token terms', () => {
+    assert.strictEqual(func('min(1px)'), null);
+    assert.strictEqual(func('10px + 20px'), null);
+    assert.strictEqual(func(''), null);
+  });
+
+  it('should return null for non-numeric/non-dimension single tokens', () => {
+    assert.strictEqual(func('foo'), null, 'ident token');
+    assert.strictEqual(func('+'), null, 'delim token');
+  });
+});
+
 describe('Calculator', () => {
   const { Calculator } = css;
 
