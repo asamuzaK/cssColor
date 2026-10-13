@@ -1004,4 +1004,16 @@ describe('resolve relative color', () => {
     });
     assert.strictEqual(typeof res === 'string', true, 'result');
   });
+
+  it('should handle comment and whitespace right after color function', () => {
+    const res = func('rgb(/* comment */ from rebeccapurple r g b)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
+
+  it('should not treat as relative color when color is not followed by "from"', () => {
+    const res1 = func('rgb(123 456 789)');
+    assert.strictEqual(res1, 'rgb(123 456 789)', 'result');
+    const res2 = func('rgb(foo r g b)');
+    assert.strictEqual(res2, 'rgb(foo r g b)', 'result');
+  });
 });

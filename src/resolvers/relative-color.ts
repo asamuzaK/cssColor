@@ -22,21 +22,16 @@ import { roundToPrecision, splitValue } from '../utils/util';
 
 /* constants */
 import {
-  CS_LAB,
-  CS_LCH,
   DEC,
   FN_LIGHT_DARK,
   FN_REL,
   FN_REL_CAPT,
-  FN_VAR,
   HEX,
   MAX_PCT,
   MAX_RGB,
   NONE,
   OCT,
   SYN_COLOR_TYPE,
-  SYN_FN_MATH_START,
-  SYN_FN_VAR,
   SYN_MIX,
   VAL_SPEC
 } from '../utils/constant';
@@ -56,6 +51,43 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 const { HasNoneKeywords: KEY_NONE } = SyntaxFlag;
+const CIE_COLOR_SPACES = new Set(['lab', 'lch', 'oklab', 'oklch']);
+const HSL_COLOR_SPACES = new Set(['hsl', 'hsla', 'hwb']);
+const COLOR_FUNCTIONS = new Set([
+  'color(',
+  'hsl(',
+  'hsla(',
+  'hwb(',
+  'lab(',
+  'lch(',
+  'oklab(',
+  'oklch(',
+  'rgb(',
+  'rgba('
+]);
+const MATH_FUNCTIONS = new Set([
+  'abs(',
+  'acos(',
+  'asin(',
+  'atan(',
+  'atan2(',
+  'clamp(',
+  'cos(',
+  'exp(',
+  'hypot(',
+  'log(',
+  'max(',
+  'min(',
+  'mod(',
+  'pow(',
+  'rem(',
+  'round(',
+  'sign(',
+  'sin(',
+  'sqrt(',
+  'tan('
+]);
+const CALC_SUM_FUNCTIONS = new Set(['abs(', 'cos(', 'sign(', 'sin(', 'tan(']);
 
 /* color channels */
 const colorChannels = new Map([
@@ -81,14 +113,8 @@ type NumberOrStringColorChannels = ColorChannels & StringColorChannels;
 const REG_COLOR_CAPT = new RegExp(
   `^${FN_REL}(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
 );
-const REG_CS_HSL = /(?:hsla?|hwb)$/;
-const REG_CS_CIE = new RegExp(`^(?:${CS_LAB}|${CS_LCH})$`);
-const REG_FN_CALC_SUM = /^(?:abs|sig?n|cos|tan)\(/;
-const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
-const REG_FN_REL = new RegExp(FN_REL);
 const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
 const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
-const REG_FN_VAR = new RegExp(SYN_FN_VAR);
 
 /**
  * resolve relative color channels
@@ -173,7 +199,7 @@ export function resolveColorChannels(
             if (
               (value === '+' || value === '-') &&
               precededPct &&
-              !REG_FN_CALC_SUM.test(func)
+              !CALC_SUM_FUNCTIONS.has(func)
             ) {
               return null;
             }
@@ -183,7 +209,7 @@ export function resolveColorChannels(
           break;
         }
         case DIM: {
-          if (!func || !REG_FN_CALC_SUM.test(func)) {
+          if (!func || !CALC_SUM_FUNCTIONS.has(func)) {
             return null;
           }
           const resolvedValue = resolveDimension(token, opt);
@@ -198,7 +224,7 @@ export function resolveColorChannels(
           channel.push(value);
           func = value;
           nest++;
-          if (REG_FN_MATH_START.test(value)) {
+          if (MATH_FUNCTIONS.has(value)) {
             mathFunc.add(nest);
           }
           break;
@@ -248,7 +274,7 @@ export function resolveColorChannels(
         case PCT: {
           if (!func) {
             return null;
-          } else if (!REG_FN_CALC_SUM.test(func)) {
+          } else if (!CALC_SUM_FUNCTIONS.has(func)) {
             let lastValue: string | number | undefined;
             for (let j = channel.length - 1; j >= 0; j--) {
               if (channel[j] !== ' ') {
@@ -505,23 +531,50 @@ export function resolveRelativeColor(
   opt: Options = {},
   resolver: (v: string, o?: Options) => string | null = () => null
 ): string | null {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  value = value.toLowerCase().trim();
   const options = {
     ...opt
   };
   const { format = '' } = options;
-  if (isString(value)) {
-    if (REG_FN_VAR.test(value)) {
-      // var() must be resolved before resolveRelativeColor()
-      if (format !== VAL_SPEC) {
-        throw new SyntaxError(`Unexpected token ${FN_VAR} found.`);
-      }
-      return value;
-    } else if (!REG_FN_REL.test(value)) {
-      return value;
+  let tokens = tokenize({ css: value });
+  let hasVar = false;
+  for (const token of tokens) {
+    const [type, tokenValue] = token;
+    if (type === FUNC && tokenValue === 'var(') {
+      hasVar = true;
+      break;
     }
-    value = value.toLowerCase().trim();
-  } else {
-    throw new TypeError(`${value} is not a string.`);
+  }
+  if (hasVar) {
+    if (format !== VAL_SPEC) {
+      throw new SyntaxError(`Unexpected token var( found.`);
+    }
+    return value;
+  }
+  let hasRel = false;
+  for (let i = 0; i < tokens.length - 1; i++) {
+    const [type, tokenValue] = tokens[i] as [TokenType, string];
+    if (type === FUNC && COLOR_FUNCTIONS.has(tokenValue)) {
+      for (let j = i + 1; j < tokens.length; j++) {
+        const [nextType, nextValue] = tokens[j] as [TokenType, string];
+        if (nextType === W_SPACE || nextType === COMMENT) {
+          continue;
+        }
+        if (nextType === IDENT && nextValue === 'from') {
+          hasRel = true;
+        }
+        break;
+      }
+    }
+    if (hasRel) {
+      break;
+    }
+  }
+  if (!hasRel) {
+    return value;
   }
   const cacheKey: string = createCacheKey(
     {
@@ -549,7 +602,7 @@ export function resolveRelativeColor(
     }
     return value;
   }
-  const tokens = tokenize({ css: value });
+  tokens = tokenize({ css: value });
   const components = parseComponentValue(tokens) as ComponentValue;
   const parsedComponents = colorParser(components);
   if (!parsedComponents) {
@@ -577,7 +630,7 @@ export function resolveRelativeColor(
   let v3: number | string;
   [v1, v2, v3] = channelsComponent;
   let resolvedValue;
-  if (REG_CS_CIE.test(colorNotation)) {
+  if (CIE_COLOR_SPACES.has(colorNotation)) {
     const hasNone = syntaxFlags instanceof Set && syntaxFlags.has(KEY_NONE);
     if (Number.isNaN(v1)) {
       if (hasNone) {
@@ -611,7 +664,7 @@ export function resolveRelativeColor(
     } else {
       resolvedValue = `${colorNotation}(${v1} ${v2} ${v3} / ${alpha})`;
     }
-  } else if (REG_CS_HSL.test(colorNotation)) {
+  } else if (HSL_COLOR_SPACES.has(colorNotation)) {
     if (Number.isNaN(v1)) {
       v1 = 0;
     }
