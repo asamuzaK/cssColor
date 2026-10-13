@@ -22,10 +22,9 @@ import { roundToPrecision, splitValue } from '../utils/util';
 
 /* constants */
 import {
+  COLOR_FUNC,
   DEC,
   FN_LIGHT_DARK,
-  FN_REL,
-  FN_REL_CAPT,
   HEX,
   MAX_PCT,
   MAX_RGB,
@@ -51,6 +50,18 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 const { HasNoneKeywords: KEY_NONE } = SyntaxFlag;
+const COLOR_CHANNELS = new Map([
+  ['color', ['r', 'g', 'b', 'alpha']],
+  ['hsl', ['h', 's', 'l', 'alpha']],
+  ['hsla', ['h', 's', 'l', 'alpha']],
+  ['hwb', ['h', 'w', 'b', 'alpha']],
+  ['lab', ['l', 'a', 'b', 'alpha']],
+  ['lch', ['l', 'c', 'h', 'alpha']],
+  ['oklab', ['l', 'a', 'b', 'alpha']],
+  ['oklch', ['l', 'c', 'h', 'alpha']],
+  ['rgb', ['r', 'g', 'b', 'alpha']],
+  ['rgba', ['r', 'g', 'b', 'alpha']]
+]);
 const CIE_COLOR_SPACES = new Set(['lab', 'lch', 'oklab', 'oklch']);
 const HSL_COLOR_SPACES = new Set(['hsl', 'hsla', 'hwb']);
 const COLOR_FUNCTIONS = new Set([
@@ -89,20 +100,6 @@ const MATH_FUNCTIONS = new Set([
 ]);
 const CALC_SUM_FUNCTIONS = new Set(['abs(', 'cos(', 'sign(', 'sin(', 'tan(']);
 
-/* color channels */
-const colorChannels = new Map([
-  ['color', ['r', 'g', 'b', 'alpha']],
-  ['hsl', ['h', 's', 'l', 'alpha']],
-  ['hsla', ['h', 's', 'l', 'alpha']],
-  ['hwb', ['h', 'w', 'b', 'alpha']],
-  ['lab', ['l', 'a', 'b', 'alpha']],
-  ['lch', ['l', 'c', 'h', 'alpha']],
-  ['oklab', ['l', 'a', 'b', 'alpha']],
-  ['oklch', ['l', 'c', 'h', 'alpha']],
-  ['rgb', ['r', 'g', 'b', 'alpha']],
-  ['rgba', ['r', 'g', 'b', 'alpha']]
-]);
-
 /* type definitions */
 /**
  * NumberOrStringColorChannels - color channel
@@ -111,10 +108,58 @@ type NumberOrStringColorChannels = ColorChannels & StringColorChannels;
 
 /* regexp */
 const REG_COLOR_CAPT = new RegExp(
-  `^${FN_REL}(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
+  `^(?:${COLOR_FUNC})\\(\\s*from\\s+(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
 );
-const REG_FN_REL_CAPT = new RegExp(`^${FN_REL_CAPT}`);
-const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
+const REG_FN_REL_CAPT = new RegExp(`^(${COLOR_FUNC})\\(\\s*from\\s+`);
+const REG_FN_REL_START = new RegExp(`^(?:${COLOR_FUNC})\\(\\s*from\\s+`);
+
+/**
+ * serialize channel values
+ * @param channels - channels array
+ * @param format - format option
+ * @returns resolved channel values
+ */
+export const serializeChannels = (
+  channels: [
+    (number | string)[],
+    (number | string)[],
+    (number | string)[],
+    (number | string)[]
+  ],
+  format: string
+): NumberOrStringColorChannels => {
+  const channelValues = [];
+  for (const channel of channels) {
+    if (channel.length === 1) {
+      const [resolvedValue] = channel;
+      if (isStringOrNumber(resolvedValue)) {
+        channelValues.push(resolvedValue);
+      }
+    } else if (channel.length) {
+      const resolvedValue = serializeCalc(channel.join(''), {
+        format
+      });
+      channelValues.push(resolvedValue);
+    }
+  }
+  return channelValues as NumberOrStringColorChannels;
+};
+
+/**
+ * get the last non-whitespace value from a channel array
+ * @param channel - channel array
+ * @returns last non-whitespace value or undefined
+ */
+export const getLastNonWhitespaceValue = (
+  channel: (number | string)[]
+): string | number | undefined => {
+  for (let i = channel.length - 1; i >= 0; i--) {
+    if (channel[i] !== ' ') {
+      return channel[i];
+    }
+  }
+  return undefined;
+};
 
 /**
  * resolve relative color channels
@@ -156,15 +201,15 @@ const REG_FN_REL_START = new RegExp(`^${FN_REL}`);
  *   - in `hexAlpha`, returns `#00000000` for `transparent`,
  *     however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
  */
-export function resolveColorChannels(
+export const resolveColorChannels = (
   tokens: CSSToken[],
   opt: Options = {}
-): NumberOrStringColorChannels | null {
+): NumberOrStringColorChannels | null => {
   if (!Array.isArray(tokens)) {
     throw new TypeError(`${tokens} is not an array.`);
   }
   const { colorSpace = '', format = '' } = opt;
-  const colorChannel = colorChannels.get(colorSpace);
+  const colorChannel = COLOR_CHANNELS.get(colorSpace);
   // invalid color channel
   if (!colorChannel) {
     return null;
@@ -192,146 +237,250 @@ export function resolveColorChannels(
       { value: string | number } | undefined
     ];
     const channel = channels[i];
-    if (Array.isArray(channel)) {
-      switch (type) {
-        case DELIM: {
-          if (func) {
-            if (
-              (value === '+' || value === '-') &&
-              precededPct &&
-              !CALC_SUM_FUNCTIONS.has(func)
-            ) {
-              return null;
-            }
-            precededPct = false;
-            channel.push(value);
-          }
-          break;
-        }
-        case DIM: {
-          if (!func || !CALC_SUM_FUNCTIONS.has(func)) {
+    if (!Array.isArray(channel)) {
+      continue;
+    }
+    switch (type) {
+      case DELIM: {
+        if (func) {
+          if (
+            (value === '+' || value === '-') &&
+            precededPct &&
+            !CALC_SUM_FUNCTIONS.has(func)
+          ) {
             return null;
           }
-          const resolvedValue = resolveDimension(token, opt);
-          if (isString(resolvedValue)) {
-            channel.push(resolvedValue);
+          precededPct = false;
+          channel.push(value);
+        }
+        break;
+      }
+      case DIM: {
+        if (!func || !CALC_SUM_FUNCTIONS.has(func)) {
+          return null;
+        }
+        const resolvedValue = resolveDimension(token, opt);
+        if (isString(resolvedValue)) {
+          channel.push(resolvedValue);
+        } else {
+          channel.push(value);
+        }
+        break;
+      }
+      case FUNC: {
+        channel.push(value);
+        func = value;
+        nest++;
+        if (MATH_FUNCTIONS.has(value)) {
+          mathFunc.add(nest);
+        }
+        break;
+      }
+      case IDENT: {
+        // invalid channel key
+        if (!colorChannel.includes(value)) {
+          return null;
+        }
+        channel.push(value);
+        if (!func) {
+          i++;
+        }
+        break;
+      }
+      case NUM: {
+        channel.push(Number(detail?.value));
+        if (!func) {
+          i++;
+        }
+        break;
+      }
+      case PAREN_OPEN: {
+        channel.push(value);
+        nest++;
+        break;
+      }
+      case PAREN_CLOSE: {
+        if (func) {
+          const lastValue = channel.at(-1);
+          if (lastValue === ' ') {
+            channel[channel.length - 1] = value;
           } else {
             channel.push(value);
           }
-          break;
-        }
-        case FUNC: {
-          channel.push(value);
-          func = value;
-          nest++;
-          if (MATH_FUNCTIONS.has(value)) {
-            mathFunc.add(nest);
+          if (mathFunc.has(nest)) {
+            mathFunc.delete(nest);
           }
-          break;
-        }
-        case IDENT: {
-          // invalid channel key
-          if (!colorChannel.includes(value)) {
-            return null;
-          }
-          channel.push(value);
-          if (!func) {
+          nest--;
+          if (nest === 0) {
+            func = '';
             i++;
           }
-          break;
         }
-        case NUM: {
-          channel.push(Number(detail?.value));
-          if (!func) {
-            i++;
-          }
-          break;
+        break;
+      }
+      case PCT: {
+        if (!func) {
+          return null;
         }
-        case PAREN_OPEN: {
-          channel.push(value);
-          nest++;
-          break;
-        }
-        case PAREN_CLOSE: {
-          if (func) {
-            const lastValue = channel.at(-1);
-            if (lastValue === ' ') {
-              channel[channel.length - 1] = value;
-            } else {
-              channel.push(value);
-            }
-            if (mathFunc.has(nest)) {
-              mathFunc.delete(nest);
-            }
-            nest--;
-            if (nest === 0) {
-              func = '';
-              i++;
-            }
-          }
-          break;
-        }
-        case PCT: {
-          if (!func) {
+        if (!CALC_SUM_FUNCTIONS.has(func)) {
+          const lastValue = getLastNonWhitespaceValue(channel);
+          if (lastValue === '+' || lastValue === '-') {
             return null;
-          } else if (!CALC_SUM_FUNCTIONS.has(func)) {
-            let lastValue: string | number | undefined;
-            for (let j = channel.length - 1; j >= 0; j--) {
-              if (channel[j] !== ' ') {
-                lastValue = channel[j];
-                break;
-              }
-            }
-            if (lastValue === '+' || lastValue === '-') {
-              return null;
-            } else if (lastValue === '*' || lastValue === '/') {
-              precededPct = false;
-            } else {
-              precededPct = true;
-            }
           }
-          channel.push(Number(detail?.value) / MAX_PCT);
-          break;
-        }
-        case W_SPACE: {
-          if (channel.length && func) {
-            const lastValue = channel.at(-1);
-            if (typeof lastValue === 'number') {
-              channel.push(value);
-            } else if (
-              isString(lastValue) &&
-              !lastValue.endsWith('(') &&
-              lastValue !== ' '
-            ) {
-              channel.push(value);
-            }
+          if (lastValue === '*' || lastValue === '/') {
+            precededPct = false;
+          } else {
+            precededPct = true;
           }
-          break;
         }
-        default: {
-          if (type !== COMMENT && type !== EOF && func) {
+        channel.push(Number(detail?.value) / MAX_PCT);
+        break;
+      }
+      case W_SPACE: {
+        if (channel.length && func) {
+          const lastValue = channel.at(-1);
+          if (typeof lastValue === 'number') {
+            channel.push(value);
+          } else if (
+            isString(lastValue) &&
+            !lastValue.endsWith('(') &&
+            lastValue !== ' '
+          ) {
             channel.push(value);
           }
         }
+        break;
+      }
+      default: {
+        if (type !== COMMENT && type !== EOF && func) {
+          channel.push(value);
+        }
       }
     }
   }
-  const channelValues = [];
-  for (const channel of channels) {
-    if (channel.length === 1) {
-      const [resolvedValue] = channel;
-      if (isStringOrNumber(resolvedValue)) {
-        channelValues.push(resolvedValue);
+  return serializeChannels(channels, format);
+};
+
+/**
+ * resolve origin color when light-dark() function is used
+ * @param value - CSS color value
+ * @param colorSpace - color space
+ * @param options - options
+ * @param resolver - resolver function
+ * @returns resolved color value, or null if resolution fails
+ */
+export const resolveLightDarkOriginColor = (
+  value: string,
+  colorSpace: string,
+  options: Options,
+  resolver: (v: string, o?: Options) => string | null
+): string | null => {
+  const { colorScheme, format } = options;
+  const colorParts = value
+    .replace(new RegExp(`^${colorSpace}\\(`), '')
+    .replace(/\)$/, '');
+  const matchedColorParts = splitValue(colorParts);
+  const [, originColor] = matchedColorParts as MatchedRegExp;
+  const specifiedOriginColor = resolver(originColor, {
+    colorScheme,
+    format: VAL_SPEC
+  }) as string;
+  if (!specifiedOriginColor) {
+    return null;
+  }
+  if (format === VAL_SPEC) {
+    return value.replace(originColor, specifiedOriginColor);
+  }
+  const resolvedOriginColor = resolver(specifiedOriginColor, options);
+  if (isString(resolvedOriginColor)) {
+    return value.replace(originColor, resolvedOriginColor);
+  }
+  return null;
+};
+
+/**
+ * resolve nested relative color origin and channels
+ * @param value - CSS color value
+ * @param options - options
+ * @param resolver - resolver function
+ * @returns resolved color value, or null if resolution fails
+ */
+export const resolveNestedRelativeColor = (
+  value: string,
+  options: Options,
+  resolver: (v: string, o?: Options) => string | null
+): string | null => {
+  const [, colorSpace] = value.match(REG_FN_REL_CAPT) as RegExpMatchArray;
+  const opts = {
+    ...options,
+    colorSpace
+  };
+  const [, restValue] = value.split(REG_FN_REL_START) as MatchedRegExp;
+  const tokens = tokenize({ css: restValue });
+  const originColor: string[] = [];
+  let nest = 0;
+  let tokenIndex = 0;
+  for (const [type, tokenValue] of tokens) {
+    tokenIndex++;
+    switch (type) {
+      case FUNC:
+      case PAREN_OPEN: {
+        originColor.push(tokenValue);
+        nest++;
+        break;
       }
-    } else if (channel.length) {
-      const resolvedValue = serializeCalc(channel.join(''), {
-        format
-      });
-      channelValues.push(resolvedValue);
+      case PAREN_CLOSE: {
+        const lastValue = originColor.at(-1);
+        if (lastValue === ' ') {
+          originColor[originColor.length - 1] = tokenValue;
+        } else {
+          originColor.push(tokenValue);
+        }
+        nest--;
+        break;
+      }
+      case W_SPACE: {
+        const lastValue = originColor.at(-1);
+        if (
+          isString(lastValue) &&
+          !lastValue.endsWith('(') &&
+          lastValue !== ' '
+        ) {
+          originColor.push(tokenValue);
+        }
+        break;
+      }
+      default: {
+        if (type !== COMMENT && type !== EOF) {
+          originColor.push(tokenValue);
+        }
+      }
+    }
+    if (nest === 0) {
+      break;
     }
   }
-  return channelValues as NumberOrStringColorChannels;
-}
+  const resolvedOriginColor = resolveRelativeColor(
+    originColor.join('').trim(),
+    opts,
+    resolver
+  );
+  if (resolvedOriginColor === null) {
+    return null;
+  }
+  const channelValues = resolveColorChannels(tokens.slice(tokenIndex), opts);
+  if (channelValues === null) {
+    return null;
+  }
+  const [v1, v2, v3, v4] = channelValues;
+  let channelValue = '';
+  if (isStringOrNumber(v4)) {
+    channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
+  } else {
+    channelValue = ` ${channelValues.join(' ')})`;
+  }
+  return value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
+};
 
 /**
  * extract origin color
@@ -340,12 +489,12 @@ export function resolveColorChannels(
  * @param resolver - resolver function
  * @returns origin color value
  */
-export function extractOriginColor(
+export const extractOriginColor = (
   value: string,
   opt: Options = {},
   resolver: (v: string, o?: Options) => string | null = () => null
-): string | null {
-  const { colorScheme = 'normal', currentColor = '', format = '' } = opt;
+): string | null => {
+  const { currentColor, format } = opt;
   if (isString(value)) {
     value = value.toLowerCase().trim();
     if (!value) {
@@ -370,12 +519,11 @@ export function extractOriginColor(
     return cachedResult.item as string | null;
   }
   if (/currentcolor/.test(value)) {
-    if (currentColor) {
-      value = value.replace(/currentcolor/g, currentColor);
-    } else {
+    if (!currentColor) {
       setCache(cacheKey, null);
       return null;
     }
+    value = value.replace(/currentcolor/g, currentColor);
   }
   const matchRelFunc = value.match(REG_FN_REL_CAPT);
   const [, colorSpace] = matchRelFunc as MatchedRegExp;
@@ -384,30 +532,17 @@ export function extractOriginColor(
     colorSpace
   };
   if (value.includes(FN_LIGHT_DARK)) {
-    const colorParts = value
-      .replace(new RegExp(`^${colorSpace}\\(`), '')
-      .replace(/\)$/, '');
-    const matchedColorParts = splitValue(colorParts);
-    const [, originColor] = matchedColorParts as MatchedRegExp;
-    const specifiedOriginColor = resolver(originColor, {
-      colorScheme,
-      format: VAL_SPEC
-    }) as string;
-    if (!specifiedOriginColor) {
+    const resolvedLightDark = resolveLightDarkOriginColor(
+      value,
+      colorSpace,
+      options,
+      resolver
+    );
+    if (resolvedLightDark === null) {
       setCache(cacheKey, null);
       return null;
     }
-    if (format === VAL_SPEC) {
-      value = value.replace(originColor, specifiedOriginColor);
-    } else {
-      const resolvedOriginColor = resolver(specifiedOriginColor, options);
-      if (isString(resolvedOriginColor)) {
-        value = value.replace(originColor, resolvedOriginColor);
-      } else {
-        setCache(cacheKey, null);
-        return null;
-      }
-    }
+    value = resolvedLightDark;
   }
   if (REG_COLOR_CAPT.test(value)) {
     const [, originColor] = value.match(REG_COLOR_CAPT) as MatchedRegExp;
@@ -443,118 +578,38 @@ export function extractOriginColor(
       }
     }
   } else {
-    // nested relative color
-    const [, restValue] = value.split(REG_FN_REL_START) as MatchedRegExp;
-    const tokens = tokenize({ css: restValue });
-    const originColor: string[] = [];
-    let nest = 0;
-    let tokenIndex = 0;
-    for (const [type, tokenValue] of tokens) {
-      tokenIndex++;
-      switch (type) {
-        case FUNC:
-        case PAREN_OPEN: {
-          originColor.push(tokenValue);
-          nest++;
-          break;
-        }
-        case PAREN_CLOSE: {
-          const lastValue = originColor.at(-1);
-          if (lastValue === ' ') {
-            originColor[originColor.length - 1] = tokenValue;
-          } else {
-            originColor.push(tokenValue);
-          }
-          nest--;
-          break;
-        }
-        case W_SPACE: {
-          const lastValue = originColor.at(-1);
-          if (
-            isString(lastValue) &&
-            !lastValue.endsWith('(') &&
-            lastValue !== ' '
-          ) {
-            originColor.push(tokenValue);
-          }
-          break;
-        }
-        default: {
-          if (type !== COMMENT && type !== EOF) {
-            originColor.push(tokenValue);
-          }
-        }
-      }
-      if (nest === 0) {
-        break;
-      }
-    }
-    const resolvedOriginColor = resolveRelativeColor(
-      originColor.join('').trim(),
-      options,
-      resolver
-    );
-    if (resolvedOriginColor === null) {
+    const resolvedNested = resolveNestedRelativeColor(value, options, resolver);
+    if (resolvedNested === null) {
       setCache(cacheKey, null);
       return null;
     }
-    const channelValues = resolveColorChannels(
-      tokens.slice(tokenIndex),
-      options
-    );
-    if (channelValues === null) {
-      setCache(cacheKey, null);
-      return null;
-    }
-    const [v1, v2, v3, v4] = channelValues;
-    let channelValue = '';
-    if (isStringOrNumber(v4)) {
-      channelValue = ` ${v1} ${v2} ${v3} / ${v4})`;
-    } else {
-      channelValue = ` ${channelValues.join(' ')})`;
-    }
-    value = value.replace(restValue, `${resolvedOriginColor}${channelValue}`);
+    value = resolvedNested;
   }
   setCache(cacheKey, value);
   return value;
-}
+};
 
 /**
- * resolve relative color
- * @param value - CSS relative color value
- * @param opt - options
- * @param resolver - resolver function
- * @returns resolved value
+ * check if tokens contain a var() function
+ * @param tokens - CSS tokens
+ * @returns true if var() exists
  */
-export function resolveRelativeColor(
-  value: string,
-  opt: Options = {},
-  resolver: (v: string, o?: Options) => string | null = () => null
-): string | null {
-  if (!isString(value)) {
-    throw new TypeError(`${value} is not a string.`);
-  }
-  value = value.toLowerCase().trim();
-  const options = {
-    ...opt
-  };
-  const { format = '' } = options;
-  let tokens = tokenize({ css: value });
-  let hasVar = false;
+export const hasCssVariables = (tokens: CSSToken[]): boolean => {
   for (const token of tokens) {
     const [type, tokenValue] = token;
     if (type === FUNC && tokenValue === 'var(') {
-      hasVar = true;
-      break;
+      return true;
     }
   }
-  if (hasVar) {
-    if (format !== VAL_SPEC) {
-      throw new SyntaxError(`Unexpected token var( found.`);
-    }
-    return value;
-  }
-  let hasRel = false;
+  return false;
+};
+
+/**
+ * check if tokens contain relative color syntax
+ * @param tokens - CSS tokens
+ * @returns true if relative color syntax exists
+ */
+export const hasRelativeColorSyntax = (tokens: CSSToken[]): boolean => {
   for (let i = 0; i < tokens.length - 1; i++) {
     const [type, tokenValue] = tokens[i] as [TokenType, string];
     if (type === FUNC && COLOR_FUNCTIONS.has(tokenValue)) {
@@ -564,49 +619,24 @@ export function resolveRelativeColor(
           continue;
         }
         if (nextType === IDENT && nextValue === 'from') {
-          hasRel = true;
+          return true;
         }
         break;
       }
     }
-    if (hasRel) {
-      break;
-    }
   }
-  if (!hasRel) {
-    return value;
-  }
-  const cacheKey: string = createCacheKey(
-    {
-      namespace: NAMESPACE,
-      name: 'resolveRelativeColor',
-      value
-    },
-    options
-  );
-  const cachedResult = getCache(cacheKey);
-  if (cachedResult !== false) {
-    return cachedResult.item as string | null;
-  }
-  const originColor = extractOriginColor(value, options, resolver);
-  if (originColor === null) {
-    setCache(cacheKey, null);
-    return null;
-  }
-  value = originColor;
-  if (format === VAL_SPEC) {
-    if (value.startsWith('rgba(')) {
-      value = value.replace('rgba(', 'rgb(');
-    } else if (value.startsWith('hsla(')) {
-      value = value.replace('hsla(', 'hsl(');
-    }
-    return value;
-  }
-  tokens = tokenize({ css: value });
-  const components = parseComponentValue(tokens) as ComponentValue;
-  const parsedComponents = colorParser(components);
+  return false;
+};
+
+/**
+ * format parsed color components into a CSS color string
+ * @param parsedComponents - parsed color components from colorParser
+ * @returns formatted color string or null
+ */
+export const formatResolvedColor = (
+  parsedComponents: ReturnType<typeof colorParser>
+): string | null => {
   if (!parsedComponents) {
-    setCache(cacheKey, null);
     return null;
   }
   const {
@@ -720,6 +750,74 @@ export function resolveRelativeColor(
     } else {
       resolvedValue = `color(${cs} ${v1} ${v2} ${v3} / ${alpha})`;
     }
+  }
+  return resolvedValue;
+};
+
+/**
+ * resolve relative color
+ * @param value - CSS relative color value
+ * @param opt - options
+ * @param resolver - resolver function
+ * @returns resolved value
+ */
+export function resolveRelativeColor(
+  value: string,
+  opt: Options = {},
+  resolver: (v: string, o?: Options) => string | null = () => null
+): string | null {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  value = value.toLowerCase().trim();
+  const options = {
+    ...opt
+  };
+  const { format = '' } = options;
+  const checkTokens = tokenize({ css: value });
+  if (hasCssVariables(checkTokens)) {
+    if (format !== VAL_SPEC) {
+      throw new SyntaxError(`Unexpected token var( found.`);
+    }
+    return value;
+  }
+  if (!hasRelativeColorSyntax(checkTokens)) {
+    return value;
+  }
+  const cacheKey: string = createCacheKey(
+    {
+      namespace: NAMESPACE,
+      name: 'resolveRelativeColor',
+      value
+    },
+    options
+  );
+  const cachedResult = getCache(cacheKey);
+  if (cachedResult !== false) {
+    return cachedResult.item as string | null;
+  }
+  const originColor = extractOriginColor(value, options, resolver);
+  if (originColor === null) {
+    setCache(cacheKey, null);
+    return null;
+  }
+  const originColorValue = originColor;
+  if (format === VAL_SPEC) {
+    if (originColorValue.startsWith('rgba(')) {
+      return originColorValue.replace('rgba(', 'rgb(');
+    }
+    if (originColorValue.startsWith('hsla(')) {
+      return originColorValue.replace('hsla(', 'hsl(');
+    }
+    return originColorValue;
+  }
+  const tokens = tokenize({ css: originColorValue });
+  const components = parseComponentValue(tokens) as ComponentValue;
+  const parsedComponents = colorParser(components);
+  const resolvedValue = formatResolvedColor(parsedComponents);
+  if (resolvedValue === null) {
+    setCache(cacheKey, null);
+    return null;
   }
   setCache(cacheKey, resolvedValue);
   return resolvedValue;
