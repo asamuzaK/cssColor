@@ -3,6 +3,7 @@
  */
 
 /* api */
+import { SyntaxFlag } from '@csstools/css-color-parser';
 import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
@@ -17,6 +18,76 @@ beforeEach(() => {
 
 afterEach(() => {
   lruCache.clear();
+});
+
+describe('serialize channels', () => {
+  const func = relColor.serializeChannels;
+
+  it('should serialize single value channels', () => {
+    const channels: [
+      (number | string)[],
+      (number | string)[],
+      (number | string)[],
+      (number | string)[]
+    ] = [['r'], [10], ['b'], [0.5]];
+    const res = func(channels, 'specifiedValue');
+    assert.deepEqual(res, ['r', 10, 'b', 0.5], 'result');
+  });
+
+  it('should serialize calc channels', () => {
+    const channels: [
+      (number | string)[],
+      (number | string)[],
+      (number | string)[],
+      (number | string)[]
+    ] = [['r'], ['calc(', 'r', ' + ', '10', ')'], ['b'], [0.5]];
+    const res = func(channels, 'specifiedValue');
+    assert.deepEqual(res, ['r', 'calc(10 + r)', 'b', 0.5], 'result');
+  });
+
+  it('should handle empty channels', () => {
+    const channels: [
+      (number | string)[],
+      (number | string)[],
+      (number | string)[],
+      (number | string)[]
+    ] = [[], [], [], []];
+    const res = func(channels, 'specifiedValue');
+    assert.deepEqual(res, [], 'result');
+  });
+
+  it('should skip pushing when resolvedValue is neither a string nor a number', () => {
+    const channels: [
+      (number | string)[],
+      (number | string)[],
+      (number | string)[],
+      (number | string)[]
+    ] = [[null as any], [10], ['b'], [0.5]];
+    const res = func(channels, 'specifiedValue');
+    assert.deepEqual(res, [10, 'b', 0.5], 'result');
+  });
+});
+
+describe('get last non-whitespace value', () => {
+  const func = relColor.getLastNonWhitespaceValue;
+
+  it('should get the last non-whitespace value, skipping spaces', () => {
+    const channel = ['r', ' ', '+', ' ', 10, ' '];
+    const res = func(channel);
+    assert.strictEqual(res, 10, 'result');
+  });
+
+  it('should return undefined if channel is empty', () => {
+    const channel: (number | string)[] = [];
+    const res = func(channel);
+    assert.strictEqual(res, undefined, 'result');
+  });
+
+  it('should return undefined if channel contains only whitespaces', () => {
+    const channel = [' ', ' ', ' '];
+    const res = func(channel);
+    assert.strictEqual(res, undefined, 'result');
+  });
 });
 
 describe('resolve relative color channels', () => {
@@ -174,6 +245,133 @@ describe('resolve relative color channels', () => {
       format: 'specifiedValue'
     });
     assert.deepEqual(res, ['calc(10 + r)', 'g', 'b', 'alpha']);
+  });
+});
+
+describe('resolve light dark origin color', () => {
+  const func = (val: string, colorSpace: string, opt?: any) =>
+    relColor.resolveLightDarkOriginColor(
+      val,
+      colorSpace,
+      opt || {},
+      resolveColor
+    );
+
+  it('should resolve light-dark origin color with specifiedValue format', () => {
+    const res = func('rgb(from light-dark(green, red) r g b)', 'rgb', {
+      colorScheme: 'light',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, 'rgb(from light-dark(green, red) r g b)', 'result');
+  });
+
+  it('should resolve light-dark origin color with computedValue format', () => {
+    const res = func('rgb(from light-dark(green, red) r g b)', 'rgb', {
+      colorScheme: 'light',
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, 'rgb(from rgb(0, 128, 0) r g b)', 'result');
+  });
+
+  it('should return null if specifiedOriginColor cannot be resolved', () => {
+    const res = func('rgb(from light-dark(foo, red) r g b)', 'rgb', {
+      colorScheme: 'light',
+      format: 'specifiedValue'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should return null if resolvedOriginColor is not a string in computedValue format', () => {
+    const mockResolver = (v: string, o?: any) => {
+      if (o?.format === 'specifiedValue') {
+        return 'light-dark(green, red)';
+      }
+      return null;
+    };
+    const res = relColor.resolveLightDarkOriginColor(
+      'rgb(from light-dark(green, red) r g b)',
+      'rgb',
+      { colorScheme: 'light', format: 'computedValue' },
+      mockResolver
+    );
+    assert.strictEqual(res, null, 'result');
+  });
+});
+
+describe('resolve nested relative color', () => {
+  const func = (val: string, opt?: any) =>
+    relColor.resolveNestedRelativeColor(val, opt || {}, resolveColor);
+
+  it('should resolve nested relative color successfully', () => {
+    const res = func('rgb(from rgb(from rebeccapurple r g b) r g b)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b)',
+      'result'
+    );
+  });
+
+  it('should return null if inner relative color resolution fails', () => {
+    const res = func('rgb(from rgb(from unknowncolor r g b) r g b)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should return null if channel values resolution fails for nested relative color', () => {
+    const res = func('rgb(from rgb(from rebeccapurple r g b) l a b)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should replace trailing whitespace with closing parenthesis when parsing nested relative color', () => {
+    const res = func('rgb(from rgb(from rebeccapurple r g b ) r g b)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b)',
+      'result'
+    );
+  });
+
+  it('should format channel values with alpha channel in nested relative color', () => {
+    const res = func('rgb(from rgb(from rebeccapurple r g b) r g b / 0.5)', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b / 0.5)',
+      'result'
+    );
+  });
+
+  it('should handle whitespace normalization when parsing nested relative color', () => {
+    const res = func('rgb(from rgb( from rebeccapurple r g b  ) r g b )', {
+      format: 'computedValue'
+    });
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b)',
+      'result'
+    );
+  });
+
+  it('should ignore comments when parsing nested relative color', () => {
+    const res = func(
+      'rgb(from rgb(from /* comment */ rebeccapurple r g b) r g b)',
+      {
+        format: 'computedValue'
+      }
+    );
+    assert.strictEqual(
+      res,
+      'rgb(from color(srgb 0.4 0.2 0.6) r g b)',
+      'result'
+    );
   });
 });
 
@@ -515,6 +713,142 @@ describe('extract origin color', () => {
   it('should return null for non-string or empty inputs', () => {
     assert.strictEqual(func('' as any), null);
     assert.strictEqual(func(123 as any), null);
+  });
+});
+
+describe('has css variables', () => {
+  const func = relColor.hasCssVariables;
+
+  it('should return true when tokens contain var() function', () => {
+    const tokens = tokenize({ css: 'rgb(from var(--foo) r g b)' });
+    const res = func(tokens);
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should return false when tokens do not contain var() function', () => {
+    const tokens = tokenize({ css: 'rgb(from rebeccapurple r g b)' });
+    const res = func(tokens);
+    assert.strictEqual(res, false, 'result');
+  });
+});
+
+describe('has relative color syntax', () => {
+  const func = relColor.hasRelativeColorSyntax;
+
+  it('should return true when tokens contain relative color syntax with "from"', () => {
+    const tokens = tokenize({ css: 'rgb(from rebeccapurple r g b)' });
+    const res = func(tokens);
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should return false when tokens do not contain relative color syntax', () => {
+    const tokens = tokenize({ css: 'rgb(123 456 789)' });
+    const res = func(tokens);
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should return false when "from" is present without preceding color function', () => {
+    const tokens = tokenize({ css: 'from rebeccapurple' });
+    const res = func(tokens);
+    assert.strictEqual(res, false, 'result');
+  });
+
+  it('should return true when color function is followed by whitespace and "from"', () => {
+    const tokens = tokenize({ css: 'rgb(   from rebeccapurple r g b)' });
+    const res = func(tokens);
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should return true when color function is followed by comment and "from"', () => {
+    const tokens = tokenize({
+      css: 'rgb(/* comment */ from rebeccapurple r g b)'
+    });
+    const res = func(tokens);
+    assert.strictEqual(res, true, 'result');
+  });
+
+  it('should return true when color function is followed by mixed whitespace and comments before "from"', () => {
+    const tokens = tokenize({
+      css: 'rgb( /* comment */   from rebeccapurple r g b)'
+    });
+    const res = func(tokens);
+    assert.strictEqual(res, true, 'result');
+  });
+});
+
+describe('format resolved color', () => {
+  const func = relColor.formatResolvedColor;
+
+  it('should return null when parsedComponents is null or undefined', () => {
+    const res = func(null as any);
+    assert.strictEqual(res, null, 'result');
+  });
+
+  it('should format CIE color space correctly with alpha === 1 and NaN channels', () => {
+    const mockParsed = {
+      colorNotation: 'lab',
+      channels: [NaN, 20, 50],
+      alpha: 1,
+      syntaxFlags: new Set()
+    };
+    const res = func(mockParsed as any);
+    assert.strictEqual(res, 'lab(0 20 50)', 'result');
+  });
+
+  it('should format CIE color space with HasNoneKeywords flag and alpha !== 1', () => {
+    const mockParsed = {
+      colorNotation: 'lch',
+      channels: [NaN, NaN, NaN],
+      alpha: 0.5,
+      syntaxFlags: new Set([SyntaxFlag.HasNoneKeywords])
+    };
+    const res = func(mockParsed as any);
+    assert.strictEqual(res, 'lch(none none none / 0.5)', 'result');
+  });
+
+  it('should format HSL color space correctly with alpha === 1', () => {
+    const mockParsed = {
+      colorNotation: 'hsl',
+      channels: [120, 50, 50],
+      alpha: 1,
+      syntaxFlags: new Set()
+    };
+    const res = func(mockParsed as any);
+    assert.strictEqual(res, 'color(srgb 0.25098 0.74902 0.25098)', 'result');
+  });
+
+  it('should format HSL color space correctly with alpha !== 1 and NaN values', () => {
+    const mockParsed = {
+      colorNotation: 'hsla',
+      channels: [NaN, NaN, NaN],
+      alpha: NaN,
+      syntaxFlags: new Set()
+    };
+    const res = func(mockParsed as any);
+    // NaN alpha defaults to 0 when HasNoneKeywords is not present
+    assert.strictEqual(res, 'color(srgb 0 0 0 / 0)', 'result');
+  });
+
+  it('should format standard/other color spaces (e.g., srgb) with alpha !== 1 and HasNoneKeywords', () => {
+    const mockParsed = {
+      colorNotation: 'srgb',
+      channels: [NaN, 0.5, 1],
+      alpha: 0.8,
+      syntaxFlags: new Set([SyntaxFlag.HasNoneKeywords])
+    };
+    const res = func(mockParsed as any);
+    assert.strictEqual(res, 'color(srgb none 0.5 1 / 0.8)', 'result');
+  });
+
+  it('should format "rgb" color notation as "srgb" with alpha === 1', () => {
+    const mockParsed = {
+      colorNotation: 'rgb',
+      channels: [1, 1, 1],
+      alpha: 1,
+      syntaxFlags: new Set()
+    };
+    const res = func(mockParsed as any);
+    assert.strictEqual(res, 'color(srgb 1 1 1)', 'result');
   });
 });
 
@@ -1003,5 +1337,17 @@ describe('resolve relative color', () => {
       format: 'specifiedValue'
     });
     assert.strictEqual(typeof res === 'string', true, 'result');
+  });
+
+  it('should handle comment and whitespace right after color function', () => {
+    const res = func('rgb(/* comment */ from rebeccapurple r g b)');
+    assert.strictEqual(res, 'color(srgb 0.4 0.2 0.6)', 'result');
+  });
+
+  it('should not treat as relative color when color is not followed by "from"', () => {
+    const res1 = func('rgb(123 456 789)');
+    assert.strictEqual(res1, 'rgb(123 456 789)', 'result');
+    const res2 = func('rgb(foo r g b)');
+    assert.strictEqual(res2, 'rgb(foo r g b)', 'result');
   });
 });
