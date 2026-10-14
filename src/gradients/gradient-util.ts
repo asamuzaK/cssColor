@@ -15,7 +15,7 @@ import {
   ANGLE,
   CS_HUE,
   CS_RECT,
-  FN_GRADIENT,
+  GRADIENT,
   LENGTH,
   NUM,
   NUM_POSITIVE,
@@ -74,7 +74,7 @@ const COLOR_OPT = {
 const IS_CONIC = /^(?:repeating-)?conic-gradient$/;
 const IS_LINEAR = /^(?:repeating-)?linear-gradient$/;
 const IS_RADIAL = /^(?:repeating-)?radial-gradient$/;
-const IS_GRADIENT = new RegExp(`^${FN_GRADIENT}$`, 'i');
+const IS_GRADIENT = new RegExp(`^${GRADIENT}$`, 'i');
 const IS_LENGTH = new RegExp(`^(?:${LENGTH})$`, 'i');
 const IS_TO_BOTTOM = /^to\s+bottom$/i;
 const LINE_CONIC = [

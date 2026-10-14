@@ -12,6 +12,7 @@ import { getMaxLength, resolveLengthInPixels, roundToPrecision } from './util';
 
 /* constants */
 import {
+  FN_CALC,
   FN_VAR,
   HEX,
   MAX_PCT,
@@ -820,13 +821,13 @@ export const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
     }
     const resolvedArgs = args.map(argNodes => {
       if (argNodes.length >= TRIA) {
-        const temp = ['calc(', ...argNodes, ')'];
+        const temp = [FN_CALC, ...argNodes, ')'];
         const sorted = sortCalcValues(temp, true);
         const unwrapped = sorted.substring(5, sorted.length - 1);
         return sortMathFnTerms(unwrapped);
       } else if (argNodes.length === 1) {
         const item = argNodes[0];
-        if (isString(item) && item.startsWith('calc(') && item.endsWith(')')) {
+        if (isString(item) && item.startsWith(FN_CALC) && item.endsWith(')')) {
           const unwrapped = item.substring(5, item.length - 1);
           return sortMathFnTerms(unwrapped);
         }

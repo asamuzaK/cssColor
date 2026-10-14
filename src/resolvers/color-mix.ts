@@ -48,9 +48,11 @@ import {
 /* constants */
 import {
   DEG,
+  FN_CALC,
   FN_COLOR,
   FN_LIGHT_DARK,
   FN_MIX,
+  FN_VAR,
   HALF,
   HEX,
   MAX_PCT,
@@ -98,7 +100,7 @@ export const parseColorAndPct = (arg: string): ColorAndPct => {
     color = tokens[0] as string;
   } else {
     const isPct = (t: string) => {
-      return t.endsWith('%') || t.startsWith('calc(') || t === 'none';
+      return t.endsWith('%') || t.startsWith(FN_CALC) || t === NONE;
     };
     if (isPct(tokens[tokens.length - 1] as string)) {
       pct = tokens.pop() as string;
@@ -128,9 +130,9 @@ export const resolveIfNested = (
   let current = colorStr;
   while (
     isString(current) &&
-    (current.startsWith('color-mix(') ||
-      current.startsWith('var(') ||
-      current.startsWith('light-dark('))
+    (current.startsWith(FN_MIX) ||
+      current.startsWith(FN_VAR) ||
+      current.startsWith(FN_LIGHT_DARK))
   ) {
     const resolved = resolver(current, {
       ...opt,
@@ -830,7 +832,7 @@ export const resolveColorMix = (
     }
     return null;
   }
-  if (!value.startsWith('color-mix(') || !value.endsWith(')')) {
+  if (!value.startsWith(FN_MIX) || !value.endsWith(')')) {
     return cacheInvalidColorValue(cacheKey, format, nullable);
   }
   const innerContent = value.slice(10, -1).trim();

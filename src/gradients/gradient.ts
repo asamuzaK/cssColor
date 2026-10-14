@@ -7,7 +7,7 @@ import { getMaxLength } from '../utils/util';
 import { parseGradient } from './parse-gradient';
 
 /* constants */
-import { VAL_SPEC } from '../utils/constant';
+import { NONE, VAL_SPEC } from '../utils/constant';
 
 /**
  * resolve CSS gradient
@@ -30,7 +30,7 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
       return `${type}(${colorStopList.join(', ')})`;
     }
   }
-  return options.format === VAL_SPEC ? '' : 'none';
+  return options.format === VAL_SPEC ? '' : NONE;
 };
 
 /**

@@ -19,7 +19,7 @@ import {
 } from './gradient-util';
 
 /* constants */
-import { FN_GRADIENT, VAL_SPEC } from '../utils/constant';
+import { GRADIENT, VAL_SPEC } from '../utils/constant';
 const NAMESPACE = 'gradient';
 const COLOR_OPT = {
   format: VAL_SPEC,
@@ -27,7 +27,7 @@ const COLOR_OPT = {
 };
 
 /* regexp */
-const IS_GRADIENT = new RegExp(`^${FN_GRADIENT}$`, 'i');
+const IS_GRADIENT = new RegExp(`^${GRADIENT}$`, 'i');
 
 /**
  * parse CSS gradient

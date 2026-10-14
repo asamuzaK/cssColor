@@ -43,6 +43,7 @@ export const CS_RGB = `(?:a98|prophoto)-rgb|display-p3|rec2020|${CS_SRGB}`;
 export const CS_XYZ = 'xyz(?:-d(?:50|65))?';
 export const CS_RECT = `${CS_LAB}|${CS_RGB}|${CS_XYZ}`;
 export const CS_MIX = `${CS_HUE}|${CS_RECT}`;
+export const FN_CALC = 'calc(';
 export const FN_COLOR = 'color(';
 export const FN_LIGHT_DARK = 'light-dark(';
 export const FN_MIX = 'color-mix(';
@@ -61,7 +62,7 @@ export const SYN_MIX = `color-mix\\(\\s*in\\s+(?:${CS_MIX})\\s*,\\s*${SYN_MIX_PA
 export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MIX_PART})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)`;
 
 /* gradients */
-export const FN_GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
+export const GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
 
 /* formats */
 export const VAL_COMP = 'computedValue';
