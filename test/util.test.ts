@@ -7,7 +7,12 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
-import { MAX_LENGTH, VAL_MIX, VAL_SPEC } from '../src/utils/constant';
+import {
+  MAX_LENGTH,
+  MAX_LENGTH_EXTEND,
+  VAL_MIX,
+  VAL_SPEC
+} from '../src/utils/constant';
 import * as util from '../src/utils/util';
 
 beforeEach(() => {
@@ -39,6 +44,23 @@ describe('get max length', () => {
     const opt = { maxLength: 1023 };
     assert.strictEqual(func(opt), 1023);
   });
+
+  it('should return extended max length when extend is true and value is not a string', () => {
+    assert.strictEqual(func({}, true), MAX_LENGTH_EXTEND);
+  });
+
+  it('should return extended max length when extend is true and maxLength exceeds or equals limit', () => {
+    const optExceeds = { maxLength: MAX_LENGTH_EXTEND + 1 };
+    assert.strictEqual(func(optExceeds, true), MAX_LENGTH_EXTEND);
+
+    const optEquals = { maxLength: MAX_LENGTH_EXTEND };
+    assert.strictEqual(func(optEquals, true), MAX_LENGTH_EXTEND);
+  });
+
+  it('should respect maxLength option when within extended limit', () => {
+    const opt = { maxLength: MAX_LENGTH_EXTEND - 1 };
+    assert.strictEqual(func(opt, true), MAX_LENGTH_EXTEND - 1);
+  });
 });
 
 describe('split value', () => {
@@ -52,6 +74,18 @@ describe('split value', () => {
     const value = 'a'.repeat(11);
     const res = func(value, { maxLength: 10 });
     assert.deepEqual(res, []);
+  });
+
+  it('should return empty array if value exceeds extended max length', () => {
+    const value = 'a'.repeat(MAX_LENGTH_EXTEND + 1);
+    const res = func(value);
+    assert.deepEqual(res, []);
+  });
+
+  it('should return array if value is within extended max length', () => {
+    const value = 'a'.repeat(MAX_LENGTH_EXTEND - 1);
+    const res = func(value, { maxLength: MAX_LENGTH_EXTEND - 1 });
+    assert.deepEqual(res, [value]);
   });
 
   it('should split value by whitespace by default', () => {
