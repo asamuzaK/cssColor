@@ -268,7 +268,6 @@ export class Calculator {
     const arr = [...values];
     if (arr.length > 1) {
       arr.sort((a, b) => {
-        let res;
         const termA = parseTerm(a);
         const termB = parseTerm(b);
         if (termA && termB && termA.unit && termB.unit) {
@@ -276,27 +275,16 @@ export class Calculator {
           const { num: valB, unit: unitB } = termB;
           if (unitA === unitB) {
             if (valA === valB) {
-              res = 0;
-            } else if (valA > valB) {
-              res = 1;
-            } else {
-              res = -1;
+              return 0;
             }
-          } else if (unitA > unitB) {
-            res = 1;
-          } else {
-            res = -1;
+            return valA > valB ? 1 : -1;
           }
-        } else {
-          if (a === b) {
-            res = 0;
-          } else if (a > b) {
-            res = 1;
-          } else {
-            res = -1;
-          }
+          return unitA > unitB ? 1 : -1;
         }
-        return res;
+        if (a === b) {
+          return 0;
+        }
+        return a > b ? 1 : -1;
       });
     }
     return arr;
@@ -307,7 +295,7 @@ export class Calculator {
    * @returns resolved value
    */
   multiply(): string {
-    const value = [];
+    const values = [];
     let num;
     if (this.#hasNum) {
       num = 1;
@@ -321,7 +309,7 @@ export class Calculator {
         if (Number.isFinite(num)) {
           num = roundToPrecision(num, HEX);
         }
-        value.push(num);
+        values.push(num);
       }
     }
     if (this.#hasPct) {
@@ -338,7 +326,7 @@ export class Calculator {
         num = `${roundToPrecision(num, HEX)}%`;
       }
       if (!this.#hasDim && !this.hasEtc) {
-        value.push(num);
+        values.push(num);
       }
     }
     if (this.#hasDim) {
@@ -375,10 +363,10 @@ export class Calculator {
         } else {
           dim = calc(`calc(${num} / ${div})`, this.#calcOpts);
         }
-        value.push(dim.replace(/^calc/, ''));
+        values.push(dim.replace(/^calc/, ''));
       } else {
-        if (!value.length && num !== undefined) {
-          value.push(num);
+        if (!values.length && num !== undefined) {
+          values.push(num);
         }
         if (mul) {
           if (div) {
@@ -390,50 +378,50 @@ export class Calculator {
           } else {
             dim = calc(`calc(${mul})`, this.#calcOpts);
           }
-          if (value.length) {
-            value.push('*', dim.replace(/^calc/, ''));
+          if (values.length) {
+            values.push('*', dim.replace(/^calc/, ''));
           } else {
-            value.push(dim.replace(/^calc/, ''));
+            values.push(dim.replace(/^calc/, ''));
           }
         } else {
           dim = calc(`calc(${div})`, this.#calcOpts);
-          if (value.length) {
-            value.push('/', dim.replace(/^calc/, ''));
+          if (values.length) {
+            values.push('/', dim.replace(/^calc/, ''));
           } else {
-            value.push('1', '/', dim.replace(/^calc/, ''));
+            values.push('1', '/', dim.replace(/^calc/, ''));
           }
         }
       }
     }
     if (this.#hasEtc) {
       if (this.#etcMul.length) {
-        if (!value.length && num !== undefined) {
-          value.push(num);
+        if (!values.length && num !== undefined) {
+          values.push(num);
         }
         const mul = this.sort(this.#etcMul).join(' * ');
-        if (value.length) {
-          value.push(`* ${mul}`);
+        if (values.length) {
+          values.push(`* ${mul}`);
         } else {
-          value.push(`${mul}`);
+          values.push(`${mul}`);
         }
       }
       if (this.#etcDiv.length) {
         const div = this.sort(this.#etcDiv).join(' * ');
         if (div.includes('*')) {
-          if (value.length) {
-            value.push(`/ (${div})`);
+          if (values.length) {
+            values.push(`/ (${div})`);
           } else {
-            value.push(`1 / (${div})`);
+            values.push(`1 / (${div})`);
           }
-        } else if (value.length) {
-          value.push(`/ ${div}`);
+        } else if (values.length) {
+          values.push(`/ ${div}`);
         } else {
-          value.push(`1 / ${div}`);
+          values.push(`1 / ${div}`);
         }
       }
     }
-    if (value.length) {
-      return value.join(' ');
+    if (values.length) {
+      return values.join(' ');
     }
     return '';
   }
@@ -443,7 +431,7 @@ export class Calculator {
    * @returns resolved value
    */
   sum(): string {
-    const value = [];
+    const values = [];
     if (this.#hasNum) {
       let num = 0;
       for (const i of this.#numSum) {
@@ -452,7 +440,7 @@ export class Calculator {
           break;
         }
       }
-      value.push(num);
+      values.push(num);
     }
     if (this.#hasPct) {
       let num: number | string = 0;
@@ -465,10 +453,10 @@ export class Calculator {
       if (Number.isFinite(num)) {
         num = `${num}%`;
       }
-      if (value.length) {
-        value.push(`+ ${num}`);
+      if (values.length) {
+        values.push(`+ ${num}`);
       } else {
-        value.push(num);
+        values.push(num);
       }
     }
     if (this.#hasDim) {
@@ -492,10 +480,10 @@ export class Calculator {
       } else {
         dim = calc(`calc(-1 * (${sub}))`, this.#calcOpts);
       }
-      if (value.length) {
-        value.push('+', dim.replace(/^calc/, ''));
+      if (values.length) {
+        values.push('+', dim.replace(/^calc/, ''));
       } else {
-        value.push(dim.replace(/^calc/, ''));
+        values.push(dim.replace(/^calc/, ''));
       }
     }
     if (this.#hasEtc) {
@@ -514,14 +502,14 @@ export class Calculator {
             return res;
           })
           .join(' + ');
-        if (value.length) {
+        if (values.length) {
           if (this.#etcSum.length > 1) {
-            value.push(`+ (${sum})`);
+            values.push(`+ (${sum})`);
           } else {
-            value.push(`+ ${sum}`);
+            values.push(`+ ${sum}`);
           }
         } else {
-          value.push(`${sum}`);
+          values.push(`${sum}`);
         }
       }
       if (this.#etcSub.length) {
@@ -539,21 +527,21 @@ export class Calculator {
             return res;
           })
           .join(' + ');
-        if (value.length) {
+        if (values.length) {
           if (this.#etcSub.length > 1) {
-            value.push(`- (${sub})`);
+            values.push(`- (${sub})`);
           } else {
-            value.push(`- ${sub}`);
+            values.push(`- ${sub}`);
           }
         } else if (this.#etcSub.length > 1) {
-          value.push(`-1 * (${sub})`);
+          values.push(`-1 * (${sub})`);
         } else {
-          value.push(`-1 * ${sub}`);
+          values.push(`-1 * ${sub}`);
         }
       }
     }
-    if (value.length) {
-      return value.join(' ');
+    if (values.length) {
+      return values.join(' ');
     }
     return '';
   }
@@ -729,7 +717,7 @@ export const sortCalcValues = (
 export const sortMathFnTerms = (expr: string): string => {
   const tokens = tokenize({ css: expr });
   const terms: string[] = [];
-  let currentTerm = '';
+  let currentTermTokens: string[] = [];
   let currentSign = '';
   let depth = 0;
   for (const token of tokens) {
@@ -740,17 +728,22 @@ export const sortMathFnTerms = (expr: string): string => {
       depth--;
     }
     if (depth === 0 && (value === '+' || value === '-')) {
-      if (currentTerm.trim()) {
-        terms.push((currentSign === '-' ? '-' : '') + currentTerm.trim());
+      const termStr = currentTermTokens.join('').trim();
+      if (termStr) {
+        terms.push((currentSign === '-' ? '-' : '') + termStr);
       }
-      currentTerm = '';
+      currentTermTokens = [];
       currentSign = value;
       continue;
     }
-    currentTerm += value;
+    currentTermTokens.push(value);
   }
-  if (currentTerm.trim()) {
-    terms.push((currentSign === '-' ? '-' : '') + currentTerm.trim());
+  const finalTermStr = currentTermTokens.join('').trim();
+  if (finalTermStr) {
+    terms.push((currentSign === '-' ? '-' : '') + finalTermStr);
+  }
+  if (terms.length === 0) {
+    return expr;
   }
   terms.sort((a, b) => {
     const parsedA = parseTerm(a);
@@ -766,16 +759,13 @@ export const sortMathFnTerms = (expr: string): string => {
     }
     return a > b ? 1 : -1;
   });
-  const firstTerm = terms[0];
-  if (firstTerm === undefined) {
-    return expr;
-  }
-  let res: string = firstTerm;
-  for (const term of terms.slice(1)) {
+  const [firstTerm, ...restTerms] = terms;
+  let res = firstTerm as string;
+  for (const term of restTerms) {
     if (term.startsWith('-')) {
-      res += ' - ' + term.substring(1);
+      res += ` - ${term.substring(1)}`;
     } else {
-      res += ' + ' + term;
+      res += ` + ${term}`;
     }
   }
   return res;
@@ -873,12 +863,12 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
     return value;
   }
-  value = value.toLowerCase().trim();
+  const str = value.toLowerCase().trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
       name: 'serializeCalc',
-      value
+      value: str
     },
     opt
   );
@@ -886,7 +876,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   if (cachedResult !== false) {
     return cachedResult.item as string;
   }
-  const tokens = tokenize({ css: value }).filter((token: CSSToken) => {
+  const tokens = tokenize({ css: str }).filter((token: CSSToken) => {
     const [type] = token as [TokenType, string];
     return type !== W_SPACE && type !== COMMENT && type !== EOF;
   });
@@ -1067,12 +1057,12 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   } else if (!REG_FN_CALC.test(value)) {
     return value;
   }
-  value = value.toLowerCase().trim();
+  const str = value.toLowerCase().trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
       name: 'cssCalc',
-      value
+      value: str
     },
     options
   );
@@ -1080,7 +1070,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   if (cachedResult !== false) {
     return cachedResult.item as string;
   }
-  const tokens = tokenize({ css: value });
+  const tokens = tokenize({ css: str });
   const values = parseCalcTokens(tokens, options);
   let resolvedValue: string = calc(values.join(''), {
     toCanonicalUnits: true
@@ -1088,7 +1078,8 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   if (REG_FN_VAR_START.test(value)) {
     const parsedResolved = parseTerm(resolvedValue);
     if (parsedResolved && parsedResolved.unit !== '') {
-      resolvedValue = `${roundToPrecision(Number(parsedResolved.num), HEX)}${parsedResolved.unit}`;
+      const num = Number(parsedResolved.num);
+      resolvedValue = `${roundToPrecision(num, HEX)}${parsedResolved.unit}`;
     }
     // wrap with `calc()`
     if (
@@ -1275,12 +1266,12 @@ export function resolveVar(value: string, opt: Options = {}): string | null {
   if (!REG_FN_VAR.test(value) || opt.format === VAL_SPEC) {
     return value;
   }
-  value = value.trim();
+  const str = value.trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
       name: 'resolveVar',
-      value
+      value: str
     },
     opt
   );
@@ -1288,7 +1279,7 @@ export function resolveVar(value: string, opt: Options = {}): string | null {
   if (cachedResult !== false) {
     return cachedResult.item as string | null;
   }
-  const tokens = tokenize({ css: value });
+  const tokens = tokenize({ css: str });
   const values = parseVarTokens(tokens, opt);
   if (Array.isArray(values)) {
     let color = values.join('');
