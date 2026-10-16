@@ -39,6 +39,8 @@ import {
   VAL_MIX,
   VAL_SPEC
 } from './constant';
+const GRAD = DEG / 400;
+const RAD = DEG / (Math.PI * DUO);
 const NAMESPACE = 'util';
 const {
   CloseParen: PAREN_CLOSE,
@@ -131,12 +133,12 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  const str = value.trim();
   const options = {
     ...opt
   };
-  const strValue = value.trim();
   const maxLength = getMaxLength(options, true);
-  if (!strValue || strValue.length > maxLength) {
+  if (!str || str.length > maxLength) {
     return [];
   }
   const { delimiter = ' ', preserveComment = false } = options;
@@ -144,7 +146,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
     {
       namespace: NAMESPACE,
       name: 'splitValue',
-      value: strValue
+      value: str
     },
     { delimiter, preserveComment }
   );
@@ -166,7 +168,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
       regDelimiter = REG_WHITESPACE;
     }
   }
-  const tokens = tokenize({ css: strValue });
+  const tokens = tokenize({ css: str });
   let nest = 0;
   let currentStr = '';
   const res: string[] = [];
@@ -237,20 +239,20 @@ export const extractDashedIdent = (value: string): string[] => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  const strValue = value.trim();
-  if (!strValue) {
+  const str = value.trim();
+  if (!str) {
     return [];
   }
   const cacheKey: string = createCacheKey({
     namespace: NAMESPACE,
     name: 'extractDashedIdent',
-    value: strValue
+    value: str
   });
   const cachedResult = getCache<string[]>(cacheKey);
   if (cachedResult) {
     return [...cachedResult.item];
   }
-  const matches = strValue.match(REG_DASHED_IDENT);
+  const matches = str.match(REG_DASHED_IDENT);
   const res = matches ? [...new Set(matches)] : [];
   setCache(cacheKey, res);
   return [...res];
@@ -412,34 +414,33 @@ export const resolveLengthInPixels = (
 
 /**
  * angle to deg
- * @param angle - angle
+ * @param value - angle
  * @returns deg: 0..360
  */
-export const angleToDeg = (angle: string): number => {
-  if (isString(angle)) {
-    angle = angle.trim();
-  } else {
-    throw new TypeError(`${angle} is not a string.`);
+export const angleToDeg = (value: string): number => {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
   }
-  const GRAD = DEG / 400;
-  const RAD = DEG / (Math.PI * DUO);
-  if (!REG_ANGLE_TO_DEG.test(angle)) {
-    throw new SyntaxError(`Invalid property value: ${angle}`);
+  const str = value.trim();
+  if (!REG_ANGLE_TO_DEG.test(str)) {
+    throw new SyntaxError(`Invalid property value: ${str}`);
   }
-  const [, value, unit] = angle.match(REG_ANGLE_TO_DEG) as MatchedRegExp;
-  let deg;
+  const [, angle, unit] = str.match(REG_ANGLE_TO_DEG) as MatchedRegExp;
+  let deg = parseFloat(angle);
   switch (unit) {
-    case 'grad':
-      deg = parseFloat(value) * GRAD;
+    case 'grad': {
+      deg *= GRAD;
       break;
-    case 'rad':
-      deg = parseFloat(value) * RAD;
+    }
+    case 'rad': {
+      deg *= RAD;
       break;
-    case 'turn':
-      deg = parseFloat(value) * DEG;
+    }
+    case 'turn': {
+      deg *= DEG;
       break;
+    }
     default:
-      deg = parseFloat(value);
   }
   deg %= DEG;
   if (deg < 0) {
@@ -458,53 +459,50 @@ export const angleToDeg = (angle: string): number => {
 export const numberToHexString = (value: number): string => {
   if (!Number.isFinite(value)) {
     throw new TypeError(`${value} is not a number.`);
-  } else {
-    value = Math.round(value);
-    if (value < 0 || value > MAX_RGB) {
-      throw new RangeError(`${value} is not between 0 and ${MAX_RGB}.`);
-    }
   }
-  let hex = value.toString(HEX);
+  const rounded = Math.round(value);
+  if (rounded < 0 || rounded > MAX_RGB) {
+    throw new RangeError(`${rounded} is not between 0 and ${MAX_RGB}.`);
+  }
+  const hex = rounded.toString(HEX);
   if (hex.length === 1) {
-    hex = `0${hex}`;
+    return `0${hex}`;
   }
   return hex;
 };
 
 /**
  * parse alpha
- * @param [alpha] - alpha value
+ * @param [value] - alpha value
  * @returns alpha: 0..1
  */
-export const parseAlpha = (alpha: string = ''): number => {
-  if (isString(alpha)) {
-    alpha = alpha.trim();
-    if (!alpha) {
-      alpha = '1';
-    } else if (alpha === NONE) {
-      alpha = '0';
-    } else {
-      let a;
-      if (alpha.endsWith('%')) {
-        a = parseFloat(alpha) / MAX_PCT;
-      } else {
-        a = parseFloat(alpha);
-      }
-      if (!Number.isFinite(a)) {
-        throw new TypeError(`${a} is not a finite number.`);
-      }
-      if (a < PPTH) {
-        alpha = '0';
-      } else if (a > 1) {
-        alpha = '1';
-      } else {
-        alpha = a.toFixed(TRIA);
-      }
-    }
-  } else {
-    alpha = '1';
+export const parseAlpha = (value: string = ''): number => {
+  if (!isString(value)) {
+    return 1;
   }
-  return parseFloat(alpha);
+  const str = value.trim();
+  if (!str) {
+    return 1;
+  }
+  if (str === NONE) {
+    return 0;
+  }
+  let alpha;
+  if (str.endsWith('%')) {
+    alpha = parseFloat(str) / MAX_PCT;
+  } else {
+    alpha = parseFloat(str);
+  }
+  if (!Number.isFinite(alpha)) {
+    throw new TypeError(`${alpha} is not a finite number.`);
+  }
+  if (alpha < PPTH) {
+    return 0;
+  }
+  if (alpha > 1) {
+    return 1;
+  }
+  return parseFloat(alpha.toFixed(TRIA));
 };
 
 /**
@@ -513,15 +511,14 @@ export const parseAlpha = (alpha: string = ''): number => {
  * @returns alpha: 0..1
  */
 export const parseHexAlpha = (value: string): number => {
-  if (isString(value)) {
-    if (value === '') {
-      throw new SyntaxError('Invalid property value: (empty string)');
-    }
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  let alpha = parseInt(value, HEX);
+  const str = value.trim();
+  if (!str) {
+    throw new SyntaxError('Invalid property value: (empty string)');
+  }
+  let alpha = parseInt(str, HEX);
   if (alpha <= 0) {
     return 0;
   }
