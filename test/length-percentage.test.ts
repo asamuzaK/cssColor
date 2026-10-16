@@ -38,6 +38,13 @@ describe('skip calculation whitespace', () => {
     func(state);
     assert.strictEqual(state.index, 0);
   });
+
+  it('should handle out-of-bounds index gracefully', () => {
+    const state = createState('1px');
+    state.index = 999;
+    assert.doesNotThrow(() => func(state));
+    assert.strictEqual(state.index, 999);
+  });
 });
 
 describe('has calculation whitespace', () => {
@@ -62,6 +69,12 @@ describe('has calculation whitespace', () => {
     assert.isFalse(func(tokens, 0, -1));
     assert.isFalse(func(tokens, -1, -1));
     assert.isFalse(func(tokens, tokens.length, 1));
+  });
+
+  it('should handle out-of-bounds start index gracefully', () => {
+    const { tokens } = createState('1px + 2px');
+    assert.isFalse(func(tokens, 999, 1));
+    assert.isFalse(func(tokens, -999, -1));
   });
 });
 
@@ -109,6 +122,11 @@ describe('parse calculation product', () => {
     const state = createState('1px * 2 + 3px');
     assert.strictEqual(func(state), 1);
     assert.strictEqual(state.tokens[state.index]![1], '+');
+  });
+
+  it('should handle sudden EOF during product parsing safely', () => {
+    const state = createState('1px *');
+    assert.isNull(calculation.parseCalculationProduct(state));
   });
 });
 

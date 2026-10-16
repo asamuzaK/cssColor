@@ -13,6 +13,20 @@ import { isString } from './common';
 
 /* constants */
 import { LENGTH } from './constant';
+const {
+  CloseParen: PAREN_CLOSE,
+  Comma: COMMA,
+  Comment: COMMENT,
+  Delim: DELIM,
+  Dimension: DIM,
+  EOF,
+  Function: FUNC,
+  Ident: IDENT,
+  Number: NUMBER_TOKEN,
+  OpenParen: PAREN_OPEN,
+  Percentage: PERCENT,
+  Whitespace: W_SPACE
+} = TokenType;
 
 /* regexp */
 const REG_LENGTH = new RegExp(`^(?:${LENGTH})$`, 'i');
@@ -24,11 +38,10 @@ const REG_CALC_KEYWORD = /^(?:e|pi|-?infinity|NaN)$/i;
  * @param state - token stream and cursor
  */
 export const skipCalculationWhitespace = (state: CalculationState): void => {
-  while (
-    state.tokens[state.index]![0] === TokenType.Whitespace ||
-    state.tokens[state.index]![0] === TokenType.Comment
-  ) {
+  let token = state.tokens[state.index];
+  while (token && (token[0] === W_SPACE || token[0] === COMMENT)) {
     state.index++;
+    token = state.tokens[state.index];
   }
 };
 
@@ -45,10 +58,11 @@ export const hasCalculationWhitespace = (
   step: 1 | -1
 ): boolean => {
   for (let i = start; i >= 0 && i < tokens.length; i += step) {
-    if (tokens[i]![0] === TokenType.Whitespace) {
+    const [type] = tokens[i] as CSSToken;
+    if (type === W_SPACE) {
       return true;
     }
-    if (tokens[i]![0] !== TokenType.Comment) {
+    if (type !== COMMENT) {
       break;
     }
   }
@@ -70,12 +84,14 @@ export const parseCalculationProduct = (
     return null;
   }
   skipCalculationWhitespace(state);
+  let current = state.tokens[state.index];
   while (
-    state.tokens[state.index]![0] === TokenType.Delim &&
-    (state.tokens[state.index]![1] === '*' ||
-      state.tokens[state.index]![1] === '/')
+    current &&
+    current[0] === DELIM &&
+    (current[1] === '*' || current[1] === '/')
   ) {
-    const operator = state.tokens[state.index++]![1];
+    const operator = current[1];
+    state.index++;
     const right = parseCalculationValue(state);
     if (
       right === null ||
@@ -85,6 +101,7 @@ export const parseCalculationProduct = (
     }
     type += right;
     skipCalculationWhitespace(state);
+    current = state.tokens[state.index];
   }
   return type;
 };
@@ -99,10 +116,11 @@ export const parseCalculationSum = (state: CalculationState): number | null => {
   if (type === null) {
     return null;
   }
+  let current = state.tokens[state.index];
   while (
-    state.tokens[state.index]![0] === TokenType.Delim &&
-    (state.tokens[state.index]![1] === '+' ||
-      state.tokens[state.index]![1] === '-')
+    current &&
+    current[0] === DELIM &&
+    (current[1] === '+' || current[1] === '-')
   ) {
     if (
       !hasCalculationWhitespace(state.tokens, state.index - 1, -1) ||
@@ -114,6 +132,7 @@ export const parseCalculationSum = (state: CalculationState): number | null => {
     if (parseCalculationProduct(state) !== type) {
       return null;
     }
+    current = state.tokens[state.index];
   }
   return type;
 };
@@ -126,27 +145,29 @@ export const parseCalculationSum = (state: CalculationState): number | null => {
  */
 export function parseCalculationValue(state: CalculationState): number | null {
   skipCalculationWhitespace(state);
-  if (state.tokens[state.index]![0] === TokenType.EOF) {
+  const currentToken = state.tokens[state.index];
+  if (!currentToken || currentToken[0] === EOF) {
     return null;
   }
-  const token = state.tokens[state.index++]!;
-  switch (token[0]) {
-    case TokenType.Number: {
+  state.index++;
+  const [tokenType, , , , tokenDetails] = currentToken;
+  switch (tokenType) {
+    case NUMBER_TOKEN: {
       return 0;
     }
-    case TokenType.Percentage: {
+    case PERCENT: {
       return 1;
     }
-    case TokenType.Dimension: {
-      return REG_LENGTH.test(token[4].unit) ? 1 : null;
+    case DIM: {
+      return REG_LENGTH.test(tokenDetails.unit) ? 1 : null;
     }
-    case TokenType.Ident: {
-      return REG_CALC_KEYWORD.test(token[4].value) ? 0 : null;
+    case IDENT: {
+      return REG_CALC_KEYWORD.test(tokenDetails.value) ? 0 : null;
     }
-    case TokenType.OpenParen:
-    case TokenType.Function: {
+    case PAREN_OPEN:
+    case FUNC: {
       const name =
-        token[0] === TokenType.Function ? token[4].value.toLowerCase() : 'calc';
+        tokenType === FUNC ? tokenDetails.value.toLowerCase() : 'calc';
       if (!['calc', 'min', 'max', 'clamp'].includes(name)) {
         return null;
       }
@@ -155,15 +176,19 @@ export function parseCalculationValue(state: CalculationState): number | null {
         return null;
       }
       let count = 1;
-      while (state.tokens[state.index]![0] === TokenType.Comma) {
+      let nextToken = state.tokens[state.index];
+      while (nextToken && nextToken[0] === COMMA) {
         state.index++;
         if (parseCalculationSum(state) !== type) {
           return null;
         }
         count++;
+        nextToken = state.tokens[state.index];
       }
+      const closingToken = state.tokens[state.index];
       if (
-        state.tokens[state.index]![0] !== TokenType.CloseParen ||
+        !closingToken ||
+        closingToken[0] !== PAREN_CLOSE ||
         (name === 'calc' && count !== 1) ||
         (name === 'clamp' && count !== 3)
       ) {
@@ -198,9 +223,8 @@ export const isLengthPercentageCalculation = (value: unknown): boolean => {
   };
   const type = parseCalculationValue(state);
   skipCalculationWhitespace(state);
+  const finalToken = state.tokens[state.index];
   return (
-    errors.length === 0 &&
-    type === 1 &&
-    state.tokens[state.index]![0] === TokenType.EOF
+    errors.length === 0 && type === 1 && !!finalToken && finalToken[0] === EOF
   );
 };
