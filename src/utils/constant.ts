@@ -88,6 +88,7 @@ export const LAB_L = 116;
 export const LINEAR_COEF = 12.92;
 export const LINEAR_OFFSET = 0.055;
 export const MAX_LENGTH = 1024;
+export const MAX_LENGTH_EXTEND = 64 * 1024;
 export const MAX_PCT = 100;
 export const MAX_RGB = 255;
 export const OCT = 8;

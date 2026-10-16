@@ -29,6 +29,7 @@ import {
   DUO,
   HEX,
   MAX_LENGTH,
+  MAX_LENGTH_EXTEND,
   MAX_PCT,
   MAX_RGB,
   NONE,
@@ -99,18 +100,23 @@ const relativeLength = new Map([
 /**
  * get max length
  * @param [opt] - options
+ * @param [extend] - extend max length
  * @returns max length
  */
-export const getMaxLength = (opt: Options = {}): number => {
+export const getMaxLength = (
+  opt: Options = {},
+  extend: boolean = false
+): number => {
   const { maxLength } = opt;
+  const max = extend ? MAX_LENGTH_EXTEND : MAX_LENGTH;
   if (
     Number.isInteger(maxLength) &&
     (maxLength as number) > 0 &&
-    (maxLength as number) < MAX_LENGTH
+    (maxLength as number) < max
   ) {
     return maxLength as number;
   }
-  return MAX_LENGTH;
+  return max;
 };
 
 /**
@@ -129,7 +135,7 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
     ...opt
   };
   const strValue = value.trim();
-  const maxLength = getMaxLength(options);
+  const maxLength = getMaxLength(options, true);
   if (!strValue || strValue.length > maxLength) {
     return [];
   }
