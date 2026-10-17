@@ -58,8 +58,8 @@ export const SYN_MOD = `${_NUM_PCT_NONE}(?:\\s+${_NUM_PCT_NONE}){2}${_ALPHA}`;
 export const SYN_RGB_LV3 = `(?:${NUM}(?:\\s*,\\s*${NUM}){2}|${PCT}(?:\\s*,\\s*${PCT}){2})${_ALPHA_LV3}`;
 export const SYN_COLOR_TYPE = `${_COLOR_KEY}|hsla?\\(\\s*${SYN_HSL_LV3}\\s*\\)|rgba?\\(\\s*${SYN_RGB_LV3}\\s*\\)|(?:hsla?|hwb)\\(\\s*${SYN_HSL}\\s*\\)|(?:(?:ok)?lab|rgba?)\\(\\s*${SYN_MOD}\\s*\\)|(?:ok)?lch\\(\\s*${SYN_LCH}\\s*\\)|color\\(\\s*${SYN_FN_COLOR}\\s*\\)`;
 export const SYN_MIX_PART = `(?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?`;
-export const SYN_MIX = `color-mix\\(\\s*in\\s+(?:${CS_MIX})\\s*,\\s*${SYN_MIX_PART}\\s*,\\s*${SYN_MIX_PART}\\s*\\)`;
-export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MIX_PART})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)`;
+export const SYN_MIX = `color-mix\\((?:\\s*in\\s+(?:${CS_MIX})\\s*,)?(?:\\s*${SYN_MIX_PART}\\s*,)*\\s*${SYN_MIX_PART}\\s*\\)`;
+export const SYN_MIX_CAPT = `color-mix\\((?:\\s*in\\s+(${CS_MIX})\\s*,)?(?:\\s*(${SYN_MIX_PART})\\s*,)*\\s*(${SYN_MIX_PART})\\s*\\)`;
 
 /* Gradients */
 export const GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
