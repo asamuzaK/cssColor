@@ -454,18 +454,17 @@ export const extractOriginColor = (
   opt: Options = {},
   resolver: (v: string, o?: Options) => string | null = () => null
 ): string | null => {
-  const { currentColor, format } = opt;
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-    if (!value) {
-      return null;
-    }
-    if (!REG_FN_REL_START.test(value)) {
-      return value;
-    }
-  } else {
+  if (!isString(value)) {
     return null;
   }
+  value = value.toLowerCase().trim();
+  if (!value) {
+    return null;
+  }
+  if (!REG_FN_REL_START.test(value)) {
+    return value;
+  }
+  const { currentColor, format } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
