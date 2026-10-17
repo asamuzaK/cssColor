@@ -1,5 +1,5 @@
 /**
- * relative-color
+ * CSS relative color utilities.
  */
 
 import { SyntaxFlag, color as colorParser } from '@csstools/css-color-parser';
@@ -12,15 +12,15 @@ import { convertColorToRgb } from '../converters/convert-color';
 import {
   ColorChannels,
   MatchedRegExp,
-  Options,
-  StringColorChannels
+  NumberOrStringColorChannels,
+  Options
 } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString, isStringOrNumber } from '../utils/common';
 import { resolveDimension, serializeCalc } from '../utils/css-calc-var';
 import { roundToPrecision, splitValue } from '../utils/util';
 
-/* constants */
+/* Constants */
 import {
   COLOR_FUNC,
   DEC,
@@ -100,13 +100,7 @@ const MATH_FUNCTIONS = new Set([
 ]);
 const CALC_SUM_FUNCTIONS = new Set(['abs(', 'cos(', 'sign(', 'sin(', 'tan(']);
 
-/* type definitions */
-/**
- * NumberOrStringColorChannels - color channel
- */
-type NumberOrStringColorChannels = ColorChannels & StringColorChannels;
-
-/* regexp */
+/* Regular expressions */
 const REG_COLOR_CAPT = new RegExp(
   `^(?:${COLOR_FUNC})\\(\\s*from\\s+(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
 );
@@ -114,10 +108,10 @@ const REG_FN_REL_CAPT = new RegExp(`^(${COLOR_FUNC})\\(\\s*from\\s+`);
 const REG_FN_REL_START = new RegExp(`^(?:${COLOR_FUNC})\\(\\s*from\\s+`);
 
 /**
- * serialize channel values
- * @param channels - channels array
- * @param format - format option
- * @returns resolved channel values
+ * Serializes channel values into an array of numbers or strings.
+ * @param channels - The color channels array.
+ * @param format - The output format option.
+ * @returns The resolved channel values.
  */
 export const serializeChannels = (
   channels: [
@@ -146,9 +140,9 @@ export const serializeChannels = (
 };
 
 /**
- * get the last non-whitespace value from a channel array
- * @param channel - channel array
- * @returns last non-whitespace value or undefined
+ * Gets the last non-whitespace value from a channel array.
+ * @param channel - The channel array.
+ * @returns The last non-whitespace value, or undefined if none exists.
  */
 export const getLastNonWhitespaceValue = (
   channel: (number | string)[]
@@ -162,44 +156,10 @@ export const getLastNonWhitespaceValue = (
 };
 
 /**
- * resolve relative color channels
- * @param tokens - tokens
- * @param [opt] - options
- * @param [opt.currentColor]
- *   - color to use for `currentcolor` keyword
- *   - if omitted, it will be treated as a missing color
- *     i.e. `rgb(none none none / none)`
- * @param [opt.customProperty]
- *   - custom properties
- *   - pair of `--` prefixed property name and value,
- *     e.g. `customProperty: { '--some-color': '#0000ff' }`
- *   - and/or `callback` function to get the value of the custom property,
- *     e.g. `customProperty: { callback: someDeclaration.getPropertyValue }`
- * @param [opt.dimension]
- *   - dimension, convert relative length to pixels
- *   - pair of unit and it's value as a number in pixels,
- *     e.g. `dimension: { em: 12, rem: 16, vw: 10.26 }`
- *   - and/or `callback` function to get the value as a number in pixels,
- *     e.g. `dimension: { callback: convertUnitToPixel }`
- * @param [opt.format]
- *   - output format, one of below
- *   - `computedValue` (default), [computed value][139] of the color
- *   - `specifiedValue`, [specified value][140] of the color
- *   - `hex`, hex color notation, i.e. `rrggbb`
- *   - `hexAlpha`, hex color notation with alpha channel, i.e. `#rrggbbaa`
- * @returns
- *   - one of rgba?(), #rrggbb(aa)?, color-name, '(empty-string)',
- *     color(color-space r g b / alpha), color(color-space x y z / alpha),
- *     lab(l a b / alpha), lch(l c h / alpha), oklab(l a b / alpha),
- *     oklch(l c h / alpha), null
- *   - in `computedValue`, values are numbers, however `rgb()` values are
- *     integers
- *   - in `specifiedValue`, returns `empty string` for unknown and/or invalid
- *     color
- *   - in `hex`, returns `null` for `transparent`, and also returns `null` if
- *     any of `r`, `g`, `b`, `alpha` is not a number
- *   - in `hexAlpha`, returns `#00000000` for `transparent`,
- *     however returns `null` if any of `r`, `g`, `b`, `alpha` is not a number
+ * Resolves relative color channels from CSS tokens.
+ * @param tokens - The CSS tokens to process.
+ * @param [opt] - The conversion options.
+ * @returns The resolved color channels, or null if invalid.
  */
 export const resolveColorChannels = (
   tokens: CSSToken[],
@@ -210,7 +170,7 @@ export const resolveColorChannels = (
   }
   const { colorSpace = '', format = '' } = opt;
   const colorChannel = COLOR_CHANNELS.get(colorSpace);
-  // invalid color channel
+  // Invalid color channel
   if (!colorChannel) {
     return null;
   }
@@ -277,7 +237,7 @@ export const resolveColorChannels = (
         break;
       }
       case IDENT: {
-        // invalid channel key
+        // Invalid channel key
         if (!colorChannel.includes(value)) {
           return null;
         }
@@ -362,12 +322,12 @@ export const resolveColorChannels = (
 };
 
 /**
- * resolve origin color when light-dark() function is used
- * @param value - CSS color value
- * @param colorSpace - color space
- * @param options - options
- * @param resolver - resolver function
- * @returns resolved color value, or null if resolution fails
+ * Resolves the origin color when the light-dark() function is used.
+ * @param value - The CSS color value string.
+ * @param colorSpace - The color space name.
+ * @param options - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns The resolved color value, or null if resolution fails.
  */
 export const resolveLightDarkOriginColor = (
   value: string,
@@ -399,11 +359,11 @@ export const resolveLightDarkOriginColor = (
 };
 
 /**
- * resolve nested relative color origin and channels
- * @param value - CSS color value
- * @param options - options
- * @param resolver - resolver function
- * @returns resolved color value, or null if resolution fails
+ * Resolves nested relative color origins and channels.
+ * @param value - The CSS color value string.
+ * @param options - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns The resolved color value, or null if resolution fails.
  */
 export const resolveNestedRelativeColor = (
   value: string,
@@ -483,11 +443,11 @@ export const resolveNestedRelativeColor = (
 };
 
 /**
- * extract origin color
- * @param value - CSS color value
- * @param opt - options
- * @param resolver - resolver function
- * @returns origin color value
+ * Extracts the origin color from a relative color expression.
+ * @param value - The CSS color value string.
+ * @param opt - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns The extracted origin color value, or null if invalid.
  */
 export const extractOriginColor = (
   value: string,
@@ -590,9 +550,9 @@ export const extractOriginColor = (
 };
 
 /**
- * check if tokens contain a var() function
- * @param tokens - CSS tokens
- * @returns true if var() exists
+ * Checks whether the CSS tokens contain a var() function.
+ * @param tokens - The CSS tokens to check.
+ * @returns True if a var() function exists, otherwise false.
  */
 export const hasCssVariables = (tokens: CSSToken[]): boolean => {
   for (const token of tokens) {
@@ -605,9 +565,9 @@ export const hasCssVariables = (tokens: CSSToken[]): boolean => {
 };
 
 /**
- * check if tokens contain relative color syntax
- * @param tokens - CSS tokens
- * @returns true if relative color syntax exists
+ * Checks whether the CSS tokens contain relative color syntax.
+ * @param tokens - The CSS tokens to check.
+ * @returns True if relative color syntax exists, otherwise false.
  */
 export const hasRelativeColorSyntax = (tokens: CSSToken[]): boolean => {
   for (let i = 0; i < tokens.length - 1; i++) {
@@ -629,9 +589,9 @@ export const hasRelativeColorSyntax = (tokens: CSSToken[]): boolean => {
 };
 
 /**
- * format parsed color components into a CSS color string
- * @param parsedComponents - parsed color components from colorParser
- * @returns formatted color string or null
+ * Formats parsed color components into a standard CSS color string.
+ * @param parsedComponents - The parsed color components from the color parser.
+ * @returns The formatted CSS color string, or null if invalid.
  */
 export const formatResolvedColor = (
   parsedComponents: ReturnType<typeof colorParser>
@@ -755,11 +715,11 @@ export const formatResolvedColor = (
 };
 
 /**
- * resolve relative color
- * @param value - CSS relative color value
- * @param opt - options
- * @param resolver - resolver function
- * @returns resolved value
+ * Resolves a CSS relative color value.
+ * @param value - The CSS relative color string to resolve.
+ * @param opt - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns The resolved color string, or null if resolution fails.
  */
 export function resolveRelativeColor(
   value: string,

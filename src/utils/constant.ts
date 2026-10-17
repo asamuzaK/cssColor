@@ -1,8 +1,8 @@
 /**
- * constant
+ * Constants module.
  */
 
-/* values and units */
+/* Values and units */
 const _DIGIT = '(?:0|[1-9]\\d*)';
 const _COMPARE = 'clamp|max|min';
 const _EXPO = 'exp|hypot|log|pow|sqrt';
@@ -24,7 +24,7 @@ export const SYN_FN_MATH_START = `^(?:${_MATH})\\($`;
 export const SYN_FN_VAR = '^var\\(|(?<=[*\\/\\s\\(])var\\(';
 export const SYN_FN_VAR_START = `^(?:${_VAR})\\(`;
 
-/* colors */
+/* Colors */
 const _ALPHA = `(?:\\s*\\/\\s*(?:${NUM}|${PCT}|${NONE}))?`;
 const _ALPHA_LV3 = `(?:\\s*,\\s*(?:${NUM}|${PCT}))?`;
 const _COLOR_KEY = '[a-z]+|#[\\da-f]{3}|#[\\da-f]{4}|#[\\da-f]{6}|#[\\da-f]{8}';
@@ -61,10 +61,10 @@ export const SYN_MIX_PART = `(?:${SYN_COLOR_TYPE})(?:\\s+${PCT})?`;
 export const SYN_MIX = `color-mix\\(\\s*in\\s+(?:${CS_MIX})\\s*,\\s*${SYN_MIX_PART}\\s*,\\s*${SYN_MIX_PART}\\s*\\)`;
 export const SYN_MIX_CAPT = `color-mix\\(\\s*in\\s+(${CS_MIX})\\s*,\\s*(${SYN_MIX_PART})\\s*,\\s*(${SYN_MIX_PART})\\s*\\)`;
 
-/* gradients */
+/* Gradients */
 export const GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
 
-/* formats */
+/* Formats */
 export const VAL_COMP = 'computedValue';
 export const VAL_MIX = 'mixValue';
 export const VAL_SPEC = 'specifiedValue';
@@ -72,7 +72,7 @@ export const VAL_SPEC = 'specifiedValue';
 export type SpecialValueFormat =
   typeof VAL_COMP | typeof VAL_MIX | typeof VAL_SPEC;
 
-/* numeric constants */
+/* Numeric constants */
 export const DEC = 10;
 export const DEG = 360;
 export const DEG_HALF = 180;

@@ -1,5 +1,5 @@
 /**
- * parse-gradient
+ * CSS gradient parsing functionality.
  */
 
 import {
@@ -18,7 +18,7 @@ import {
   validateGradientLine
 } from './gradient-util';
 
-/* constants */
+/* Constants */
 import { GRADIENT, VAL_SPEC } from '../utils/constant';
 const NAMESPACE = 'gradient';
 const COLOR_OPT = {
@@ -26,14 +26,14 @@ const COLOR_OPT = {
   nullable: true
 };
 
-/* regexp */
+/* Regular expressions */
 const IS_GRADIENT = new RegExp(`^${GRADIENT}$`, 'i');
 
 /**
- * parse CSS gradient
- * @param value - gradient value
- * @param [opt] - options
- * @returns parsed result
+ * Parses a CSS gradient value into a structured gradient object.
+ * @param value - The CSS gradient string to parse.
+ * @param [opt] - The parsing options.
+ * @returns A structured Gradient object, or null if parsing fails.
  */
 export const parseGradient = (
   value: string,

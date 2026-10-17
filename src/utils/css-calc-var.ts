@@ -1,5 +1,5 @@
 /**
- * css-calc-var
+ * CSS calc() and var() utilities.
  */
 
 import { calc, conversionOptions as CalcOptions } from '@csstools/css-calc';
@@ -10,7 +10,7 @@ import { createCacheKey, getCache, setCache } from './cache';
 import { isString, isStringOrNumber } from './common';
 import { getMaxLength, resolveLengthInPixels, roundToPrecision } from './util';
 
-/* constants */
+/* Constants */
 import {
   FN_CALC,
   FN_VAR,
@@ -47,7 +47,7 @@ const CSS_WIDE_KEYWORDS = new Set([
 ]);
 const OPERATORS = new Set(['+', '-', '*', '/']);
 
-/* regexp */
+/* Regular expressions */
 const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_CALC_NUM = new RegExp(`^calc\\((${NUM})\\)$`);
 const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
@@ -56,9 +56,9 @@ const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
 const REG_OPERATOR = /\s[-+*/]\s/;
 
 /**
- * parse term to number and unit
- * @param term - term string or number
- * @returns parsed value
+ * Parses a term string or number into a numeric value and its unit.
+ * @param term - The term string or number to parse
+ * @returns An object containing the parsed number and unit, or null on failure
  */
 export const parseTerm = (
   term: string | number
@@ -96,58 +96,57 @@ export const parseTerm = (
 };
 
 /**
- * Calclator
+ * Calculator class for handling calculation terms and operations.
  */
 export class Calculator {
-  /* private */
-  // number
+  // Number
   #hasNum: boolean;
   #numSum: number[];
   #numMul: number[];
-  // percentage
+  // Percentage
   #hasPct: boolean;
   #pctSum: number[];
   #pctMul: number[];
-  // dimension
+  // Dimension
   #hasDim: boolean;
   #dimSum: string[];
   #dimSub: string[];
   #dimMul: string[];
   #dimDiv: string[];
-  // et cetra
+  // Et cetera
   #hasEtc: boolean;
   #etcSum: string[];
   #etcSub: string[];
   #etcMul: string[];
   #etcDiv: string[];
-  // calc options
+  // Calculation options
   #calcOpts: CalcOptions;
 
   /**
-   * constructor
+   * Creates an instance of Calculator.
    */
   constructor() {
-    // number
+    // Number
     this.#hasNum = false;
     this.#numSum = [];
     this.#numMul = [];
-    // percentage
+    // Percentage
     this.#hasPct = false;
     this.#pctSum = [];
     this.#pctMul = [];
-    // dimension
+    // Dimension
     this.#hasDim = false;
     this.#dimSum = [];
     this.#dimSub = [];
     this.#dimMul = [];
     this.#dimDiv = [];
-    // et cetra
+    // Et cetera
     this.#hasEtc = false;
     this.#etcSum = [];
     this.#etcSub = [];
     this.#etcMul = [];
     this.#etcDiv = [];
-    // calc options
+    // Calculation options
     this.#calcOpts = {
       toCanonicalUnits: true
     };
@@ -234,24 +233,24 @@ export class Calculator {
   }
 
   /**
-   * clear values
+   * Clears all stored values and resets states.
    */
   clear() {
-    // number
+    // Number
     this.#hasNum = false;
     this.#numSum.length = 0;
     this.#numMul.length = 0;
-    // percentage
+    // Percentage
     this.#hasPct = false;
     this.#pctSum.length = 0;
     this.#pctMul.length = 0;
-    // dimension
+    // Dimension
     this.#hasDim = false;
     this.#dimSum.length = 0;
     this.#dimSub.length = 0;
     this.#dimMul.length = 0;
     this.#dimDiv.length = 0;
-    // et cetra
+    // Et cetera
     this.#hasEtc = false;
     this.#etcSum.length = 0;
     this.#etcSub.length = 0;
@@ -260,9 +259,9 @@ export class Calculator {
   }
 
   /**
-   * sort values
-   * @param values - values
-   * @returns sorted values
+   * Sorts an array of value strings.
+   * @param values - The array of values to sort
+   * @returns The sorted array of values
    */
   sort(values: string[] = []): string[] {
     const arr = [...values];
@@ -291,8 +290,8 @@ export class Calculator {
   }
 
   /**
-   * multiply values
-   * @returns resolved value
+   * Multiplies the stored values and returns the resolved expression string.
+   * @returns The resolved multiplication expression
    */
   multiply(): string {
     const values = [];
@@ -427,8 +426,8 @@ export class Calculator {
   }
 
   /**
-   * sum values
-   * @returns resolved value
+   * Sums the stored values and returns the resolved expression string.
+   * @returns The resolved sum expression
    */
   sum(): string {
     const values = [];
@@ -548,10 +547,10 @@ export class Calculator {
 }
 
 /**
- * sort calc values
- * @param values - values to sort
- * @param [finalize] - finalize values
- * @returns sorted values
+ * Sorts calculation values.
+ * @param values - The values to sort
+ * @param [finalize] - Whether to finalize the values
+ * @returns The sorted calculation expression string
  */
 export const sortCalcValues = (
   values: (number | string)[] = [],
@@ -590,7 +589,7 @@ export const sortCalcValues = (
       if (sortedValue) {
         sortedValues.push(sortedValue, value);
       }
-      // Mark presence of + or -
+      // Mark the presence of + or -
       hasAddSub = true;
       cal.clear();
       operator = '';
@@ -710,9 +709,9 @@ export const sortCalcValues = (
 };
 
 /**
- * sort math function terms
- * @param expr - unwrapped calc expression
- * @returns sorted expression
+ * Sorts terms within math functions.
+ * @param expr - The unwrapped calc expression
+ * @returns The sorted expression string
  */
 export const sortMathFnTerms = (expr: string): string => {
   const tokens = tokenize({ css: expr });
@@ -772,10 +771,10 @@ export const sortMathFnTerms = (expr: string): string => {
 };
 
 /**
- * resolve AST node
- * @param node - AST node
- * @param isRoot - is root node
- * @returns resolved value
+ * Resolves an AST node.
+ * @param node - The AST node to resolve
+ * @param isRoot - Whether this is the root node
+ * @returns The resolved value string
  */
 export const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
   const firstItemRaw = node[0];
@@ -850,10 +849,10 @@ export const resolveNode = (node: CalcASTNode[], isRoot: boolean): string => {
 };
 
 /**
- * serialize calc
- * @param value - CSS value
- * @param [opt] - options
- * @returns serialized value
+ * Serializes a calc expression.
+ * @param value - The CSS value to serialize
+ * @param [opt] - Configuration options
+ * @returns The serialized value string
  */
 export const serializeCalc = (value: string, opt: Options = {}): string => {
   if (!isString(value)) {
@@ -913,10 +912,10 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
 };
 
 /**
- * resolve dimension
- * @param token - CSS token
- * @param [opt] - options
- * @returns resolved value
+ * Resolves a dimension token to a pixel value or canonical unit.
+ * @param token - The CSS token to resolve
+ * @param [opt] - Configuration options
+ * @returns The resolved dimension string, or null on failure
  */
 export const resolveDimension = (
   token: CSSToken,
@@ -941,10 +940,10 @@ export const resolveDimension = (
 };
 
 /**
- * parse CSS calc() tokens
- * @param tokens - CSS tokens
- * @param [opt] - options
- * @returns parsed tokens
+ * Parses CSS calc() tokens.
+ * @param tokens - The array of CSS tokens
+ * @param [opt] - Configuration options
+ * @returns An array of parsed token strings
  */
 export const parseCalcTokens = (
   tokens: CSSToken[],
@@ -1026,10 +1025,10 @@ export const parseCalcTokens = (
 };
 
 /**
- * CSS calc()
- * @param value - CSS value including calc()
- * @param [opt] - options
- * @returns resolved value
+ * Resolves CSS calc() expressions.
+ * @param value - The CSS value including calc()
+ * @param [opt] - Configuration options
+ * @returns The resolved CSS value string
  */
 export const cssCalc = (value: string, opt: Options = {}): string => {
   if (!isString(value)) {
@@ -1081,7 +1080,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
       const num = Number(parsedResolved.num);
       resolvedValue = `${roundToPrecision(num, HEX)}${parsedResolved.unit}`;
     }
-    // wrap with `calc()`
+    // Wrap with `calc()`
     if (
       resolvedValue &&
       !REG_FN_VAR_START.test(resolvedValue) &&
@@ -1103,10 +1102,10 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
 };
 
 /**
- * resolve custom property
- * @param tokens - CSS tokens
- * @param [opt] - options
- * @returns result - [tokens, resolvedValue]
+ * Resolves custom properties within tokens.
+ * @param tokens - The array of CSS tokens
+ * @param [opt] - Configuration options
+ * @returns A tuple containing the remaining tokens and the resolved value string
  */
 export function resolveCustomProperty(
   tokens: CSSToken[],
@@ -1126,11 +1125,11 @@ export function resolveCustomProperty(
       throw new TypeError(`${token} is not an array.`);
     }
     const [type, value] = token as [TokenType, string];
-    // end of var()
+    // End of var()
     if (type === PAREN_CLOSE) {
       break;
     }
-    // nested var()
+    // Nested var()
     if (value === FN_VAR) {
       const [, item] = resolveCustomProperty(tokens, opt);
       if (item) {
@@ -1161,7 +1160,7 @@ export function resolveCustomProperty(
   for (let item of items) {
     item = item.trim();
     if (REG_FN_VAR.test(item)) {
-      // recurse resolveVar()
+      // Recurse resolveVar()
       const resolvedItem = resolveVar(item, opt);
       if (
         isString(resolvedItem) &&
@@ -1189,10 +1188,10 @@ export function resolveCustomProperty(
 }
 
 /**
- * parse CSS var() tokens
- * @param tokens - CSS tokens
- * @param [opt] - options
- * @returns parsed tokens
+ * Parses CSS var() tokens.
+ * @param tokens - The array of CSS tokens
+ * @param [opt] - Configuration options
+ * @returns An array of parsed token strings, or null on failure
  */
 export function parseVarTokens(
   tokens: CSSToken[],
@@ -1250,10 +1249,10 @@ export function parseVarTokens(
 }
 
 /**
- * resolve CSS var()
- * @param value - CSS value including var()
- * @param [opt] - options
- * @returns resolved value
+ * Resolves CSS var() expressions.
+ * @param value - The CSS value including var()
+ * @param [opt] - Configuration options
+ * @returns The resolved value string, or null on failure
  */
 export function resolveVar(value: string, opt: Options = {}): string | null {
   if (!isString(value)) {
@@ -1300,10 +1299,10 @@ export function resolveVar(value: string, opt: Options = {}): string | null {
 }
 
 /**
- * CSS var()
- * @param value - CSS value including var()
- * @param [opt] - options
- * @returns resolved value
+ * Evaluates CSS var() expressions.
+ * @param value - The CSS value including var()
+ * @param [opt] - Configuration options
+ * @returns The resolved CSS value string
  */
 export const cssVar = (value: string, opt: Options = {}): string => {
   const options = {

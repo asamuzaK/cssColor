@@ -1,19 +1,19 @@
 /**
- * gradient
+ * CSS gradient resolution and validation utilities.
  */
 
 import { Options } from '../typedef';
 import { getMaxLength } from '../utils/util';
 import { parseGradient } from './parse-gradient';
 
-/* constants */
+/* Constants */
 import { NONE, VAL_SPEC } from '../utils/constant';
 
 /**
- * resolve CSS gradient
- * @param value - CSS value
- * @param [opt] - options
- * @returns result
+ * Resolves and formats a CSS gradient string.
+ * @param value - The CSS gradient value to resolve.
+ * @param [opt] - The conversion options.
+ * @returns The resolved gradient string, or a fallback value based on options.
  */
 export const resolveGradient = (value: string, opt: Options = {}): string => {
   const options = {
@@ -34,10 +34,10 @@ export const resolveGradient = (value: string, opt: Options = {}): string => {
 };
 
 /**
- * is CSS gradient
- * @param value - CSS value
- * @param [opt] - options
- * @returns result
+ * Checks whether a given value is a valid CSS gradient.
+ * @param value - The value to check.
+ * @param [opt] - The validation options.
+ * @returns True if the value is a valid CSS gradient, otherwise false.
  */
 export const isGradient = (value: string, opt: Options = {}): boolean => {
   const options = {

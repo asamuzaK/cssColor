@@ -1,5 +1,5 @@
 /**
- * length-percentage
+ * Length-percentage calculation and validation.
  */
 
 import {
@@ -11,7 +11,7 @@ import {
 import { CalculationState } from '../typedef';
 import { isString } from './common';
 
-/* constants */
+/* Constants */
 import { LENGTH } from './constant';
 const {
   CloseParen: PAREN_CLOSE,
@@ -28,14 +28,14 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 
-/* regexp */
+/* Regular expressions */
 const REG_LENGTH = new RegExp(`^(?:${LENGTH})$`, 'i');
 const REG_CALC = /^(?:calc|min|max|clamp)\(/i;
 const REG_CALC_KEYWORD = /^(?:e|pi|-?infinity|NaN)$/i;
 
 /**
- * Advance past whitespace and comments in a calculation.
- * @param state - token stream and cursor
+ * Advances past whitespace and comments in a calculation.
+ * @param state - The calculation state containing the token stream and cursor
  */
 export const skipCalculationWhitespace = (state: CalculationState): void => {
   let token = state.tokens[state.index];
@@ -46,11 +46,11 @@ export const skipCalculationWhitespace = (state: CalculationState): void => {
 };
 
 /**
- * Check for actual whitespace, ignoring adjacent comments.
- * @param tokens - token stream
- * @param start - first token to check
- * @param step - direction to scan
- * @returns whether whitespace occurs before another non-comment token
+ * Checks for actual whitespace, ignoring adjacent comments.
+ * @param tokens - The array of CSS tokens
+ * @param start - The index of the first token to check
+ * @param step - The direction to scan (1 or -1)
+ * @returns True if whitespace occurs before another non-comment token, false otherwise
  */
 export const hasCalculationWhitespace = (
   tokens: CSSToken[],
@@ -70,11 +70,11 @@ export const hasCalculationWhitespace = (
 };
 
 /**
- * Parse multiplication and division of calculation operands.
- * Multiplication requires a number on one side, division a number divisor.
+ * Parses multiplication and division of calculation operands.
+ * Multiplication requires a number on one side, and division requires a number divisor.
  * This subset intentionally excludes CSS Values Level 4 typed arithmetic.
- * @param state - token stream and cursor
- * @returns calculation type or null on failure
+ * @param state - The calculation state containing the token stream and cursor
+ * @returns The calculation type number, or null on failure
  */
 export const parseCalculationProduct = (
   state: CalculationState
@@ -107,9 +107,9 @@ export const parseCalculationProduct = (
 };
 
 /**
- * Parse addition and subtraction, requiring matching operand types.
- * @param state - token stream and cursor
- * @returns calculation type or null on failure
+ * Parses addition and subtraction, requiring matching operand types.
+ * @param state - The calculation state containing the token stream and cursor
+ * @returns The calculation type number, or null on failure
  */
 export const parseCalculationSum = (state: CalculationState): number | null => {
   const type = parseCalculationProduct(state);
@@ -138,10 +138,10 @@ export const parseCalculationSum = (state: CalculationState): number | null => {
 };
 
 /**
- * Parse a scalar, length, percentage, parenthesized sum or math function.
+ * Parses a scalar, length, percentage, parenthesized sum, or math function.
  * Percentages receive the length percent hint in this context.
- * @param state - token stream and cursor
- * @returns calculation type or null on failure
+ * @param state - The calculation state containing the token stream and cursor
+ * @returns The calculation type number, or null on failure
  */
 export function parseCalculationValue(state: CalculationState): number | null {
   skipCalculationWhitespace(state);
@@ -204,10 +204,10 @@ export function parseCalculationValue(state: CalculationState): number | null {
 }
 
 /**
- * Validate a calculation in a length-percentage context. Types are represented
- * as 0 for numbers and 1 for lengths/percentages, with scalar products only.
- * @param value - calculation
- * @returns whether the calculation has type length-percentage
+ * Validates a calculation in a length-percentage context.
+ * Types are represented as 0 for numbers and 1 for lengths/percentages, with scalar products only.
+ * @param value - The calculation value to validate
+ * @returns True if the calculation has type length-percentage, false otherwise
  */
 export const isLengthPercentageCalculation = (value: unknown): boolean => {
   if (!isString(value) || !REG_CALC.test(value)) {

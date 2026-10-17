@@ -1,5 +1,5 @@
 /**
- * util
+ * Utility functions.
  */
 
 import { ColorData, color as colorParser } from '@csstools/css-color-parser';
@@ -20,7 +20,7 @@ import {
 import { createCacheKey, getCache, setCache } from './cache';
 import { isString } from './common';
 
-/* constants */
+/* Constants */
 import {
   ANGLE,
   DEC,
@@ -53,14 +53,14 @@ const {
   Whitespace: W_SPACE
 } = TokenType;
 
-/* regexp */
+/* Regular expressions */
 const REG_ANGLE_TO_DEG = new RegExp(`^(${NUM})(${ANGLE})?$`);
 const REG_COMMA = /^,$/;
 const REG_DASHED_IDENT = /--[\w-]+/g;
 const REG_SLASH = /^\/$/;
 const REG_WHITESPACE = /^\s+$/;
 
-/* absolute font size to pixel ratio */
+/* Absolute font size to pixel ratio */
 const absoluteFontSize = new Map([
   ['xx-small', 9 / 16],
   ['x-small', 5 / 8],
@@ -72,13 +72,13 @@ const absoluteFontSize = new Map([
   ['xxx-large', 3]
 ]);
 
-/* relative font size to pixel ratio */
+/* Relative font size to pixel ratio */
 const relativeFontSize = new Map([
   ['smaller', 1 / 1.2],
   ['larger', 1.2]
 ]);
 
-/* absolute length to pixel ratio */
+/* Absolute length to pixel ratio */
 const absoluteLength = new Map([
   ['cm', 96 / 2.54],
   ['mm', 96 / 25.4],
@@ -89,7 +89,7 @@ const absoluteLength = new Map([
   ['px', 1]
 ]);
 
-/* relative length to pixel ratio */
+/* Relative length to pixel ratio */
 const relativeLength = new Map([
   ['rcap', 1],
   ['rch', 0.5],
@@ -100,10 +100,10 @@ const relativeLength = new Map([
 ]);
 
 /**
- * get max length
- * @param [opt] - options
- * @param [extend] - extend max length
- * @returns max length
+ * Gets the maximum length allowed based on options and extension flag.
+ * @param [opt] - Configuration options
+ * @param [extend] - Whether to extend the maximum length limit
+ * @returns The maximum length value
  */
 export const getMaxLength = (
   opt: Options = {},
@@ -122,12 +122,11 @@ export const getMaxLength = (
 };
 
 /**
- * split value
- * NOTE: comments are stripped, it can be preserved if, in the options param,
- * `delimiter` is either ',' or '/' and with `preserveComment` set to `true`
- * @param value - CSS value
- * @param [opt] - options
- * @returns array of values
+ * Splits a CSS value string by a delimiter.
+ * NOTE: Comments are stripped by default, but can be preserved if the delimiter is ',' or '/' and `preserveComment` is set to `true`.
+ * @param value - The CSS value string to split
+ * @param [opt] - Configuration options
+ * @returns An array of split value strings
  */
 export const splitValue = (value: string, opt: Options = {}): string[] => {
   if (!isString(value)) {
@@ -231,9 +230,9 @@ export const splitValue = (value: string, opt: Options = {}): string[] => {
 };
 
 /**
- * extract dashed-ident tokens
- * @param value - CSS value
- * @returns array of dashed-ident tokens
+ * Extracts dashed-ident tokens from a CSS value string.
+ * @param value - The CSS value string to inspect
+ * @returns An array of unique dashed-ident tokens
  */
 export const extractDashedIdent = (value: string): string[] => {
   if (!isString(value)) {
@@ -259,10 +258,10 @@ export const extractDashedIdent = (value: string): string[] => {
 };
 
 /**
- * round to specified precision
- * @param value - numeric value
- * @param bit - minimum bits
- * @returns rounded value
+ * Rounds a numeric value to a specified precision bit level.
+ * @param value - The numeric value to round
+ * @param bit - The precision bit configuration
+ * @returns The rounded numeric value
  */
 export const roundToPrecision = (value: number, bit: number = 0): number => {
   if (!Number.isFinite(value)) {
@@ -282,11 +281,11 @@ export const roundToPrecision = (value: number, bit: number = 0): number => {
 };
 
 /**
- * interpolate hue
- * @param hueA - hue value
- * @param hueB - hue value
- * @param arc - shorter | longer | increasing | decreasing
- * @returns result - [hueA, hueB]
+ * Interpolates between two hue values based on the specified arc direction.
+ * @param hueA - The first hue value
+ * @param hueB - The second hue value
+ * @param arc - The arc interpolation method ('shorter' | 'longer' | 'increasing' | 'decreasing')
+ * @returns A tuple containing the adjusted [hueA, hueB] values
  */
 export const interpolateHue = (
   hueA: number,
@@ -335,11 +334,11 @@ export const interpolateHue = (
 };
 
 /**
- * resolve length in pixels
- * @param value - value
- * @param unit - unit
- * @param [opt] - options
- * @returns pixelated value
+ * Resolves a length or font size to its equivalent value in pixels.
+ * @param value - The numeric value or string identifier to resolve
+ * @param unit - The unit of the length
+ * @param [opt] - Configuration options
+ * @returns The resolved pixel value, or NaN on failure
  */
 export const resolveLengthInPixels = (
   value: number | string,
@@ -408,14 +407,14 @@ export const resolveLengthInPixels = (
       default:
     }
   }
-  // unsupported or invalid value
+  // Unsupported or invalid value
   return Number.NaN;
 };
 
 /**
- * angle to deg
- * @param value - angle
- * @returns deg: 0..360
+ * Converts an angle string to degrees (normalized between 0 and 360).
+ * @param value - The angle string to convert
+ * @returns The resolved degree value (0 to 360)
  */
 export const angleToDeg = (value: string): number => {
   if (!isString(value)) {
@@ -452,9 +451,9 @@ export const angleToDeg = (value: string): number => {
 };
 
 /**
- * number to hex string
- * @param value - numeric value
- * @returns hex string
+ * Converts a numeric value to a two-digit hexadecimal string.
+ * @param value - The numeric value to convert
+ * @returns The resulting hexadecimal string
  */
 export const numberToHexString = (value: number): string => {
   if (!Number.isFinite(value)) {
@@ -472,9 +471,9 @@ export const numberToHexString = (value: number): string => {
 };
 
 /**
- * parse alpha
- * @param [value] - alpha value
- * @returns alpha: 0..1
+ * Parses an alpha value string into a normalized number between 0 and 1.
+ * @param [value] - The alpha value string to parse
+ * @returns The normalized alpha value (0 to 1)
  */
 export const parseAlpha = (value: string = ''): number => {
   if (!isString(value)) {
@@ -506,9 +505,9 @@ export const parseAlpha = (value: string = ''): number => {
 };
 
 /**
- * parse hex alpha
- * @param value - alpha value in hex string
- * @returns alpha: 0..1
+ * Parses a hexadecimal alpha string into a normalized number between 0 and 1.
+ * @param value - The hexadecimal alpha string to parse
+ * @returns The normalized alpha value (0 to 1)
  */
 export const parseHexAlpha = (value: string): number => {
   if (!isString(value)) {
@@ -538,9 +537,9 @@ export const parseHexAlpha = (value: string): number => {
 };
 
 /**
- * parse a CSS color string generically into color data
- * @param value - CSS color value string
- * @returns parsed color data object, or null if invalid
+ * Parses a CSS color string generically into color data.
+ * @param value - The CSS color value string
+ * @returns The parsed color data object, or null if invalid
  */
 export const parseColorGeneric = (value: string): ColorData | null => {
   const tokens = tokenize({ css: value });
@@ -552,11 +551,11 @@ export const parseColorGeneric = (value: string): ColorData | null => {
 };
 
 /**
- * cache invalid color value
- * @param cacheKey - cache key
- * @param format - format
- * @param nullable - is nullable
- * @returns cached value
+ * Caches an invalid color value based on the given format and nullability.
+ * @param cacheKey - The cache key
+ * @param format - The output format
+ * @param nullable - Whether the value can be null
+ * @returns The cached default/fallback value
  */
 export const cacheInvalidColorValue = (
   cacheKey: string,
@@ -578,10 +577,10 @@ export const cacheInvalidColorValue = (
 };
 
 /**
- * resolve invalid color value
- * @param format - output format
- * @param nullable - is nullable
- * @returns resolved value
+ * Resolves an invalid color value according to the output format and nullability.
+ * @param format - The output format
+ * @param nullable - Whether the value can be null
+ * @returns The resolved fallback value
  */
 export const resolveInvalidColorValue = (
   format: string,
@@ -606,9 +605,9 @@ export const resolveInvalidColorValue = (
 };
 
 /**
- * parse a CSS string into an array of component parts
- * @param css - CSS string to parse
- * @returns array of component parts
+ * Parses a CSS string into an array of component parts.
+ * @param css - The CSS string to parse
+ * @returns An array of component part strings
  */
 export const parseCalcComponents = (css: string): string[] => {
   const components = parseListOfComponentValues(tokenize({ css }));

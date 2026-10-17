@@ -1,5 +1,5 @@
 /**
- * parse
+ * Color parsing and conversion utilities.
  */
 
 import { SyntaxFlag } from '@csstools/css-color-parser';
@@ -23,7 +23,7 @@ import {
   roundToPrecision
 } from '../utils/util';
 
-/* constants */
+/* Constants */
 import {
   D50,
   MATRIX_A98_TO_XYZ,
@@ -62,16 +62,16 @@ import {
 } from '../utils/constant';
 import { NAMED_COLORS } from './named-color';
 
-/* regexp */
+/* Regular expressions */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
 const REG_CURRENT = /^currentColor$/i;
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
 /**
- * parse rgb()
- * @param value - rgb color value
- * @param opt - options
- * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
+ * Parses an rgb() or rgba() CSS color function value.
+ * @param value - The RGB color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color array ['rgb', r, g, b, alpha], an empty string, or null.
  */
 export const parseRgb = (
   value: string,
@@ -117,10 +117,10 @@ export const parseRgb = (
 };
 
 /**
- * parse hsl()
- * @param value - hsl color value
- * @param opt - options
- * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
+ * Parses an hsl() or hsla() CSS color function value.
+ * @param value - The HSL color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color array ['rgb', r, g, b, alpha] (or formatted channels), an empty string, or null.
  */
 export const parseHsl = (
   value: string,
@@ -184,10 +184,10 @@ export const parseHsl = (
 };
 
 /**
- * parse hwb()
- * @param value - hwb color value
- * @param opt - options
- * @returns parsed color - ['rgb', r, g, b, alpha], '(empty)', null
+ * Parses an hwb() CSS color function value.
+ * @param value - The HWB color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color array ['rgb', r, g, b, alpha] (or formatted channels), an empty string, or null.
  */
 export const parseHwb = (
   value: string,
@@ -255,11 +255,10 @@ export const parseHwb = (
 };
 
 /**
- * parse lab()
- * @param value - lab color value
- * @param opt - options
- * @returns parsed color
- *   - [xyz-d50, x, y, z, alpha], ['lab', l, a, b, alpha], '(empty)', null
+ * Parses a lab() CSS color function value.
+ * @param value - The lab color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color channels array: ['xyz-d50', x, y, z, alpha] or ['lab', l, a, b, alpha], an empty string, or null.
  */
 export const parseLab = (
   value: string,
@@ -329,11 +328,10 @@ export const parseLab = (
 };
 
 /**
- * parse lch()
- * @param value - lch color value
- * @param opt - options
- * @returns parsed color
- *   - ['xyz-d50', x, y, z, alpha], ['lch', l, c, h, alpha], '(empty)', null
+ * Parses an lch() CSS color function value.
+ * @param value - The lch color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color channels array: ['xyz-d50', x, y, z, alpha] or ['lch', l, c, h, alpha], an empty string, or null.
  */
 export const parseLch = (
   value: string,
@@ -391,11 +389,10 @@ export const parseLch = (
 };
 
 /**
- * parse oklab()
- * @param value - oklab color value
- * @param opt - options
- * @returns parsed color
- *   - ['xyz-d65', x, y, z, alpha], ['oklab', l, a, b, alpha], '(empty)', null
+ * Parses an oklab() CSS color function value.
+ * @param value - The oklab color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color channels array: ['xyz-d65', x, y, z, alpha] or ['oklab', l, a, b, alpha], an empty string, or null.
  */
 export const parseOklab = (
   value: string,
@@ -455,11 +452,10 @@ export const parseOklab = (
 };
 
 /**
- * parse oklch()
- * @param value - oklch color value
- * @param opt - options
- * @returns parsed color
- *   - ['xyz-d65', x, y, z, alpha], ['oklch', l, c, h, alpha], '(empty)', null
+ * Parses an oklch() CSS color function value.
+ * @param value - The oklch color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color channels array: ['xyz-d65', x, y, z, alpha] or ['oklch', l, c, h, alpha], an empty string, or null.
  */
 export const parseOklch = (
   value: string,
@@ -521,11 +517,10 @@ export const parseOklch = (
 };
 
 /**
- * parse color()
- * @param value - color function value
- * @param opt - options
- * @returns parsed color
- *   - ['xyz-(d50|d65)', x, y, z, alpha], [cs, r, g, b, alpha], '(empty)', null
+ * Parses a generic color() CSS function value.
+ * @param value - The color function value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color channels array: ['xyz-(d50|d65)', x, y, z, alpha] or [cs, r, g, b, alpha], an empty string, or null.
  */
 export const parseColorFunc = (
   value: string,
@@ -663,12 +658,10 @@ export const parseColorFunc = (
 };
 
 /**
- * parse color value
- * @param value - CSS color value
- * @param opt - options
- * @returns parsed color
- *   - ['xyz-(d50|d65)', x, y, z, alpha], ['rgb', r, g, b, alpha]
- *   - value, '(empty)', null
+ * Parses a CSS color value string of any supported format.
+ * @param value - The CSS color value string to parse.
+ * @param opt - The parsing options.
+ * @returns The parsed color array/channels, an empty string, or null.
  */
 export const parseColorValue = (
   value: string,
