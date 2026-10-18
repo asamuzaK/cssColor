@@ -18,6 +18,7 @@ import {
   ColorAndPct,
   ColorChannels,
   ColorFormat,
+  ColorMixInnerContent,
   ColorResolverFn,
   ColorSpace,
   ColorSpaceParseResult,
@@ -88,6 +89,18 @@ export const parseColorSpace = (arg: string): ColorSpaceParseResult | null => {
 };
 
 /**
+ * Determines whether the given value is a percentage.
+ * @param value - value
+ * @returns True if the value is percentage, false otherwise.
+ */
+export const isPercentage = (value: string): boolean => {
+  if (!isString(value)) {
+    return false;
+  }
+  return value.endsWith('%') || value.startsWith(FN_CALC) || value === NONE;
+};
+
+/**
  * Parses a color and percentage argument string.
  * @param arg - The color and percentage argument string to parse.
  * @returns An object containing the color string and percentage string.
@@ -98,19 +111,14 @@ export const parseColorAndPct = (arg: string): ColorAndPct => {
   let pct = '';
   if (tokens.length === 1) {
     color = tokens[0] as string;
+  } else if (isPercentage(tokens.at(-1) as string)) {
+    pct = tokens.pop() as string;
+    color = tokens.join(' ');
+  } else if (isPercentage(tokens[0] as string)) {
+    pct = tokens.shift() as string;
+    color = tokens.join(' ');
   } else {
-    const isPct = (t: string) => {
-      return t.endsWith('%') || t.startsWith(FN_CALC) || t === NONE;
-    };
-    if (isPct(tokens[tokens.length - 1] as string)) {
-      pct = tokens.pop() as string;
-      color = tokens.join(' ');
-    } else if (isPct(tokens[0] as string)) {
-      pct = tokens.shift() as string;
-      color = tokens.join(' ');
-    } else {
-      color = tokens.join(' ');
-    }
+    color = tokens.join(' ');
   }
   return { color, pct };
 };
@@ -798,6 +806,67 @@ export const computeMixedColor = (
     return cacheInvalidColorValue(cacheKey, format, nullable) as null;
   }
   return res;
+};
+
+/**
+ * Parses inner content of the color-mix().
+ * @param value - The color-mix() value
+ * @returns The parsed color-mix() inner content.
+ */
+export const parseColorMixInnerContent = (
+  value: string
+): ColorMixInnerContent | null => {
+  if (!isString(value)) {
+    return null;
+  }
+  const str = value.toLowerCase().trim();
+  if (!str.startsWith(FN_MIX) || !str.endsWith(')')) {
+    return null;
+  }
+  const innerContent = str.slice(10, -1).trim();
+  if (!innerContent) {
+    return null;
+  }
+  const [firstItem, ...restItems] = splitValue(innerContent, {
+    delimiter: ','
+  }).map(s => s.trim());
+  const colors = [];
+  const parsedColorSpace = parseColorSpace(firstItem as string);
+  if (parsedColorSpace) {
+    const { colorSpace, hueArc } = parsedColorSpace;
+    for (const item of restItems) {
+      const parsedColor = parseColorAndPct(item as string);
+      if (!parsedColor.color) {
+        return null;
+      }
+      colors.push(parsedColor);
+    }
+    if (!colors.length) {
+      return null;
+    }
+    return {
+      colors,
+      colorSpace,
+      hueArc
+    };
+  }
+  const parsedFirstItem = parseColorAndPct(firstItem as string);
+  if (!parsedFirstItem.color) {
+    return null;
+  }
+  colors.push(parsedFirstItem);
+  for (const item of restItems) {
+    const parsedColor = parseColorAndPct(item as string);
+    if (!parsedColor.color) {
+      return null;
+    }
+    colors.push(parsedColor);
+  }
+  return {
+    colors,
+    colorSpace: null,
+    hueArc: ''
+  };
 };
 
 /**

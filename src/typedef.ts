@@ -371,6 +371,18 @@ export interface ColorAndPct {
 }
 
 /**
+ * Parsed result of color-mix() inner content.
+ */
+export interface ColorMixInnerContent {
+  /** Target color space name. */
+  colorSpace: ColorSpace | null;
+  /** Hue interpolation arc or methid. */
+  hueArc: HueArc | string;
+  /** Extracted colors. */
+  colors: ColorAndPct[];
+}
+
+/**
  * Normalized percentage weight values for color blending operations.
  */
 export interface NormalizedPercentages {

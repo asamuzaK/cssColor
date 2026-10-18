@@ -1058,6 +1058,88 @@ describe('computeMixedColor', () => {
   });
 });
 
+describe('parseColorMixInnerContent', () => {
+  const func = colorMix.parseColorMixInnerContent;
+
+  it('should return null when input is not a string', () => {
+    assert.strictEqual(func(null as any), null);
+    assert.strictEqual(func(undefined as any), null);
+    assert.strictEqual(func(123 as any), null);
+    assert.strictEqual(func({} as any), null);
+  });
+
+  it('should return null when format is invalid', () => {
+    assert.strictEqual(func('srgb, red, blue'), null);
+    assert.strictEqual(func('color-mix(in srgb, red, blue'), null);
+    assert.strictEqual(func('color-mix in srgb, red, blue)'), null);
+  });
+
+  describe('with color space specification', () => {
+    it('should parse color-mix with standard color space and colors', () => {
+      const res = func('color-mix(in srgb, red, blue)');
+      assert.deepEqual(res, {
+        colorSpace: 'srgb',
+        hueArc: '',
+        colors: [
+          { color: 'red', pct: '' },
+          { color: 'blue', pct: '' }
+        ]
+      });
+    });
+
+    it('should parse color-mix with color space, hue arc, and percentages', () => {
+      const res = func('color-mix(in oklch shorter hue, red 30%, blue 70%)');
+      assert.deepEqual(res, {
+        colorSpace: 'oklch',
+        hueArc: 'shorter',
+        colors: [
+          { color: 'red', pct: '30%' },
+          { color: 'blue', pct: '70%' }
+        ]
+      });
+    });
+
+    it('should return null if any color in rest items is missing or invalid', () => {
+      const res = func('color-mix(in srgb, red, )');
+      assert.strictEqual(res, null);
+    });
+
+    it('should return null if no color items follow the color space', () => {
+      const res = func('color-mix(in srgb)');
+      assert.strictEqual(res, null);
+    });
+  });
+
+  describe('without color space specification', () => {
+    it('should parse color-mix without color space and default to null colorSpace', () => {
+      const res = func('color-mix(red, blue)');
+      assert.deepEqual(res, {
+        colorSpace: null,
+        hueArc: '',
+        colors: [
+          { color: 'red', pct: '' },
+          { color: 'blue', pct: '' }
+        ]
+      });
+    });
+
+    it('should return null if first item color is missing or empty', () => {
+      const res = func('color-mix(, blue)');
+      assert.strictEqual(res, null);
+    });
+
+    it('should return null if subsequent item color is missing or empty', () => {
+      const res = func('color-mix(red, )');
+      assert.strictEqual(res, null);
+    });
+
+    it('should return null if item color is missing or empty', () => {
+      const res = func('color-mix( )');
+      assert.strictEqual(res, null);
+    });
+  });
+});
+
 describe('resolveColorMix', () => {
   const func = colorMix.resolveColorMix;
 
