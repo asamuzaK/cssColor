@@ -629,7 +629,7 @@ describe('is valid color', () => {
     assert.isFalse(func('invalidcolor'));
   });
 
-  it('should return true for valid color syntaxes matching REG_COLOR', () => {
+  it('should return true for valid color syntaxes', () => {
     assert.isTrue(func('#ff0000'));
     assert.isTrue(func('rgb(255, 0, 0)'));
     assert.isTrue(func('hsl(120, 100%, 50%)'));
@@ -642,8 +642,27 @@ describe('is valid color', () => {
     assert.isFalse(func('color(srgb 1 0)'));
   });
 
-  it('should return true for valid color-mix syntax matching REG_MIX', () => {
+  it('should return true for color-mix syntax', () => {
     assert.isTrue(func('color-mix(in srgb, red, blue)'));
     assert.isTrue(func('color-mix(in lch, red 20%, yellow 80%)'));
+  });
+
+  it('should return true for color-mix syntax without colorspace', () => {
+    assert.isTrue(func('color-mix(red, blue)'));
+    assert.isTrue(func('color-mix(red 20%, yellow 80%)'));
+  });
+
+  it('should return true for color-mix syntax with only a color', () => {
+    assert.isTrue(func('color-mix(red)'));
+    assert.isTrue(func('color-mix(red 20%)'));
+  });
+
+  it('should return false for invalid color-mix syntax', () => {
+    assert.isFalse(func('color-mix(in srgb)'));
+  });
+
+  it('should return true for color-mix syntax with multiple colors', () => {
+    assert.isTrue(func('color-mix(in srgb, red, green, blue)'));
+    assert.isTrue(func('color-mix(red 20%, yellow 30%, white 50%)'));
   });
 });

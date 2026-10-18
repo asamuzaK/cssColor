@@ -59,9 +59,10 @@ const REG_FN_CALC = new RegExp(SYN_FN_CALC);
 const REG_FN_COLOR =
   /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
 const REG_FN_LIGHT_DARK = new RegExp(SYN_FN_LIGHT_DARK);
+const REG_FN_MIX = new RegExp(SYN_MIX);
 const REG_FN_REL = new RegExp(SYN_FN_REL);
 const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-const REG_MIX = new RegExp(SYN_MIX);
+const REG_NAMED_COLOR = /^[a-z]+$/;
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
 /**
@@ -120,7 +121,7 @@ export const resolveColorValue = (
       return value;
     }
     // named-color
-  } else if (/^[a-z]+$/.test(value)) {
+  } else if (REG_NAMED_COLOR.test(value)) {
     if (Object.hasOwn(NAMED_COLORS, value)) {
       if (format === VAL_SPEC) {
         setCache(cacheKey, value);
@@ -562,14 +563,14 @@ export const isValidColor = (value: unknown, opt: Options = {}): boolean => {
   if (!color) {
     return false;
   }
-  if (/^[a-z]+$/.test(color)) {
+  if (REG_NAMED_COLOR.test(color)) {
     return (
       color === 'currentcolor' ||
       color === 'transparent' ||
       Object.hasOwn(NAMED_COLORS, color)
     );
   }
-  if (REG_COLOR.test(color) || REG_MIX.test(color)) {
+  if (REG_COLOR.test(color) || REG_FN_MIX.test(color)) {
     return true;
   }
   if (REG_FN_COLOR.test(color)) {

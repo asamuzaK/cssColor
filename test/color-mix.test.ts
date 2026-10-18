@@ -43,12 +43,54 @@ describe('parseColorSpace', () => {
   });
 });
 
+describe('isPossiblyPercentage', () => {
+  const func = colorMix.isPossiblyPercentage;
+
+  it('should return true for strings ending with "%"', () => {
+    assert.isTrue(func('50%'), 'should return true for "50%"');
+    assert.isTrue(func('0%'), 'should return true for "0%"');
+    assert.isTrue(func('100%'), 'should return true for "100%"');
+  });
+
+  it('should return true for strings starting with "calc("', () => {
+    assert.isTrue(
+      func('calc(50% + 10%)'),
+      'should return true for calc() starting percentage'
+    );
+    assert.isTrue(func('calc(20%)'), 'should return true for simple calc()');
+  });
+
+  it('should return false for regular color names or numeric strings without "%" or "calc("', () => {
+    assert.isFalse(func('red'), 'should return false for color names');
+    assert.isFalse(func('123'), 'should return false for numeric strings');
+    assert.isFalse(
+      func('50'),
+      'should return false for numbers without percentage sign'
+    );
+  });
+
+  it('should return false for non-string values', () => {
+    assert.isFalse(func(null as any), 'should return false for null');
+    assert.isFalse(func(undefined as any), 'should return false for undefined');
+    assert.isFalse(func(123 as any), 'should return false for number type');
+    assert.isFalse(func({} as any), 'should return false for object type');
+  });
+});
+
 describe('parseColorAndPct', () => {
   const func = colorMix.parseColorAndPct;
 
   it('should parse single token as color only', () => {
     const res = func('red');
     assert.deepEqual(res, { color: 'red', pct: '' });
+  });
+
+  it('should split tokens as color when neither end nor start is var()', () => {
+    const res = func('var(--my-color) var(--other-value)');
+    assert.deepEqual(res, {
+      color: 'var(--my-color)',
+      pct: 'var(--other-value)'
+    });
   });
 
   describe('when percentage token is at the end', () => {
@@ -66,11 +108,6 @@ describe('parseColorAndPct', () => {
       const res = func('blue calc(20% + 10%)');
       assert.deepEqual(res, { color: 'blue', pct: 'calc(20% + 10%)' });
     });
-
-    it('should parse percentage equal to "none"', () => {
-      const res = func('green none');
-      assert.deepEqual(res, { color: 'green', pct: 'none' });
-    });
   });
 
   describe('when percentage token is at the beginning', () => {
@@ -84,16 +121,6 @@ describe('parseColorAndPct', () => {
       assert.deepEqual(res, {
         color: 'color(srgb 0 1 0)',
         pct: 'calc(50% - 10%)'
-      });
-    });
-  });
-
-  describe('when no percentage token is present in multi-token input', () => {
-    it('should join all tokens as color when neither end nor start is percentage', () => {
-      const res = func('var(--my-color) var(--other-color)');
-      assert.deepEqual(res, {
-        color: 'var(--my-color) var(--other-color)',
-        pct: ''
       });
     });
   });
@@ -372,66 +399,6 @@ describe('processColor', () => {
     it('should return empty string when parseColorValue returns empty or non-string invalid value', () => {
       const res = func('invalid-color-name', opt);
       assert.strictEqual(res, '');
-    });
-  });
-});
-
-describe('buildSpecifiedColorMix', () => {
-  const func = colorMix.buildSpecifiedColorMix;
-  const opt = { format: 'specifiedValue' };
-
-  it('should return empty string if either color is invalid', () => {
-    assert.strictEqual(
-      func('srgb', '', 'invalid-color', '50%', 'blue', '50%', opt),
-      ''
-    );
-    assert.strictEqual(
-      func('srgb', '', 'red', '50%', 'invalid-color', '50%', opt),
-      ''
-    );
-  });
-
-  describe('percentage handling', () => {
-    it('should append percentages to both colors when pctA and pctB are provided', () => {
-      const res = func('srgb', '', 'red', '20%', 'blue', '30%', opt);
-      assert.strictEqual(res, 'color-mix(in srgb, red 20%, blue 30%)');
-    });
-
-    it('should append percentage to valueA when pctA is provided and not 50%', () => {
-      const res = func('srgb', '', 'red', '30%', 'blue', '', opt);
-      assert.strictEqual(res, 'color-mix(in srgb, red 30%, blue)');
-    });
-
-    it('should omit percentage when pctA is 50%', () => {
-      const res = func('srgb', '', 'red', '50%', 'blue', '', opt);
-      assert.strictEqual(res, 'color-mix(in srgb, red, blue)');
-    });
-
-    it('should calculate and append percentage to valueA when pctB is provided and resultant pctA is not 50%', () => {
-      const res = func('srgb', '', 'red', '', 'blue', '30%', opt);
-      assert.strictEqual(res, 'color-mix(in srgb, red 70%, blue)');
-    });
-
-    it('should omit percentage when pctB is 50% (resulting in 50% for pctA)', () => {
-      const res = func('srgb', '', 'red', '', 'blue', '50%', opt);
-      assert.strictEqual(res, 'color-mix(in srgb, red, blue)');
-    });
-
-    it('should not append percentages when neither pctA nor pctB is provided', () => {
-      const res = func('srgb', '', 'red', '', 'blue', '', opt);
-      assert.strictEqual(res, 'color-mix(in srgb, red, blue)');
-    });
-  });
-
-  describe('hueArc handling', () => {
-    it('should include hueArc in output string when hueArc is specified', () => {
-      const res = func('lch', 'shorter', 'red', '', 'blue', '', opt);
-      assert.strictEqual(res, 'color-mix(in lch shorter hue, red, blue)');
-    });
-
-    it('should not include hueArc in output string when hueArc is empty', () => {
-      const res = func('lch', '', 'red', '', 'blue', '', opt);
-      assert.strictEqual(res, 'color-mix(in lch, red, blue)');
     });
   });
 });
@@ -1058,6 +1025,334 @@ describe('computeMixedColor', () => {
   });
 });
 
+describe('parseInnerContentColorItems', () => {
+  const func = colorMix.parseInnerContentColorItems;
+
+  it('should parse color items without percentages correctly and set totalPercentage to 0', () => {
+    const res = func(['red', 'blue']);
+    assert.deepEqual(res, {
+      colors: [
+        { color: 'red', pct: '' },
+        { color: 'blue', pct: '' }
+      ],
+      totalPercentage: 0
+    });
+  });
+
+  it('should parse color items with percentages and calculate totalPercentage correctly', () => {
+    const res = func(['red 30%', 'blue 70%']);
+    assert.deepEqual(res, {
+      colors: [
+        { color: 'red', pct: '30%' },
+        { color: 'blue', pct: '70%' }
+      ],
+      totalPercentage: 100
+    });
+  });
+
+  it('should parse color items and resolve totalPercentage as NaN', () => {
+    const res = func(['red 30%', 'blue calc(70% / 2)']);
+    assert.deepEqual(res, {
+      colors: [
+        { color: 'red', pct: '30%' },
+        { color: 'blue', pct: 'calc(70% / 2)' }
+      ],
+      totalPercentage: NaN
+    });
+  });
+
+  it('should parse color items and resolve totalPercentage as NaN', () => {
+    const res = func(['red calc(30% * 2)', 'blue 70%']);
+    assert.deepEqual(res, {
+      colors: [
+        { color: 'red', pct: 'calc(30% * 2)' },
+        { color: 'blue', pct: '70%' }
+      ],
+      totalPercentage: NaN
+    });
+  });
+
+  it('should parse color items and resolve totalPercentage as NaN', () => {
+    const res = func(['var(--foo) 30%', 'blue 70%']);
+    assert.deepEqual(res, {
+      colors: [
+        { color: 'var(--foo)', pct: '30%' },
+        { color: 'blue', pct: '70%' }
+      ],
+      totalPercentage: NaN
+    });
+  });
+
+  it('should return null if any item has a missing or empty color', () => {
+    const res = func(['red', '']);
+    assert.strictEqual(res, null);
+  });
+
+  it('should return null if any percentage is negative', () => {
+    const res = func(['red -10%', 'blue 50%']);
+    assert.strictEqual(res, null);
+  });
+});
+
+describe('parseColorMixInnerContent', () => {
+  const func = colorMix.parseColorMixInnerContent;
+
+  it('should return null when input is not a string', () => {
+    assert.strictEqual(func(null as any), null);
+    assert.strictEqual(func(undefined as any), null);
+    assert.strictEqual(func(123 as any), null);
+    assert.strictEqual(func({} as any), null);
+  });
+
+  it('should return null when format is invalid', () => {
+    assert.strictEqual(func('srgb, red, blue'), null);
+    assert.strictEqual(func('color-mix(in srgb, red, blue'), null);
+    assert.strictEqual(func('color-mix in srgb, red, blue)'), null);
+  });
+
+  describe('with color space specification', () => {
+    it('should parse color-mix with standard color space and colors', () => {
+      const res = func('color-mix(in srgb, red, blue)');
+      assert.deepEqual(res, {
+        colorSpace: 'srgb',
+        hueArc: '',
+        colors: [
+          { color: 'red', pct: '' },
+          { color: 'blue', pct: '' }
+        ],
+        totalPercentage: 0
+      });
+    });
+
+    it('should parse color-mix with color space, hue arc, and percentages', () => {
+      const res = func('color-mix(in oklch shorter hue, red 30%, blue 70%)');
+      assert.deepEqual(res, {
+        colorSpace: 'oklch',
+        hueArc: 'shorter',
+        colors: [
+          { color: 'red', pct: '30%' },
+          { color: 'blue', pct: '70%' }
+        ],
+        totalPercentage: 100
+      });
+    });
+
+    it('should return null if any color in rest items is missing or invalid', () => {
+      const res = func('color-mix(in srgb, red, )');
+      assert.strictEqual(res, null);
+    });
+
+    it('should return null if no color items follow the color space', () => {
+      const res = func('color-mix(in srgb)');
+      assert.strictEqual(res, null);
+    });
+  });
+
+  describe('without color space specification', () => {
+    it('should parse color-mix without color space and default to null colorSpace', () => {
+      const res = func('color-mix(red, blue)');
+      assert.deepEqual(res, {
+        colorSpace: null,
+        hueArc: '',
+        colors: [
+          { color: 'red', pct: '' },
+          { color: 'blue', pct: '' }
+        ],
+        totalPercentage: 0
+      });
+    });
+
+    it('should return null if first item color is missing or empty', () => {
+      const res = func('color-mix(, blue)');
+      assert.strictEqual(res, null);
+    });
+
+    it('should return null if subsequent item color is missing or empty', () => {
+      const res = func('color-mix(red, )');
+      assert.strictEqual(res, null);
+    });
+
+    it('should return null if item color is missing or empty', () => {
+      const res = func('color-mix( )');
+      assert.strictEqual(res, null);
+    });
+
+    it('should parse color-mix without color space, but with percentages', () => {
+      const res = func('color-mix(red 30%, blue 70%)');
+      assert.deepEqual(res, {
+        colorSpace: null,
+        hueArc: '',
+        colors: [
+          { color: 'red', pct: '30%' },
+          { color: 'blue', pct: '70%' }
+        ],
+        totalPercentage: 100
+      });
+    });
+  });
+});
+
+describe('normalizeColorItems', () => {
+  const func = colorMix.normalizeColorItems;
+
+  it('should set pct to "0%" when totalPercentage > 100 and pct is empty', () => {
+    const colors = [
+      { color: 'red', pct: '60%' },
+      { color: 'green', pct: '60%' },
+      { color: 'blue', pct: '' }
+    ];
+    const res = func(colors, 120);
+    assert.deepEqual(
+      res,
+      {
+        colors: [
+          { color: 'red', pct: '60%' },
+          { color: 'green', pct: '60%' },
+          { color: 'blue', pct: '0%' }
+        ],
+        totalPercentage: 120
+      },
+      'result'
+    );
+  });
+
+  it('should distribute percentage equally when totalPercentage > 0 and <= 100 and pct is empty', () => {
+    const colors = [
+      { color: 'red', pct: '' },
+      { color: 'green', pct: '' },
+      { color: 'blue', pct: '70%' }
+    ];
+    const res = func(colors, 70);
+    assert.deepEqual(
+      res,
+      {
+        colors: [
+          { color: 'red', pct: '15%' },
+          { color: 'green', pct: '15%' },
+          { color: 'blue', pct: '70%' }
+        ],
+        totalPercentage: 100
+      },
+      'result'
+    );
+  });
+
+  it('should resolve nested color strings using the provided resolver', () => {
+    const colors = [
+      { color: 'var(--my-red)', pct: '40%' },
+      { color: 'blue', pct: '60%' }
+    ];
+    const opt = {};
+    const resolver = (v: string) => (v === 'var(--my-red)' ? 'red' : null);
+    const res = func(colors, 100, opt, resolver);
+    assert.deepEqual(
+      res,
+      {
+        colors: [
+          { color: 'red', pct: '40%' },
+          { color: 'blue', pct: '60%' }
+        ],
+        totalPercentage: 100
+      },
+      'result'
+    );
+  });
+
+  it('should leave percentages untouched when totalPercentage does not trigger adjustments', () => {
+    const colors = [
+      { color: 'red', pct: '' },
+      { color: 'blue', pct: '' }
+    ];
+    const res = func(colors, 0);
+    assert.deepEqual(
+      res,
+      {
+        colors: [
+          { color: 'red', pct: '' },
+          { color: 'blue', pct: '' }
+        ],
+        totalPercentage: 0
+      },
+      'result'
+    );
+  });
+});
+
+describe('formatSpecifiedValue', () => {
+  const func = colorMix.formatSpecifiedValue;
+  const opt = { format: 'specifiedValue' };
+
+  it('should format color-mix with color space and color items', () => {
+    const colors = [
+      { color: 'red', pct: '30%' },
+      { color: 'blue', pct: '70%' }
+    ];
+    const res = func('srgb', '', colors, opt);
+    assert.strictEqual(res, 'color-mix(in srgb, red 30%, blue 70%)');
+  });
+
+  it('should format color-mix with color space and multiple color items', () => {
+    const colors = [
+      { color: 'red', pct: '30%' },
+      { color: 'green', pct: '30%' },
+      { color: 'blue', pct: '70%' }
+    ];
+    const res = func('srgb', '', colors, opt);
+    assert.strictEqual(res, 'color-mix(in srgb, red 30%, green 30%, blue 70%)');
+  });
+
+  it('should format color-mix with color space and color items without pct', () => {
+    const colors = [
+      { color: 'red', pct: '' },
+      { color: 'blue', pct: '' }
+    ];
+    const res = func('srgb', '', colors, opt);
+    assert.strictEqual(res, 'color-mix(in srgb, red, blue)');
+  });
+
+  it('should format color-mix with color space and color items with hex values', () => {
+    const colors = [
+      { color: '#ff0000', pct: '' },
+      { color: '#0000ff', pct: '' }
+    ];
+    const res = func('srgb', '', colors, opt);
+    assert.strictEqual(
+      res,
+      'color-mix(in srgb, rgb(255, 0, 0), rgb(0, 0, 255))'
+    );
+  });
+
+  it('should format color-mix with color space, hue arc, and color items', () => {
+    const colors = [
+      { color: 'red', pct: '50%' },
+      { color: 'blue', pct: '50%' }
+    ];
+    const res = func('oklch', 'shorter', colors, opt);
+    assert.strictEqual(
+      res,
+      'color-mix(in oklch shorter hue, red 50%, blue 50%)'
+    );
+  });
+
+  it('should format color-mix without color space (null)', () => {
+    const colors = [
+      { color: 'red', pct: '40%' },
+      { color: 'blue', pct: '60%' }
+    ];
+    const res = func(null, '', colors, opt);
+    assert.strictEqual(res, 'color-mix(red 40%, blue 60%)');
+  });
+
+  it('should return an empty string if any color in items is invalid', () => {
+    const colors = [
+      { color: 'invalid-color', pct: '50%' },
+      { color: 'blue', pct: '50%' }
+    ];
+    const res = func('srgb', '', colors, opt);
+    assert.strictEqual(res, '');
+  });
+});
+
 describe('resolveColorMix', () => {
   const func = colorMix.resolveColorMix;
 
@@ -1076,16 +1371,6 @@ describe('resolveColorMix', () => {
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should return default invalid value if argument count is not 3', () => {
-    const res = func('color-mix(in srgb, red)');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
-  it('should return default invalid value for missing color space', () => {
-    const res = func('color-mix(red, blue, green)');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-  });
-
   it('should return specified format correctly', () => {
     const res = func('color-mix(in srgb, red, blue)', {
       format: 'specifiedValue'
@@ -1097,6 +1382,17 @@ describe('resolveColorMix', () => {
   it('should compute mixed color correctly (srgb, 50% / 50%)', () => {
     const res = func('color-mix(in srgb, red, blue)');
     assert.deepEqual(res, ['rgb', 128, 0, 128, 1], 'result');
+  });
+
+  it('should compute mixed color with oklab if color space is missing', () => {
+    const res = func('color-mix(red, green)', {
+      format: 'computedValue'
+    });
+    assert.deepEqual(
+      res,
+      ['oklab', 0.573854, 0.0422802, 0.116761, 1],
+      'result'
+    );
   });
 
   it('should compute mixed color with explicit percentages', () => {
@@ -1162,15 +1458,6 @@ describe('resolveColorMix', () => {
     const res1 = func(value, opt);
     const res2 = func(value, opt);
     assert.strictEqual(res1, res2, 'results should match exactly');
-  });
-
-  it('should return cached result on subsequent calls (null)', () => {
-    const value = 'color-mix(in srgb, red)';
-    const opt = { nullable: true };
-    const res1 = func(value, opt);
-    const res2 = func(value, opt);
-    assert.strictEqual(res1, res2, 'results should match exactly');
-    assert.strictEqual(res2, null, 'result should be null');
   });
 
   it('should resolve nested variables using resolver and custom properties', () => {
