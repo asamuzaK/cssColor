@@ -18,6 +18,7 @@ import {
   ColorAndPct,
   ColorChannels,
   ColorFormat,
+  ColorMixInnerColorItem,
   ColorMixInnerContent,
   ColorResolverFn,
   ColorSpace,
@@ -64,117 +65,6 @@ import {
   VAL_SPEC
 } from '../utils/constant';
 const NAMESPACE = 'color-mix';
-
-/**
- * Parses a color space argument string.
- * @param arg - The color space argument string to parse.
- * @returns An object containing the color space and hue arc, or null if invalid.
- */
-export const parseColorSpace = (arg: string): ColorSpaceParseResult | null => {
-  const csTokens = splitValue(arg).filter(Boolean);
-  if (csTokens[0] !== 'in' || csTokens.length < 2) {
-    return null;
-  }
-  const hueIndex = csTokens.indexOf('hue');
-  if (csTokens.length > 2 && hueIndex > -1) {
-    return {
-      colorSpace: csTokens[1] as string,
-      hueArc: csTokens.slice(2, hueIndex).join(' ')
-    };
-  }
-  return {
-    colorSpace: csTokens.slice(1).join(' '),
-    hueArc: ''
-  };
-};
-
-/**
- * Determines whether the given value is a percentage.
- * @param value - value
- * @returns True if the value is percentage, false otherwise.
- */
-export const isPercentage = (value: string): boolean => {
-  if (!isString(value)) {
-    return false;
-  }
-  return value.endsWith('%') || value.startsWith(FN_CALC) || value === NONE;
-};
-
-/**
- * Parses a color and percentage argument string.
- * @param arg - The color and percentage argument string to parse.
- * @returns An object containing the color string and percentage string.
- */
-export const parseColorAndPct = (arg: string): ColorAndPct => {
-  const tokens = splitValue(arg).filter(Boolean);
-  let color = '';
-  let pct = '';
-  if (tokens.length === 1) {
-    color = tokens[0] as string;
-  } else if (isPercentage(tokens.at(-1) as string)) {
-    pct = tokens.pop() as string;
-    color = tokens.join(' ');
-  } else if (isPercentage(tokens[0] as string)) {
-    pct = tokens.shift() as string;
-    color = tokens.join(' ');
-  } else {
-    color = tokens.join(' ');
-  }
-  return { color, pct };
-};
-
-/**
- * Resolves nested functions recursively.
- * @param colorStr - The color string to resolve.
- * @param opt - The conversion options.
- * @param resolver - The color resolver function.
- * @returns The resolved color string, or the original string if no nesting is present.
- */
-export const resolveIfNested = (
-  colorStr: string,
-  opt: Options,
-  resolver: ColorResolverFn
-): string => {
-  let current = colorStr;
-  while (
-    isString(current) &&
-    (current.startsWith(FN_MIX) ||
-      current.startsWith(FN_VAR) ||
-      current.startsWith(FN_LIGHT_DARK))
-  ) {
-    const resolved = resolver(current, {
-      ...opt,
-      format: opt.format === VAL_SPEC ? opt.format : VAL_COMP
-    });
-    if (!resolved) {
-      break;
-    }
-    if (Array.isArray(resolved)) {
-      const [cs, v1, v2, v3, v4] = resolved;
-      if (v4 === 1 || v4 === undefined) {
-        current =
-          cs === 'rgb'
-            ? `${cs}(${v1}, ${v2}, ${v3})`
-            : `${cs}(${v1} ${v2} ${v3})`;
-      } else {
-        current =
-          cs === 'rgb'
-            ? `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`
-            : `${cs}(${v1} ${v2} ${v3} / ${v4})`;
-      }
-      break;
-    }
-    if (typeof resolved === 'string') {
-      if (resolved === current) {
-        break;
-      }
-      current = resolved;
-    } else {
-      break;
-    }
-  }
-  return current;
-};
 
 /**
  * Normalizes the percentages for color mixing.
@@ -227,96 +117,6 @@ export const normalizePercentages = (
     m = 1;
   }
   return { pA, pB, m };
-};
-
-/**
- * Processes and standardizes a color value string.
- * @param colorStr - The color string to process.
- * @param opt - The conversion options.
- * @returns The processed specified color string.
- */
-export const processColor = (colorStr: string, opt: Options): string => {
-  if (!isString(colorStr)) {
-    return '';
-  }
-  if (colorStr.startsWith(FN_MIX) || colorStr.startsWith(FN_LIGHT_DARK)) {
-    return colorStr;
-  }
-  if (colorStr.startsWith(FN_COLOR)) {
-    const [cs, v1, v2, v3, v4] = parseColorFunc(
-      colorStr,
-      opt
-    ) as SpecifiedColorChannels;
-    if (v4 === 1) {
-      return `color(${cs} ${v1} ${v2} ${v3})`;
-    } else {
-      return `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
-    }
-  }
-  const val = parseColorValue(colorStr, opt);
-  if (Array.isArray(val)) {
-    const [cs, v1, v2, v3, v4] = val;
-    if (v4 === 1) {
-      if (cs === 'rgb') {
-        return `${cs}(${v1}, ${v2}, ${v3})`;
-      }
-      return `${cs}(${v1} ${v2} ${v3})`;
-    } else {
-      if (cs === 'rgb') {
-        return `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`;
-      }
-      return `${cs}(${v1} ${v2} ${v3} / ${v4})`;
-    }
-  }
-  if (!isString(val) || !val) {
-    return '';
-  }
-  return val as string;
-};
-
-/**
- * Builds a specified color-mix() CSS function string.
- * @param colorSpace - The target color space.
- * @param hueArc - The hue interpolation method (hue arc).
- * @param colorA - The first color string.
- * @param pctA - The percentage for the first color.
- * @param colorB - The second color string.
- * @param pctB - The percentage for the second color.
- * @param opt - The conversion options.
- * @returns The specified value string for the color-mix() function.
- */
-export const buildSpecifiedColorMix = (
-  colorSpace: string,
-  hueArc: string,
-  colorA: string,
-  pctA: string,
-  colorB: string,
-  pctB: string,
-  opt: Options
-): string => {
-  let valueA = processColor(colorA, opt);
-  let valueB = processColor(colorB, opt);
-  if (!valueA || !valueB) {
-    return '';
-  }
-  if (pctA && pctB) {
-    valueA += ` ${parseFloat(pctA)}%`;
-    valueB += ` ${parseFloat(pctB)}%`;
-  } else if (pctA) {
-    const numPctA = parseFloat(pctA);
-    if (numPctA !== MAX_PCT * HALF) {
-      valueA += ` ${numPctA}%`;
-    }
-  } else if (pctB) {
-    const numPctA = MAX_PCT - parseFloat(pctB);
-    if (numPctA !== MAX_PCT * HALF) {
-      valueA += ` ${numPctA}%`;
-    }
-  }
-  if (hueArc) {
-    return `color-mix(in ${colorSpace} ${hueArc} hue, ${valueA}, ${valueB})`;
-  }
-  return `color-mix(in ${colorSpace}, ${valueA}, ${valueB})`;
 };
 
 /**
@@ -809,8 +609,109 @@ export const computeMixedColor = (
 };
 
 /**
+ * Determines whether the given value is possibly a percentage.
+ * @param value - value
+ * @returns True if the value is percentage, false otherwise.
+ */
+export const isPossiblyPercentage = (value: string): boolean => {
+  if (!isString(value)) {
+    return false;
+  }
+  return (
+    value.endsWith('%') || value.startsWith(FN_CALC) || value.startsWith(FN_VAR)
+  );
+};
+
+/**
+ * Parses a color and percentage argument string.
+ * @param arg - The color and percentage argument string to parse.
+ * @returns An object containing the color string and percentage string.
+ */
+export const parseColorAndPct = (arg: string): ColorAndPct => {
+  const tokens = splitValue(arg).filter(Boolean);
+  let color = '';
+  let pct = '';
+  if (tokens.length === 1) {
+    color = tokens[0] as string;
+  } else if (isPossiblyPercentage(tokens.at(-1) as string)) {
+    pct = tokens.pop() as string;
+    color = tokens.join(' ');
+  } else if (isPossiblyPercentage(tokens[0] as string)) {
+    pct = tokens.shift() as string;
+    color = tokens.join(' ');
+  } else {
+    color = tokens.join(' ');
+  }
+  return { color, pct };
+};
+
+/**
+ * Parses inner content color items
+ * @param items - The color items
+ * @returns The parsed color-mix() inner colors and total percentage.
+ */
+export const parseInnerContentColorItems = (
+  items: string[]
+): ColorMixInnerColorItem | null => {
+  const colors = [];
+  let totalPercentage = 0;
+  let pended = false;
+  for (const item of items) {
+    const parsedColor = parseColorAndPct(item as string);
+    const { color, pct } = parsedColor;
+    if (!color) {
+      return null;
+    }
+    if (color.startsWith(FN_VAR)) {
+      pended = true;
+      totalPercentage = Number.NaN;
+    }
+    if (pct.startsWith(FN_CALC) || pct.startsWith(FN_VAR)) {
+      pended = true;
+      totalPercentage = Number.NaN;
+    } else if (pct.endsWith('%')) {
+      const value = parseFloat(pct);
+      if (value < 0) {
+        return null;
+      }
+      if (!pended) {
+        totalPercentage += value;
+      }
+    }
+    colors.push(parsedColor);
+  }
+  return {
+    colors,
+    totalPercentage
+  };
+};
+
+/**
+ * Parses a color space argument string.
+ * @param arg - The color space argument string to parse.
+ * @returns An object containing the color space and hue arc, or null if invalid.
+ */
+export const parseColorSpace = (arg: string): ColorSpaceParseResult | null => {
+  const csTokens = splitValue(arg).filter(Boolean);
+  if (csTokens[0] !== 'in' || csTokens.length < 2) {
+    return null;
+  }
+  const hueIndex = csTokens.indexOf('hue');
+  if (csTokens.length > 2 && hueIndex > -1) {
+    return {
+      colorSpace: csTokens[1] as string,
+      hueArc: csTokens.slice(2, hueIndex).join(' ')
+    };
+  }
+  return {
+    colorSpace: csTokens.slice(1).join(' '),
+    hueArc: ''
+  };
+};
+
+/**
  * Parses inner content of the color-mix().
- * @param value - The color-mix() value
+ * @param value - The color-mix() value.
  * @returns The parsed color-mix() inner content.
  */
 export const parseColorMixInnerContent = (
@@ -831,42 +732,219 @@ export const parseColorMixInnerContent = (
     delimiter: ','
   }).map(s => s.trim());
   const colors = [];
+  let totalPercentage = 0;
   const parsedColorSpace = parseColorSpace(firstItem as string);
   if (parsedColorSpace) {
     const { colorSpace, hueArc } = parsedColorSpace;
-    for (const item of restItems) {
-      const parsedColor = parseColorAndPct(item as string);
-      if (!parsedColor.color) {
-        return null;
-      }
-      colors.push(parsedColor);
+    const parsedColorItems = parseInnerContentColorItems(restItems);
+    if (!parsedColorItems) {
+      return null;
     }
+    colors.push(...parsedColorItems.colors);
+    totalPercentage += parsedColorItems.totalPercentage;
     if (!colors.length) {
       return null;
     }
     return {
       colors,
       colorSpace,
-      hueArc
+      hueArc,
+      totalPercentage
     };
   }
-  const parsedFirstItem = parseColorAndPct(firstItem as string);
-  if (!parsedFirstItem.color) {
+  const parsedFirstItem = parseInnerContentColorItems([firstItem as string]);
+  if (!parsedFirstItem) {
     return null;
   }
-  colors.push(parsedFirstItem);
-  for (const item of restItems) {
-    const parsedColor = parseColorAndPct(item as string);
-    if (!parsedColor.color) {
-      return null;
-    }
-    colors.push(parsedColor);
+  colors.push(...parsedFirstItem.colors);
+  totalPercentage += parsedFirstItem.totalPercentage;
+  const parsedRestItems = parseInnerContentColorItems(restItems);
+  if (!parsedRestItems) {
+    return null;
   }
+  colors.push(...parsedRestItems.colors);
+  totalPercentage += parsedRestItems.totalPercentage;
   return {
     colors,
     colorSpace: null,
-    hueArc: ''
+    hueArc: '',
+    totalPercentage
   };
+};
+
+/**
+ * Resolves nested functions recursively.
+ * @param colorStr - The color string to resolve.
+ * @param opt - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns The resolved color string, or the original string if no nesting is present.
+ */
+export const resolveIfNested = (
+  colorStr: string,
+  opt: Options,
+  resolver: ColorResolverFn
+): string => {
+  let current = colorStr;
+  while (
+    isString(current) &&
+    (current.startsWith(FN_MIX) ||
+      current.startsWith(FN_VAR) ||
+      current.startsWith(FN_LIGHT_DARK))
+  ) {
+    const resolved = resolver(current, {
+      ...opt,
+      format: opt.format === VAL_SPEC ? opt.format : VAL_COMP
+    });
+    if (!resolved) {
+      break;
+    }
+    if (Array.isArray(resolved)) {
+      const [cs, v1, v2, v3, v4] = resolved;
+      if (v4 === 1 || v4 === undefined) {
+        current =
+          cs === 'rgb'
+            ? `${cs}(${v1}, ${v2}, ${v3})`
+            : `${cs}(${v1} ${v2} ${v3})`;
+      } else {
+        current =
+          cs === 'rgb'
+            ? `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`
+            : `${cs}(${v1} ${v2} ${v3} / ${v4})`;
+      }
+      break;
+    }
+    if (typeof resolved === 'string') {
+      if (resolved === current) {
+        break;
+      }
+      current = resolved;
+    } else {
+      break;
+    }
+  }
+  return current;
+};
+
+/**
+ * Normalizes color values and percentage values.
+ * @param colors - The list of color items.
+ * @param totalPercentage - The total percentage.
+ * @param opt - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns The normalized color-mix() inner colors and total percentage.
+ */
+export const normalizeColorItems = (
+  colors: ColorAndPct[],
+  totalPercentage: number,
+  opt: Options,
+  resolver: ColorResolverFn
+): ColorMixInnerColorItem => {
+  const colorsLength = colors.length;
+  const emptyPcts = [];
+  for (let i = 0; i < colorsLength; i++) {
+    const item = colors[i] as ColorAndPct;
+    const { color, pct } = item;
+    item.color = resolveIfNested(color, opt, resolver);
+    if (pct === '') {
+      if (totalPercentage > 100) {
+        item.pct = '0%';
+      } else if (totalPercentage > 0) {
+        emptyPcts.push(i);
+      }
+    }
+  }
+  if (emptyPcts.length) {
+    const propotionalPct = roundToPrecision(
+      (MAX_PCT - totalPercentage) / emptyPcts.length,
+      HEX
+    );
+    for (const index of emptyPcts) {
+      const item = colors[index] as ColorAndPct;
+      item.pct = `${propotionalPct}%`;
+    }
+    totalPercentage += propotionalPct * emptyPcts.length;
+  }
+  return {
+    colors,
+    totalPercentage
+  };
+};
+
+/**
+ * Processes and standardizes a color value string.
+ * @param colorStr - The color string to process.
+ * @param opt - The conversion options.
+ * @returns The processed specified color string.
+ */
+export const processColor = (colorStr: string, opt: Options): string => {
+  if (!isString(colorStr)) {
+    return '';
+  }
+  if (colorStr.startsWith(FN_MIX) || colorStr.startsWith(FN_LIGHT_DARK)) {
+    return colorStr;
+  }
+  if (colorStr.startsWith(FN_COLOR)) {
+    const [cs, v1, v2, v3, v4] = parseColorFunc(
+      colorStr,
+      opt
+    ) as SpecifiedColorChannels;
+    if (v4 === 1) {
+      return `color(${cs} ${v1} ${v2} ${v3})`;
+    } else {
+      return `color(${cs} ${v1} ${v2} ${v3} / ${v4})`;
+    }
+  }
+  const val = parseColorValue(colorStr, opt);
+  if (Array.isArray(val)) {
+    const [cs, v1, v2, v3, v4] = val;
+    if (v4 === 1) {
+      if (cs === 'rgb') {
+        return `${cs}(${v1}, ${v2}, ${v3})`;
+      }
+      return `${cs}(${v1} ${v2} ${v3})`;
+    } else {
+      if (cs === 'rgb') {
+        return `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`;
+      }
+      return `${cs}(${v1} ${v2} ${v3} / ${v4})`;
+    }
+  }
+  if (!isString(val) || !val) {
+    return '';
+  }
+  return val as string;
+};
+
+/**
+ * Formats a specified value for the color-mix().
+ * @param colorSpace - The target color space.
+ * @param hueArc - The hue interpolation method (hue arc).
+ * @param colors - The color items.
+ * @param opt - The conversion options.
+ * @returns The specified value for the color-mix().
+ */
+export const formatSpecifiedValue = (
+  colorSpace: string | null,
+  hueArc: string,
+  colors: ColorAndPct[],
+  opt: Options
+): string => {
+  const items = [];
+  for (const { color, pct } of colors) {
+    const colorValue = processColor(color, opt);
+    if (!colorValue) {
+      return '';
+    }
+    items.push(`${colorValue} ${pct}`.trim());
+  }
+  const colorItems = items.join(', ');
+  if (colorSpace) {
+    if (hueArc) {
+      return `color-mix(in ${colorSpace} ${hueArc} hue, ${colorItems})`;
+    }
+    return `color-mix(in ${colorSpace}, ${colorItems})`;
+  }
+  return `color-mix(${colorItems})`;
 };
 
 /**
@@ -884,10 +962,9 @@ export const resolveColorMix = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.toLowerCase().trim();
-  const { format = '', nullable = false } = opt;
+  const str = value.toLowerCase().trim();
   const cacheKey: string = createCacheKey(
-    { namespace: NAMESPACE, name: 'resolveColorMix', value },
+    { namespace: NAMESPACE, name: 'resolveColorMix', value: str },
     opt
   );
   const cachedResult = getCache(cacheKey);
@@ -901,55 +978,49 @@ export const resolveColorMix = (
     }
     return null;
   }
-  if (!value.startsWith(FN_MIX) || !value.endsWith(')')) {
+  const { format = '', nullable = false } = opt;
+  const parsedInnerContent = parseColorMixInnerContent(str);
+  if (!parsedInnerContent) {
     return cacheInvalidColorValue(cacheKey, format, nullable);
   }
-  const innerContent = value.slice(10, -1).trim();
-  const args = splitValue(innerContent, { delimiter: ',' }).map(s => s.trim());
-  if (args.length !== 3) {
-    return cacheInvalidColorValue(cacheKey, format, nullable);
+  let { colorSpace, colors, hueArc, totalPercentage } = parsedInnerContent;
+  if (!colorSpace && format !== VAL_SPEC) {
+    colorSpace = 'oklab';
+  } else if (colorSpace === 'xyz') {
+    colorSpace = 'xyz-d65';
   }
-  // 1. Parse Color Space
-  const csResult = parseColorSpace(args[0] as string);
-  if (!csResult) {
-    return cacheInvalidColorValue(cacheKey, format, nullable);
+  const normalizedColorItems = normalizeColorItems(
+    colors,
+    totalPercentage,
+    opt,
+    resolver
+  );
+  colors = normalizedColorItems.colors;
+  totalPercentage = normalizedColorItems.totalPercentage;
+  if (format === VAL_SPEC) {
+    const specifiedValue = formatSpecifiedValue(
+      colorSpace,
+      hueArc,
+      colors,
+      opt
+    );
+    if (!specifiedValue) {
+      return cacheInvalidColorValue(cacheKey, format, nullable);
+    }
+    setCache(cacheKey, specifiedValue);
+    return specifiedValue;
   }
-  let { colorSpace, hueArc } = csResult;
-  // 2. Extract Color and Percentages
-  let { color: colorA, pct: pctA } = parseColorAndPct(args[1] as string);
-  let { color: colorB, pct: pctB } = parseColorAndPct(args[2] as string);
-  // 3. Resolve Nested Functions
-  colorA = resolveIfNested(colorA, opt, resolver);
-  colorB = resolveIfNested(colorB, opt, resolver);
-  // 4. Normalize Percentages
+  // Extract Color and Percentages
+  const { color: colorA, pct: pctA } = colors[0] as ColorAndPct;
+  const { color: colorB, pct: pctB } = colors[1] as ColorAndPct;
+  // Normalize Percentages
   const pResult = normalizePercentages(pctA, pctB);
   if (!pResult) {
     return cacheInvalidColorValue(cacheKey, format, nullable);
   }
   const { pA, pB, m } = pResult;
-  if (colorSpace === 'xyz') {
-    colorSpace = 'xyz-d65';
-  }
-  // 5. Format & Return
-  if (format === VAL_SPEC) {
-    const specifiedRes = buildSpecifiedColorMix(
-      colorSpace,
-      hueArc,
-      colorA,
-      pctA,
-      colorB,
-      pctB,
-      opt
-    );
-    if (!specifiedRes) {
-      const invalidRes = cacheInvalidColorValue(cacheKey, format, nullable);
-      return invalidRes;
-    }
-    setCache(cacheKey, specifiedRes);
-    return specifiedRes;
-  }
   const computedRes = computeMixedColor(
-    colorSpace,
+    colorSpace as string,
     hueArc,
     colorA,
     colorB,

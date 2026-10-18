@@ -371,6 +371,16 @@ export interface ColorAndPct {
 }
 
 /**
+ * Parsed result of color-mix() inner content color item.
+ */
+export interface ColorMixInnerColorItem {
+  /** Extracted colors. */
+  colors: ColorAndPct[];
+  /** Total amount of percentage. */
+  totalPercentage: number;
+}
+
+/**
  * Parsed result of color-mix() inner content.
  */
 export interface ColorMixInnerContent {
@@ -380,6 +390,8 @@ export interface ColorMixInnerContent {
   hueArc: HueArc | string;
   /** Extracted colors. */
   colors: ColorAndPct[];
+  /** Total amount of percentage. */
+  totalPercentage: number;
 }
 
 /**
