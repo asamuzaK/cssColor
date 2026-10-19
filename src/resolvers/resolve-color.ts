@@ -52,17 +52,20 @@ const NAMESPACE = 'resolve-color';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
-const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);
-const REG_COLOR_FUNC = new RegExp(`^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`);
+const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`, 'i');
+const REG_COLOR_FUNC = new RegExp(
+  `^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`,
+  'i'
+);
 const REG_CURRENT = /^currentColor$/i;
-const REG_FN_CALC = new RegExp(SYN_FN_CALC);
+const REG_FN_CALC = new RegExp(SYN_FN_CALC, 'i');
 const REG_FN_COLOR =
-  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/;
-const REG_FN_LIGHT_DARK = new RegExp(SYN_FN_LIGHT_DARK);
-const REG_FN_MIX = new RegExp(SYN_MIX);
-const REG_FN_REL = new RegExp(SYN_FN_REL);
-const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-const REG_NAMED_COLOR = /^[a-z]+$/;
+  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/i;
+const REG_FN_LIGHT_DARK = new RegExp(SYN_FN_LIGHT_DARK, 'i');
+const REG_FN_MIX = new RegExp(SYN_MIX, 'i');
+const REG_FN_REL = new RegExp(SYN_FN_REL, 'i');
+const REG_FN_VAR = new RegExp(SYN_FN_VAR, 'i');
+const REG_NAMED_COLOR = /^[a-z]+$/i;
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
 
 /**
@@ -75,11 +78,10 @@ export const resolveColorValue = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { colorSpace = '', format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
@@ -236,17 +238,16 @@ export const resolveColorFunc = (
   value: string,
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  const str = value.trim();
   const { colorSpace = '', format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
       name: 'resolveColorFunc',
-      value
+      value: str
     },
     opt
   );
@@ -258,7 +259,7 @@ export const resolveColorFunc = (
     }
     return item as string | null;
   }
-  if (!REG_COLOR_FUNC.test(value)) {
+  if (!REG_COLOR_FUNC.test(str)) {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       setCache(cacheKey, null);
@@ -271,7 +272,7 @@ export const resolveColorFunc = (
     return res as SpecifiedColorChannels;
   }
   const [cs, v1, v2, v3, v4] = parseColorFunc(
-    value,
+    str,
     opt
   ) as SpecifiedColorChannels;
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
@@ -337,7 +338,6 @@ export const resolveColor = (
   if (opt.format !== format) {
     opt.format = format;
   }
-  value = value.toLowerCase();
   // 2. light-dark() resolution
   if (REG_FN_LIGHT_DARK.test(value) && value.endsWith(')')) {
     const colorParts = value.replace(REG_FN_LIGHT_DARK, '').replace(/\)$/, '');
@@ -418,7 +418,7 @@ export const resolveColor = (
     setCache(cacheKey, res);
     return res;
   }
-  if (value === 'currentcolor') {
+  if (/^currentcolor$/i.test(value)) {
     if (format === VAL_SPEC) {
       setCache(cacheKey, value);
       return value;
@@ -484,7 +484,7 @@ export const resolveColor = (
     return res;
   } else if (value.startsWith(FN_MIX)) {
     if (currentColor) {
-      value = value.replace(/currentcolor/g, currentColor);
+      value = value.replace(/currentcolor/gi, currentColor);
     }
     value = value.replace(/transparent/g, RGB_TRANSPARENT);
     const resolvedMix = resolveColorMix(value, opt, resolveColor);
@@ -559,15 +559,16 @@ export const isValidColor = (value: unknown, opt: Options = {}): boolean => {
   if (!isString(value)) {
     return false;
   }
-  const color = value.toLowerCase().trim();
+  const color = value.trim();
   if (!color) {
     return false;
   }
   if (REG_NAMED_COLOR.test(color)) {
+    const loweredColor = color.toLowerCase();
     return (
-      color === 'currentcolor' ||
-      color === 'transparent' ||
-      Object.hasOwn(NAMED_COLORS, color)
+      loweredColor === 'currentcolor' ||
+      loweredColor === 'transparent' ||
+      Object.hasOwn(NAMED_COLORS, loweredColor)
     );
   }
   if (REG_COLOR.test(color) || REG_FN_MIX.test(color)) {

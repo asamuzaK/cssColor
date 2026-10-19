@@ -111,11 +111,10 @@ export const convertXyzD50ToHex = (xyz: ColorChannels): string => {
  * @returns The color channels array: [r, g, b, alpha] (where r, g, b range from 0 to 255, and alpha ranges from 0 to 1).
  */
 export const convertHexToRgb = (value: string): ColorChannels => {
-  if (isString(value)) {
-    value = value.toLowerCase().trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.toLowerCase().trim();
   if (!(
     /^#[\da-f]{6}$/.test(value) ||
     /^#[\da-f]{3}$/.test(value) ||

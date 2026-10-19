@@ -48,11 +48,11 @@ const CSS_WIDE_KEYWORDS = new Set([
 const OPERATORS = new Set(['+', '-', '*', '/']);
 
 /* Regular expressions */
-const REG_FN_CALC = new RegExp(SYN_FN_CALC);
-const REG_FN_CALC_NUM = new RegExp(`^calc\\((${NUM})\\)$`);
-const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START);
-const REG_FN_VAR = new RegExp(SYN_FN_VAR);
-const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START);
+const REG_FN_CALC = new RegExp(SYN_FN_CALC, 'i');
+const REG_FN_CALC_NUM = new RegExp(`^calc\\((${NUM})\\)$`, 'i');
+const REG_FN_MATH_START = new RegExp(SYN_FN_MATH_START, 'i');
+const REG_FN_VAR = new RegExp(SYN_FN_VAR, 'i');
+const REG_FN_VAR_START = new RegExp(SYN_FN_VAR_START, 'i');
 const REG_OPERATOR = /\s[-+*/]\s/;
 
 /**
@@ -862,7 +862,7 @@ export const serializeCalc = (value: string, opt: Options = {}): string => {
   if (!REG_FN_VAR_START.test(value) || format !== VAL_SPEC) {
     return value;
   }
-  const str = value.toLowerCase().trim();
+  const str = value.trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
@@ -1056,7 +1056,7 @@ export const cssCalc = (value: string, opt: Options = {}): string => {
   } else if (!REG_FN_CALC.test(value)) {
     return value;
   }
-  const str = value.toLowerCase().trim();
+  const str = value.trim();
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,

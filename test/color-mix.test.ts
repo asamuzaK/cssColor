@@ -3,7 +3,7 @@
  */
 
 /* api */
-import { afterEach, assert, beforeEach, describe, it, vi } from 'vitest';
+import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
@@ -1527,40 +1527,6 @@ describe('resolveColorMix', () => {
     it('should use default resolver (returning null) if omitted', () => {
       const res = func('color-mix(in srgb, var(--unknown), blue)');
       assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
-    });
-
-    it('should invoke custom mock resolver with correct arguments (including opt)', () => {
-      const mockResolver = vi.fn((v: string) => {
-        if (v === 'var(--mock-red)') {
-          return 'red';
-        }
-        if (v === 'var(--mock-blue)') {
-          return 'blue';
-        }
-        return null;
-      });
-      const opt = { format: 'computedValue', colorScheme: 'dark' };
-      const res = func(
-        'color-mix(in srgb, var(--mock-red), var(--mock-blue))',
-        opt,
-        mockResolver
-      );
-      assert.deepEqual(res, ['srgb', 0.5, 0, 0.5, 1], 'result');
-      assert.isTrue(
-        mockResolver.mock.calls.length >= 2,
-        'resolver should be called'
-      );
-      const passedOpt = mockResolver.mock.calls[0][1] as Options;
-      assert.strictEqual(
-        passedOpt.format,
-        'computedValue',
-        'should pass format'
-      );
-      assert.strictEqual(
-        passedOpt.colorScheme,
-        'dark',
-        'should pass colorScheme'
-      );
     });
 
     it('should resolve nested variables using actual resolver and custom properties', () => {

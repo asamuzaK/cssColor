@@ -136,7 +136,7 @@ describe('resolve color value', () => {
   it('should return raw value for currentcolor when format is VAL_SPEC', () => {
     const opt = { format: VAL_SPEC };
     assert.strictEqual(func('currentcolor', opt), 'currentcolor');
-    assert.strictEqual(func('currentColor', opt), 'currentcolor');
+    assert.strictEqual(func('currentColor', opt), 'currentColor');
   });
 
   it('should not return raw value for currentcolor', () => {

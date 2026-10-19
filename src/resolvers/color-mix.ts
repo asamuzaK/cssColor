@@ -40,6 +40,7 @@ import { parseColorFunc, parseColorValue } from '../resolvers/parse-color';
 import { resolveColorValue } from '../resolvers/resolve-color';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
+import { cssCalc } from '../utils/css-calc-var';
 import {
   cacheInvalidColorValue,
   interpolateHue,
@@ -213,7 +214,7 @@ export const getRawChannels = (
   if (Array.isArray(color)) {
     return color as NumStrColorChannels;
   }
-  if (color === 'currentcolor') {
+  if (/^currentcolor$/i.test(color)) {
     return [NONE, NONE, NONE, NONE];
   }
   return convertFn(color, opt);
@@ -617,9 +618,8 @@ export const isPossiblyPercentage = (value: string): boolean => {
   if (!isString(value)) {
     return false;
   }
-  return (
-    value.endsWith('%') || value.startsWith(FN_CALC) || value.startsWith(FN_VAR)
-  );
+  const str = value.toLowerCase().trim();
+  return str.endsWith('%') || str.startsWith(FN_CALC) || str.startsWith(FN_VAR);
 };
 
 /**
@@ -657,16 +657,18 @@ export const parseInnerContentColorItems = (
   let totalPercentage = 0;
   let pended = false;
   for (const item of items) {
-    const parsedColor = parseColorAndPct(item as string);
-    const { color, pct } = parsedColor;
+    const parsedItem = parseColorAndPct(item as string);
+    const { color, pct } = parsedItem;
     if (!color) {
       return null;
     }
-    if (color.startsWith(FN_VAR)) {
+    const loweredColor = color.toLowerCase();
+    if (loweredColor.startsWith(FN_VAR)) {
       pended = true;
       totalPercentage = Number.NaN;
     }
-    if (pct.startsWith(FN_CALC) || pct.startsWith(FN_VAR)) {
+    const loweredPct = pct.toLowerCase();
+    if (loweredPct.startsWith(FN_CALC) || loweredPct.startsWith(FN_VAR)) {
       pended = true;
       totalPercentage = Number.NaN;
     } else if (pct.endsWith('%')) {
@@ -678,7 +680,7 @@ export const parseInnerContentColorItems = (
         totalPercentage += value;
       }
     }
-    colors.push(parsedColor);
+    colors.push(parsedItem);
   }
   return {
     colors,
@@ -720,11 +722,12 @@ export const parseColorMixInnerContent = (
   if (!isString(value)) {
     return null;
   }
-  const str = value.toLowerCase().trim();
+  value = value.trim();
+  const str = value.toLowerCase();
   if (!str.startsWith(FN_MIX) || !str.endsWith(')')) {
     return null;
   }
-  const innerContent = str.slice(10, -1).trim();
+  const innerContent = value.slice(10, -1).trim();
   if (!innerContent) {
     return null;
   }
@@ -785,11 +788,12 @@ export const resolveIfNested = (
   resolver: ColorResolverFn
 ): string => {
   let current = colorStr;
+  let loweredStr = current.toLowerCase();
   while (
-    isString(current) &&
-    (current.startsWith(FN_MIX) ||
-      current.startsWith(FN_VAR) ||
-      current.startsWith(FN_LIGHT_DARK))
+    isString(loweredStr) &&
+    (loweredStr.startsWith(FN_MIX) ||
+      loweredStr.startsWith(FN_VAR) ||
+      loweredStr.startsWith(FN_LIGHT_DARK))
   ) {
     const resolved = resolver(current, {
       ...opt,
@@ -818,6 +822,7 @@ export const resolveIfNested = (
         break;
       }
       current = resolved;
+      loweredStr = current.toLowerCase();
     } else {
       break;
     }
@@ -880,10 +885,11 @@ export const processColor = (colorStr: string, opt: Options): string => {
   if (!isString(colorStr)) {
     return '';
   }
-  if (colorStr.startsWith(FN_MIX) || colorStr.startsWith(FN_LIGHT_DARK)) {
+  const loweredStr = colorStr.toLowerCase();
+  if (loweredStr.startsWith(FN_MIX) || loweredStr.startsWith(FN_LIGHT_DARK)) {
     return colorStr;
   }
-  if (colorStr.startsWith(FN_COLOR)) {
+  if (loweredStr.startsWith(FN_COLOR)) {
     const [cs, v1, v2, v3, v4] = parseColorFunc(
       colorStr,
       opt
@@ -919,7 +925,7 @@ export const processColor = (colorStr: string, opt: Options): string => {
  * Formats a specified value for the color-mix().
  * @param colorSpace - The target color space.
  * @param hueArc - The hue interpolation method (hue arc).
- * @param colors - The color items.
+ * @param colors - The list of color items.
  * @param opt - The conversion options.
  * @returns The specified value for the color-mix().
  */
@@ -962,9 +968,9 @@ export const resolveColorMix = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  const str = value.toLowerCase().trim();
+  value = value.trim();
   const cacheKey: string = createCacheKey(
-    { namespace: NAMESPACE, name: 'resolveColorMix', value: str },
+    { namespace: NAMESPACE, name: 'resolveColorMix', value },
     opt
   );
   const cachedResult = getCache(cacheKey);
@@ -979,6 +985,7 @@ export const resolveColorMix = (
     return null;
   }
   const { format = '', nullable = false } = opt;
+  const str = cssCalc(value, opt);
   const parsedInnerContent = parseColorMixInnerContent(str);
   if (!parsedInnerContent) {
     return cacheInvalidColorValue(cacheKey, format, nullable);

@@ -102,10 +102,11 @@ const CALC_SUM_FUNCTIONS = new Set(['abs(', 'cos(', 'sign(', 'sin(', 'tan(']);
 
 /* Regular expressions */
 const REG_COLOR_CAPT = new RegExp(
-  `^(?:${COLOR_FUNC})\\(\\s*from\\s+(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`
+  `^(?:${COLOR_FUNC})\\(\\s*from\\s+(${SYN_COLOR_TYPE}|${SYN_MIX})\\s+`,
+  'i'
 );
-const REG_FN_REL_CAPT = new RegExp(`^(${COLOR_FUNC})\\(\\s*from\\s+`);
-const REG_FN_REL_START = new RegExp(`^(?:${COLOR_FUNC})\\(\\s*from\\s+`);
+const REG_FN_REL_CAPT = new RegExp(`^(${COLOR_FUNC})\\(\\s*from\\s+`, 'i');
+const REG_FN_REL_START = new RegExp(`^(?:${COLOR_FUNC})\\(\\s*from\\s+`, 'i');
 
 /**
  * Serializes channel values into an array of numbers or strings.
@@ -457,7 +458,7 @@ export const extractOriginColor = (
   if (!isString(value)) {
     return null;
   }
-  value = value.toLowerCase().trim();
+  value = value.trim();
   if (!value) {
     return null;
   }
@@ -477,12 +478,12 @@ export const extractOriginColor = (
   if (cachedResult !== false) {
     return cachedResult.item as string | null;
   }
-  if (/currentcolor/.test(value)) {
+  if (/currentcolor/i.test(value)) {
     if (!currentColor) {
       setCache(cacheKey, null);
       return null;
     }
-    value = value.replace(/currentcolor/g, currentColor);
+    value = value.replace(/currentcolor/gi, currentColor);
   }
   const matchRelFunc = value.match(REG_FN_REL_CAPT);
   const [, colorSpace] = matchRelFunc as MatchedRegExp;
@@ -728,7 +729,7 @@ export function resolveRelativeColor(
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.toLowerCase().trim();
+  value = value.trim();
   const options = {
     ...opt
   };
