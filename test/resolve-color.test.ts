@@ -148,8 +148,9 @@ describe('resolve color value', () => {
 describe('resolve color func', () => {
   const func = resolve.resolveColorFunc;
 
-  it('should throw TypeError if value is not a string', () => {
-    assert.throws(() => func(123 as any), TypeError);
+  it('should return null if value is not a string', () => {
+    const res = func(123 as any);
+    assert.strictEqual(res, null, 'result');
   });
 
   it('should handle invalid color function inputs', () => {

@@ -72,11 +72,10 @@ export const convertColorToLinearRgb = (
   value: string,
   opt: LinearRgbOptions = {}
 ): ColorChannels | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { colorSpace = '', format = '' } = opt;
   let cs = '';
   let r, g, b, alpha, x, y, z;
@@ -128,11 +127,10 @@ export const convertColorToRgb = (
   value: string,
   opt: Options = {}
 ): ColorChannels | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let r, g, b, alpha;
   if (format === VAL_MIX) {
@@ -180,11 +178,10 @@ export const convertColorToXyz = (
   value: string,
   opt: Options = {}
 ): ColorChannels | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { d50 = false, format = '' } = opt;
   let x, y, z, alpha;
   if (format === VAL_MIX) {
@@ -235,11 +232,10 @@ export const convertColorToHsl = (
   value: string,
   opt: Options = {}
 ): ColorChannels | ColorChannelsWithPowerless | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let h, s, l, alpha;
   if (REG_HSL.test(value)) {
@@ -285,11 +281,10 @@ export const convertColorToHwb = (
   value: string,
   opt: Options = {}
 ): ColorChannels | [number | string, number, number, number] | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let h, w, b, alpha;
   if (REG_HWB.test(value)) {
@@ -335,11 +330,10 @@ export const convertColorToLab = (
   value: string,
   opt: Options = {}
 ): ColorChannels | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let l, a, b, alpha;
   if (REG_LAB.test(value)) {
@@ -387,11 +381,10 @@ export const convertColorToLch = (
   value: string,
   opt: Options = {}
 ): ColorChannels | [number, number, number | string, number] | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let l, c, h, alpha;
   if (REG_LCH.test(value)) {
@@ -439,11 +432,10 @@ export const convertColorToOklab = (
   value: string,
   opt: Options = {}
 ): ColorChannels | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let l, a, b, alpha;
   if (REG_OKLAB.test(value)) {
@@ -483,11 +475,10 @@ export const convertColorToOklch = (
   value: string,
   opt: Options = {}
 ): ColorChannels | [number, number, number | string, number] | null => {
-  if (isString(value)) {
-    value = value.trim();
-  } else {
+  if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
+  value = value.trim();
   const { format = '' } = opt;
   let l, c, h, alpha;
   if (REG_OKLCH.test(value)) {

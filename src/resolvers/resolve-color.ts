@@ -239,7 +239,7 @@ export const resolveColorFunc = (
   opt: Options = {}
 ): SpecifiedColorChannels | string | null => {
   if (!isString(value)) {
-    throw new TypeError(`${value} is not a string.`);
+    return null;
   }
   const str = value.trim();
   const { colorSpace = '', format = '', nullable = false } = opt;

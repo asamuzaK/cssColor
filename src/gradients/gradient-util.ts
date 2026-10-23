@@ -125,16 +125,17 @@ const LINE_RADIAL = [
  * @returns The gradient type function name, or an empty string if invalid.
  */
 export const getGradientType = (value: string): string => {
-  if (isString(value)) {
-    const trimmed = value.trim();
-    if (trimmed) {
-      const tokens = tokenize({ css: trimmed });
-      const [firstToken] = tokens;
-      if (firstToken && firstToken[0] === FUNC) {
-        const fnName = firstToken[1].slice(0, -1).toLowerCase();
-        if (IS_GRADIENT.test(fnName)) {
-          return fnName;
-        }
+  if (!isString(value)) {
+    return '';
+  }
+  const trimmed = value.trim();
+  if (trimmed) {
+    const tokens = tokenize({ css: trimmed });
+    const [firstToken] = tokens;
+    if (firstToken && firstToken[0] === FUNC) {
+      const fnName = firstToken[1].slice(0, -1).toLowerCase();
+      if (IS_GRADIENT.test(fnName)) {
+        return fnName;
       }
     }
   }

@@ -65,21 +65,19 @@ export const preProcess = (value: string, opt: Options): string | null => {
   let res: string | null = value;
   if (REG_FN_VAR.test(value)) {
     const resolved = resolveVar(value, opt);
-    if (isString(resolved)) {
-      res = resolved;
-    } else {
+    if (!isString(resolved)) {
       setCache(cacheKey, null);
       return null;
     }
+    res = resolved;
   }
   if (REG_FN_REL.test(res)) {
     const resolved = resolveRelativeColor(res, opt);
-    if (isString(resolved)) {
-      res = resolved;
-    } else {
+    if (!isString(resolved)) {
       setCache(cacheKey, null);
       return null;
     }
+    res = resolved;
   } else if (REG_FN_CALC.test(res)) {
     res = cssCalc(res, opt);
   }
@@ -176,12 +174,12 @@ export const colorToHex = (value: string, opt: Options = {}): string | null => {
     nullable: true,
     format: options.alpha ? 'hexAlpha' : 'hex'
   });
-  if (isString(hex)) {
-    setCache(cacheKey, hex);
-    return hex;
+  if (!isString(hex)) {
+    setCache(cacheKey, null);
+    return null;
   }
-  setCache(cacheKey, null);
-  return null;
+  setCache(cacheKey, hex);
+  return hex;
 };
 
 /**

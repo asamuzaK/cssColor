@@ -353,10 +353,10 @@ export const resolveLightDarkOriginColor = (
     return value.replace(originColor, specifiedOriginColor);
   }
   const resolvedOriginColor = resolver(specifiedOriginColor, options);
-  if (isString(resolvedOriginColor)) {
-    return value.replace(originColor, resolvedOriginColor);
+  if (!isString(resolvedOriginColor)) {
+    return null;
   }
-  return null;
+  return value.replace(originColor, resolvedOriginColor);
 };
 
 /**
