@@ -16,6 +16,7 @@ import {
 import {
   ChannelNoneFlags,
   ColorAndPct,
+  ColorAndRatio,
   ColorChannels,
   ColorFormat,
   ColorMixInnerColorItem,
@@ -23,6 +24,7 @@ import {
   ColorResolverFn,
   ColorSpace,
   ColorSpaceParseResult,
+  ColorsAndMultipler,
   ComputedColorChannels,
   InterpolatedComponents,
   NormalizedPercentages,
@@ -575,8 +577,6 @@ export const mixLabSpace = (
  * @param pB - The normalized ratio for the second color.
  * @param m - The multiplier factor.
  * @param format - The output format.
- * @param nullable - Whether the result can be null.
- * @param cacheKey - The cache key.
  * @returns The computed color channels, or null if invalid.
  */
 export const computeMixedColor = (
@@ -587,9 +587,7 @@ export const computeMixedColor = (
   pA: number,
   pB: number,
   m: number,
-  format: string,
-  nullable: boolean,
-  cacheKey: string
+  format: string
 ): SpecifiedColorChannels | null => {
   let res: SpecifiedColorChannels | null = null;
   if (/^srgb(?:-linear)?$/.test(colorSpace)) {
@@ -602,9 +600,6 @@ export const computeMixedColor = (
     res = mixLchSpace(colorSpace, hueArc, colorA, colorB, pA, pB, format, m);
   } else if (/^(?:ok)?lab$/.test(colorSpace)) {
     res = mixLabSpace(colorSpace, colorA, colorB, pA, pB, format, m);
-  }
-  if (res === null) {
-    return cacheInvalidColorValue(cacheKey, format, nullable) as null;
   }
   return res;
 };
@@ -831,6 +826,90 @@ export const resolveIfNested = (
 };
 
 /**
+ * Normalizes percentages for multiple colors in color-mix() according to CSS Color Module Level 5.
+ * @param colors - Array of parsed color and percentage items.
+ * @param opt - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns An object containing normalized colors with ratios (0-1) and a multiplier m, or null if invalid.
+ */
+export const normalizeMixPercentages = (
+  colors: ColorAndPct[],
+  opt: Options,
+  resolver: ColorResolverFn
+): ColorsAndMultipler | null => {
+  const len = colors.length;
+  if (len === 0) {
+    return null;
+  }
+  const pcts: (number | null)[] = [];
+  let specifiedSum = 0;
+  let emptyCount = 0;
+  for (let i = 0; i < len; i++) {
+    const item = colors[i] as ColorAndPct;
+    item.color = resolveIfNested(item.color, opt, resolver);
+    const pctStr = item.pct.trim();
+    if (pctStr === '') {
+      pcts.push(null);
+      emptyCount++;
+    } else {
+      const val = parseFloat(pctStr);
+      if (Number.isNaN(val) || val < 0 || val > MAX_PCT) {
+        return null;
+      }
+      pcts.push(val);
+      specifiedSum += val;
+    }
+  }
+  const resolvedPcts: number[] = new Array(len);
+  if (emptyCount === len) {
+    const equalVal = MAX_PCT / len;
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = equalVal;
+    }
+    specifiedSum = MAX_PCT;
+  } else if (emptyCount > 0) {
+    const remaining = MAX_PCT - specifiedSum;
+    const defaultVal = remaining > 0 ? remaining / emptyCount : 0;
+    for (let i = 0; i < len; i++) {
+      if (pcts[i] === null) {
+        resolvedPcts[i] = defaultVal;
+      } else {
+        resolvedPcts[i] = pcts[i] as number;
+      }
+    }
+    specifiedSum = Math.max(MAX_PCT, specifiedSum);
+  } else {
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = pcts[i] as number;
+    }
+  }
+  if (specifiedSum === 0) {
+    return null;
+  }
+  let m = 1;
+  const totalFactor = specifiedSum / MAX_PCT;
+  if (specifiedSum > MAX_PCT) {
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+    }
+    m = 1;
+  } else if (specifiedSum < MAX_PCT) {
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+    }
+    m = totalFactor;
+  }
+  const resultColors = colors.map((item, i) => ({
+    color: item.color,
+    ratio: (resolvedPcts[i] as number) / MAX_PCT
+  }));
+  return {
+    colors: resultColors,
+    m
+  };
+};
+
+/**
  * Normalizes color values and percentage values.
  * @param colors - The list of color items.
  * @param totalPercentage - The total percentage.
@@ -1017,29 +1096,70 @@ export const resolveColorMix = (
     setCache(cacheKey, specifiedValue);
     return specifiedValue;
   }
-  // Extract Color and Percentages
-  const { color: colorA, pct: pctA } = colors[0] as ColorAndPct;
-  const { color: colorB, pct: pctB } = colors[1] as ColorAndPct;
-  // Normalize Percentages
-  const pResult = normalizePercentages(pctA, pctB);
-  if (!pResult) {
+  const normalized = normalizeMixPercentages(colors, opt, resolver);
+  if (!normalized) {
     return cacheInvalidColorValue(cacheKey, format, nullable);
   }
-  const { pA, pB, m } = pResult;
-  const computedRes = computeMixedColor(
-    colorSpace as string,
-    hueArc,
-    colorA,
-    colorB,
-    pA,
-    pB,
-    m,
-    format,
-    nullable,
-    cacheKey
-  );
-  if (computedRes) {
-    setCache(cacheKey, computedRes);
+  const { colors: normalizedColors, m } = normalized;
+  const len = normalizedColors.length;
+  const firstColorItem = normalizedColors[0] as ColorAndRatio;
+  let currentColor = firstColorItem.color;
+  let currentRatio = firstColorItem.ratio;
+  let computedRes: SpecifiedColorChannels | null = null;
+  if (len === 1) {
+    computedRes = computeMixedColor(
+      colorSpace as string,
+      hueArc,
+      currentColor,
+      currentColor,
+      1,
+      0,
+      m,
+      format
+    );
+  } else {
+    for (let i = 1; i < len; i++) {
+      const nextColorItem = normalizedColors[i] as ColorAndRatio;
+      const nextColor = nextColorItem.color;
+      const nextRatio = nextColorItem.ratio;
+      const sumRatio = currentRatio + nextRatio;
+      let pA = 0.5;
+      let pB = 0.5;
+      if (sumRatio > 0) {
+        pA = currentRatio / sumRatio;
+        pB = nextRatio / sumRatio;
+      }
+      computedRes = computeMixedColor(
+        colorSpace as string,
+        hueArc,
+        currentColor,
+        nextColor,
+        pA,
+        pB,
+        i === len - 1 ? m : 1,
+        format
+      );
+      if (!Array.isArray(computedRes)) {
+        return cacheInvalidColorValue(cacheKey, format, nullable);
+      }
+      const [cs, c1, c2, c3, ca] = computedRes;
+      if (ca === 1 || ca === undefined) {
+        currentColor =
+          cs === 'rgb'
+            ? `rgb(${c1}, ${c2}, ${c3})`
+            : `${cs}(${c1} ${c2} ${c3})`;
+      } else {
+        currentColor =
+          cs === 'rgb'
+            ? `rgba(${c1}, ${c2}, ${c3}, ${ca})`
+            : `${cs}(${c1} ${c2} ${c3} / ${ca})`;
+      }
+      currentRatio = sumRatio;
+    }
   }
+  if (!computedRes) {
+    return cacheInvalidColorValue(cacheKey, format, nullable);
+  }
+  setCache(cacheKey, computedRes);
   return computedRes;
 };
