@@ -1192,6 +1192,256 @@ describe('parseColorMixInnerContent', () => {
   });
 });
 
+describe('normalizeMixPercentages', () => {
+  const func = colorMix.normalizeMixPercentages;
+  const opt = {};
+  const resolver = resolveColor;
+
+  it('should return null when colors array is empty', () => {
+    assert.isNull(func([], opt, resolver), 'result');
+  });
+
+  describe('when all percentages are omitted (empty)', () => {
+    it('should assign equal percentages (50% / 50%) and set m = 1 for 2 colors', () => {
+      const colors = [
+        { color: 'red', pct: '' },
+        { color: 'blue', pct: '' }
+      ];
+      const res = func(colors, opt, resolver);
+      assert.isNotNull(res);
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            { color: 'red', ratio: 0.5 },
+            { color: 'blue', ratio: 0.5 }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+
+    it('should assign equal percentages (~33.3% each) and set m = 1 for 3 colors', () => {
+      const colors = [
+        { color: 'red', pct: '' },
+        { color: 'green', pct: '' },
+        { color: 'blue', pct: '' }
+      ];
+      const res = func(colors, opt, resolver);
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            {
+              color: 'red',
+              ratio: 0.33333333333333337
+            },
+            {
+              color: 'green',
+              ratio: 0.33333333333333337
+            },
+            {
+              color: 'blue',
+              ratio: 0.33333333333333337
+            }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+  });
+
+  describe('when some percentages are omitted', () => {
+    it('should distribute remaining percentage evenly to omitted items (sum < 100%)', () => {
+      const colors = [
+        { color: 'red', pct: '40%' },
+        { color: 'green', pct: '' },
+        { color: 'blue', pct: '' }
+      ];
+      const res = func(colors, opt, resolver);
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            {
+              color: 'red',
+              ratio: 0.4
+            },
+            {
+              color: 'green',
+              ratio: 0.3
+            },
+            {
+              color: 'blue',
+              ratio: 0.3
+            }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+
+    it('should set omitted items to 0% when specified sum >= 100%', () => {
+      const colors = [
+        { color: 'red', pct: '60%' },
+        { color: 'green', pct: '60%' },
+        { color: 'blue', pct: '' }
+      ];
+      const res = func(colors, opt, resolver);
+      // specifiedSum = 120 (> 100). totalFactor = 1.2
+      // red: 60/1.2 = 50% (ratio 0.5)
+      // green: 60/1.2 = 50% (ratio 0.5)
+      // blue: 0/1.2 = 0% (ratio 0)
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            {
+              color: 'red',
+              ratio: 0.5
+            },
+            {
+              color: 'green',
+              ratio: 0.5
+            },
+            {
+              color: 'blue',
+              ratio: 0
+            }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+  });
+
+  describe('when all percentages are specified', () => {
+    it('should normalize ratios when total equals 100% (m = 1)', () => {
+      const colors = [
+        { color: 'red', pct: '20%' },
+        { color: 'green', pct: '30%' },
+        { color: 'blue', pct: '50%' }
+      ];
+      const res = func(colors, opt, resolver);
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            { color: 'red', ratio: 0.2 },
+            { color: 'green', ratio: 0.3 },
+            { color: 'blue', ratio: 0.5 }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+
+    it('should scale down ratios and set m = 1 when sum > 100%', () => {
+      const colors = [
+        { color: 'red', pct: '50%' },
+        { color: 'green', pct: '50%' },
+        { color: 'blue', pct: '100%' }
+      ];
+      const res = func(colors, opt, resolver);
+      // sum = 200%. totalFactor = 2
+      // red: 0.5 / 2 = 0.25, green: 0.5 / 2 = 0.25, blue: 1.0 / 2 = 0.5
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            { color: 'red', ratio: 0.25 },
+            { color: 'green', ratio: 0.25 },
+            { color: 'blue', ratio: 0.5 }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+
+    it('should scale up ratios and calculate multiplier m when sum < 100%', () => {
+      const colors = [
+        { color: 'red', pct: '10%' },
+        { color: 'green', pct: '20%' },
+        { color: 'blue', pct: '20%' }
+      ];
+      const res = func(colors, opt, resolver);
+      // sum = 50%. totalFactor = 0.5 => m = 0.5
+      // red: 10 / 0.5 = 20% (ratio 0.2)
+      // green: 20 / 0.5 = 40% (ratio 0.4)
+      // blue: 20 / 0.5 = 40% (ratio 0.4)
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            { color: 'red', ratio: 0.2 },
+            { color: 'green', ratio: 0.4 },
+            { color: 'blue', ratio: 0.4 }
+          ],
+          m: 0.5
+        },
+        'result'
+      );
+    });
+  });
+
+  describe('validation and invalid inputs', () => {
+    it('should return null when any percentage is negative', () => {
+      const colors = [
+        { color: 'red', pct: '-10%' },
+        { color: 'blue', pct: '50%' }
+      ];
+      assert.isNull(func(colors, opt, resolver), 'result');
+    });
+
+    it('should return null when total specified sum is 0%', () => {
+      const colors = [
+        { color: 'red', pct: '0%' },
+        { color: 'blue', pct: '0%' }
+      ];
+      assert.isNull(func(colors, opt, resolver), 'result');
+    });
+
+    it('should return null for invalid NaN percentage strings', () => {
+      const colors = [
+        { color: 'red', pct: 'abc%' },
+        { color: 'blue', pct: '50%' }
+      ];
+      assert.isNull(func(colors, opt, resolver), 'result');
+    });
+  });
+
+  describe('nested color resolution', () => {
+    it('should resolve nested variables using the provided resolver function', () => {
+      const colors = [
+        { color: 'var(--my-red)', pct: '40%' },
+        { color: 'blue', pct: '60%' }
+      ];
+      const opt = {
+        format: 'computedValue',
+        customProperty: { '--my-red': 'red' }
+      };
+      const res = func(colors, opt, resolver);
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            { color: 'rgb(255, 0, 0)', ratio: 0.4 },
+            { color: 'blue', ratio: 0.6 }
+          ],
+          m: 1
+        },
+        'result'
+      );
+    });
+  });
+});
+
 describe('normalizeColorItems', () => {
   const func = colorMix.normalizeColorItems;
 

@@ -831,6 +831,90 @@ export const resolveIfNested = (
 };
 
 /**
+ * Normalizes percentages for multiple colors in color-mix() according to CSS Color Module Level 5.
+ * @param colors - Array of parsed color and percentage items.
+ * @param opt - The conversion options.
+ * @param resolver - The color resolver function.
+ * @returns An object containing normalized colors with ratios (0-1) and a multiplier m, or null if invalid.
+ */
+export const normalizeMixPercentages = (
+  colors: ColorAndPct[],
+  opt: Options,
+  resolver: ColorResolverFn
+): { colors: { color: string; ratio: number }[]; m: number } | null => {
+  const len = colors.length;
+  if (len === 0) {
+    return null;
+  }
+  const pcts: (number | null)[] = [];
+  let specifiedSum = 0;
+  let emptyCount = 0;
+  for (let i = 0; i < len; i++) {
+    const item = colors[i] as ColorAndPct;
+    item.color = resolveIfNested(item.color, opt, resolver);
+    const pctStr = item.pct.trim();
+    if (pctStr === '') {
+      pcts.push(null);
+      emptyCount++;
+    } else {
+      const val = parseFloat(pctStr);
+      if (Number.isNaN(val) || val < 0) {
+        return null;
+      }
+      pcts.push(val);
+      specifiedSum += val;
+    }
+  }
+  const resolvedPcts: number[] = new Array(len);
+  if (emptyCount === len) {
+    const equalVal = MAX_PCT / len;
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = equalVal;
+    }
+    specifiedSum = MAX_PCT;
+  } else if (emptyCount > 0) {
+    const remaining = MAX_PCT - specifiedSum;
+    const defaultVal = remaining > 0 ? remaining / emptyCount : 0;
+    for (let i = 0; i < len; i++) {
+      if (pcts[i] === null) {
+        resolvedPcts[i] = defaultVal;
+      } else {
+        resolvedPcts[i] = pcts[i] as number;
+      }
+    }
+    specifiedSum = Math.max(MAX_PCT, specifiedSum);
+  } else {
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = pcts[i] as number;
+    }
+  }
+  if (specifiedSum === 0) {
+    return null;
+  }
+  let m = 1;
+  const totalFactor = specifiedSum / MAX_PCT;
+  if (specifiedSum > MAX_PCT) {
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+    }
+    m = 1;
+  } else if (specifiedSum < MAX_PCT) {
+    for (let i = 0; i < len; i++) {
+      resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+    }
+    m = totalFactor;
+  }
+  const resultColors = colors.map((item, i) => ({
+    color: item.color,
+    ratio: (resolvedPcts[i] as number) / MAX_PCT
+  }));
+  return {
+    colors: resultColors,
+    m
+  };
+};
+
+/**
  * Normalizes color values and percentage values.
  * @param colors - The list of color items.
  * @param totalPercentage - The total percentage.
