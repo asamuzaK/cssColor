@@ -58,6 +58,16 @@ describe('resolve CSS color', () => {
     );
     assert.strictEqual(res, '#505050', 'result');
   });
+
+  it('should resolve color-mix with only a single color', () => {
+    const res = func('color-mix(red)');
+    assert.strictEqual(res, 'oklab(0.627955 0.224863 0.125846)', 'result');
+  });
+
+  it('should resolve color-mix with multi colors', () => {
+    const res = func('color-mix(red, green, blue)');
+    assert.strictEqual(res, 'oklab(0.533241 0.0173681 -0.026002)', 'result');
+  });
 });
 
 describe('resolve CSS gradient', () => {
