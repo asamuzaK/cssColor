@@ -371,6 +371,26 @@ export interface ColorAndPct {
 }
 
 /**
+ * Color and ratio pair used in `color-mix()`.
+ */
+export interface ColorAndRatio {
+  /** Color string. */
+  color: string;
+  /** Ratio. */
+  ratio: number;
+}
+
+/**
+ * Colors and multipler pair used in `color-mix()`.
+ */
+export interface ColorsAndMultipler {
+  /** Colors list. */
+  colors: ColorAndRatio[];
+  /** Multipler. */
+  m: number;
+}
+
+/**
  * Parsed result of color-mix() inner content color item.
  */
 export interface ColorMixInnerColorItem {
