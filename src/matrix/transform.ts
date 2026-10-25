@@ -15,6 +15,7 @@ import {
   DEG,
   DEG_HALF,
   DUO,
+  GAMMA,
   HALF,
   HEX,
   LAB_A,
@@ -39,6 +40,7 @@ import {
   MATRIX_D65_TO_D50,
   MATRIX_LMS_TO_OKLAB,
   MATRIX_L_RGB_TO_XYZ,
+  MATRIX_XYZ_TO_A98,
   MATRIX_XYZ_TO_LMS,
   MATRIX_XYZ_TO_L_RGB,
   MATRIX_XYZ_TO_P3
@@ -630,4 +632,47 @@ export const transformXyzToLinearP3 = (
   }
   const p3 = transformMatrix(MATRIX_XYZ_TO_P3, xyz, true);
   return p3;
+};
+
+/**
+ * Transforms linear Adobe RGB channels to standard Adobe RGB (1998).
+ * @param a98 - The linear Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearA98ToA98 = (
+  a98: TriColorChannels
+): TriColorChannels => {
+  const [r, g, b] = validateColorComponents(a98, {
+    maxLength: TRIA
+  });
+  return [
+    Math.pow(r, 1 / GAMMA),
+    Math.pow(g, 1 / GAMMA),
+    Math.pow(b, 1 / GAMMA)
+  ];
+};
+
+/**
+ * Transforms XYZ color space channels to Adobe RGB (1998).
+ * @param xyz - The XYZ color channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The Adobe RGB color channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToA98Rgb = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_A98, xyz, true);
+  [r, g, b] = transformLinearA98ToA98([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
+  return [r, g, b];
 };
