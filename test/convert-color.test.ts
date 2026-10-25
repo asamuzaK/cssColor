@@ -606,3 +606,114 @@ describe('convert color value to oklch', () => {
     assert.isNull(resNull);
   });
 });
+
+describe('convert color value to display p3', () => {
+  const func = color.convertColorToDisplayP3;
+
+  it('should throw TypeError if input is not a string', () => {
+    assert.throws(() => func(123), TypeError);
+    assert.throws(() => func(null), TypeError);
+  });
+
+  it('should convert color(display-p3 ...) format correctly', () => {
+    const res = func('color(display-p3 0.2 0.4 0.6 / 0.8)');
+    assertDeepCloseTo(res, [0.2, 0.4, 0.6, 0.8]);
+  });
+
+  it('should convert standard color formats (hex, rgb, etc.) to display p3', () => {
+    const resBlack = func('#000000');
+    assertDeepCloseTo(resBlack, [0, 0, 0, 1]);
+
+    const resWhite = func('rgb(255 255 255)');
+    assertDeepCloseTo(resWhite, [1, 1, 1, 1]);
+  });
+
+  it('should clamp converted display p3 channels between 0 and 1', () => {
+    const res = func('rgb(300 -10 100)');
+    assert.isNotNull(res);
+    if (res) {
+      assert.isAtLeast(res[0], 0);
+      assert.isAtMost(res[0], 1);
+      assert.isAtLeast(res[1], 0);
+      assert.isAtMost(res[1], 1);
+    }
+  });
+
+  it('should handle format: "mixedValue" option', () => {
+    const resSameCs = func('color(display-p3 0.2 0.4 0.6 / 0.8)', {
+      format: 'mixedValue',
+      colorSpace: 'display-p3'
+    });
+    assertDeepCloseTo(resSameCs, [0.2, 0.4, 0.6, 0.8]);
+
+    const resNull = func('invalid-color', {
+      format: 'mixedValue'
+    });
+    assert.isNull(resNull);
+  });
+
+  it('should parse non-display-p3 color() functions via parseColorFunc and transformXyzToDisplayP3', () => {
+    const resXyz = func('color(xyz 0.5 0.5 0.5)');
+    assert.isNotNull(resXyz);
+
+    const resSrgb = func('color(srgb 0.2 0.4 0.6)');
+    assert.isNotNull(resSrgb);
+    if (resSrgb) {
+      assert.strictEqual(resSrgb[3], 1);
+    }
+  });
+});
+
+describe('convert color value to linear p3', () => {
+  const func = color.convertColorToLinearP3;
+
+  it('should throw TypeError if input is not a string', () => {
+    assert.throws(() => func(123), TypeError);
+    assert.throws(() => func(null), TypeError);
+  });
+
+  it('should convert standard color formats (hex, rgb, etc.) to linear p3', () => {
+    const resBlack = func('#000000');
+    assertDeepCloseTo(resBlack, [0, 0, 0, 1]);
+
+    const resWhite = func('rgb(255 255 255)');
+    assertDeepCloseTo(resWhite, [1, 1, 1, 1], 1e-3);
+  });
+
+  it('should clamp converted linear p3 channels between 0 and 1', () => {
+    const res = func('rgb(300 -10 100)');
+    assert.isNotNull(res);
+    if (res) {
+      assert.isAtLeast(res[0], 0);
+      assert.isAtMost(res[0], 1);
+      assert.isAtLeast(res[1], 0);
+      assert.isAtMost(res[1], 1);
+    }
+  });
+
+  it('should handle format: "mixedValue" option', () => {
+    const resNull = func('invalid-color', {
+      format: 'mixedValue'
+    });
+    assert.isNull(resNull);
+  });
+
+  it('should parse color() format via parseColorFunc in convertColorToLinearP3', () => {
+    const res = func('color(display-p3 0.2 0.4 0.6 / 0.8)');
+    assert.isNotNull(res);
+
+    const resMix = func('color(display-p3 0.2 0.4 0.6 / 0.8)', {
+      format: 'mixedValue',
+      colorSpace: 'display-p3'
+    });
+    assert.isNotNull(resMix);
+  });
+
+  it('should transform via transformXyzToLinearP3 when colorSpace does not match in mixedValue format', () => {
+    const res = func('color(srgb 0.2 0.4 0.6 / 0.8)', {
+      format: 'mixedValue',
+      colorSpace: 'display-p3'
+    });
+    assert.isNotNull(res);
+  });
+});

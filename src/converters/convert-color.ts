@@ -7,8 +7,10 @@ import {
   transformLinearRgbToRgb,
   transformXyzD50ToLab,
   transformXyzD50ToLch,
+  transformXyzToDisplayP3,
   transformXyzToHsl,
   transformXyzToHwb,
+  transformXyzToLinearP3,
   transformXyzToOklab,
   transformXyzToOklch
 } from '../matrix/transform';
@@ -506,4 +508,101 @@ export const convertColorToOklch = (
   }
   [l, c, h] = transformXyzToOklch([x, y, z], true) as TriColorChannels;
   return [l, c, format === VAL_MIX && c === 0 ? NONE : h, alpha];
+};
+
+/**
+ * Converts a CSS color value to Display P3 channels.
+ * @param value - The CSS color value to convert.
+ * @param opt - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha] (where r, g, b, alpha range from 0 to 1), or null if invalid.
+ */
+export const convertColorToDisplayP3 = (
+  value: string,
+  opt: Options = {}
+): ColorChannels | null => {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  value = value.trim();
+  const { format = '' } = opt;
+  let r, g, b, alpha, x, y, z;
+  if (format === VAL_MIX) {
+    let p3;
+    if (value.startsWith(FN_COLOR)) {
+      p3 = parseColorFunc(value, opt);
+    } else {
+      p3 = parseColorValue(value, opt);
+    }
+    if (p3 === null) {
+      return null;
+    }
+    [, r, g, b, alpha] = p3 as ComputedColorChannels;
+  } else if (value.startsWith(FN_COLOR)) {
+    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
+    if (cs === 'display-p3') {
+      [, r, g, b, alpha] = resolveColorFunc(value, {
+        format: VAL_COMP
+      }) as ComputedColorChannels;
+    } else {
+      [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+      [r, g, b] = transformXyzToDisplayP3([x, y, z], true);
+    }
+  } else {
+    [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
+    [r, g, b] = transformXyzToDisplayP3([x, y, z], true);
+  }
+  return [
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1),
+    alpha
+  ];
+};
+
+/**
+ * Converts a CSS color value to linear Display P3 channels.
+ * @param value - The CSS color value to convert.
+ * @param opt - The linear RGB options.
+ * @returns The color channels array: [r, g, b, alpha] (where r, g, b, alpha range from 0 to 1), or null if invalid.
+ */
+export const convertColorToLinearP3 = (
+  value: string,
+  opt: LinearRgbOptions = {}
+): ColorChannels | null => {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  value = value.trim();
+  const { colorSpace = '', format = '' } = opt;
+  let cs = '';
+  let r, g, b, alpha, x, y, z;
+  if (format === VAL_MIX) {
+    let xyz;
+    if (value.startsWith(FN_COLOR)) {
+      xyz = parseColorFunc(value, opt);
+    } else {
+      xyz = parseColorValue(value, opt);
+    }
+    if (xyz === null) {
+      return null;
+    }
+    [cs, x, y, z, alpha] = xyz as ComputedColorChannels;
+    if (cs === colorSpace) {
+      return [x, y, z, alpha];
+    }
+    [r, g, b] = transformXyzToLinearP3([x, y, z], true);
+  } else if (value.startsWith(FN_COLOR)) {
+    [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+    [r, g, b] = transformXyzToLinearP3([x, y, z], true);
+  } else {
+    [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
+    [r, g, b] = transformXyzToLinearP3([x, y, z], true);
+  }
+  return [
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1),
+    alpha
+  ];
 };

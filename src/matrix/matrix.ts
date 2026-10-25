@@ -96,6 +96,15 @@ export const MATRIX_P3_TO_XYZ: ReadonlyColorMatrix = [
 ] as const;
 
 /**
+ * Matrix for converting from XYZ to Display P3 color space.
+ */
+export const MATRIX_XYZ_TO_P3: ReadonlyColorMatrix = [
+  [2.493496911941425, -0.9313836179384803, -0.40271078445071684],
+  [-0.8294889695615747, 1.7626640603183463, 0.02362468584194326],
+  [0.0358458316092652, -0.07617238926804182, 0.9568845240076872]
+] as const;
+
+/**
  * Matrix for converting from Rec. 2020 to XYZ color space.
  */
 export const MATRIX_REC2020_TO_XYZ: ReadonlyColorMatrix = [

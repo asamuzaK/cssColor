@@ -902,3 +902,106 @@ describe('transform xyz-d50 to lch', () => {
     assert.isTrue(res[2] > 270 && res[2] < 360);
   });
 });
+
+describe('transform linear p3 to p3', () => {
+  const func = transform.transformLinearP3ToP3;
+
+  it('should transform linear p3 (0, 0, 0) to p3 (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform linear p3 (1, 1, 1) to p3 (1, 1, 1)', () => {
+    const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should handle values below and above the gamma threshold correctly', () => {
+    const lowVal = 0.001;
+    const highVal = 0.2;
+    const res = func([lowVal, highVal, 0]);
+    // lowVal * 12.92 ≈ 0.01292
+    assert.closeTo(res[0], lowVal * 12.92, 1e-4);
+    // (0.2 ^ (1/2.4) * 1.055 - 0.055) ≈ 0.48496
+    const expectedHigh = Math.pow(highVal, 1 / 2.4) * 1.055 - 0.055;
+    assert.closeTo(res[1], expectedHigh, 1e-4);
+    assert.strictEqual(res[2], 0);
+  });
+
+  it('should throw an error for invalid array length or values out of range', () => {
+    assert.throws(() => {
+      func([1.5, 0, 0]);
+    });
+
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});
+
+describe('transform xyz to display p3', () => {
+  const func = transform.transformXyzToDisplayP3;
+
+  it('should transform xyz (0, 0, 0) to display p3 (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform D65 white point xyz to display p3 (1, 1, 1)', () => {
+    const res = func([0.95047, 1.0, 1.089057]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should clamp out-of-gamut values to 0-1 range', () => {
+    const res = func([-1, 2, -0.5]);
+    assert.isTrue(res.every(val => val >= 0 && val <= 1));
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([0, 0, 0], true);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});
+
+describe('transform xyz to linear p3', () => {
+  const func = transform.transformXyzToLinearP3;
+
+  it('should transform xyz (0, 0, 0) to linear p3 (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform D65 white point xyz to linear p3 (1, 1, 1)', () => {
+    const res = func([0.95047, 1.0, 1.089057]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([0, 0, 0], true);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});

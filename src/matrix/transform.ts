@@ -40,7 +40,8 @@ import {
   MATRIX_LMS_TO_OKLAB,
   MATRIX_L_RGB_TO_XYZ,
   MATRIX_XYZ_TO_LMS,
-  MATRIX_XYZ_TO_L_RGB
+  MATRIX_XYZ_TO_L_RGB,
+  MATRIX_XYZ_TO_P3
 } from './matrix';
 
 /**
@@ -554,4 +555,79 @@ export const transformXyzD50ToLch = (
     }
   }
   return [l, c, h];
+};
+
+/**
+ * Transforms linear Display P3 channels to standard Display P3.
+ * @param p3 - The linear Display P3 channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The Display P3 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearP3ToP3 = (
+  p3: TriColorChannels
+): TriColorChannels => {
+  let [r, g, b] = validateColorComponents(p3, {
+    maxLength: TRIA
+  });
+  const COND_POW = 809 / 258400;
+  if (r > COND_POW) {
+    r = Math.pow(r, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
+  } else {
+    r *= LINEAR_COEF;
+  }
+  if (g > COND_POW) {
+    g = Math.pow(g, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
+  } else {
+    g *= LINEAR_COEF;
+  }
+  if (b > COND_POW) {
+    b = Math.pow(b, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
+  } else {
+    b *= LINEAR_COEF;
+  }
+  return [r, g, b];
+};
+
+/**
+ * Transforms XYZ color space channels to Display P3.
+ * @param xyz - The XYZ color channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The Display P3 color channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToDisplayP3 = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_P3, xyz, true);
+  [r, g, b] = transformLinearP3ToP3([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
+  return [r, g, b];
+};
+
+/**
+ * Transforms XYZ color space channels to linear Display P3.
+ * @param xyz - The XYZ color channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The linear Display P3 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToLinearP3 = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  const p3 = transformMatrix(MATRIX_XYZ_TO_P3, xyz, true);
+  return p3;
 };
