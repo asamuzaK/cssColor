@@ -68,6 +68,44 @@ describe('resolve CSS color', () => {
     const res = func('color-mix(red, green, blue)');
     assert.strictEqual(res, 'oklab(0.533241 0.0173681 -0.026002)', 'result');
   });
+
+  it('should resolve color-mix with multi colors', () => {
+    const res = func('color-mix(in srgb, red, green, blue)');
+    assert.strictEqual(res, 'color(srgb 0.333333 0.16732 0.333333)', 'result');
+  });
+
+  it('should clamp srgb values when alpha is negative or zero', () => {
+    const res = func(
+      'color-mix(in srgb, color(srgb -2 -3 -4 / -5), color(srgb -4 -6 -8 / -10))'
+    );
+    assert.strictEqual(res, 'color(srgb 0 0 0 / 0)', 'result');
+  });
+
+  it('should clamp xyz values when alpha is negative or zero', () => {
+    const res = func(
+      'color-mix(in xyz, color(xyz -2 -3 -4 / -5), color(xyz -4 -6 -8 / -10))'
+    );
+    assert.strictEqual(res, 'color(xyz-d65 0 0 0 / 0)', 'result');
+  });
+
+  it('should not clamp xyz values when alpha is not negative nor zero', () => {
+    const res = func(
+      'color-mix(in xyz, color(xyz -2 -3 -4), color(xyz -4 -6 -8))'
+    );
+    assert.strictEqual(res, 'color(xyz-d65 -3 -4.5 -6)', 'result');
+  });
+
+  it('should resolve color-mix in hsl in srgb color space', () => {
+    const res = func('color-mix(in hsl, red, green)');
+    assert.strictEqual(res, 'color(srgb 0.752941 0.752941 0)', 'result');
+  });
+
+  it('should resolve color-mix in hsl with default hew arc', () => {
+    const res = func(
+      'color-mix(in hsl, hsl(50deg 50% 50%), hsl(330deg 50% 50%))'
+    );
+    assert.strictEqual(res, 'color(srgb 0.74902 0.333333 0.25098)', 'result');
+  });
 });
 
 describe('resolve CSS gradient', () => {
