@@ -25,6 +25,7 @@ import {
   convertColorToLinearP3,
   convertColorToOklab,
   convertColorToOklch,
+  convertColorToProphotoRgb,
   convertColorToRgb
 } from './convert-color';
 
@@ -359,6 +360,18 @@ export const colorToA98Rgb = createColorConverter(
   convertColorToA98Rgb
 );
 
+/**
+ * Converts a CSS color value to ProPhoto RGB color channels.
+ * @param value - The CSS color value to convert.
+ * @param [opt] - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha].
+ */
+export const colorToProphotoRgb = createColorConverter(
+  'colorToProphotoRgb',
+  'prophoto-rgb',
+  convertColorToProphotoRgb
+);
+
 /* Export convert */
 export const convert = {
   colorToA98Rgb,
@@ -370,6 +383,7 @@ export const convert = {
   colorToLch,
   colorToOklab,
   colorToOklch,
+  colorToProphotoRgb,
   colorToRgb,
   colorToXyz,
   colorToXyzD50,

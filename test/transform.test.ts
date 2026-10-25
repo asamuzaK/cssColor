@@ -1076,3 +1076,83 @@ describe('transform xyz to a98 rgb', () => {
     });
   });
 });
+
+describe('transform linear prophoto to prophoto', () => {
+  const func = transform.transformLinearProphotoToProphoto;
+
+  it('should transform linear prophoto (0, 0, 0) to prophoto (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform linear prophoto (1, 1, 1) to prophoto (1, 1, 1)', () => {
+    const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should apply linear transformation when value is below the threshold', () => {
+    const GAMMA = 1.8;
+    const val = 0.05;
+    const res = func([val, val, val]);
+    const expected = val / GAMMA;
+    assert.closeTo(res[0], expected, 1e-4);
+    assert.closeTo(res[1], expected, 1e-4);
+    assert.closeTo(res[2], expected, 1e-4);
+  });
+
+  it('should apply gamma correction when value is above or equal to the threshold', () => {
+    const GAMMA = 1.8;
+    const val = 0.5;
+    const res = func([val, val, val]);
+    const expected = Math.pow(val, 1 / GAMMA);
+    assert.closeTo(res[0], expected, 1e-4);
+    assert.closeTo(res[1], expected, 1e-4);
+    assert.closeTo(res[2], expected, 1e-4);
+  });
+
+  it('should throw an error for invalid input or array length', () => {
+    assert.throws(() => {
+      func([1.5, 0, 0]);
+    });
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
+  });
+});
+
+describe('transform xyz to prophoto rgb', () => {
+  const func = transform.transformXyzToProphotoRgb;
+
+  it('should transform xyz (0, 0, 0) to prophoto rgb (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform white point xyz to prophoto rgb (1, 1, 1)', () => {
+    const res = func([1.0455298, 0.98304749, 1.05339565]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should clamp out-of-gamut values to 0-1 range', () => {
+    const res = func([-1, 2, -0.5]);
+    assert.isTrue(res.every(val => val >= 0 && val <= 1));
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([0, 0, 0], true);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});

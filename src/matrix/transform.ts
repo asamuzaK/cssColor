@@ -40,6 +40,7 @@ import {
   MATRIX_D65_TO_D50,
   MATRIX_LMS_TO_OKLAB,
   MATRIX_L_RGB_TO_XYZ,
+  MATRIX_XYZ_D50_TO_PROPHOTO,
   MATRIX_XYZ_TO_A98,
   MATRIX_XYZ_TO_LMS,
   MATRIX_XYZ_TO_L_RGB,
@@ -670,6 +671,65 @@ export const transformXyzToA98Rgb = (
   }
   let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_A98, xyz, true);
   [r, g, b] = transformLinearA98ToA98([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
+  return [r, g, b];
+};
+
+/**
+ * Transforms linear ProPhoto RGB channels to standard ProPhoto RGB.
+ * @param prophoto - The linear ProPhoto RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The ProPhoto RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearProphotoToProphoto = (
+  prophoto: TriColorChannels
+): TriColorChannels => {
+  let [r, g, b] = validateColorComponents(prophoto, {
+    maxLength: TRIA
+  });
+  // ProPhoto RGB uses a gamma of 1.8 with a linear segment near black (threshold: 1/16 = 0.0625)
+  const E = 1 / 16;
+  const GAMMA_PRO = 1.8;
+  const COND_PRO = E * GAMMA_PRO;
+  if (r < COND_PRO) {
+    r /= GAMMA_PRO;
+  } else {
+    r = Math.pow(r, 1 / GAMMA_PRO);
+  }
+  if (g < COND_PRO) {
+    g /= GAMMA_PRO;
+  } else {
+    g = Math.pow(g, 1 / GAMMA_PRO);
+  }
+  if (b < COND_PRO) {
+    b /= GAMMA_PRO;
+  } else {
+    b = Math.pow(b, 1 / GAMMA_PRO);
+  }
+  return [r, g, b];
+};
+
+/**
+ * Transforms XYZ color space channels to ProPhoto RGB.
+ * @param xyz - The XYZ color channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The ProPhoto RGB color channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToProphotoRgb = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  // ProPhoto RGB expects D50-adapted XYZ
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_D50_TO_PROPHOTO, xyz, true);
+  [r, g, b] = transformLinearProphotoToProphoto([
     Math.min(Math.max(r, 0), 1),
     Math.min(Math.max(g, 0), 1),
     Math.min(Math.max(b, 0), 1)
