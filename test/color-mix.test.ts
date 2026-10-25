@@ -272,6 +272,20 @@ describe('resolveIfNested', () => {
     assert.strictEqual(res, input);
     assert.strictEqual(callCount, 1);
   });
+
+  it('should format non-rgb and non-standard space array with alpha === 1 as color(cs v1 v2 v3)', () => {
+    const input = 'color-mix(in display-p3, red, blue)';
+    const resolver = () => ['display-p3', 1, 0, 0, 1];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'color(display-p3 1 0 0)');
+  });
+
+  it('should format non-rgb and non-standard space array with alpha !== 1 as color(cs v1 v2 v3 / a)', () => {
+    const input = 'color-mix(in display-p3, red, blue)';
+    const resolver = () => ['display-p3', 1, 0, 0, 0.5];
+    const res = func(input, opt, resolver);
+    assert.strictEqual(res, 'color(display-p3 1 0 0 / 0.5)');
+  });
 });
 
 describe('normalizePercentages', () => {
@@ -689,13 +703,13 @@ describe('mixHslHwbSpace', () => {
   const func = colorMix.mixHslHwbSpace;
 
   it('should mix colors in hsl space correctly', () => {
-    const res = func('hsl', '', 'red', 'blue', 0.5, 0.5, '', 1);
-    assert.deepEqual(res, ['rgb', 0, 255, 0, 1]);
+    const res = func('hsl', '', 'red', 'green', 0.5, 0.5, '', 1);
+    assert.deepEqual(res, ['rgb', 192, 192, 0, 1]);
   });
 
   it('should mix colors in hwb space correctly', () => {
-    const res = func('hwb', '', 'red', 'blue', 0.5, 0.5, '', 1);
-    assert.deepEqual(res, ['rgb', 0, 255, 0, 1]);
+    const res = func('hwb', '', 'red', 'green', 0.5, 0.5, '', 1);
+    assert.deepEqual(res, ['rgb', 192, 192, 0, 1]);
   });
 
   it('should apply hue interpolation when hueArc is specified', () => {
@@ -719,22 +733,36 @@ describe('mixHslHwbSpace', () => {
   });
 
   it('should output srgb space format when format is computedValue', () => {
-    const res = func('hsl', '', 'red', 'blue', 0.5, 0.5, 'computedValue', 1);
-    assert.deepEqual(res, ['srgb', 0, 1, 0, 1]);
+    const res = func('hsl', '', 'red', 'green', 0.5, 0.5, 'computedValue', 1);
+    assert.deepEqual(res, ['srgb', 0.752941, 0.752941, 0, 1]);
   });
 
   it('should set alpha nones flag to true when both colorA and colorB have none alpha', () => {
     const colorA = 'hsl(0deg 100% 50% / none)';
     const colorB = 'hsl(240deg 100% 50% / none)';
     const res = func('hsl', '', colorA, colorB, 0.5, 0.5, 'computedValue', 1);
-    assert.deepEqual(res, ['srgb', 0, 1, 0, 'none']);
+    assert.deepEqual(res, ['srgb', 1, 0, 1, 'none']);
   });
 
   it('should not set alpha nones flag to true when only one color has none alpha', () => {
     const colorA = 'hsl(0deg 100% 50% / none)';
     const colorB = 'hsl(240deg 100% 50% / 1)';
     const res = func('hsl', '', colorA, colorB, 0.5, 0.5, 'computedValue', 1);
-    assert.deepEqual(res, ['srgb', 0, 1, 0, 1]);
+    assert.deepEqual(res, ['srgb', 1, 0, 1, 1]);
+  });
+
+  it('should set all nones flags to true when both colorA and colorB have none for all components', () => {
+    const colorA = 'hsl(none none none / none)';
+    const colorB = 'hsl(none none none / none)';
+    const res = func('hsl', '', colorA, colorB, 0.5, 0.5, 'computedValue', 1);
+    assert.deepEqual(res, ['srgb', 'none', 'none', 'none', 'none']);
+  });
+
+  it('should not set nones flags to true when only one color has none for components', () => {
+    const colorA = 'hsl(none none none / none)';
+    const colorB = 'hsl(120deg 50% 50% / 1)';
+    const res = func('hsl', '', colorA, colorB, 0.5, 0.5, 'computedValue', 1);
+    assert.deepEqual(res, ['srgb', 0.25098, 0.74902, 0.25098, 1]);
   });
 });
 
@@ -743,12 +771,12 @@ describe('mixLchSpace', () => {
 
   it('should mix colors in lch space correctly', () => {
     const res = func('lch', '', 'red', 'blue', 0.5, 0.5, '', 1);
-    assert.deepEqual(res, ['rgb', 0, 130, 64, 1]);
+    assert.deepEqual(res, ['rgb', 245, 0, 134, 1]);
   });
 
   it('should mix colors in oklch space correctly', () => {
     const res = func('oklch', '', 'red', 'blue', 0.5, 0.5, '', 1);
-    assert.deepEqual(res, ['rgb', 0, 147, 0, 1]);
+    assert.deepEqual(res, ['rgb', 186, 0, 194, 1]);
   });
 
   it('should apply hue interpolation when hueArc is specified', () => {
@@ -852,7 +880,7 @@ describe('computeMixedColor', () => {
       'hsl',
       '',
       'red',
-      'blue',
+      'green',
       0.5,
       0.5,
       1,
@@ -860,16 +888,16 @@ describe('computeMixedColor', () => {
       false,
       cacheKey
     );
-    const resHwb = func('hwb', '', 'red', 'blue', 0.5, 0.5, 1, '');
-    assert.deepEqual(resHsl, ['rgb', +0, 255, 0, 1]);
-    assert.deepEqual(resHwb, ['rgb', +0, 255, 0, 1]);
+    const resHwb = func('hwb', '', 'red', 'green', 0.5, 0.5, 1, '');
+    assert.deepEqual(resHsl, ['rgb', 192, 192, 0, 1]);
+    assert.deepEqual(resHwb, ['rgb', 192, 192, 0, 1]);
   });
 
   it('should route to mixLchSpace for lch and oklch', () => {
     const resLch = func('lch', '', 'red', 'blue', 0.5, 0.5, 1, '');
     const resOklch = func('oklch', '', 'red', 'blue', 0.5, 0.5, 1, '');
-    assert.deepEqual(resLch, ['rgb', 0, 130, 64, 1]);
-    assert.deepEqual(resOklch, ['rgb', +0, 147, +0, 1]);
+    assert.deepEqual(resLch, ['rgb', 245, 0, 134, 1]);
+    assert.deepEqual(resOklch, ['rgb', 186, 0, 194, 1]);
   });
 
   it('should route to mixLabSpace for lab, oklab, and other unmatched spaces', () => {
@@ -1252,6 +1280,31 @@ describe('normalizeMixPercentages', () => {
         'result'
       );
     });
+
+    it('should scale ratio and set multipler m when total specified sum is 0%', () => {
+      const colors = [
+        { color: 'red', pct: '0%' },
+        { color: 'blue', pct: '0%' }
+      ];
+      const res = func(colors, opt, resolver);
+      assert.deepEqual(
+        res,
+        {
+          colors: [
+            {
+              color: 'red',
+              ratio: 0.5
+            },
+            {
+              color: 'blue',
+              ratio: 0.5
+            }
+          ],
+          m: 0
+        },
+        'result'
+      );
+    });
   });
 
   describe('validation and invalid inputs', () => {
@@ -1259,14 +1312,6 @@ describe('normalizeMixPercentages', () => {
       const colors = [
         { color: 'red', pct: '-10%' },
         { color: 'blue', pct: '50%' }
-      ];
-      assert.isNull(func(colors, opt, resolver), 'result');
-    });
-
-    it('should return null when total specified sum is 0%', () => {
-      const colors = [
-        { color: 'red', pct: '0%' },
-        { color: 'blue', pct: '0%' }
       ];
       assert.isNull(func(colors, opt, resolver), 'result');
     });
@@ -1499,15 +1544,6 @@ describe('resolveColorMix', () => {
     );
   });
 
-  it('should return default invalid value for zero sum percentages in computed mode', () => {
-    const res = func('color-mix(in srgb, red 0%, blue 0%)');
-    assert.deepEqual(
-      res,
-      ['rgb', 0, 0, 0, 0],
-      'should return invalid color fallback'
-    );
-  });
-
   it('should return default invalid value when an intermediate color mixing fails', () => {
     const res = func('color-mix(in srgb, red, invalid-color, blue)');
     assert.deepEqual(
@@ -1525,9 +1561,14 @@ describe('resolveColorMix', () => {
     assert.isTrue((res as string).startsWith('color-mix('), 'result prefix');
   });
 
+  it('should handle zero sum percentages in computed mode', () => {
+    const res = func('color-mix(in srgb, red 0%, blue 0%)');
+    assert.deepEqual(res, ['rgb', 128, 0, 128, 0], 'result');
+  });
+
   it('should handle zero sumRatio when mixing multiple colors with zero percentages', () => {
     const res = func('color-mix(in srgb, red 0%, blue 0%, green)');
-    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result should be an array');
+    assert.deepEqual(res, ['rgb', 0, 128, 0, 1], 'result');
   });
 
   it('should handle single color in color-mix() when len === 1', () => {
@@ -1591,9 +1632,9 @@ describe('resolveColorMix', () => {
     assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
   });
 
-  it('should return default invalid value if both percentages are 0%', () => {
+  it('should resolve even if both percentages are 0%', () => {
     const res = func('color-mix(in srgb, red 0%, blue 0%)');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+    assert.deepEqual(res, ['rgb', 128, 0, 128, 0], 'result');
   });
 
   it('should return default invalid value if a single percentage exceeds 100%', () => {

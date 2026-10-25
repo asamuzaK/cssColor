@@ -130,6 +130,7 @@ export const normalizePercentages = (
  * @param alphaB - The alpha channel value for the second color.
  * @param pA - The normalized ratio for the first color.
  * @param pB - The normalized ratio for the second color.
+ * @param invalidate - Indicates whether to invalidate values if alpha is zero.
  * @returns An object containing the interpolated components and the combined alpha value.
  */
 export const interpolateComponents = (
@@ -138,18 +139,25 @@ export const interpolateComponents = (
   alphaA: number,
   alphaB: number,
   pA: number,
-  pB: number
+  pB: number,
+  invalidate: boolean = false
 ): InterpolatedComponents => {
-  const factorA = alphaA * pA;
-  const factorB = alphaB * pB;
+  const clampedAlphaA = Math.max(0, Math.min(1, alphaA));
+  const clampedAlphaB = Math.max(0, Math.min(1, alphaB));
+  const factorA = clampedAlphaA * pA;
+  const factorB = clampedAlphaB * pB;
   const alpha = factorA + factorB;
   let comps: TriColorChannels;
   if (alpha === 0) {
-    comps = [
-      compA[0] * pA + compB[0] * pB,
-      compA[1] * pA + compB[1] * pB,
-      compA[2] * pA + compB[2] * pB
-    ];
+    if (invalidate) {
+      comps = [0, 0, 0];
+    } else {
+      comps = [
+        compA[0] * pA + compB[0] * pB,
+        compA[1] * pA + compB[1] * pB,
+        compA[2] * pA + compB[2] * pB
+      ];
+    }
   } else {
     comps = [
       (compA[0] * factorA + compB[0] * factorB) / alpha,
@@ -157,7 +165,10 @@ export const interpolateComponents = (
       (compA[2] * factorA + compB[2] * factorB) / alpha
     ];
   }
-  return { comps, alpha };
+  return {
+    comps,
+    alpha: Math.max(0, Math.min(1, alpha))
+  };
 };
 
 /**
@@ -274,7 +285,8 @@ export const mixSrgbSpace = (
     alphaA,
     alphaB,
     pA,
-    pB
+    pB,
+    true
   );
   const rgbOverride: [number, number, number] = [
     comps[0] * MAX_RGB,
@@ -338,7 +350,8 @@ export const mixXyzSpace = (
     alphaA,
     alphaB,
     pA,
-    pB
+    pB,
+    true
   );
   const rgb = isD50
     ? transformXyzD50ToRgb(comps, true)
@@ -376,12 +389,12 @@ export const mixHslHwbSpace = (
   if (!hslA || !hslB) {
     return null;
   }
-  const [, , , aaA] = hslA;
-  const [, , , aaB] = hslB;
+  const [hhA, ssA, llA, aaA] = hslA;
+  const [hhB, ssB, llB, aaB] = hslB;
   const nones: [boolean, boolean, boolean, boolean] = [
-    false,
-    false,
-    false,
+    hhA === NONE && hhB === NONE,
+    ssA === NONE && ssB === NONE,
+    llA === NONE && llB === NONE,
     aaA === NONE && aaB === NONE
   ];
   let [[hA, sA, lA, alphaA], [hB, sB, lB, alphaB]] = normalizeColorComponents(
@@ -389,9 +402,7 @@ export const mixHslHwbSpace = (
     hslB,
     true
   );
-  if (hueArc) {
-    [hA, hB] = interpolateHue(hA, hB, hueArc);
-  }
+  [hA, hB] = interpolateHue(hA, hB, hueArc);
   const factorA = alphaA * pA;
   const factorB = alphaB * pB;
   const alpha = factorA + factorB;
@@ -467,9 +478,7 @@ export const mixLchSpace = (
     lchB,
     true
   );
-  if (hueArc) {
-    [hA, hB] = interpolateHue(hA, hB, hueArc);
-  }
+  [hA, hB] = interpolateHue(hA, hB, hueArc);
   const factorA = alphaA * pA;
   const factorB = alphaB * pB;
   const alpha = factorA + factorB;
@@ -799,16 +808,17 @@ export const resolveIfNested = (
     }
     if (Array.isArray(resolved)) {
       const [cs, v1, v2, v3, v4] = resolved;
-      if (v4 === 1 || v4 === undefined) {
+      const alphaVal = v4 === 1 || v4 === undefined ? '' : ` / ${v4}`;
+      const alphaRgba = v4 === 1 || v4 === undefined ? '' : `, ${v4}`;
+      if (/^rgb$/.test(cs)) {
         current =
-          cs === 'rgb'
-            ? `${cs}(${v1}, ${v2}, ${v3})`
-            : `${cs}(${v1} ${v2} ${v3})`;
+          v4 === 1 || v4 === undefined
+            ? `rgb(${v1}, ${v2}, ${v3})`
+            : `rgba(${v1}, ${v2}, ${v3}${alphaRgba})`;
+      } else if (/^(?:hsl|hwb|lab|lch|oklab|oklch)$/.test(cs)) {
+        current = `${cs}(${v1} ${v2} ${v3}${alphaVal})`;
       } else {
-        current =
-          cs === 'rgb'
-            ? `${cs}a(${v1}, ${v2}, ${v3}, ${v4})`
-            : `${cs}(${v1} ${v2} ${v3} / ${v4})`;
+        current = `color(${cs} ${v1} ${v2} ${v3}${alphaVal})`;
       }
       break;
     }
@@ -861,6 +871,7 @@ export const normalizeMixPercentages = (
     }
   }
   const resolvedPcts: number[] = new Array(len);
+  let m = 1;
   if (emptyCount === len) {
     const equalVal = MAX_PCT / len;
     for (let i = 0; i < len; i++) {
@@ -884,20 +895,24 @@ export const normalizeMixPercentages = (
     }
   }
   if (specifiedSum === 0) {
-    return null;
-  }
-  let m = 1;
-  const totalFactor = specifiedSum / MAX_PCT;
-  if (specifiedSum > MAX_PCT) {
+    const equalVal = MAX_PCT / len;
     for (let i = 0; i < len; i++) {
-      resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+      resolvedPcts[i] = equalVal;
     }
-    m = 1;
-  } else if (specifiedSum < MAX_PCT) {
-    for (let i = 0; i < len; i++) {
-      resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+    m = 0;
+  } else {
+    const totalFactor = specifiedSum / MAX_PCT;
+    if (specifiedSum > MAX_PCT) {
+      for (let i = 0; i < len; i++) {
+        resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+      }
+      m = 1;
+    } else if (specifiedSum < MAX_PCT) {
+      for (let i = 0; i < len; i++) {
+        resolvedPcts[i] = (resolvedPcts[i] as number) / totalFactor;
+      }
+      m = totalFactor;
     }
-    m = totalFactor;
   }
   const resultColors = colors.map((item, i) => ({
     color: item.color,
@@ -1143,16 +1158,17 @@ export const resolveColorMix = (
         return cacheInvalidColorValue(cacheKey, format, nullable);
       }
       const [cs, c1, c2, c3, ca] = computedRes;
-      if (ca === 1 || ca === undefined) {
+      const alphaVal = ca === 1 || ca === undefined ? '' : ` / ${ca}`;
+      const alphaRgba = ca === 1 || ca === undefined ? '' : `, ${ca}`;
+      if (/^rgb$/.test(cs)) {
         currentColor =
-          cs === 'rgb'
+          ca === 1 || ca === undefined
             ? `rgb(${c1}, ${c2}, ${c3})`
-            : `${cs}(${c1} ${c2} ${c3})`;
+            : `rgba(${c1}, ${c2}, ${c3}${alphaRgba})`;
+      } else if (/^(?:hsl|hwb|lab|lch|oklab|oklch)$/.test(cs)) {
+        currentColor = `${cs}(${c1} ${c2} ${c3}${alphaVal})`;
       } else {
-        currentColor =
-          cs === 'rgb'
-            ? `rgba(${c1}, ${c2}, ${c3}, ${ca})`
-            : `${cs}(${c1} ${c2} ${c3} / ${ca})`;
+        currentColor = `color(${cs} ${c1} ${c2} ${c3}${alphaVal})`;
       }
       currentRatio = sumRatio;
     }

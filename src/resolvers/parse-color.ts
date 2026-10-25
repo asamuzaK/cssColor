@@ -51,7 +51,6 @@ import {
   MAX_PCT,
   MAX_RGB,
   NONE,
-  OCT,
   POW_CUBE,
   POW_SQR,
   SYN_COLOR_TYPE,
@@ -99,13 +98,13 @@ export const parseRgb = (
     parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
   const r = Number.isNaN(v1)
     ? 0
-    : Math.min(Math.max(roundToPrecision(v1 * MAX_RGB, OCT), 0), MAX_RGB);
+    : Math.min(Math.max(roundToPrecision(v1 * MAX_RGB, HEX), 0), MAX_RGB);
   const g = Number.isNaN(v2)
     ? 0
-    : Math.min(Math.max(roundToPrecision(v2 * MAX_RGB, OCT), 0), MAX_RGB);
+    : Math.min(Math.max(roundToPrecision(v2 * MAX_RGB, HEX), 0), MAX_RGB);
   const b = Number.isNaN(v3)
     ? 0
-    : Math.min(Math.max(roundToPrecision(v3 * MAX_RGB, OCT), 0), MAX_RGB);
+    : Math.min(Math.max(roundToPrecision(v3 * MAX_RGB, HEX), 0), MAX_RGB);
   let alpha: number;
   if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
     alpha = parseAlpha(String(alphaVal));
@@ -176,9 +175,9 @@ export const parseHsl = (
   const b = l - sa * Math.max(-1, Math.min(bk - TRIA, TRIA ** POW_SQR - bk, 1));
   return [
     'rgb',
-    Math.min(Math.max(roundToPrecision(r * MAX_RGB, OCT), 0), MAX_RGB),
-    Math.min(Math.max(roundToPrecision(g * MAX_RGB, OCT), 0), MAX_RGB),
-    Math.min(Math.max(roundToPrecision(b * MAX_RGB, OCT), 0), MAX_RGB),
+    Math.min(Math.max(roundToPrecision(r * MAX_RGB, HEX), 0), MAX_RGB),
+    Math.min(Math.max(roundToPrecision(g * MAX_RGB, HEX), 0), MAX_RGB),
+    Math.min(Math.max(roundToPrecision(b * MAX_RGB, HEX), 0), MAX_RGB),
     alpha
   ];
 };
@@ -237,14 +236,14 @@ export const parseHwb = (
     ];
   }
   if (wh + bk >= 1) {
-    const v = roundToPrecision((wh / (wh + bk)) * MAX_RGB, OCT);
+    const v = roundToPrecision((wh / (wh + bk)) * MAX_RGB, HEX);
     return ['rgb', v, v, v, alpha];
   }
   const factor = (1 - wh - bk) / MAX_RGB;
   let [, r, g, b] = parseHsl(`hsl(${h} 100 50)`) as ComputedColorChannels;
-  r = roundToPrecision((r * factor + wh) * MAX_RGB, OCT);
-  g = roundToPrecision((g * factor + wh) * MAX_RGB, OCT);
-  b = roundToPrecision((b * factor + wh) * MAX_RGB, OCT);
+  r = roundToPrecision((r * factor + wh) * MAX_RGB, HEX);
+  g = roundToPrecision((g * factor + wh) * MAX_RGB, HEX);
+  b = roundToPrecision((b * factor + wh) * MAX_RGB, HEX);
   return [
     'rgb',
     Math.min(Math.max(r, 0), MAX_RGB),
@@ -560,9 +559,9 @@ export const parseColorFunc = (
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
     return [
       cs,
-      Number.isNaN(v1) ? NONE : roundToPrecision(r, DEC),
-      Number.isNaN(v2) ? NONE : roundToPrecision(g, DEC),
-      Number.isNaN(v3) ? NONE : roundToPrecision(b, DEC),
+      Number.isNaN(v1) ? NONE : roundToPrecision(r, HEX),
+      Number.isNaN(v2) ? NONE : roundToPrecision(g, HEX),
+      Number.isNaN(v3) ? NONE : roundToPrecision(b, HEX),
       isAlphaNone ? NONE : alpha
     ];
   }
