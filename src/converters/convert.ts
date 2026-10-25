@@ -16,6 +16,7 @@ import { isString } from '../utils/common';
 import { cssCalc, resolveVar } from '../utils/css-calc-var';
 import { getMaxLength, numberToHexString } from '../utils/util';
 import {
+  convertColorToA98Rgb,
   convertColorToDisplayP3,
   convertColorToHsl,
   convertColorToHwb,
@@ -346,8 +347,21 @@ export const colorToLinearP3 = createColorConverter(
   convertColorToLinearP3
 );
 
+/**
+ * Converts a CSS color value to Adobe RGB (1998) color channels.
+ * @param value - The CSS color value to convert.
+ * @param [opt] - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha].
+ */
+export const colorToA98Rgb = createColorConverter(
+  'colorToA98Rgb',
+  'a98-rgb',
+  convertColorToA98Rgb
+);
+
 /* Export convert */
 export const convert = {
+  colorToA98Rgb,
   colorToDisplayP3,
   colorToHex,
   colorToHsl,

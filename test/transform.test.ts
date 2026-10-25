@@ -1005,3 +1005,74 @@ describe('transform xyz to linear p3', () => {
     });
   });
 });
+
+describe('transform linear a98 to a98', () => {
+  const func = transform.transformLinearA98ToA98;
+
+  it('should transform linear a98 (0, 0, 0) to a98 (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform linear a98 (1, 1, 1) to a98 (1, 1, 1)', () => {
+    const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should apply gamma correction correctly for intermediate values', () => {
+    const val = 0.2;
+    const res = func([val, val, val]);
+    const GAMMA = 563 / 256;
+    const expected = Math.pow(val, 1 / GAMMA);
+    assert.closeTo(res[0], expected, 1e-4);
+    assert.closeTo(res[1], expected, 1e-4);
+    assert.closeTo(res[2], expected, 1e-4);
+  });
+
+  it('should throw an error for invalid array length or values out of range', () => {
+    assert.throws(() => {
+      func([1.5, 0, 0]);
+    });
+
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});
+
+describe('transform xyz to a98 rgb', () => {
+  const func = transform.transformXyzToA98Rgb;
+
+  it('should transform xyz (0, 0, 0) to a98 rgb (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform D65 white point xyz to a98 rgb (1, 1, 1)', () => {
+    const res = func([0.95047, 1.0, 1.089057]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should clamp out-of-gamut values to 0-1 range', () => {
+    const res = func([-1, 2, -0.5]);
+    assert.isTrue(res.every(val => val >= 0 && val <= 1));
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([0, 0, 0], true);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});

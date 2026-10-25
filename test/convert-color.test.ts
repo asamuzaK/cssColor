@@ -717,3 +717,60 @@ describe('convert color value to linear p3', () => {
     assert.isNotNull(res);
   });
 });
+
+describe('convert color value to a98 rgb', () => {
+  const func = color.convertColorToA98Rgb;
+
+  it('should throw TypeError if input is not a string', () => {
+    assert.throws(() => func(123), TypeError);
+    assert.throws(() => func(null), TypeError);
+  });
+
+  it('should convert color(a98-rgb ...) format correctly', () => {
+    const res = func('color(a98-rgb 0.2 0.4 0.6 / 0.8)');
+    assertDeepCloseTo(res, [0.2, 0.4, 0.6, 0.8]);
+  });
+
+  it('should convert standard color formats (hex, rgb, etc.) to a98 rgb', () => {
+    const resBlack = func('#000000');
+    assertDeepCloseTo(resBlack, [0, 0, 0, 1]);
+
+    const resWhite = func('rgb(255 255 255)');
+    assertDeepCloseTo(resWhite, [1, 1, 1, 1], 1e-3);
+  });
+
+  it('should clamp converted a98 rgb channels between 0 and 1', () => {
+    const res = func('rgb(300 -10 100)');
+    assert.isNotNull(res);
+    if (res) {
+      assert.isAtLeast(res[0], 0);
+      assert.isAtMost(res[0], 1);
+      assert.isAtLeast(res[1], 0);
+      assert.isAtMost(res[1], 1);
+    }
+  });
+
+  it('should handle format: "mixedValue" option', () => {
+    const resSameCs = func('color(a98-rgb 0.2 0.4 0.6 / 0.8)', {
+      format: 'mixedValue',
+      colorSpace: 'a98-rgb'
+    });
+    assertDeepCloseTo(resSameCs, [0.2, 0.4, 0.6, 0.8]);
+
+    const resNull = func('invalid-color', {
+      format: 'mixedValue'
+    });
+    assert.isNull(resNull);
+  });
+
+  it('should parse non-a98-rgb color() functions via parseColorFunc and transformXyzToA98Rgb in else branch', () => {
+    const res = func('color(srgb 0.2 0.4 0.6 / 0.8)');
+    assert.isNotNull(res);
+    if (res) {
+      assert.strictEqual(res[3], 0.8);
+    }
+
+    const resP3 = func('color(display-p3 1 0 0)');
+    assert.isNotNull(resP3);
+  });
+});

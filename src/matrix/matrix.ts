@@ -123,6 +123,15 @@ export const MATRIX_A98_TO_XYZ: ReadonlyColorMatrix = [
 ] as const;
 
 /**
+ * Matrix for converting from XYZ to Adobe RGB (1998) color space.
+ */
+export const MATRIX_XYZ_TO_A98: ReadonlyColorMatrix = [
+  [2.0415879038107456, -0.5650069742788594, -0.3447313507783295],
+  [-0.9692436362808797, 1.8759675015077204, 0.0415550574071756],
+  [0.013444280632031, -0.1183623922310182, 1.0151749943912054]
+] as const;
+
+/**
  * Matrix for converting from ProPhoto RGB to XYZ-D50 color space.
  */
 export const MATRIX_PROPHOTO_TO_XYZ_D50: ReadonlyColorMatrix = [

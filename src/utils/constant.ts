@@ -78,6 +78,7 @@ export const DEG = 360;
 export const DEG_HALF = 180;
 export const DOZ = 12;
 export const DUO = 2;
+export const GAMMA = 563 / 256;
 export const HALF = 0.5;
 export const HEX = 16;
 export const LAB_A = 500;
