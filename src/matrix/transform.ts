@@ -44,7 +44,8 @@ import {
   MATRIX_XYZ_TO_A98,
   MATRIX_XYZ_TO_LMS,
   MATRIX_XYZ_TO_L_RGB,
-  MATRIX_XYZ_TO_P3
+  MATRIX_XYZ_TO_P3,
+  MATRIX_XYZ_TO_REC2020
 } from './matrix';
 
 /**
@@ -708,6 +709,64 @@ export const transformLinearProphotoToProphoto = (
   } else {
     b = Math.pow(b, 1 / GAMMA_PRO);
   }
+  return [r, g, b];
+};
+
+/**
+ * Transforms linear Rec. 2020 channels to standard Rec. 2020.
+ * @param rec2020 - The linear Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearRec2020ToRec2020 = (
+  rec2020: TriColorChannels
+): TriColorChannels => {
+  let [r, g, b] = validateColorComponents(rec2020, {
+    maxLength: TRIA
+  });
+  // Rec. 2020 uses the same transfer characteristic as Rec. 709
+  const ALPHA = 1.09929682680944;
+  const BETA = 0.018053968510807;
+  const COND_REC = 4.5 * BETA;
+  if (r < COND_REC) {
+    r *= 4.5;
+  } else {
+    r = ALPHA * Math.pow(r, 0.45) - (ALPHA - 1);
+  }
+  if (g < COND_REC) {
+    g *= 4.5;
+  } else {
+    g = ALPHA * Math.pow(g, 0.45) - (ALPHA - 1);
+  }
+  if (b < COND_REC) {
+    b *= 4.5;
+  } else {
+    b = ALPHA * Math.pow(b, 0.45) - (ALPHA - 1);
+  }
+  return [r, g, b];
+};
+
+/**
+ * Transforms XYZ color space channels to Rec. 2020.
+ * @param xyz - The XYZ color channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The Rec. 2020 color channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToRec2020 = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  if (!skip) {
+    xyz = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_REC2020, xyz, true);
+  [r, g, b] = transformLinearRec2020ToRec2020([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
   return [r, g, b];
 };
 

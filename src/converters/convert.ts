@@ -26,6 +26,7 @@ import {
   convertColorToOklab,
   convertColorToOklch,
   convertColorToProphotoRgb,
+  convertColorToRec2020,
   convertColorToRgb
 } from './convert-color';
 
@@ -372,6 +373,18 @@ export const colorToProphotoRgb = createColorConverter(
   convertColorToProphotoRgb
 );
 
+/**
+ * Converts a CSS color value to Rec. 2020 color channels.
+ * @param value - The CSS color value to convert.
+ * @param [opt] - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha].
+ */
+export const colorToRec2020 = createColorConverter(
+  'colorToRec2020',
+  'rec2020',
+  convertColorToRec2020
+);
+
 /* Export convert */
 export const convert = {
   colorToA98Rgb,
@@ -384,6 +397,7 @@ export const convert = {
   colorToOklab,
   colorToOklch,
   colorToProphotoRgb,
+  colorToRec2020,
   colorToRgb,
   colorToXyz,
   colorToXyzD50,
