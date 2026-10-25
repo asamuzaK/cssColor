@@ -14,7 +14,8 @@ import {
   transformXyzToLinearP3,
   transformXyzToOklab,
   transformXyzToOklch,
-  transformXyzToProphotoRgb
+  transformXyzToProphotoRgb,
+  transformXyzToRec2020
 } from '../matrix/transform';
 import {
   parseColorFunc,
@@ -650,6 +651,56 @@ export const convertColorToA98Rgb = (
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
     [r, g, b] = transformXyzToA98Rgb([x, y, z], true);
+  }
+  return [
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1),
+    alpha
+  ];
+};
+
+/**
+ * Converts a CSS color value to Rec. 2020 channels.
+ * @param value - The CSS color value to convert.
+ * @param opt - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha], or null if invalid.
+ */
+export const convertColorToRec2020 = (
+  value: string,
+  opt: Options = {}
+): ColorChannels | null => {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  value = value.trim();
+  const { format = '' } = opt;
+  let r, g, b, alpha, x, y, z;
+  if (format === VAL_MIX) {
+    let rec2020;
+    if (value.startsWith(FN_COLOR)) {
+      rec2020 = parseColorFunc(value, opt);
+    } else {
+      rec2020 = parseColorValue(value, opt);
+    }
+    if (rec2020 === null) {
+      return null;
+    }
+    [, r, g, b, alpha] = rec2020 as ComputedColorChannels;
+  } else if (value.startsWith(FN_COLOR)) {
+    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
+    if (cs === 'rec2020') {
+      [, r, g, b, alpha] = resolveColorFunc(value, {
+        format: VAL_COMP
+      }) as ComputedColorChannels;
+    } else {
+      [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+      [r, g, b] = transformXyzToRec2020([x, y, z], true);
+    }
+  } else {
+    [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
+    [r, g, b] = transformXyzToRec2020([x, y, z], true);
   }
   return [
     Math.min(Math.max(r, 0), 1),

@@ -1124,6 +1124,31 @@ describe('convert color to prophoto rgb', () => {
   });
 });
 
+describe('convert color to rec2020', () => {
+  const func = convert.colorToRec2020;
+
+  it('should throw', () => {
+    assert.throws(() => func(), TypeError, 'undefined is not a string.');
+  });
+
+  it('should get value', () => {
+    const res = func(' ');
+    assert.deepEqual(res, [0, 0, 0, 0], 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('color(rec2020 0 1 0)');
+    assert.isNotNull(res);
+    assert.closeTo(res[0], 0, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 0, 1e-4);
+    assert.strictEqual(res[3], 1);
+
+    const res2 = func('color(rec2020 0 1 0)');
+    assert.closeTo(res2[1], 1, 1e-4);
+  });
+});
+
 describe('convert', () => {
   it('should get functions', () => {
     const keys = Object.keys(convert.convert);
