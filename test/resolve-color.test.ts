@@ -334,8 +334,8 @@ describe('resolve color', () => {
   });
 
   it('should resolve color-mix with currentColor and transparent', () => {
-    const mixValue = 'color-mix(in srgb, currentcolor, transparent)';
-    const res = func(mixValue, { currentColor: 'red' });
+    const mixedValue = 'color-mix(in srgb, currentcolor, transparent)';
+    const res = func(mixedValue, { currentColor: 'red' });
     assert.strictEqual(res, 'color(srgb 1 0 0 / 0.5)');
   });
 
@@ -373,8 +373,8 @@ describe('resolve color', () => {
 
   it('should format color-mix values when format is VAL_SPEC', () => {
     const opt = { format: VAL_SPEC };
-    const mixValue = 'color-mix(in srgb, red, blue)';
-    const res = func(mixValue, opt);
+    const mixedValue = 'color-mix(in srgb, red, blue)';
+    const res = func(mixedValue, opt);
     assert.strictEqual(res, 'color-mix(in srgb, red, blue)');
   });
 

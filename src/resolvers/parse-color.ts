@@ -155,7 +155,7 @@ export const parseHsl = (
     alpha = 0;
   }
   const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
-  if (format === 'hsl') {
+  if (format === 'hsl' || format === VAL_MIX) {
     return [
       format,
       Number.isNaN(v1) ? NONE : h,
@@ -226,7 +226,7 @@ export const parseHwb = (
     alpha = 0;
   }
   const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
-  if (format === 'hwb') {
+  if (format === 'hwb' || format === VAL_MIX) {
     return [
       format,
       Number.isNaN(v1) ? NONE : h,

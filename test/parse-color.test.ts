@@ -94,8 +94,8 @@ describe('parse rgb()', () => {
     assert.strictEqual(func('lab(50 0 0)', { nullable: true }), null);
   });
 
-  it('should preserve "none" for alpha when format is "mixValue" and alpha is "none"', () => {
-    assert.deepEqual(func('rgb(255 0 153 / none)', { format: 'mixValue' }), [
+  it('should preserve "none" for alpha when format is "mixedValue" and alpha is "none"', () => {
+    assert.deepEqual(func('rgb(255 0 153 / none)', { format: 'mixedValue' }), [
       'rgb',
       255,
       0,
@@ -104,12 +104,12 @@ describe('parse rgb()', () => {
     ]);
   });
 
-  it('should resolve "none" alpha to 1 when format is not "mixValue"', () => {
+  it('should resolve "none" alpha to 1 when format is not "mixedValue"', () => {
     assert.deepEqual(func('rgb(255 0 153 / none)'), ['rgb', 255, 0, 153, 0]);
   });
 
-  it('should return parsed numerical alpha when format is "mixValue" but alpha is specified', () => {
-    assert.deepEqual(func('rgb(255 0 153 / 0.5)', { format: 'mixValue' }), [
+  it('should return parsed numerical alpha when format is "mixedValue" but alpha is specified', () => {
+    assert.deepEqual(func('rgb(255 0 153 / 0.5)', { format: 'mixedValue' }), [
       'rgb',
       255,
       0,
@@ -740,7 +740,7 @@ describe('parse parseColorFunc()', () => {
     it('should return specified array when format is color-mix and cs matches colorSpace', () => {
       assert.deepEqual(
         func('color(display-p3 0.5 0.5 0.5 / none)', {
-          format: 'mixValue',
+          format: 'mixedValue',
           colorSpace: 'display-p3'
         }),
         ['display-p3', 0.5, 0.5, 0.5, 'none']
@@ -833,9 +833,9 @@ describe('parse parseColorFunc()', () => {
     assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
   });
 
-  it('should return "none" as 5th element when format is "mixValue", v4 is "none"', () => {
+  it('should return "none" as 5th element when format is "mixedValue", v4 is "none"', () => {
     const res = func('color(srgb 1 0 0 / none)', {
-      format: 'mixValue',
+      format: 'mixedValue',
       colorSpace: 'display-p3'
     });
     assert.isArray(res);
@@ -843,9 +843,9 @@ describe('parse parseColorFunc()', () => {
     assert.strictEqual(res[4], 'none');
   });
 
-  it('should return numeric alpha when format is "mixValue" but v4 is NOT "none"', () => {
+  it('should return numeric alpha when format is "mixedValue" but v4 is NOT "none"', () => {
     const res = func('color(srgb 1 0 0 / 0.5)', {
-      format: 'mixValue',
+      format: 'mixedValue',
       colorSpace: 'display-p3'
     });
     assert.isArray(res);
@@ -853,7 +853,7 @@ describe('parse parseColorFunc()', () => {
     assert.strictEqual(res[4], 0.5);
   });
 
-  it('should return parsed numeric alpha (0) when v4 is "none" but format is NOT "mixValue"', () => {
+  it('should return parsed numeric alpha (0) when v4 is "none" but format is NOT "mixedValue"', () => {
     const res = func('color(srgb 1 0 0 / none)');
     assert.isArray(res);
     assert.strictEqual(res[0], 'xyz-d65');
@@ -933,7 +933,7 @@ describe('parse parseColorValue()', () => {
       0,
       0
     ]);
-    assert.deepEqual(func('transparent', { format: 'mixValue' }), [
+    assert.deepEqual(func('transparent', { format: 'mixedValue' }), [
       'rgb',
       0,
       0,
@@ -953,7 +953,7 @@ describe('parse parseColorValue()', () => {
       func('unknowncolor', { format: 'computedValue', nullable: true }),
       null
     );
-    assert.strictEqual(func('unknowncolor', { format: 'mixValue' }), null);
+    assert.strictEqual(func('unknowncolor', { format: 'mixedValue' }), null);
   });
 
   it('should parse hex colors correctly', () => {
@@ -1111,7 +1111,7 @@ describe('parse parseColorValue()', () => {
     assert.isArray(resD50);
     assert.strictEqual(resD50[0], 'xyz-d50');
 
-    const resMix = func('currentcolor', { format: 'mixValue' });
+    const resMix = func('currentcolor', { format: 'mixedValue' });
     assert.isArray(resMix);
 
     const resCustomFormat = func('currentcolor', { format: 'foo' as any });

@@ -72,15 +72,15 @@ describe('convert color value to linear rgb', () => {
     }
   });
 
-  it('should handle format: "mixValue" option', () => {
+  it('should handle format: "mixedValue" option', () => {
     const resSameCs = func('color(srgb 0.2 0.4 0.6 / 0.8)', {
-      format: 'mixValue',
+      format: 'mixedValue',
       colorSpace: 'srgb'
     });
     assertDeepCloseTo(resSameCs, [0.2, 0.4, 0.6, 0.8]);
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -126,14 +126,14 @@ describe('convert color value to rgb', () => {
     assertDeepCloseTo(resRgb, [0, 255, 0, 0.8]);
   });
 
-  it('should handle format: "mixValue" option', () => {
+  it('should handle format: "mixedValue" option', () => {
     const resMix = func('color(srgb 1 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resMix);
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -168,14 +168,14 @@ describe('convert color value to xyz', () => {
     assertDeepCloseTo(resXyzD50, [0.5, 0.5, 0.5, 0.8]);
   });
 
-  it('should handle format: "mixValue" option', () => {
+  it('should handle format: "mixedValue" option', () => {
     const resMix = func('color(srgb 1 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resMix);
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -237,9 +237,9 @@ describe('convert color value to hsl', () => {
     assertDeepCloseTo(resWhite as number[], [0, 0, 100, 1]);
   });
 
-  it('should handle format: "mixValue" option and powerless hue', () => {
+  it('should handle format: "mixedValue" option and powerless hue', () => {
     const resAchromaticMix = func('rgb(128 128 128)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resAchromaticMix);
     if (resAchromaticMix) {
@@ -250,7 +250,7 @@ describe('convert color value to hsl', () => {
     }
 
     const resChromaticMix = func('rgb(255 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resChromaticMix);
     if (resChromaticMix) {
@@ -259,7 +259,7 @@ describe('convert color value to hsl', () => {
     }
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -283,14 +283,14 @@ describe('convert color value to hsl', () => {
     assertDeepCloseTo(resP3 as number[], [0, 100, 50, 1], 1e-3);
   });
 
-  it('should parse color() function when format is mixValue', () => {
+  it('should parse color() function when format is mixedValue', () => {
     const res = func('color(srgb 0.2 0.4 0.6 / 0.8)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assertDeepCloseTo(res as number[], [210, 50, 40, 0.8], 1e-1);
 
     const resAchromatic = func('color(srgb 0 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resAchromatic);
     if (resAchromatic) {
@@ -329,9 +329,9 @@ describe('convert color value to hwb', () => {
     assertDeepCloseTo(resBlack as number[], [0, 0, 100, 1]);
   });
 
-  it('should handle format: "mixValue" option and powerless hue', () => {
+  it('should handle format: "mixedValue" option and powerless hue', () => {
     const resAchromaticMix = func('rgb(128 128 128)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resAchromaticMix);
     if (resAchromaticMix) {
@@ -342,7 +342,7 @@ describe('convert color value to hwb', () => {
     }
 
     const resChromaticMix = func('rgb(255 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resChromaticMix);
     if (resChromaticMix) {
@@ -352,7 +352,7 @@ describe('convert color value to hwb', () => {
     }
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -376,14 +376,14 @@ describe('convert color value to hwb', () => {
     assertDeepCloseTo(resP3 as number[], [0, 0, 0, 1], 1e-3);
   });
 
-  it('should parse color() function when format is mixValue', () => {
+  it('should parse color() function when format is mixedValue', () => {
     const res = func('color(srgb 0.2 0.4 0.6 / 0.8)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assertDeepCloseTo(res as number[], [210, 20, 40, 0.8], 1e-3);
 
     const resAchromatic = func('color(srgb 0 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resAchromatic);
     if (resAchromatic) {
@@ -427,14 +427,14 @@ describe('convert color value to lab', () => {
     }
   });
 
-  it('should handle format: "mixValue" option', () => {
+  it('should handle format: "mixedValue" option', () => {
     const resMix = func('color(srgb 0 1 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resMix);
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -472,9 +472,9 @@ describe('convert color value to lch', () => {
     }
   });
 
-  it('should handle format: "mixValue" option and powerless hue', () => {
+  it('should handle format: "mixedValue" option and powerless hue', () => {
     const resAchromaticMix = func('color(xyz-d50 0 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resAchromaticMix);
     if (resAchromaticMix) {
@@ -485,7 +485,7 @@ describe('convert color value to lch', () => {
     }
 
     const resChromaticMix = func('rgb(255 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resChromaticMix);
     if (resChromaticMix) {
@@ -496,7 +496,7 @@ describe('convert color value to lch', () => {
     }
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -534,14 +534,14 @@ describe('convert color value to oklab', () => {
     }
   });
 
-  it('should handle format: "mixValue" option', () => {
+  it('should handle format: "mixedValue" option', () => {
     const resMix = func('color(srgb 0 1 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resMix);
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });
@@ -579,9 +579,9 @@ describe('convert color value to oklch', () => {
     }
   });
 
-  it('should handle format: "mixValue" option and powerless hue', () => {
+  it('should handle format: "mixedValue" option and powerless hue', () => {
     const resAchromaticMix = func('color(xyz 0 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resAchromaticMix);
     if (resAchromaticMix) {
@@ -592,7 +592,7 @@ describe('convert color value to oklch', () => {
     }
 
     const resChromaticMix = func('rgb(255 0 0)', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNotNull(resChromaticMix);
     if (resChromaticMix) {
@@ -601,7 +601,7 @@ describe('convert color value to oklch', () => {
     }
 
     const resNull = func('invalid-color', {
-      format: 'mixValue'
+      format: 'mixedValue'
     });
     assert.isNull(resNull);
   });

@@ -66,7 +66,7 @@ export const GRADIENT = '(?:repeating-)?(?:conic|linear|radial)-gradient';
 
 /* Formats */
 export const VAL_COMP = 'computedValue';
-export const VAL_MIX = 'mixValue';
+export const VAL_MIX = 'mixedValue';
 export const VAL_SPEC = 'specifiedValue';
 
 export type SpecialValueFormat =

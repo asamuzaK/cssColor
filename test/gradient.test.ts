@@ -204,7 +204,7 @@ describe('gradient color output', () => {
       );
       assert.strictEqual(
         grad.resolveGradient(`${type}(currentcolor, blue)`, {
-          format: 'mixValue'
+          format: 'mixedValue'
         }),
         'none'
       );

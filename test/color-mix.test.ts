@@ -579,7 +579,7 @@ describe('formatMixedColor', () => {
 
 describe('getRawChannels', () => {
   const func = colorMix.getRawChannels;
-  const opt = { colorSpace: 'srgb', format: 'mixValue' };
+  const opt = { colorSpace: 'srgb', format: 'mixedValue' };
 
   it('should return the input array as is without calling convertFn', () => {
     const inputColor: NumStrColorChannels = ['srgb', 1, 0, 0, 1];

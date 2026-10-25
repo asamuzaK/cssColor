@@ -374,13 +374,25 @@ describe('CSS Color Level 5: Computation of colors using color-mix() function sy
       );
     });
 
-    it.skip('should resolve hsl none components', () => {
-      assertApprox(
+    it.skip('should resolve hsl when all components are none', () => {
+      assert.strictEqual(
         func(
           'color-mix(in hsl, hsl(none none none), hsl(none none none))'
         ) as string,
         'hsl(none none none)'
       );
+    });
+
+    it.skip('should resolve hsl when alpha components are both none', () => {
+      assertApprox(
+        func(
+          'color-mix(in hsl, hsl(120deg 40% 40% / none), hsl(0deg 40% 40% / none))'
+        ) as string,
+        'hsl(60 40% 40% / none)'
+      );
+    });
+
+    it('should resolve hsl none components', () => {
       assertApprox(
         func(
           'color-mix(in hsl, hsl(none none none), hsl(30deg 40% 80%))'
@@ -398,6 +410,30 @@ describe('CSS Color Level 5: Computation of colors using color-mix() function sy
           'color-mix(in hsl, hsl(120deg 20% none), hsl(30deg 40% 60%))'
         ) as string,
         'color(srgb 0.66 0.72 0.48)'
+      );
+      assertApprox(
+        func(
+          'color-mix(in hsl, hsl(120deg 20% 40%), hsl(30deg 20% none))'
+        ) as string,
+        'color(srgb 0.44 0.48 0.32)'
+      );
+      assertApprox(
+        func(
+          'color-mix(in hsl, hsl(none 20% 40%), hsl(30deg none 80%))'
+        ) as string,
+        'color(srgb 0.68 0.6 0.52)'
+      );
+      assertApprox(
+        func(
+          'color-mix(in hsl, hsl(120deg 40% 40% / none), hsl(0deg 40% 40%))'
+        ) as string,
+        'color(srgb 0.56 0.56 0.24)'
+      );
+      assertApprox(
+        func(
+          'color-mix(in hsl, hsl(120deg 40% 40% / none), hsl(0deg 40% 40% / 0.5))'
+        ) as string,
+        'color(srgb 0.56 0.56 0.24 / 0.5)'
       );
     });
   });
@@ -430,6 +466,33 @@ describe('CSS Color Level 5: Computation of colors using color-mix() function sy
         'color(srgb 0.5 0 0)'
       );
     });
+
+    it.skip('should resolve hwb when all components are none', () => {
+      assert.strictEqual(
+        func(
+          'color-mix(in hwb, hwb(none none none), hwb(none none none))'
+        ) as string,
+        'hwb(none none none)'
+      );
+    });
+
+    it.skip('should resolve hwb when alpha components are both none', () => {
+      assertApprox(
+        func(
+          'color-mix(in hwb, hwb(120deg 40% 40% / none), hwb(0deg 40% 40% / none))'
+        ) as string,
+        'hwb(60 40% 40% / none)'
+      );
+    });
+
+    it('should resolve hwb none components', () => {
+      assertApprox(
+        func(
+          'color-mix(in hwb, hwb(none none none), hwb(30deg 30% 40%))'
+        ) as string,
+        'color(srgb 0.6 0.45 0.3)'
+      );
+    });
   });
 
   describe('lch()', () => {
@@ -443,6 +506,13 @@ describe('CSS Color Level 5: Computation of colors using color-mix() function sy
           'color-mix(in lch, lch(10 20 30deg) 25%, lch(50 60 70deg))'
         ) as string,
         'lch(40 50 60)'
+      );
+    });
+
+    it.skip('should resolve lch achromatic powerless hues with black', () => {
+      assertApprox(
+        func('color-mix(in lch, lab(50 0 0), black)') as string,
+        'lch(25 0 none)'
       );
     });
 
