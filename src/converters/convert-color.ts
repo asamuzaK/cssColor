@@ -13,7 +13,8 @@ import {
   transformXyzToHwb,
   transformXyzToLinearP3,
   transformXyzToOklab,
-  transformXyzToOklch
+  transformXyzToOklch,
+  transformXyzToProphotoRgb
 } from '../matrix/transform';
 import {
   parseColorFunc,
@@ -649,6 +650,61 @@ export const convertColorToA98Rgb = (
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
     [r, g, b] = transformXyzToA98Rgb([x, y, z], true);
+  }
+  return [
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1),
+    alpha
+  ];
+};
+
+/**
+ * Converts a CSS color value to ProPhoto RGB channels.
+ * @param value - The CSS color value to convert.
+ * @param opt - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha], or null if invalid.
+ */
+export const convertColorToProphotoRgb = (
+  value: string,
+  opt: Options = {}
+): ColorChannels | null => {
+  if (!isString(value)) {
+    throw new TypeError(`${value} is not a string.`);
+  }
+  value = value.trim();
+  const { format = '' } = opt;
+  let r, g, b, alpha, x, y, z;
+  if (format === VAL_MIX) {
+    let prophoto;
+    if (value.startsWith(FN_COLOR)) {
+      prophoto = parseColorFunc(value, opt);
+    } else {
+      prophoto = parseColorValue(value, opt);
+    }
+    if (prophoto === null) {
+      return null;
+    }
+    [, r, g, b, alpha] = prophoto as ComputedColorChannels;
+  } else if (value.startsWith(FN_COLOR)) {
+    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
+    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
+    if (cs === 'prophoto-rgb') {
+      [, r, g, b, alpha] = resolveColorFunc(value, {
+        format: VAL_COMP
+      }) as ComputedColorChannels;
+    } else {
+      // ProPhoto RGB uses D50 XYZ as connection space for color() function conversions
+      [, x, y, z, alpha] = parseColorFunc(value, {
+        d50: true
+      }) as ComputedColorChannels;
+      [r, g, b] = transformXyzToProphotoRgb([x, y, z], true);
+    }
+  } else {
+    [, x, y, z, alpha] = parseColorValue(value, {
+      d50: true
+    }) as ComputedColorChannels;
+    [r, g, b] = transformXyzToProphotoRgb([x, y, z], true);
   }
   return [
     Math.min(Math.max(r, 0), 1),
