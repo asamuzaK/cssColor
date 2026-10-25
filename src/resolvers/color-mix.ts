@@ -63,6 +63,7 @@ import {
   MAX_PCT,
   MAX_RGB,
   NONE,
+  TRIA,
   VAL_COMP,
   VAL_MIX,
   VAL_SPEC
@@ -208,7 +209,7 @@ export const formatMixedColor = (
     Math.round(r),
     Math.round(g),
     Math.round(b),
-    parseFloat((alpha * m).toFixed(3))
+    parseFloat((alpha * m).toFixed(TRIA))
   ];
 };
 
@@ -945,7 +946,7 @@ export const normalizeColorItems = (
     const { color, pct } = item;
     item.color = resolveIfNested(color, opt, resolver);
     if (pct === '') {
-      if (totalPercentage > 100) {
+      if (totalPercentage > MAX_PCT) {
         item.pct = '0%';
       } else if (totalPercentage > 0) {
         emptyPcts.push(i);
