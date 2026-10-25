@@ -16,10 +16,12 @@ import { isString } from '../utils/common';
 import { cssCalc, resolveVar } from '../utils/css-calc-var';
 import { getMaxLength, numberToHexString } from '../utils/util';
 import {
+  convertColorToDisplayP3,
   convertColorToHsl,
   convertColorToHwb,
   convertColorToLab,
   convertColorToLch,
+  convertColorToLinearP3,
   convertColorToOklab,
   convertColorToOklch,
   convertColorToRgb
@@ -320,8 +322,33 @@ export const colorToXyzD50 = (
   return colorToXyz(value, options);
 };
 
+/**
+ * Converts a CSS color value to Display P3 color channels.
+ * @param value - The CSS color value to convert.
+ * @param [opt] - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha].
+ */
+export const colorToDisplayP3 = createColorConverter(
+  'colorToDisplayP3',
+  'display-p3',
+  convertColorToDisplayP3
+);
+
+/**
+ * Converts a CSS color value to linear Display P3 color channels.
+ * @param value - The CSS color value to convert.
+ * @param [opt] - The conversion options.
+ * @returns The color channels array: [r, g, b, alpha].
+ */
+export const colorToLinearP3 = createColorConverter(
+  'colorToLinearP3',
+  'display-p3-linear',
+  convertColorToLinearP3
+);
+
 /* Export convert */
 export const convert = {
+  colorToDisplayP3,
   colorToHex,
   colorToHsl,
   colorToHwb,
