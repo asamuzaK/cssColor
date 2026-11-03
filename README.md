@@ -110,20 +110,26 @@ A collection of color conversion utilities.
 <!-- prettier-ignore -->
 | Function | Returns | Options | Description |
 | :-------------- | :-------------- | :-------------- | :-------------- |
+| `convert.colorToA98Rgb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Adobe RGB (1998) channels: `[r, g, b, alpha]`. |
+| `convert.colorToDisplayP3(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Display P3 channels: `[r, g, b, alpha]`. |
 | `convert.colorToHex(value, opt?)` | `string \| null` | `opt.alpha` `<boolean>`<br>_(+ see `resolve` options)_ | Returns `#rrggbb` or `#rrggbbaa` (if `opt.alpha` is true). |
-| `convert.colorToHsl(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to HSL channels: `[h, s, l, alpha]` |
-| `convert.colorToHwb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to HWB channels: `[h, w, b, alpha]` |
-| `convert.colorToLab(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE LAB channels: `[l, a, b, alpha]` |
-| `convert.colorToLch(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE LCH channels: `[l, c, h, alpha]` |
-| `convert.colorToOklab(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Oklab channels: `[l, a, b, alpha]` |
-| `convert.colorToOklch(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Oklch channels: `[l, c, h, alpha]` |
-| `convert.colorToRgb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to sRGB channels: `[r, g, b, alpha]` |
-| `convert.colorToXyz(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE XYZ channels (defaults to D65): `[x, y, z, alpha]` |
+| `convert.colorToHsl(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to HSL channels: `[h, s, l, alpha]`. |
+| `convert.colorToHwb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to HWB channels: `[h, w, b, alpha]`. |
+| `convert.colorToLab(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE LAB channels: `[l, a, b, alpha]`. |
+| `convert.colorToLch(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE LCH channels: `[l, c, h, alpha]`. |
+| `convert.colorToLinearP3(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to linear Display P3 channels: `[r, g, b, alpha]`. |
+| `convert.colorToOklab(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Oklab channels: `[l, a, b, alpha]`. |
+| `convert.colorToOklch(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Oklch channels: `[l, c, h, alpha]`. |
+| `convert.colorToProphotoRgb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to ProPhoto RGB channels: `[r, g, b, alpha]`. |
+| `convert.colorToRec2020(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to Rec. 2020 channels: `[r, g, b, alpha]`. |
+| `convert.colorToRgb(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to sRGB channels: `[r, g, b, alpha]`. |
+| `convert.colorToXyz(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE XYZ channels (defaults to D65): `[x, y, z, alpha]`. |
 | `convert.colorToXyzD50(value, opt?)` | `number[]` | _See `resolve` options_ | Converts to CIE XYZ channels with D50 white point. |
+| `convert.numberToHex(value)` | `string` | _None_ | Converts a numeric value to a two-digit hexadecimal string. |
 
 ### `utils`
 
-Helpful internal tools exposed for advanced usage, parsing, and validation.
+Internal tools exposed for advanced usage, parsing, and validation.
 
 <!-- prettier-ignore -->
 | Function | Returns | Options (`opt`) | Description |
