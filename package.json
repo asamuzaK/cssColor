@@ -33,15 +33,15 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
-    "@vitest/coverage-istanbul": "^5.0.5",
+    "@vitest/coverage-istanbul": "^5.1.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^65.4.2",
     "eslint-plugin-prettier": "^5.5.7",
-    "eslint-plugin-regexp": "^3.3.2",
-    "globals": "^17.13.0",
-    "knip": "^6.44.0",
+    "eslint-plugin-regexp": "^3.3.3",
+    "globals": "^17.14.0",
+    "knip": "^6.44.1",
     "mitata": "^1.0.34",
     "neostandard": "^0.14.1",
     "prettier": "^3.9.10",
@@ -51,7 +51,11 @@
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "glob": "^14.0.3",
+    "minimatch": "^11.0.4"
   },
   "allowScripts": {
     "esbuild@0.28.2": true
