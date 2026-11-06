@@ -693,13 +693,14 @@ export const parseColorValue = (
       return value;
     }
   } else if (/^[a-z]+$/.test(value)) {
+    const loweredValue = value.toLowerCase();
     // named-color
-    if (Object.hasOwn(NAMED_COLORS, value)) {
+    if (Object.hasOwn(NAMED_COLORS, loweredValue)) {
       if (format === VAL_SPEC) {
-        return value;
+        return loweredValue;
       }
       const [r, g, b] = NAMED_COLORS[
-        value as keyof typeof NAMED_COLORS
+        loweredValue as keyof typeof NAMED_COLORS
       ] as TriColorChannels;
       alpha = 1;
       if (format === VAL_COMP) {
@@ -712,19 +713,19 @@ export const parseColorValue = (
     } else {
       switch (format) {
         case VAL_COMP: {
-          if (nullable && value !== 'transparent') {
+          if (nullable && loweredValue !== 'transparent') {
             return null;
           }
           return ['rgb', 0, 0, 0, 0];
         }
         case VAL_SPEC: {
-          if (value === 'transparent') {
+          if (loweredValue === 'transparent') {
             return value;
           }
           return '';
         }
         case VAL_MIX: {
-          if (value === 'transparent') {
+          if (loweredValue === 'transparent') {
             return ['rgb', 0, 0, 0, 0];
           }
           return null;

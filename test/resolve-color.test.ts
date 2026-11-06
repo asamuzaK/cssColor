@@ -30,6 +30,11 @@ describe('resolve color value', () => {
     assert.deepEqual(res, ['rgb', 255, 0, 0, 1]);
   });
 
+  it('should resolve named colors correctly', () => {
+    const res = func('RED');
+    assert.deepEqual(res, ['rgb', 255, 0, 0, 1]);
+  });
+
   it('should return string for named colors when format is VAL_SPEC', () => {
     const res = func('blue', { format: VAL_SPEC });
     assert.strictEqual(res, 'blue');
