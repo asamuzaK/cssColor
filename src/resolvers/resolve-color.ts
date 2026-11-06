@@ -124,28 +124,29 @@ export const resolveColorValue = (
     }
     // named-color
   } else if (REG_NAMED_COLOR.test(value)) {
-    if (Object.hasOwn(NAMED_COLORS, value)) {
+    const loweredValue = value.toLowerCase();
+    if (Object.hasOwn(NAMED_COLORS, loweredValue)) {
       if (format === VAL_SPEC) {
-        setCache(cacheKey, value);
-        return value;
+        setCache(cacheKey, loweredValue);
+        return loweredValue;
       }
       [r, g, b] = NAMED_COLORS[
-        value as keyof typeof NAMED_COLORS
+        loweredValue as keyof typeof NAMED_COLORS
       ] as TriColorChannels;
       alpha = 1;
     } else {
       switch (format) {
         case VAL_SPEC: {
-          if (value === 'transparent') {
-            setCache(cacheKey, value);
-            return value;
+          if (loweredValue === 'transparent') {
+            setCache(cacheKey, loweredValue);
+            return loweredValue;
           }
           const res = '';
           setCache(cacheKey, res);
           return res;
         }
         case VAL_MIX: {
-          if (value === 'transparent') {
+          if (loweredValue === 'transparent') {
             const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
             setCache(cacheKey, res);
             return [...res];
@@ -155,7 +156,7 @@ export const resolveColorValue = (
         }
         case VAL_COMP:
         default: {
-          if (nullable && value !== 'transparent') {
+          if (nullable && loweredValue !== 'transparent') {
             setCache(cacheKey, null);
             return null;
           }
