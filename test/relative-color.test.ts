@@ -494,6 +494,22 @@ describe('extract origin color', () => {
   });
 
   it('should get value', () => {
+    const res = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res, 'rgb(from rebeccapurple r g b)', 'result');
+
+    const res2 = func('rgb(from rebeccapurple r g b)');
+    assert.strictEqual(res2, 'rgb(from rebeccapurple r g b)', 'result');
+  });
+
+  it('should get value', () => {
+    const res = func('rgb(from RebeccaPurple r g b)');
+    assert.strictEqual(res, 'rgb(from rebeccapurple r g b)', 'result');
+
+    const res2 = func('rgb(from RebeccaPurple r g b)');
+    assert.strictEqual(res2, 'rgb(from rebeccapurple r g b)', 'result');
+  });
+
+  it('should get value', () => {
     const res = func('rgb(from currentColor r g b)', {
       currentColor: 'rebeccapurple'
     });

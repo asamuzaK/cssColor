@@ -507,14 +507,16 @@ export const extractOriginColor = (
   if (REG_COLOR_CAPT.test(value)) {
     const [, originColor] = value.match(REG_COLOR_CAPT) as MatchedRegExp;
     const [, restValue] = value.split(originColor) as MatchedRegExp;
-    if (/^[a-z]+$/.test(originColor)) {
+    if (/^[a-z]+$/i.test(originColor)) {
+      const loweredColor = originColor.toLowerCase();
       if (
-        !/^transparent$/.test(originColor) &&
-        !Object.hasOwn(NAMED_COLORS, originColor)
+        loweredColor !== 'transparent' &&
+        !Object.hasOwn(NAMED_COLORS, loweredColor)
       ) {
         setCache(cacheKey, null);
         return null;
       }
+      value = value.replace(originColor, loweredColor);
     } else if (format === VAL_SPEC) {
       const resolvedOriginColor = resolver(originColor, options) as string;
       value = value.replace(originColor, resolvedOriginColor);
