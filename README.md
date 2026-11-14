@@ -14,7 +14,7 @@ Supports the latest CSS Color Module Level 4 & 5 specifications.
 - **Gradient Resolution & Parsing:** Supports resolving, parsing, and validation for `linear-gradient`, `radial-gradient`, and `conic-gradient`.
 - **Comprehensive Color Conversion:** Highly accurate converters between HEX, HSL, HWB, LAB, LCH, Oklab, Oklch, RGB, and XYZ color spaces.
 - **Bonus Utilities:** Includes convenient functions to validate colors or gradients, extract CSS variables, and safely split CSS values.
-- **Used in jsdom:** Adopted as the CSS color parser and resolver for `jsdom`.
+- **jsdom Integration:** Served as the default CSS color parser and resolver for [jsdom](https://github.com/jsdom/jsdom) up to v30.x.
 - **Pure ESM with TypeScript Ready:** Native ESM (`type: "module"`) with comprehensive TypeScript definitions.
 
 ## Install
