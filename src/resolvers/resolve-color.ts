@@ -406,7 +406,7 @@ export const resolveColor = (
         break;
       }
       case 'hex': {
-        res = null;
+        res = '#000000';
         break;
       }
       case 'hexAlpha': {
@@ -519,8 +519,7 @@ export const resolveColor = (
         Number.isNaN(r) ||
         Number.isNaN(g) ||
         Number.isNaN(b) ||
-        Number.isNaN(alpha) ||
-        (format === 'hex' && alpha === 0)
+        Number.isNaN(alpha)
       ) {
         finalRes = null;
       } else {
