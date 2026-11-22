@@ -30,9 +30,9 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res, '');
   });
 
-  it('should return transparent rgba for invalid color when format is "computedValue"', () => {
+  it('should return missing color for invalid color when format is "computedValue"', () => {
     const res = func('invalid_color', { format: 'computedValue' });
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(res, 'color(srgb none none none / none)');
   });
 
   it('should return null for invalid color when format is not "specifiedValue" / "computedValue"', () => {

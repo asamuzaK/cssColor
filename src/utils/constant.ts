@@ -3,7 +3,6 @@
  */
 
 /* Values and units */
-const _DIGIT = '(?:0|[1-9]\\d*)';
 const _COMPARE = 'clamp|max|min';
 const _EXPO = 'exp|hypot|log|pow|sqrt';
 const _SIGN = 'abs|sign';
@@ -15,8 +14,8 @@ const _VAR = `var|${_CALC}`;
 export const ANGLE = 'deg|g?rad|turn';
 export const LENGTH =
   '[cm]m|[dls]?v(?:[bhiw]|max|min)|in|p[ctx]|q|r?(?:[cl]h|cap|e[mx]|ic)';
-export const NUM = `[+-]?(?:${_DIGIT}(?:\\.\\d*)?|\\.\\d+)(?:e-?${_DIGIT})?`;
-export const NUM_POSITIVE = `\\+?(?:${_DIGIT}(?:\\.\\d*)?|\\.\\d+)(?:e-?${_DIGIT})?`;
+export const NUM = `[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?`;
+export const NUM_POSITIVE = `\\+?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?`;
 export const NONE = 'none';
 export const PCT = `${NUM}%`;
 export const SYN_FN_CALC = `^(?:${_CALC})\\(|(?<=[*\\/\\s\\(])(?:${_CALC})\\(`;

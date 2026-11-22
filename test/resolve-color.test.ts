@@ -7,7 +7,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
-import { VAL_COMP, VAL_MIX, VAL_SPEC } from '../src/utils/constant';
+import { NONE, VAL_COMP, VAL_MIX, VAL_SPEC } from '../src/utils/constant';
 import * as resolve from '../src/resolvers/resolve-color';
 
 beforeEach(() => {
@@ -38,6 +38,9 @@ describe('resolve color value', () => {
   it('should return string for named colors when format is VAL_SPEC', () => {
     const res = func('blue', { format: VAL_SPEC });
     assert.strictEqual(res, 'blue');
+
+    const res2 = func('BLUE', { format: VAL_SPEC });
+    assert.strictEqual(res2, 'blue');
   });
 
   it('should handle transparent for different formats', () => {
@@ -59,7 +62,7 @@ describe('resolve color value', () => {
     assert.isNull(resNull);
 
     const resDefault = func('invalid_color');
-    assert.deepEqual(resDefault, ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(resDefault, ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should resolve hex colors correctly', () => {
@@ -72,8 +75,18 @@ describe('resolve color value', () => {
     assert.deepEqual(res, ['rgb', 0, 255, 0, 1]);
   });
 
+  it('should resolve hsl colors correctly for VAL_SPEC', () => {
+    const res = func('hsl(120 100% 50%)', { format: VAL_SPEC });
+    assert.deepEqual(res, ['rgb', 0, 255, 0, 1]);
+  });
+
   it('should resolve hwb colors correctly', () => {
     const res = func('hwb(120 0% 0%)');
+    assert.deepEqual(res, ['rgb', 0, 255, 0, 1]);
+  });
+
+  it('should resolve hwb colors correctly for VAL_SPEC', () => {
+    const res = func('hwb(120 0% 0%)', { format: VAL_SPEC });
     assert.deepEqual(res, ['rgb', 0, 255, 0, 1]);
   });
 
@@ -166,7 +179,7 @@ describe('resolve color func', () => {
     assert.strictEqual(resSpec, '');
 
     const resDefault = func('invalid_func()');
-    assert.deepEqual(resDefault, ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(resDefault, ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should return parsed channels directly for VAL_SPEC format', () => {
@@ -509,7 +522,10 @@ describe('resolve color', () => {
   it('should resolve light-dark() based on resolution and option', () => {
     const invalidLightDark = 'light-dark(invalid-color, invalid-color)';
     const validLightDark = 'light-dark(red, blue)';
-    assert.strictEqual(func(invalidLightDark), 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(
+      func(invalidLightDark),
+      'color(srgb none none none / none)'
+    );
     assert.isNull(func(invalidLightDark, { nullable: true }));
     assert.strictEqual(func(validLightDark), 'rgb(255, 0, 0)');
     assert.strictEqual(
@@ -523,12 +539,12 @@ describe('resolve color', () => {
     assert.strictEqual(func('rgba(255, 0, 0, 0.5)'), 'rgba(255, 0, 0, 0.5)');
   });
 
-  it('should return RGB_TRANSPARENT when resolved is null', () => {
+  it('should return missing color when resolved is null', () => {
     const resDefault = func('invalid-color-value');
-    assert.strictEqual(resDefault, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(resDefault, 'color(srgb none none none / none)');
 
     const resExplicitFalse = func('invalid-color-value', { nullable: false });
-    assert.strictEqual(resExplicitFalse, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(resExplicitFalse, 'color(srgb none none none / none)');
   });
 
   it('should return null when resolved is null and nullable is true', () => {
@@ -548,9 +564,9 @@ describe('resolve color', () => {
     assert.strictEqual(func('invalid-color-name', { format: VAL_SPEC }), '');
   });
 
-  it('should return transparent when invalid color and not nullable', () => {
+  it('should return missing color when invalid color and not nullable', () => {
     const res = func('invalid-color-name', { nullable: false });
-    assert.strictEqual(res, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(res, 'color(srgb none none none / none)');
   });
 
   it('should resolve valid color-mix string (outer true, inner true)', () => {
@@ -565,7 +581,7 @@ describe('resolve color', () => {
     assert.isNull(resNull);
 
     const resDefault = func(invalidMix);
-    assert.strictEqual(resDefault, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(resDefault, 'color(srgb none none none / none)');
   });
 
   it('should skip color-mix check for standard colors', () => {
@@ -580,7 +596,7 @@ describe('resolve color', () => {
     assert.isNull(resNullable);
 
     const resDefault = func(invalidMix);
-    assert.strictEqual(resDefault, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(resDefault, 'color(srgb none none none / none)');
   });
 
   it('should skip inner if block when mixRes is empty string', () => {
@@ -606,6 +622,11 @@ describe('resolve color', () => {
       format: VAL_SPEC
     });
     assert.strictEqual(res, '');
+  });
+
+  it('should resolve zero padded value correctly', () => {
+    const res = func('rgb(00, 0, 153)');
+    assert.strictEqual(res, 'rgb(0, 0, 153)');
   });
 });
 

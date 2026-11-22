@@ -115,52 +115,46 @@ export const convertHexToRgb = (value: string): ColorChannels => {
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.toLowerCase().trim();
-  if (!(
-    /^#[\da-f]{6}$/.test(value) ||
-    /^#[\da-f]{3}$/.test(value) ||
-    /^#[\da-f]{8}$/.test(value) ||
-    /^#[\da-f]{4}$/.test(value)
-  )) {
-    throw new SyntaxError(`Invalid property value: ${value}`);
+  if (/^#[\da-f]{6}$/.test(value)) {
+    const [, r, g, b] = value.match(
+      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
+    ) as MatchedRegExp3;
+    return [parseInt(r, HEX), parseInt(g, HEX), parseInt(b, HEX), 1];
   }
-  const arr: number[] = [];
   if (/^#[\da-f]{3}$/.test(value)) {
     const [, r, g, b] = value.match(
       /^#([\da-f])([\da-f])([\da-f])$/
     ) as MatchedRegExp3;
-    arr.push(
+    return [
       parseInt(`${r}${r}`, HEX),
       parseInt(`${g}${g}`, HEX),
       parseInt(`${b}${b}`, HEX),
       1
-    );
-  } else if (/^#[\da-f]{4}$/.test(value)) {
-    const [, r, g, b, alpha] = value.match(
-      /^#([\da-f])([\da-f])([\da-f])([\da-f])$/
-    ) as MatchedRegExp4;
-    arr.push(
-      parseInt(`${r}${r}`, HEX),
-      parseInt(`${g}${g}`, HEX),
-      parseInt(`${b}${b}`, HEX),
-      parseHexAlpha(`${alpha}${alpha}`)
-    );
-  } else if (/^#[\da-f]{8}$/.test(value)) {
+    ];
+  }
+  if (/^#[\da-f]{8}$/.test(value)) {
     const [, r, g, b, alpha] = value.match(
       /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
     ) as MatchedRegExp4;
-    arr.push(
+    return [
       parseInt(r, HEX),
       parseInt(g, HEX),
       parseInt(b, HEX),
       parseHexAlpha(alpha)
-    );
-  } else {
-    const [, r, g, b] = value.match(
-      /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/
-    ) as MatchedRegExp3;
-    arr.push(parseInt(r, HEX), parseInt(g, HEX), parseInt(b, HEX), 1);
+    ];
   }
-  return arr as ColorChannels;
+  if (/^#[\da-f]{4}$/.test(value)) {
+    const [, r, g, b, alpha] = value.match(
+      /^#([\da-f])([\da-f])([\da-f])([\da-f])$/
+    ) as MatchedRegExp4;
+    return [
+      parseInt(`${r}${r}`, HEX),
+      parseInt(`${g}${g}`, HEX),
+      parseInt(`${b}${b}`, HEX),
+      parseHexAlpha(`${alpha}${alpha}`)
+    ];
+  }
+  throw new SyntaxError(`Invalid property value: ${value}`);
 };
 
 /**
