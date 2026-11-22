@@ -48,7 +48,6 @@ export const FN_LIGHT_DARK = 'light-dark(';
 export const FN_MIX = 'color-mix(';
 export const FN_VAR = 'var(';
 export const SYN_FN_COLOR = `(?:${CS_RGB}|${CS_XYZ})(?:\\s+${_NUM_PCT_NONE}){3}${_ALPHA}`;
-export const SYN_FN_LIGHT_DARK = '^light-dark\\(';
 export const SYN_FN_REL = `^(?:${COLOR_FUNC})\\(\\s*from\\s+|(?<=[\\s])(?:${COLOR_FUNC})\\(\\s*from\\s+`;
 export const SYN_HSL = `${_NUM_ANGLE_NONE}(?:\\s+${_NUM_PCT_NONE}){2}${_ALPHA}`;
 export const SYN_HSL_LV3 = `${_NUM_ANGLE}(?:\\s*,\\s*${PCT}){2}${_ALPHA_LV3}`;

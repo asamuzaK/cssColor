@@ -33,13 +33,10 @@ import { resolveRelativeColor } from './relative-color';
 
 /* constants */
 import {
-  FN_COLOR,
-  FN_MIX,
   MAX_RGB,
   SYN_COLOR_TYPE,
   SYN_FN_CALC,
   SYN_FN_COLOR,
-  SYN_FN_LIGHT_DARK,
   SYN_FN_REL,
   SYN_FN_VAR,
   SYN_MIX,
@@ -57,12 +54,20 @@ const REG_COLOR_FUNC = new RegExp(
   `^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`,
   'i'
 );
+const REG_COLOR_FUNC_NAMES =
+  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/i;
+const REG_COLOR_MIX = new RegExp(SYN_MIX, 'i');
 const REG_CURRENT = /^currentcolor$/i;
 const REG_FN_CALC = new RegExp(SYN_FN_CALC, 'i');
-const REG_FN_COLOR =
-  /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/i;
-const REG_FN_LIGHT_DARK = new RegExp(SYN_FN_LIGHT_DARK, 'i');
-const REG_FN_MIX = new RegExp(SYN_MIX, 'i');
+const REG_FN_COLOR = /^color\(/i;
+const REG_FN_HSL = /^hsl\(/i;
+const REG_FN_HWB = /^hwb\(/i;
+const REG_FN_LAB = /^lab\(/i;
+const REG_FN_LAB_LCH = /^l(?:ab|ch)\(/i;
+const REG_FN_LIGHT_DARK = /^light-dark\(/i;
+const REG_FN_MIX = /^color-mix\(/i;
+const REG_FN_OKLAB = /^oklab\(/i;
+const REG_FN_OKLAB_OKLCH = /^okl(?:ab|ch)\(/i;
 const REG_FN_REL = new RegExp(SYN_FN_REL, 'i');
 const REG_FN_VAR = new RegExp(SYN_FN_VAR, 'i');
 const REG_NAMED_COLOR = /^[a-z]+$/i;
@@ -171,15 +176,15 @@ export const resolveColorValue = (
   } else if (value[0] === '#') {
     [r, g, b, alpha] = convertHexToRgb(value);
     // hsl()
-  } else if (value.startsWith('hsl')) {
+  } else if (REG_FN_HSL.test(value)) {
     [, r, g, b, alpha] = parseHsl(value, opt) as ComputedColorChannels;
     // hwb()
-  } else if (value.startsWith('hwb')) {
+  } else if (REG_FN_HWB.test(value)) {
     [, r, g, b, alpha] = parseHwb(value, opt) as ComputedColorChannels;
     // lab(), lch()
-  } else if (/^l(?:ab|ch)/.test(value)) {
+  } else if (REG_FN_LAB_LCH.test(value)) {
     let x, y, z;
-    if (value.startsWith('lab')) {
+    if (REG_FN_LAB.test(value)) {
       [cs, x, y, z, alpha] = parseLab(value, opt) as ComputedColorChannels;
     } else {
       [cs, x, y, z, alpha] = parseLch(value, opt) as ComputedColorChannels;
@@ -191,9 +196,9 @@ export const resolveColorValue = (
     }
     [r, g, b] = transformXyzD50ToRgb([x, y, z]);
     // oklab(), oklch()
-  } else if (/^okl(?:ab|ch)/.test(value)) {
+  } else if (REG_FN_OKLAB_OKLCH.test(value)) {
     let x, y, z;
-    if (value.startsWith('oklab')) {
+    if (REG_FN_OKLAB.test(value)) {
       [cs, x, y, z, alpha] = parseOklab(value, opt) as ComputedColorChannels;
     } else {
       [cs, x, y, z, alpha] = parseOklch(value, opt) as ComputedColorChannels;
@@ -312,6 +317,11 @@ export const resolveColor = (
     format = VAL_COMP,
     nullable = false
   } = opt;
+  if (isString(currentColor) && /currentcolor/i.test(currentColor)) {
+    throw new SyntaxError(
+      `Unexpected currentcolor keyword in ${currentColor}.`
+    );
+  }
   const cacheKey: string = createCacheKey(
     { namespace: NAMESPACE, name: 'resolve', value },
     opt
@@ -328,12 +338,13 @@ export const resolveColor = (
     }
     const resolvedVar = resolveVar(value, opt);
     if (resolvedVar === null) {
-      const res =
-        format === 'hex' || format === 'hexAlpha' || nullable
-          ? null
-          : RGB_TRANSPARENT;
+      const res = resolveInvalidColorValue(format, nullable, true);
+      if (res === null) {
+        setCache(cacheKey, null);
+        return null;
+      }
       setCache(cacheKey, res);
-      return res;
+      return res as string;
     }
     value = resolvedVar;
   }
@@ -344,49 +355,42 @@ export const resolveColor = (
   if (REG_FN_LIGHT_DARK.test(value) && value.endsWith(')')) {
     const colorParts = value.replace(REG_FN_LIGHT_DARK, '').replace(/\)$/, '');
     const [light = '', dark = ''] = splitValue(colorParts, { delimiter: ',' });
-    if (light && dark) {
-      if (format === VAL_SPEC) {
-        const lightColor = resolveColor(light, opt);
-        const darkColor = resolveColor(dark, opt);
-        const res =
-          lightColor && darkColor
-            ? `light-dark(${lightColor}, ${darkColor})`
-            : '';
-        setCache(cacheKey, res);
-        return res;
-      }
-      const chosen = colorScheme === 'dark' ? dark : light;
-      const resolved = resolveColor(chosen, opt);
-      setCache(cacheKey, resolved);
-      return resolved;
+    // Invalid light-dark
+    if (!light || !dark) {
+      const res = resolveInvalidColorValue(format, nullable, true) as
+        string | null;
+      setCache(cacheKey, res);
+      return res;
     }
-    // fallback for invalid light-dark
-    let invalidRes;
     if (format === VAL_SPEC) {
-      invalidRes = '';
-    } else if (format === 'hex' || format === 'hexAlpha') {
-      invalidRes = null;
-    } else {
-      invalidRes = RGB_TRANSPARENT;
+      const lightColor = resolveColor(light, opt);
+      const darkColor = resolveColor(dark, opt);
+      const res =
+        lightColor && darkColor
+          ? `light-dark(${lightColor}, ${darkColor})`
+          : '';
+      setCache(cacheKey, res);
+      return res;
     }
-    setCache(cacheKey, invalidRes);
-    return invalidRes;
+    const chosen = colorScheme === 'dark' ? dark : light;
+    const resolved = resolveColor(chosen, opt);
+    setCache(cacheKey, resolved);
+    return resolved;
   }
   // 3. Relative Color resolution
   if (REG_FN_REL.test(value)) {
     const resolvedRel = resolveRelativeColor(value, opt, resolveColor);
-    if (format === VAL_COMP) {
-      const res =
-        resolvedRel === null && !nullable ? RGB_TRANSPARENT : resolvedRel;
+    if (resolvedRel === null) {
+      const res = resolveInvalidColorValue(format, nullable, true) as
+        string | null;
       setCache(cacheKey, res);
       return res;
     }
     if (format === VAL_SPEC) {
-      const res = resolvedRel === null ? '' : resolvedRel;
-      setCache(cacheKey, res);
-      return res;
+      setCache(cacheKey, resolvedRel);
+      return resolvedRel;
     }
-    value = resolvedRel === null ? '' : resolvedRel;
+    value = resolvedRel;
   }
   // 4. calc() resolution
   if (REG_FN_CALC.test(value)) {
@@ -406,7 +410,7 @@ export const resolveColor = (
         break;
       }
       case 'hex': {
-        res = '#000000';
+        res = null;
         break;
       }
       case 'hexAlpha': {
@@ -427,34 +431,34 @@ export const resolveColor = (
     }
     if (currentColor) {
       let resolvedCurrent;
-      if (currentColor.startsWith(FN_MIX)) {
+      if (REG_FN_MIX.test(currentColor)) {
         resolvedCurrent = resolveColorMix(currentColor, opt, resolveColor);
-      } else if (currentColor.startsWith(FN_COLOR)) {
+      } else if (REG_FN_COLOR.test(currentColor)) {
         resolvedCurrent = resolveColorFunc(currentColor, opt);
       } else {
         resolvedCurrent = resolveColorValue(currentColor, opt);
       }
       if (resolvedCurrent === null) {
-        setCache(cacheKey, null);
-        return null;
-      }
-      [cs, r, g, b, alpha] = resolvedCurrent as ComputedColorChannels;
-    } else {
-      // value is handled below if not VAL_COMP
-      const res = format === VAL_COMP ? RGB_TRANSPARENT : value;
-      if (format === VAL_COMP) {
+        const res = resolveInvalidColorValue(format, nullable, true) as
+          string | null;
         setCache(cacheKey, res);
         return res;
       }
+      [cs, r, g, b, alpha] = resolvedCurrent as ComputedColorChannels;
+    } else {
+      const res = resolveInvalidColorValue(format, nullable, true) as
+        string | null;
+      setCache(cacheKey, res);
+      return res;
     }
   } else if (format === VAL_SPEC) {
     let res = '';
-    if (value.startsWith(FN_MIX)) {
+    if (REG_FN_MIX.test(value)) {
       const mixRes = resolveColorMix(value, opt, resolveColor);
       if (isString(mixRes) && mixRes) {
         res = mixRes;
       }
-    } else if (value.startsWith(FN_COLOR)) {
+    } else if (REG_FN_COLOR.test(value)) {
       const funcRes = resolveColorFunc(value, opt);
       if (Array.isArray(funcRes)) {
         const [scs, rr, gg, bb, aa] = funcRes as SpecifiedColorChannels;
@@ -484,7 +488,7 @@ export const resolveColor = (
     }
     setCache(cacheKey, res);
     return res;
-  } else if (value.startsWith(FN_MIX)) {
+  } else if (REG_FN_MIX.test(value)) {
     if (currentColor) {
       value = value.replace(/currentcolor/gi, currentColor);
     }
@@ -495,7 +499,7 @@ export const resolveColor = (
       return null;
     }
     [cs, r, g, b, alpha] = resolvedMix as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     const resolvedFunc = resolveColorFunc(value, opt);
     if (resolvedFunc === null) {
       setCache(cacheKey, null);
@@ -515,6 +519,7 @@ export const resolveColor = (
   switch (format) {
     case 'hex':
     case 'hexAlpha': {
+      // FIXME: Check later.
       if (
         Number.isNaN(r) ||
         Number.isNaN(g) ||
@@ -572,10 +577,10 @@ export const isValidColor = (value: unknown, opt: Options = {}): boolean => {
       Object.hasOwn(NAMED_COLORS, loweredColor)
     );
   }
-  if (REG_COLOR.test(color) || REG_FN_MIX.test(color)) {
+  if (REG_COLOR.test(color) || REG_COLOR_MIX.test(color)) {
     return true;
   }
-  if (REG_FN_COLOR.test(color)) {
+  if (REG_COLOR_FUNC_NAMES.test(color)) {
     const options = {
       ...opt,
       nullable: true

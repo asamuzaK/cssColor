@@ -35,14 +35,14 @@ describe('resolve CSS color', () => {
     assert.strictEqual(res, 'color(srgb none none none / none)');
   });
 
-  it('should return black for invalid color when format is "hex"', () => {
+  it('should return null for invalid color when format is "hex"', () => {
     const res = func('invalid_color', { format: 'hex' });
-    assert.strictEqual(res, '#000000');
+    assert.isNull(res);
   });
 
-  it('should return transparent for invalid color when format is "hexAlpha"', () => {
+  it('should return null for invalid color when format is "hexAlpha"', () => {
     const res = func('invalid_color', { format: 'hexAlpha' });
-    assert.strictEqual(res, '#00000000');
+    assert.isNull(res);
   });
 });
 

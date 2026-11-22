@@ -735,7 +735,7 @@ export function resolveRelativeColor(
   const options = {
     ...opt
   };
-  const { format = '' } = options;
+  const { format } = options;
   const checkTokens = tokenize({ css: value });
   if (hasCssVariables(checkTokens)) {
     if (format !== VAL_SPEC) {

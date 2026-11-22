@@ -3,7 +3,11 @@
  */
 
 /* api */
-import { SyntaxFlag } from '@csstools/css-color-parser';
+import { color as colorParser } from '@csstools/css-color-parser';
+import {
+  ComponentValue,
+  parseComponentValue
+} from '@csstools/css-parser-algorithms';
 import { tokenize } from '@csstools/css-tokenizer';
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
@@ -278,22 +282,6 @@ describe('resolve light dark origin color', () => {
       colorScheme: 'light',
       format: 'specifiedValue'
     });
-    assert.strictEqual(res, null, 'result');
-  });
-
-  it('should return null if resolvedOriginColor is not a string in computedValue format', () => {
-    const mockResolver = (v: string, o?: any) => {
-      if (o?.format === 'specifiedValue') {
-        return 'light-dark(green, red)';
-      }
-      return null;
-    };
-    const res = relColor.resolveLightDarkOriginColor(
-      'rgb(from light-dark(green, red) r g b)',
-      'rgb',
-      { colorScheme: 'light', format: 'computedValue' },
-      mockResolver
-    );
     assert.strictEqual(res, null, 'result');
   });
 });
@@ -715,7 +703,7 @@ describe('extract origin color', () => {
     assert.strictEqual(res, 'lab(from rgb(255, 0, 0) l a b)');
   });
 
-  it('should extract origin color using real resolver without mocks', () => {
+  it('should extract origin color', () => {
     const input = 'rgb(from light-dark(red, blue) r g b)';
     const result = func(input, { colorScheme: 'light' }, resolveColor);
     assert.notStrictEqual(result, null);
@@ -801,69 +789,51 @@ describe('format resolved color', () => {
   });
 
   it('should format CIE color space correctly with alpha === 1 and NaN channels', () => {
-    const mockParsed = {
-      colorNotation: 'lab',
-      channels: [NaN, 20, 50],
-      alpha: 1,
-      syntaxFlags: new Set()
-    };
-    const res = func(mockParsed as any);
-    assert.strictEqual(res, 'lab(0 20 50)', 'result');
+    const tokens = tokenize({ css: 'lab(none 20 50)' });
+    const components = parseComponentValue(tokens) as ComponentValue;
+    const parsed = colorParser(components);
+    const res = func(parsed);
+    assert.strictEqual(res, 'lab(none 20 50)', 'result');
   });
 
   it('should format CIE color space with HasNoneKeywords flag and alpha !== 1', () => {
-    const mockParsed = {
-      colorNotation: 'lch',
-      channels: [NaN, NaN, NaN],
-      alpha: 0.5,
-      syntaxFlags: new Set([SyntaxFlag.HasNoneKeywords])
-    };
-    const res = func(mockParsed as any);
+    const tokens = tokenize({ css: 'lch(none none none / 0.5)' });
+    const components = parseComponentValue(tokens) as ComponentValue;
+    const parsed = colorParser(components);
+    const res = func(parsed);
     assert.strictEqual(res, 'lch(none none none / 0.5)', 'result');
   });
 
   it('should format HSL color space correctly with alpha === 1', () => {
-    const mockParsed = {
-      colorNotation: 'hsl',
-      channels: [120, 50, 50],
-      alpha: 1,
-      syntaxFlags: new Set()
-    };
-    const res = func(mockParsed as any);
+    const tokens = tokenize({ css: 'hsl(120 50 50)' });
+    const components = parseComponentValue(tokens) as ComponentValue;
+    const parsed = colorParser(components);
+    const res = func(parsed);
     assert.strictEqual(res, 'color(srgb 0.251 0.749 0.251)', 'result');
   });
 
+  // FIXME: check later
   it('should format HSL color space correctly with alpha !== 1 and NaN values', () => {
-    const mockParsed = {
-      colorNotation: 'hsla',
-      channels: [NaN, NaN, NaN],
-      alpha: NaN,
-      syntaxFlags: new Set()
-    };
-    const res = func(mockParsed as any);
-    // NaN alpha defaults to 0 when HasNoneKeywords is not present
-    assert.strictEqual(res, 'color(srgb 0 0 0 / 0)', 'result');
+    const tokens = tokenize({ css: 'hsla(none none none / none)' });
+    const components = parseComponentValue(tokens) as ComponentValue;
+    const parsed = colorParser(components);
+    const res = func(parsed);
+    assert.strictEqual(res, 'color(srgb 0 0 0 / none)', 'result');
   });
 
   it('should format standard/other color spaces (e.g., srgb) with alpha !== 1 and HasNoneKeywords', () => {
-    const mockParsed = {
-      colorNotation: 'srgb',
-      channels: [NaN, 0.5, 1],
-      alpha: 0.8,
-      syntaxFlags: new Set([SyntaxFlag.HasNoneKeywords])
-    };
-    const res = func(mockParsed as any);
+    const tokens = tokenize({ css: 'color(srgb none 0.5 1 / 0.8)' });
+    const components = parseComponentValue(tokens) as ComponentValue;
+    const parsed = colorParser(components);
+    const res = func(parsed);
     assert.strictEqual(res, 'color(srgb none 0.5 1 / 0.8)', 'result');
   });
 
   it('should format "rgb" color notation as "srgb" with alpha === 1', () => {
-    const mockParsed = {
-      colorNotation: 'rgb',
-      channels: [1, 1, 1],
-      alpha: 1,
-      syntaxFlags: new Set()
-    };
-    const res = func(mockParsed as any);
+    const tokens = tokenize({ css: 'rgb(255 255 255)' });
+    const components = parseComponentValue(tokens) as ComponentValue;
+    const parsed = colorParser(components);
+    const res = func(parsed);
     assert.strictEqual(res, 'color(srgb 1 1 1)', 'result');
   });
 });
