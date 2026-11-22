@@ -57,7 +57,7 @@ const REG_COLOR_FUNC = new RegExp(
   `^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`,
   'i'
 );
-const REG_CURRENT = /^currentColor$/i;
+const REG_CURRENT = /^currentcolor$/i;
 const REG_FN_CALC = new RegExp(SYN_FN_CALC, 'i');
 const REG_FN_COLOR =
   /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/i;
@@ -67,6 +67,7 @@ const REG_FN_REL = new RegExp(SYN_FN_REL, 'i');
 const REG_FN_VAR = new RegExp(SYN_FN_VAR, 'i');
 const REG_NAMED_COLOR = /^[a-z]+$/i;
 const REG_SPEC = /^(?:specifi|comput)edValue$/;
+const REG_TRANSPARENT = /^transparent$/i;
 
 /**
  * Resolves a CSS color value into its specified or computed channel representation.
@@ -124,29 +125,29 @@ export const resolveColorValue = (
     }
     // named-color
   } else if (REG_NAMED_COLOR.test(value)) {
-    const loweredValue = value.toLowerCase();
-    if (Object.hasOwn(NAMED_COLORS, loweredValue)) {
+    const lowerValue = value.toLowerCase();
+    if (Object.hasOwn(NAMED_COLORS, lowerValue)) {
       if (format === VAL_SPEC) {
-        setCache(cacheKey, loweredValue);
-        return loweredValue;
+        setCache(cacheKey, lowerValue);
+        return lowerValue;
       }
       [r, g, b] = NAMED_COLORS[
-        loweredValue as keyof typeof NAMED_COLORS
+        lowerValue as keyof typeof NAMED_COLORS
       ] as TriColorChannels;
       alpha = 1;
     } else {
       switch (format) {
         case VAL_SPEC: {
-          if (loweredValue === 'transparent') {
-            setCache(cacheKey, loweredValue);
-            return loweredValue;
+          if (lowerValue === 'transparent') {
+            setCache(cacheKey, lowerValue);
+            return lowerValue;
           }
           const res = '';
           setCache(cacheKey, res);
           return res;
         }
         case VAL_MIX: {
-          if (loweredValue === 'transparent') {
+          if (lowerValue === 'transparent') {
             const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
             setCache(cacheKey, res);
             return [...res];
@@ -156,7 +157,7 @@ export const resolveColorValue = (
         }
         case VAL_COMP:
         default: {
-          if (nullable && loweredValue !== 'transparent') {
+          if (nullable && lowerValue !== 'transparent') {
             setCache(cacheKey, null);
             return null;
           }
@@ -397,7 +398,7 @@ export const resolveColor = (
   let g = NaN;
   let b = NaN;
   let alpha = NaN;
-  if (value === 'transparent') {
+  if (REG_TRANSPARENT.test(value)) {
     let res: string | null;
     switch (format) {
       case VAL_SPEC: {
@@ -419,7 +420,7 @@ export const resolveColor = (
     setCache(cacheKey, res);
     return res;
   }
-  if (/^currentcolor$/i.test(value)) {
+  if (REG_CURRENT.test(value)) {
     if (format === VAL_SPEC) {
       setCache(cacheKey, value);
       return value;
@@ -487,7 +488,7 @@ export const resolveColor = (
     if (currentColor) {
       value = value.replace(/currentcolor/gi, currentColor);
     }
-    value = value.replace(/transparent/g, RGB_TRANSPARENT);
+    value = value.replace(/transparent/gi, RGB_TRANSPARENT);
     const resolvedMix = resolveColorMix(value, opt, resolveColor);
     if (resolvedMix === null) {
       setCache(cacheKey, null);

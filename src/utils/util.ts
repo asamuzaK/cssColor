@@ -26,6 +26,7 @@ import {
   DEC,
   DEG,
   DEG_HALF,
+  DOZ,
   DUO,
   HEX,
   MAX_LENGTH,
@@ -34,6 +35,7 @@ import {
   MAX_RGB,
   NONE,
   NUM,
+  OCT,
   PPTH,
   TRIA,
   VAL_MIX,
@@ -276,8 +278,21 @@ export const roundToPrecision = (value: number, bit: number = 0): number => {
   if (bit === 0) {
     return Math.round(value);
   }
-  const precision = bit === HEX ? 6 : bit < DEC ? 4 : 5;
-  return parseFloat(value.toPrecision(precision));
+  switch (bit) {
+    case DOZ: {
+      return parseFloat(value.toPrecision(5));
+    }
+    case DEC: {
+      return parseFloat(value.toPrecision(4));
+    }
+    case OCT: {
+      return parseFloat(value.toPrecision(3));
+    }
+    case HEX:
+    default: {
+      return parseFloat(value.toPrecision(6));
+    }
+  }
 };
 
 /**
@@ -513,33 +528,28 @@ export const parseHexAlpha = (value: string): number => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  const str = value.trim();
-  if (!str) {
-    throw new SyntaxError('Invalid property value: (empty string)');
+  const alpha = parseInt(value.trim(), HEX);
+  if (Number.isNaN(alpha)) {
+    throw new SyntaxError(`Invalid property value: ${value}`);
   }
-  let alpha = parseInt(str, HEX);
   if (alpha <= 0) {
     return 0;
   }
   if (alpha >= MAX_RGB) {
     return 1;
   }
-  const alphaMap = new Map();
-  for (let i = 1; i < MAX_PCT; i++) {
-    alphaMap.set(Math.round((i * MAX_RGB) / MAX_PCT), i);
+  for (let p = 0; p <= MAX_PCT; p++) {
+    if (Math.round((p * MAX_RGB) / MAX_PCT) === alpha) {
+      return p / MAX_PCT;
+    }
   }
-  if (alphaMap.has(alpha)) {
-    alpha = alphaMap.get(alpha) / MAX_PCT;
-  } else {
-    alpha = Math.round(alpha / MAX_RGB / PPTH) * PPTH;
-  }
-  return parseFloat(alpha.toFixed(TRIA));
+  return Math.round(alpha / MAX_RGB / PPTH) * PPTH;
 };
 
 /**
  * Parses a CSS color string generically into color data.
- * @param value - The CSS color value string
- * @returns The parsed color data object, or null if invalid
+ * @param value - The CSS color value string.
+ * @returns The parsed color data object, or null if invalid.
  */
 export const parseColorGeneric = (value: string): ColorData | null => {
   const tokens = tokenize({ css: value });
@@ -567,11 +577,16 @@ export const cacheInvalidColorValue = (
     setCache(cacheKey, res);
     return res;
   }
+  if (format === 'hex' || format === 'hexAlpha') {
+    const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+    setCache(cacheKey, res);
+    return res;
+  }
   if (nullable) {
     setCache(cacheKey, null);
     return null;
   }
-  const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
+  const res: SpecifiedColorChannels = ['srgb', NONE, NONE, NONE, NONE];
   setCache(cacheKey, res);
   return res;
 };
@@ -587,6 +602,10 @@ export const resolveInvalidColorValue = (
   nullable: boolean = false
 ): SpecifiedColorChannels | string | null => {
   switch (format) {
+    case 'hex':
+    case 'hexAlpha': {
+      return ['rgb', 0, 0, 0, 0];
+    }
     case 'hsl':
     case 'hwb':
     case VAL_MIX: {
@@ -599,7 +618,7 @@ export const resolveInvalidColorValue = (
       if (nullable) {
         return null;
       }
-      return ['rgb', 0, 0, 0, 0] as SpecifiedColorChannels;
+      return ['srgb', NONE, NONE, NONE, NONE] as SpecifiedColorChannels;
     }
   }
 };

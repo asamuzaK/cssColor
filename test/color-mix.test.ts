@@ -8,6 +8,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 /* test */
 import { lruCache } from '../src/utils/cache';
 import { resolveColor } from '../src/resolvers/resolve-color';
+import { NONE } from '../src/utils/constant';
 import { roundToPrecision } from '../src/utils/util';
 import * as colorMix from '../src/resolvers/color-mix';
 
@@ -1527,19 +1528,19 @@ describe('resolveColorMix', () => {
 
   it('should return default invalid value for malformed color-mix wrapper', () => {
     const res = func('color-mix(in srgb, red, blue'); // missing closing paren
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+    assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
   });
 
   it('should return default invalid value for non-numeric invalid percentage string', () => {
     const res = func('color-mix(in srgb, red invalid%, blue)');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+    assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
   });
 
   it('should return default invalid value for out-of-range percentage in computed mode', () => {
     const res = func('color-mix(in srgb, red 110%, blue)');
     assert.deepEqual(
       res,
-      ['rgb', 0, 0, 0, 0],
+      ['srgb', NONE, NONE, NONE, NONE],
       'should return invalid color fallback'
     );
   });
@@ -1548,7 +1549,7 @@ describe('resolveColorMix', () => {
     const res = func('color-mix(in srgb, red, invalid-color, blue)');
     assert.deepEqual(
       res,
-      ['rgb', 0, 0, 0, 0],
+      ['srgb', NONE, NONE, NONE, NONE],
       'should return invalid color fallback'
     );
   });
@@ -1629,7 +1630,7 @@ describe('resolveColorMix', () => {
 
   it('should return default invalid value for negative percentage', () => {
     const res = func('color-mix(in srgb, red -10%, blue)');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+    assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
   });
 
   it('should resolve even if both percentages are 0%', () => {
@@ -1639,7 +1640,7 @@ describe('resolveColorMix', () => {
 
   it('should return default invalid value if a single percentage exceeds 100%', () => {
     const res = func('color-mix(in srgb, red 110%, blue)');
-    assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+    assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
   });
 
   it('should return cached result on subsequent calls (Array)', () => {
@@ -1677,7 +1678,7 @@ describe('resolveColorMix', () => {
     const res = func('color-mix(in srgb, invalid-color)');
     assert.deepEqual(
       res,
-      ['rgb', 0, 0, 0, 0],
+      ['srgb', NONE, NONE, NONE, NONE],
       'should return invalid color fallback'
     );
   });
@@ -1711,7 +1712,7 @@ describe('resolveColorMix', () => {
       const res = func(input, {
         format: 'computedValue'
       });
-      assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+      assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
     });
 
     it('should return specified value for 3-level nested color-mix with percentages', () => {
@@ -1733,7 +1734,7 @@ describe('resolveColorMix', () => {
       const res = func(input, {
         format: 'computedValue'
       });
-      assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+      assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
     });
   });
 
@@ -1742,7 +1743,7 @@ describe('resolveColorMix', () => {
 
     it('should use default resolver (returning null) if omitted', () => {
       const res = func('color-mix(in srgb, var(--unknown), blue)');
-      assert.deepEqual(res, ['rgb', 0, 0, 0, 0], 'result');
+      assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
     });
 
     it('should resolve nested variables using actual resolver and custom properties', () => {

@@ -830,7 +830,7 @@ describe('format resolved color', () => {
       syntaxFlags: new Set()
     };
     const res = func(mockParsed as any);
-    assert.strictEqual(res, 'color(srgb 0.25098 0.74902 0.25098)', 'result');
+    assert.strictEqual(res, 'color(srgb 0.251 0.749 0.251)', 'result');
   });
 
   it('should format HSL color space correctly with alpha !== 1 and NaN values', () => {
@@ -968,7 +968,7 @@ describe('resolve relative color', () => {
     );
     assert.strictEqual(
       res,
-      'color(srgb 0.39608 0.43529 0.47451 / 0.81)',
+      'color(srgb 0.3961 0.4353 0.4745 / 0.81)',
       'result'
     );
 
@@ -977,7 +977,7 @@ describe('resolve relative color', () => {
     );
     assert.strictEqual(
       res2,
-      'color(srgb 0.39608 0.43529 0.47451 / 0.81)',
+      'color(srgb 0.3961 0.4353 0.4745 / 0.81)',
       'result'
     );
   });
@@ -1162,7 +1162,7 @@ describe('resolve relative color', () => {
 
   it('should get value', () => {
     const res = func('color(from color(srgb-linear 0.25 0.5 0.75) srgb r g b)');
-    assert.strictEqual(res, 'color(srgb 0.5371 0.73536 0.88083)', 'result');
+    assert.strictEqual(res, 'color(srgb 0.5371 0.7354 0.8808)', 'result');
   });
 
   it('should get value', () => {

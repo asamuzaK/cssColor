@@ -7,6 +7,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
 import { lruCache } from '../src/utils/cache';
+import { NONE } from '../src/utils/constant';
 import * as parse from '../src/resolvers/parse-color';
 
 beforeEach(() => {
@@ -86,11 +87,11 @@ describe('parse rgb()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should return invalid color fallback when a non-rgb color notation is passed', () => {
-    assert.deepEqual(func('hsl(0 100% 50%)'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('hsl(0 100% 50%)'), ['srgb', NONE, NONE, NONE, NONE]);
     assert.strictEqual(func('lab(50 0 0)', { nullable: true }), null);
   });
 
@@ -120,6 +121,10 @@ describe('parse rgb()', () => {
 
   it('should default alpha to 1 when alpha is omitted and no none keyword is present', () => {
     assert.deepEqual(func('rgb(255, 0, 153)'), ['rgb', 255, 0, 153, 1]);
+  });
+
+  it('should parse zero padded numbers correctly ', () => {
+    assert.deepEqual(func('rgb(00, 0, 153)'), ['rgb', 0, 0, 153, 1]);
   });
 });
 
@@ -212,11 +217,11 @@ describe('parse hsl()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should return invalid color fallback when a non-hsl color notation is passed', () => {
-    assert.deepEqual(func('rgb(255, 0, 0)'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('rgb(255, 0, 0)'), ['srgb', NONE, NONE, NONE, NONE]);
     assert.strictEqual(func('lab(50 0 0)', { nullable: true }), null);
   });
 });
@@ -297,7 +302,7 @@ describe('parse hwb()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
@@ -382,7 +387,7 @@ describe('parse lab()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should evaluate true branches when values exceed thresholds (l > 8, powFa/powFb > LAB_EPSILON)', () => {
@@ -502,7 +507,7 @@ describe('parse lch()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
@@ -587,7 +592,7 @@ describe('parse oklab()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
@@ -683,7 +688,7 @@ describe('parse oklch()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
@@ -830,7 +835,7 @@ describe('parse parseColorFunc()', () => {
   });
 
   it('should return SpecifiedColorChannels array fallback by default', () => {
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should return "none" as 5th element when format is "mixedValue", v4 is "none"', () => {
@@ -1078,7 +1083,7 @@ describe('parse parseColorValue()', () => {
   it('should return fallback values for invalid color strings', () => {
     assert.strictEqual(func('invalid-color', { nullable: true }), null);
     assert.strictEqual(func('invalid-color', { format: 'specifiedValue' }), '');
-    assert.deepEqual(func('invalid-color'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('invalid-color'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 
   it('should return the lowercased string for currentcolor', () => {

@@ -79,9 +79,8 @@ export const parseRgb = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.toLowerCase().trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'rgb') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -128,9 +127,8 @@ export const parseHsl = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'hsl') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -195,9 +193,8 @@ export const parseHwb = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'hwb') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -266,9 +263,8 @@ export const parseLab = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'lab') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -339,9 +335,8 @@ export const parseLch = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'lch') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -400,9 +395,8 @@ export const parseOklab = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'oklab') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -463,9 +457,8 @@ export const parseOklch = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed || parsed.colorNotation !== 'oklch') {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -528,9 +521,8 @@ export const parseColorFunc = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  value = value.trim();
   const { colorSpace = '', d50 = false, format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value);
+  const parsed = parseColorGeneric(value.trim());
   if (!parsed) {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
@@ -693,14 +685,14 @@ export const parseColorValue = (
       return value;
     }
   } else if (/^[a-z]+$/.test(value)) {
-    const loweredValue = value.toLowerCase();
+    const lowerValue = value.toLowerCase();
     // named-color
-    if (Object.hasOwn(NAMED_COLORS, loweredValue)) {
+    if (Object.hasOwn(NAMED_COLORS, lowerValue)) {
       if (format === VAL_SPEC) {
-        return loweredValue;
+        return lowerValue;
       }
       const [r, g, b] = NAMED_COLORS[
-        loweredValue as keyof typeof NAMED_COLORS
+        lowerValue as keyof typeof NAMED_COLORS
       ] as TriColorChannels;
       alpha = 1;
       if (format === VAL_COMP) {
@@ -713,19 +705,19 @@ export const parseColorValue = (
     } else {
       switch (format) {
         case VAL_COMP: {
-          if (nullable && loweredValue !== 'transparent') {
+          if (nullable && lowerValue !== 'transparent') {
             return null;
           }
           return ['rgb', 0, 0, 0, 0];
         }
         case VAL_SPEC: {
-          if (loweredValue === 'transparent') {
+          if (lowerValue === 'transparent') {
             return value;
           }
           return '';
         }
         case VAL_MIX: {
-          if (loweredValue === 'transparent') {
+          if (lowerValue === 'transparent') {
             return ['rgb', 0, 0, 0, 0];
           }
           return null;

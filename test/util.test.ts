@@ -6,10 +6,12 @@
 import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 
 /* test */
+import { SyntaxFlag } from '@csstools/css-color-parser';
 import { lruCache } from '../src/utils/cache';
 import {
   MAX_LENGTH,
   MAX_LENGTH_EXTEND,
+  NONE,
   VAL_MIX,
   VAL_SPEC
 } from '../src/utils/constant';
@@ -211,8 +213,9 @@ describe('round to precision', () => {
   });
 
   it('should format precision based on bit value', () => {
-    assert.strictEqual(func(12.34567, 8), 12.35);
-    assert.strictEqual(func(12.34567, 10), 12.346);
+    assert.strictEqual(func(12.34567, 8), 12.3);
+    assert.strictEqual(func(12.34567, 10), 12.35);
+    assert.strictEqual(func(12.34567, 12), 12.346);
     assert.strictEqual(func(12.34567, 16), 12.3457);
   });
 });
@@ -529,10 +532,46 @@ describe('parse color generic', () => {
     assert.strictEqual(res?.colorNotation, 'rgb');
   });
 
-  it('should parse valid color function with spaces or different color spaces', () => {
+  it('should parse valid color string into color data', () => {
+    const res = func('RGB(255, 0, 0)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'rgb');
+  });
+
+  it('should parse valid legacy color string into color data with alpha', () => {
+    const res = func('rgba(255, 0, 0, 12.3456789%)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'rgb');
+    assert.strictEqual(res?.alpha, 0.123456789);
+  });
+
+  it('should parse valid color string into color data with alpha', () => {
+    const res = func('rgb(255 0 0 / 12.3456789%)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'rgb');
+    assert.strictEqual(res?.alpha, 0.123456789);
+  });
+
+  it('should parse valid color function', () => {
     const res = func('oklab(0.5 0.1 0.1)');
     assert.isNotNull(res);
     assert.strictEqual(res?.colorNotation, 'oklab');
+  });
+
+  it('should parse valid color function with none', () => {
+    const res = func('oklab(0.5 none 0.1)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'oklab');
+    assert.deepEqual(res?.channels, [0.5, NaN, 0.1]);
+    assert.strictEqual(res?.syntaxFlags?.has(SyntaxFlag.HasNoneKeywords), true);
+  });
+
+  it('should parse valid color() function ', () => {
+    const res = func('color(srgb 0.5 0.1 0.1 / 0.3)');
+    assert.isNotNull(res);
+    assert.strictEqual(res?.colorNotation, 'srgb');
+    assert.deepEqual(res?.channels, [0.5, 0.1, 0.1]);
+    assert.strictEqual(res?.alpha, 0.3);
   });
 
   it('should return null when components cannot be parsed', () => {
@@ -571,7 +610,7 @@ describe('cache invalid color value', () => {
   it('should return and cache default fallback channels array', () => {
     const key = 'invalid_default_key';
     const res = func(key, 'rgb', false);
-    const expected = ['rgb', 0, 0, 0, 0];
+    const expected = ['srgb', NONE, NONE, NONE, NONE];
     assert.deepEqual(res, expected);
     assert.deepEqual(lruCache.get(key)?.item, expected);
   });
@@ -579,6 +618,10 @@ describe('cache invalid color value', () => {
 
 describe('resolve invalid color value', () => {
   const func = util.resolveInvalidColorValue;
+
+  it('should return transparent color channels for hex, hexAlpha', () => {
+    assert.deepEqual(func('hex'), ['rgb', 0, 0, 0, 0]);
+  });
 
   it('should return null for hsl, hwb, or VAL_MIX formats', () => {
     assert.isNull(func('hsl'));
@@ -595,8 +638,7 @@ describe('resolve invalid color value', () => {
   });
 
   it('should return fallback channels for non-nullable format', () => {
-    assert.deepEqual(func('rgb', false), ['rgb', 0, 0, 0, 0]);
-    assert.deepEqual(func('hex'), ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(func('rgb', false), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
