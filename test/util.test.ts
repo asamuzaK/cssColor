@@ -593,6 +593,22 @@ describe('parse color generic', () => {
 describe('cache invalid color value', () => {
   const func = util.cacheInvalidColorValue;
 
+  it('should return and cache fallback channels array for hex', () => {
+    const key = 'invalid_default_key';
+    const res = func(key, 'hex');
+    const expected = ['rgb', 0, 0, 0, 0];
+    assert.deepEqual(res, expected);
+    assert.deepEqual(lruCache.get(key)?.item, expected);
+  });
+
+  it('should return and cache fallback channels array for hexAlpha', () => {
+    const key = 'invalid_default_key';
+    const res = func(key, 'hexAlpha');
+    const expected = ['rgb', 0, 0, 0, 0];
+    assert.deepEqual(res, expected);
+    assert.deepEqual(lruCache.get(key)?.item, expected);
+  });
+
   it('should return and cache empty string when format is VAL_SPEC', () => {
     const key = 'invalid_spec_key';
     const res = func(key, VAL_SPEC);

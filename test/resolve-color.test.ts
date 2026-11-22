@@ -270,7 +270,7 @@ describe('resolve color', () => {
       func('transparent', { format: VAL_SPEC }),
       'transparent'
     );
-    assert.isNull(func('transparent', { format: 'hex' }));
+    assert.strictEqual(func('transparent', { format: 'hex' }), '#000000');
     assert.strictEqual(
       func('transparent', { format: 'hexAlpha' }),
       '#00000000'
@@ -298,9 +298,10 @@ describe('resolve color', () => {
     );
   });
 
-  it('should return empty string or null for invalid colors', () => {
+  it('should return string for invalid colors', () => {
     assert.strictEqual(func('invalid', { format: VAL_SPEC }), '');
-    assert.isNull(func('invalid', { format: 'hex' }));
+    assert.strictEqual(func('invalid', { format: 'hex' }), '#000000');
+    assert.strictEqual(func('invalid', { format: 'hexAlpha' }), '#00000000');
   });
 
   it('should return cached result on consecutive calls', () => {

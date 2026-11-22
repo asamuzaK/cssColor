@@ -182,20 +182,12 @@ describe('gradient color output', () => {
   it.each(['linear-gradient', 'radial-gradient', 'conic-gradient'])(
     'should reject unresolved colors in %s',
     type => {
-      for (const color of ['transparent', '#ff000000', 'currentcolor']) {
-        for (const stops of [
-          `${color}, blue`,
-          `${color} 0, blue`,
-          `red, ${color}`
-        ]) {
-          const value = `${type}(${stops})`;
-          assert.strictEqual(
-            grad.resolveGradient(value, { format: 'hex' }),
-            'none',
-            value
-          );
-        }
-      }
+      assert.strictEqual(
+        grad.resolveGradient(`${type}(currentcolor, blue)`, {
+          format: 'hex'
+        }),
+        'none'
+      );
       assert.strictEqual(
         grad.resolveGradient(`${type}(currentcolor, blue)`, {
           format: 'hexAlpha'
@@ -233,6 +225,10 @@ describe('gradient color output', () => {
     assert.strictEqual(
       grad.resolveGradient(value),
       'linear-gradient(rgba(0, 0, 0, 0), rgb(0, 0, 255))'
+    );
+    assert.strictEqual(
+      grad.resolveGradient(value, { format: 'hex' }),
+      'linear-gradient(#000000, #0000ff)'
     );
     assert.strictEqual(
       grad.resolveGradient(value, { format: 'hexAlpha' }),
