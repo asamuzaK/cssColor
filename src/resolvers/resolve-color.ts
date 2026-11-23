@@ -105,16 +105,17 @@ export const resolveColorValue = (
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
-  const [cn, v1, v2, v3, alpha] = serializedValue;
-  if (format === VAL_MIX && (!colorSpace || cn === colorSpace)) {
+  const [cs, v1, v2, v3, alpha] = serializedValue;
+  if (format === VAL_MIX && (!colorSpace || cs === colorSpace)) {
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
-  if (!colorSpace && (cn === 'rgb' || cn === 'srgb')) {
+  if (!colorSpace && (cs === 'rgb' || cs === 'srgb')) {
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
-  const serializedColor = `${cn}(${v1} ${v2} ${v3} / ${alpha})`;
+  // FIXME: Use serializedValue for convertColorToRgb
+  const serializedColor = `${cs}(${v1} ${v2} ${v3} / ${alpha})`;
   const [r, g, b] = convertColorToRgb(serializedColor) as ColorChannels;
   const rgbValue = ['rgb', Math.round(r), Math.round(g), Math.round(b), alpha];
   setCache(cacheKey, rgbValue);
@@ -169,12 +170,12 @@ export const resolveColorFunc = (
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
-  const [cn, , , , alpha] = serializedValue;
-  if (format === VAL_MIX && (!colorSpace || cn === colorSpace)) {
+  const [cs, , , , alpha] = serializedValue;
+  if (format === VAL_MIX && (!colorSpace || cs === colorSpace)) {
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
-  if (!format && !colorSpace && (cn === 'rgb' || cn === 'srgb')) {
+  if (!format && !colorSpace && (cs === 'rgb' || cs === 'srgb')) {
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
@@ -316,7 +317,7 @@ export const resolveColor = (
   if (REG_CURRENT.test(value)) {
     if (format === VAL_SPEC) {
       setCache(cacheKey, value);
-      return value;
+      return value.toLowerCase();
     }
     if (currentColor) {
       let resolvedCurrent;
@@ -395,7 +396,7 @@ export const resolveColor = (
       return null;
     }
     [cs, r, g, b, alpha] = resolvedFunc as ComputedColorChannels;
-  } else if (value) {
+  } else {
     const resolvedVal = resolveColorValue(value, opt);
     if (resolvedVal === null) {
       setCache(cacheKey, null);
@@ -408,17 +409,7 @@ export const resolveColor = (
   switch (format) {
     case 'hex':
     case 'hexAlpha': {
-      // FIXME: Check later.
-      if (
-        Number.isNaN(r) ||
-        Number.isNaN(g) ||
-        Number.isNaN(b) ||
-        Number.isNaN(alpha)
-      ) {
-        finalRes = null;
-      } else {
-        finalRes = convertRgbToHex([r, g, b, format === 'hex' ? 1 : alpha]);
-      }
+      finalRes = convertRgbToHex([r, g, b, format === 'hex' ? 1 : alpha]);
       break;
     }
     default: {

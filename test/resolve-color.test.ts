@@ -297,6 +297,11 @@ describe('resolve color', () => {
       'currentcolor'
     );
 
+    assert.strictEqual(
+      func('CURRENTCOLOR', { format: VAL_SPEC }),
+      'currentcolor'
+    );
+
     const resResolved = func('currentcolor', {
       currentColor: 'blue'
     });
@@ -666,19 +671,19 @@ describe('resolve color', () => {
   });
 
   it('should pass true branch when funcRes is an array', () => {
-    const res = resolve.resolveColor('color(srgb 1 0 0)');
+    const res = func('color(srgb 1 0 0)');
     assert.strictEqual(res, 'color(srgb 1 0 0)');
   });
 
   it('should pass false branch when funcRes is null (nullable: true)', () => {
-    const res = resolve.resolveColor('color(invalid-space 1 0 0)', {
+    const res = func('color(invalid-space 1 0 0)', {
       nullable: true
     });
     assert.isNull(res);
   });
 
   it('should pass false branch when funcRes is empty string (VAL_SPEC)', () => {
-    const res = resolve.resolveColor('color(invalid-space 1 0 0)', {
+    const res = func('color(invalid-space 1 0 0)', {
       format: VAL_SPEC
     });
     assert.strictEqual(res, '');
