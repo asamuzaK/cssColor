@@ -776,7 +776,7 @@ export const transformXyzToRec2020 = (
  * @param [skip] - Whether to skip validation.
  * @returns The ProPhoto RGB color channels: [r, g, b] (ranging from 0 to 1).
  */
-export const transformXyzToProphotoRgb = (
+export const transformXyzD50ToProphotoRgb = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {

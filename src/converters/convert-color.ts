@@ -7,6 +7,7 @@ import {
   transformLinearRgbToRgb,
   transformXyzD50ToLab,
   transformXyzD50ToLch,
+  transformXyzD50ToProphotoRgb,
   transformXyzToA98Rgb,
   transformXyzToDisplayP3,
   transformXyzToHsl,
@@ -14,7 +15,6 @@ import {
   transformXyzToLinearP3,
   transformXyzToOklab,
   transformXyzToOklch,
-  transformXyzToProphotoRgb,
   transformXyzToRec2020
 } from '../matrix/transform';
 import {
@@ -31,41 +31,29 @@ import {
   resolveColorFunc,
   resolveColorValue
 } from '../resolvers/resolve-color';
+import { serializeColorValue } from '../resolvers/serialize';
 import {
   ColorChannels,
   ColorChannelsWithPowerless,
   ComputedColorChannels,
   LinearRgbOptions,
-  MatchedRegExp,
   Options,
-  StringColorSpacedChannels,
   TriColorChannels
 } from '../typedef';
 import { isString } from '../utils/common';
 
 /* Constants */
 import { MATRIX_XYZ_TO_L_RGB } from '../matrix/matrix';
-import {
-  FN_COLOR,
-  MAX_RGB,
-  NONE,
-  SYN_FN_COLOR,
-  SYN_HSL,
-  SYN_HSL_LV3,
-  SYN_LCH,
-  SYN_MOD,
-  VAL_COMP,
-  VAL_MIX
-} from '../utils/constant';
+import { MAX_RGB, NONE, VAL_COMP, VAL_MIX } from '../utils/constant';
 
 /* Regular expressions */
-const REG_FN_COLOR = new RegExp(`^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`);
-const REG_HSL = new RegExp(`^hsla?\\(\\s*(${SYN_HSL}|${SYN_HSL_LV3})\\s*\\)$`);
-const REG_HWB = new RegExp(`^hwb\\(\\s*(${SYN_HSL})\\s*\\)$`);
-const REG_LAB = new RegExp(`^lab\\(\\s*(${SYN_MOD})\\s*\\)$`);
-const REG_LCH = new RegExp(`^lch\\(\\s*(${SYN_LCH})\\s*\\)$`);
-const REG_OKLAB = new RegExp(`^oklab\\(\\s*(${SYN_MOD})\\s*\\)$`);
-const REG_OKLCH = new RegExp(`^oklch\\(\\s*(${SYN_LCH})\\s*\\)$`);
+const REG_FN_COLOR = /^color\(/i;
+const REG_HSL = /^hsla?\(/i;
+const REG_HWB = /^hwb\(/i;
+const REG_LAB = /^lab\(/i;
+const REG_LCH = /^lch\(/i;
+const REG_OKLAB = /^oklab\(/i;
+const REG_OKLCH = /^oklch\(/i;
 
 /**
  * Converts a CSS color value to linear sRGB channels.
@@ -81,12 +69,11 @@ export const convertColorToLinearRgb = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { colorSpace = '', format = '' } = opt;
-  let cs = '';
-  let r, g, b, alpha, x, y, z;
+  const { colorSpace, format } = opt;
+  let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -99,15 +86,14 @@ export const convertColorToLinearRgb = (
       return [x, y, z, alpha];
     }
     [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
-    if (cs === 'srgb-linear') {
-      [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
-    } else {
-      [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, r, g, b, alpha] = serializedValue as ComputedColorChannels;
+    if (cs !== 'srgb-linear') {
+      [, x, y, z] = parseColorFunc(value) as ComputedColorChannels;
       [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
     }
   } else {
@@ -136,11 +122,11 @@ export const convertColorToRgb = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
-  let r, g, b, alpha;
+  const { format } = opt;
+  let cs, r, g, b, alpha;
   if (format === VAL_MIX) {
     let rgb;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       rgb = resolveColorFunc(value, opt);
     } else {
       rgb = resolveColorValue(value, opt);
@@ -149,18 +135,18 @@ export const convertColorToRgb = (
       return null;
     }
     [, r, g, b, alpha] = rgb as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, r, g, b, alpha] = serializedValue as ComputedColorChannels;
     if (cs === 'srgb') {
-      [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
       r *= MAX_RGB;
       g *= MAX_RGB;
       b *= MAX_RGB;
     } else {
-      [, r, g, b, alpha] = resolveColorFunc(value) as ComputedColorChannels;
+      [, r, g, b] = resolveColorFunc(value) as ComputedColorChannels;
     }
   } else if (/^(?:ok)?l(?:ab|ch)/.test(value)) {
     [r, g, b, alpha] = convertColorToLinearRgb(value) as ColorChannels;
@@ -187,11 +173,11 @@ export const convertColorToXyz = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { d50 = false, format = '' } = opt;
-  let x, y, z, alpha;
+  const { d50, format } = opt;
+  let cs, x, y, z, alpha;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -200,25 +186,17 @@ export const convertColorToXyz = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, x, y, z, alpha] = serializedValue as ComputedColorChannels;
     if (d50) {
-      if (cs === 'xyz-d50') {
-        [, x, y, z, alpha] = resolveColorFunc(value, {
-          format: VAL_COMP
-        }) as ComputedColorChannels;
-      } else {
-        [, x, y, z, alpha] = parseColorFunc(
-          value,
-          opt
-        ) as ComputedColorChannels;
+      if (cs !== 'xyz-d50') {
+        [, x, y, z] = parseColorFunc(value, opt) as ComputedColorChannels;
       }
-    } else if (/^xyz(?:-d65)?$/.test(cs)) {
-      [, x, y, z, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
-    } else {
+    } else if (!/^xyz(?:-d65)?$/.test(cs)) {
       [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
     }
   } else {
@@ -241,7 +219,7 @@ export const convertColorToHsl = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
+  const { format } = opt;
   let h, s, l, alpha;
   if (REG_HSL.test(value)) {
     [, h, s, l, alpha] = parseHsl(value, {
@@ -255,7 +233,7 @@ export const convertColorToHsl = (
   let x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -264,7 +242,7 @@ export const convertColorToHsl = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
@@ -285,12 +263,12 @@ export const convertColorToHsl = (
 export const convertColorToHwb = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number | string, number, number, number] | null => {
+): ColorChannels | ColorChannelsWithPowerless | null => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
+  const { format } = opt;
   let h, w, b, alpha;
   if (REG_HWB.test(value)) {
     [, h, w, b, alpha] = parseHwb(value, {
@@ -304,7 +282,7 @@ export const convertColorToHwb = (
   let x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -313,7 +291,7 @@ export const convertColorToHwb = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
@@ -339,7 +317,7 @@ export const convertColorToLab = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
+  const { format } = opt;
   let l, a, b, alpha;
   if (REG_LAB.test(value)) {
     [, l, a, b, alpha] = parseLab(value, {
@@ -354,7 +332,7 @@ export const convertColorToLab = (
       ...opt,
       d50: true
     };
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, options);
     } else {
       xyz = parseColorValue(value, options);
@@ -363,7 +341,7 @@ export const convertColorToLab = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
     }) as ComputedColorChannels;
@@ -385,12 +363,12 @@ export const convertColorToLab = (
 export const convertColorToLch = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number, number, number | string, number] | null => {
+): ColorChannels | ColorChannelsWithPowerless | null => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
+  const { format } = opt;
   let l, c, h, alpha;
   if (REG_LCH.test(value)) {
     [, l, c, h, alpha] = parseLch(value, {
@@ -405,7 +383,7 @@ export const convertColorToLch = (
       ...opt,
       d50: true
     };
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, options);
     } else {
       xyz = parseColorValue(value, options);
@@ -414,7 +392,7 @@ export const convertColorToLch = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value, {
       d50: true
     }) as ComputedColorChannels;
@@ -441,7 +419,7 @@ export const convertColorToOklab = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
+  const { format } = opt;
   let l, a, b, alpha;
   if (REG_OKLAB.test(value)) {
     [, l, a, b, alpha] = parseOklab(value, {
@@ -452,7 +430,7 @@ export const convertColorToOklab = (
   let x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -461,7 +439,7 @@ export const convertColorToOklab = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
@@ -479,12 +457,12 @@ export const convertColorToOklab = (
 export const convertColorToOklch = (
   value: string,
   opt: Options = {}
-): ColorChannels | [number, number, number | string, number] | null => {
+): ColorChannels | ColorChannelsWithPowerless | null => {
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
+  const { format } = opt;
   let l, c, h, alpha;
   if (REG_OKLCH.test(value)) {
     [, l, c, h, alpha] = parseOklch(value, {
@@ -495,7 +473,7 @@ export const convertColorToOklch = (
   let x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -504,7 +482,7 @@ export const convertColorToOklch = (
       return null;
     }
     [, x, y, z, alpha] = xyz as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
   } else {
     [, x, y, z, alpha] = parseColorValue(value) as ComputedColorChannels;
@@ -527,11 +505,11 @@ export const convertColorToDisplayP3 = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
-  let r, g, b, alpha, x, y, z;
+  const { format } = opt;
+  let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let p3;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       p3 = parseColorFunc(value, opt);
     } else {
       p3 = parseColorValue(value, opt);
@@ -540,15 +518,14 @@ export const convertColorToDisplayP3 = (
       return null;
     }
     [, r, g, b, alpha] = p3 as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
-    if (cs === 'display-p3') {
-      [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
-    } else {
-      [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, r, g, b, alpha] = serializedValue as ComputedColorChannels;
+    if (cs !== 'display-p3') {
+      [, x, y, z] = parseColorFunc(value) as ComputedColorChannels;
       [r, g, b] = transformXyzToDisplayP3([x, y, z], true);
     }
   } else {
@@ -582,7 +559,7 @@ export const convertColorToLinearP3 = (
   let r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let xyz;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       xyz = parseColorFunc(value, opt);
     } else {
       xyz = parseColorValue(value, opt);
@@ -595,7 +572,7 @@ export const convertColorToLinearP3 = (
       return [x, y, z, alpha];
     }
     [r, g, b] = transformXyzToLinearP3([x, y, z], true);
-  } else if (value.startsWith(FN_COLOR)) {
+  } else if (REG_FN_COLOR.test(value)) {
     [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
     [r, g, b] = transformXyzToLinearP3([x, y, z], true);
   } else {
@@ -624,11 +601,11 @@ export const convertColorToA98Rgb = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
-  let r, g, b, alpha, x, y, z;
+  const { format } = opt;
+  let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let a98;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       a98 = parseColorFunc(value, opt);
     } else {
       a98 = parseColorValue(value, opt);
@@ -637,15 +614,14 @@ export const convertColorToA98Rgb = (
       return null;
     }
     [, r, g, b, alpha] = a98 as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
-    if (cs === 'a98-rgb') {
-      [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
-    } else {
-      [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, r, g, b, alpha] = serializedValue as ComputedColorChannels;
+    if (cs !== 'a98-rgb') {
+      [, x, y, z] = parseColorFunc(value) as ComputedColorChannels;
       [r, g, b] = transformXyzToA98Rgb([x, y, z], true);
     }
   } else {
@@ -674,11 +650,11 @@ export const convertColorToRec2020 = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
-  let r, g, b, alpha, x, y, z;
+  const { format } = opt;
+  let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let rec2020;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       rec2020 = parseColorFunc(value, opt);
     } else {
       rec2020 = parseColorValue(value, opt);
@@ -687,15 +663,14 @@ export const convertColorToRec2020 = (
       return null;
     }
     [, r, g, b, alpha] = rec2020 as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
-    if (cs === 'rec2020') {
-      [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
-    } else {
-      [, x, y, z, alpha] = parseColorFunc(value) as ComputedColorChannels;
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, r, g, b, alpha] = serializedValue as ComputedColorChannels;
+    if (cs !== 'rec2020') {
+      [, x, y, z] = parseColorFunc(value) as ComputedColorChannels;
       [r, g, b] = transformXyzToRec2020([x, y, z], true);
     }
   } else {
@@ -724,11 +699,11 @@ export const convertColorToProphotoRgb = (
     throw new TypeError(`${value} is not a string.`);
   }
   value = value.trim();
-  const { format = '' } = opt;
-  let r, g, b, alpha, x, y, z;
+  const { format } = opt;
+  let cs, r, g, b, alpha, x, y, z;
   if (format === VAL_MIX) {
     let prophoto;
-    if (value.startsWith(FN_COLOR)) {
+    if (REG_FN_COLOR.test(value)) {
       prophoto = parseColorFunc(value, opt);
     } else {
       prophoto = parseColorValue(value, opt);
@@ -737,25 +712,23 @@ export const convertColorToProphotoRgb = (
       return null;
     }
     [, r, g, b, alpha] = prophoto as ComputedColorChannels;
-  } else if (value.startsWith(FN_COLOR)) {
-    const [, val] = value.match(REG_FN_COLOR) as MatchedRegExp;
-    const [cs] = val.match(/[^\s,/]+/g) as StringColorSpacedChannels;
-    if (cs === 'prophoto-rgb') {
-      [, r, g, b, alpha] = resolveColorFunc(value, {
-        format: VAL_COMP
-      }) as ComputedColorChannels;
-    } else {
-      // ProPhoto RGB uses D50 XYZ as connection space for color() function conversions
-      [, x, y, z, alpha] = parseColorFunc(value, {
+  } else if (REG_FN_COLOR.test(value)) {
+    const serializedValue = serializeColorValue(value, opt);
+    if (!serializedValue) {
+      return null;
+    }
+    [cs, r, g, b, alpha] = serializedValue as ComputedColorChannels;
+    if (cs !== 'prophoto-rgb') {
+      [, x, y, z] = parseColorFunc(value, {
         d50: true
       }) as ComputedColorChannels;
-      [r, g, b] = transformXyzToProphotoRgb([x, y, z], true);
+      [r, g, b] = transformXyzD50ToProphotoRgb([x, y, z], true);
     }
   } else {
     [, x, y, z, alpha] = parseColorValue(value, {
       d50: true
     }) as ComputedColorChannels;
-    [r, g, b] = transformXyzToProphotoRgb([x, y, z], true);
+    [r, g, b] = transformXyzD50ToProphotoRgb([x, y, z], true);
   }
   return [
     Math.min(Math.max(r, 0), 1),

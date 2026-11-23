@@ -40,6 +40,10 @@ describe('convert color value to linear rgb', () => {
     assert.throws(() => func(null), TypeError);
   });
 
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
+  });
+
   it('should convert color(srgb-linear ...) format correctly', () => {
     const res = func('color(srgb-linear 0.2 0.4 0.6 / 0.8)');
     assertDeepCloseTo(res, [0.2, 0.4, 0.6, 0.8]);
@@ -94,6 +98,10 @@ describe('convert color value to rgb', () => {
     assert.throws(() => func(null), TypeError);
   });
 
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
+  });
+
   it('should convert color(srgb ...) format to rgb (0..255)', () => {
     const resBlack = func('color(srgb 0 0 0)');
     assertDeepCloseTo(resBlack, [0, 0, 0, 1]);
@@ -145,6 +153,10 @@ describe('convert color value to xyz', () => {
   it('should throw TypeError if input is not a string', () => {
     assert.throws(() => func(123), TypeError);
     assert.throws(() => func(null), TypeError);
+  });
+
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
   });
 
   it('should convert standard color formats to xyz (D65)', () => {
@@ -615,6 +627,10 @@ describe('convert color value to display p3', () => {
     assert.throws(() => func(null), TypeError);
   });
 
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
+  });
+
   it('should convert color(display-p3 ...) format correctly', () => {
     const res = func('color(display-p3 0.2 0.4 0.6 / 0.8)');
     assertDeepCloseTo(res, [0.2, 0.4, 0.6, 0.8]);
@@ -726,6 +742,10 @@ describe('convert color value to a98 rgb', () => {
     assert.throws(() => func(null), TypeError);
   });
 
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
+  });
+
   it('should convert color(a98-rgb ...) format correctly', () => {
     const res = func('color(a98-rgb 0.2 0.4 0.6 / 0.8)');
     assertDeepCloseTo(res, [0.2, 0.4, 0.6, 0.8]);
@@ -781,6 +801,10 @@ describe('convert color value to prophoto rgb', () => {
   it('should throw TypeError if input is not a string', () => {
     assert.throws(() => func(123), TypeError);
     assert.throws(() => func(null), TypeError);
+  });
+
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
   });
 
   it('should convert color(prophoto-rgb ...) format correctly', () => {
@@ -841,6 +865,10 @@ describe('convert color value to rec2020', () => {
   it('should throw TypeError if input is not a string', () => {
     assert.throws(() => func(123), TypeError);
     assert.throws(() => func(null), TypeError);
+  });
+
+  it('should return null if color() function is invalid', () => {
+    assert.isNull(func('color(foo 1 1 1)'));
   });
 
   it('should convert color(rec2020 ...) format correctly', () => {

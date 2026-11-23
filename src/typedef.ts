@@ -209,17 +209,6 @@ export type ColorChannelsWithPowerless = [
 ];
 
 /**
- * Color space name accompanied by three string channel values and an alpha value.
- */
-export type StringColorSpacedChannels = [
-  cs: string,
-  x: string,
-  y: string,
-  z: string,
-  alpha: string | undefined
-];
-
-/**
  * Resolved and computed color channel representation.
  */
 export type ComputedColorChannels = [
