@@ -48,7 +48,7 @@ describe('resolve color value', () => {
     assert.strictEqual(resSpec, 'transparent');
 
     const resMix = func('transparent', { format: VAL_MIX });
-    assert.deepEqual(resMix, ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(resMix, ['srgb', 0, 0, 0, 0]);
 
     const resComp = func('transparent', { format: VAL_COMP });
     assert.deepEqual(resComp, ['rgb', 0, 0, 0, 0]);
@@ -142,7 +142,7 @@ describe('resolve color value', () => {
 
   it('should handle VAL_MIX format in resolveColorValue', () => {
     const opt = { format: VAL_MIX };
-    assert.deepStrictEqual(func('transparent', opt), ['rgb', 0, 0, 0, 0]);
+    assert.deepStrictEqual(func('transparent', opt), ['srgb', 0, 0, 0, 0]);
 
     const res1 = func('invalidcolor', opt);
     assert.isNull(res1);
@@ -151,15 +151,15 @@ describe('resolve color value', () => {
     assert.isNull(res2);
   });
 
-  it('should return raw value for currentcolor when format is VAL_SPEC', () => {
+  it('should return lower value for currentcolor when format is VAL_SPEC', () => {
     const opt = { format: VAL_SPEC };
     assert.strictEqual(func('currentcolor', opt), 'currentcolor');
-    assert.strictEqual(func('currentColor', opt), 'currentColor');
+    assert.strictEqual(func('currentColor', opt), 'currentcolor');
   });
 
-  it('should not return raw value for currentcolor', () => {
-    assert.deepEqual(func('currentcolor'), ['rgb', 0, 0, 0, 0]);
-    assert.deepEqual(func('currentColor'), ['rgb', 0, 0, 0, 0]);
+  it('should return missing color value for missing currentcolor', () => {
+    assert.deepEqual(func('currentcolor'), ['srgb', NONE, NONE, NONE, NONE]);
+    assert.deepEqual(func('currentColor'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
@@ -196,7 +196,7 @@ describe('resolve color func', () => {
   });
 
   it('should transform color space to rgb channels by default', () => {
-    const res = func('color(srgb 1 0 0)');
+    const res = func('color(srgb-linear 1 0 0)');
     assert.strictEqual(res?.[0], 'rgb');
     assert.isArray(res);
   });
@@ -323,8 +323,11 @@ describe('resolve color', () => {
 
   it('should return string for invalid colors', () => {
     assert.strictEqual(func('invalid', { format: VAL_SPEC }), '');
-    assert.strictEqual(func('invalid', { format: 'hex' }), '#000000');
-    assert.strictEqual(func('invalid', { format: 'hexAlpha' }), '#00000000');
+  });
+
+  it('should return null for invalid colors', () => {
+    assert.strictEqual(func('invalid', { format: 'hex' }), null);
+    assert.strictEqual(func('invalid', { format: 'hexAlpha' }), null);
   });
 
   it('should return cached result on consecutive calls', () => {

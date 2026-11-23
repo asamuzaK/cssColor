@@ -809,7 +809,7 @@ describe('format resolved color', () => {
     const components = parseComponentValue(tokens) as ComponentValue;
     const parsed = colorParser(components);
     const res = func(parsed);
-    assert.strictEqual(res, 'color(srgb 0.251 0.749 0.251)', 'result');
+    assert.strictEqual(res, 'color(srgb 0.2502 0.749 0.2502)', 'result');
   });
 
   // FIXME: check later

@@ -2,41 +2,28 @@
  * CSS color resolution and processing utilities.
  */
 
-import { convertHexToRgb, convertRgbToHex } from '../converters/convert-hex';
-import { transformXyzD50ToRgb, transformXyzToRgb } from '../matrix/transform';
+import { transformXyzToRgb } from '../matrix/transform';
+import { convertColorToRgb } from '../converters/convert-color';
+import { convertRgbToHex } from '../converters/convert-hex';
 import {
+  ColorChannels,
   ComputedColorChannels,
   Options,
-  SpecifiedColorChannels,
-  TriColorChannels
+  SpecifiedColorChannels
 } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
 import { cssCalc, resolveVar } from '../utils/css-calc-var';
-import {
-  parseAlpha,
-  resolveInvalidColorValue,
-  splitValue
-} from '../utils/util';
+import { resolveInvalidColorValue, splitValue } from '../utils/util';
 import { resolveColorMix } from './color-mix';
-import {
-  parseColorFunc,
-  parseHsl,
-  parseHwb,
-  parseLab,
-  parseLch,
-  parseOklab,
-  parseOklch,
-  parseRgb
-} from './parse-color';
+import { parseColorFunc } from './parse-color';
 import { resolveRelativeColor } from './relative-color';
+import { serializeColorValue } from './serialize';
 
 /* constants */
 import {
-  MAX_RGB,
   SYN_COLOR_TYPE,
   SYN_FN_CALC,
-  SYN_FN_COLOR,
   SYN_FN_REL,
   SYN_FN_VAR,
   SYN_MIX,
@@ -50,32 +37,21 @@ const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 
 /* regexp */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`, 'i');
-const REG_COLOR_FUNC = new RegExp(
-  `^color\\(\\s*(${SYN_FN_COLOR})\\s*\\)$`,
-  'i'
-);
 const REG_COLOR_FUNC_NAMES =
   /^(?:(?:ok)?l(?:ab|ch)|color(?:-mix)?|hsla?|hwb|rgba?|var)\(/i;
 const REG_COLOR_MIX = new RegExp(SYN_MIX, 'i');
 const REG_CURRENT = /^currentcolor$/i;
 const REG_FN_CALC = new RegExp(SYN_FN_CALC, 'i');
 const REG_FN_COLOR = /^color\(/i;
-const REG_FN_HSL = /^hsl\(/i;
-const REG_FN_HWB = /^hwb\(/i;
-const REG_FN_LAB = /^lab\(/i;
-const REG_FN_LAB_LCH = /^l(?:ab|ch)\(/i;
 const REG_FN_LIGHT_DARK = /^light-dark\(/i;
 const REG_FN_MIX = /^color-mix\(/i;
-const REG_FN_OKLAB = /^oklab\(/i;
-const REG_FN_OKLAB_OKLCH = /^okl(?:ab|ch)\(/i;
 const REG_FN_REL = new RegExp(SYN_FN_REL, 'i');
 const REG_FN_VAR = new RegExp(SYN_FN_VAR, 'i');
 const REG_NAMED_COLOR = /^[a-z]+$/i;
-const REG_SPEC = /^(?:specifi|comput)edValue$/;
 const REG_TRANSPARENT = /^transparent$/i;
 
 /**
- * Resolves a CSS color value into its specified or computed channel representation.
+ * Resolves a CSS color value into its color channel representation.
  * @param value - The CSS color value string to resolve.
  * @param opt - The resolution options.
  * @returns The resolved color channels array, a string representation, an empty string, or null.
@@ -105,7 +81,8 @@ export const resolveColorValue = (
     }
     return item as string | null;
   }
-  if (!REG_COLOR.test(value)) {
+  const serializedValue = serializeColorValue(value, opt);
+  if (!serializedValue) {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       setCache(cacheKey, null);
@@ -115,124 +92,33 @@ export const resolveColorValue = (
     if (isString(res)) {
       return res as string;
     }
-    return res as SpecifiedColorChannels;
+    return [...res] as SpecifiedColorChannels;
   }
-  let cs = '';
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  let alpha = 0;
-  // complement currentcolor as a missing color
-  if (REG_CURRENT.test(value)) {
-    if (format === VAL_SPEC) {
-      setCache(cacheKey, value);
-      return value;
+  if (format === VAL_SPEC) {
+    setCache(cacheKey, serializedValue);
+    if (isString(serializedValue)) {
+      return serializedValue as string;
     }
-    // named-color
-  } else if (REG_NAMED_COLOR.test(value)) {
-    const lowerValue = value.toLowerCase();
-    if (Object.hasOwn(NAMED_COLORS, lowerValue)) {
-      if (format === VAL_SPEC) {
-        setCache(cacheKey, lowerValue);
-        return lowerValue;
-      }
-      [r, g, b] = NAMED_COLORS[
-        lowerValue as keyof typeof NAMED_COLORS
-      ] as TriColorChannels;
-      alpha = 1;
-    } else {
-      switch (format) {
-        case VAL_SPEC: {
-          if (lowerValue === 'transparent') {
-            setCache(cacheKey, lowerValue);
-            return lowerValue;
-          }
-          const res = '';
-          setCache(cacheKey, res);
-          return res;
-        }
-        case VAL_MIX: {
-          if (lowerValue === 'transparent') {
-            const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-            setCache(cacheKey, res);
-            return [...res];
-          }
-          setCache(cacheKey, null);
-          return null;
-        }
-        case VAL_COMP:
-        default: {
-          if (nullable && lowerValue !== 'transparent') {
-            setCache(cacheKey, null);
-            return null;
-          }
-          const res: SpecifiedColorChannels = ['rgb', 0, 0, 0, 0];
-          setCache(cacheKey, res);
-          return [...res];
-        }
-      }
-    }
-    // hex-color
-  } else if (value[0] === '#') {
-    [r, g, b, alpha] = convertHexToRgb(value);
-    // hsl()
-  } else if (REG_FN_HSL.test(value)) {
-    [, r, g, b, alpha] = parseHsl(value, opt) as ComputedColorChannels;
-    // hwb()
-  } else if (REG_FN_HWB.test(value)) {
-    [, r, g, b, alpha] = parseHwb(value, opt) as ComputedColorChannels;
-    // lab(), lch()
-  } else if (REG_FN_LAB_LCH.test(value)) {
-    let x, y, z;
-    if (REG_FN_LAB.test(value)) {
-      [cs, x, y, z, alpha] = parseLab(value, opt) as ComputedColorChannels;
-    } else {
-      [cs, x, y, z, alpha] = parseLch(value, opt) as ComputedColorChannels;
-    }
-    if (REG_SPEC.test(format)) {
-      const res: SpecifiedColorChannels = [cs, x, y, z, alpha];
-      setCache(cacheKey, res);
-      return [...res];
-    }
-    [r, g, b] = transformXyzD50ToRgb([x, y, z]);
-    // oklab(), oklch()
-  } else if (REG_FN_OKLAB_OKLCH.test(value)) {
-    let x, y, z;
-    if (REG_FN_OKLAB.test(value)) {
-      [cs, x, y, z, alpha] = parseOklab(value, opt) as ComputedColorChannels;
-    } else {
-      [cs, x, y, z, alpha] = parseOklch(value, opt) as ComputedColorChannels;
-    }
-    if (REG_SPEC.test(format)) {
-      const res: SpecifiedColorChannels = [cs, x, y, z, alpha];
-      setCache(cacheKey, res);
-      return [...res];
-    }
-    [r, g, b] = transformXyzToRgb([x, y, z]);
-    // rgb()
-  } else {
-    [, r, g, b, alpha] = parseRgb(value, opt) as ComputedColorChannels;
+    return [...serializedValue] as SpecifiedColorChannels;
   }
-  if (format === VAL_MIX && colorSpace === 'srgb') {
-    const res: SpecifiedColorChannels = [
-      'srgb',
-      r / MAX_RGB,
-      g / MAX_RGB,
-      b / MAX_RGB,
-      alpha
-    ];
-    setCache(cacheKey, res);
-    return [...res];
+  if (format === VAL_COMP) {
+    setCache(cacheKey, serializedValue);
+    return [...serializedValue] as SpecifiedColorChannels;
   }
-  const res: SpecifiedColorChannels = [
-    'rgb',
-    Math.round(r),
-    Math.round(g),
-    Math.round(b),
-    alpha
-  ];
-  setCache(cacheKey, res);
-  return [...res];
+  const [cn, v1, v2, v3, alpha] = serializedValue;
+  if (format === VAL_MIX && (!colorSpace || cn === colorSpace)) {
+    setCache(cacheKey, serializedValue);
+    return [...serializedValue] as SpecifiedColorChannels;
+  }
+  if (!colorSpace && (cn === 'rgb' || cn === 'srgb')) {
+    setCache(cacheKey, serializedValue);
+    return [...serializedValue] as SpecifiedColorChannels;
+  }
+  const serializedColor = `${cn}(${v1} ${v2} ${v3} / ${alpha})`;
+  const [r, g, b] = convertColorToRgb(serializedColor) as ColorChannels;
+  const rgbValue = ['rgb', Math.round(r), Math.round(g), Math.round(b), alpha];
+  setCache(cacheKey, rgbValue);
+  return [...rgbValue] as SpecifiedColorChannels;
 };
 
 /**
@@ -248,13 +134,13 @@ export const resolveColorFunc = (
   if (!isString(value)) {
     return null;
   }
-  const str = value.trim();
+  value = value.trim();
   const { colorSpace = '', format = '', nullable = false } = opt;
   const cacheKey: string = createCacheKey(
     {
       namespace: NAMESPACE,
       name: 'resolveColorFunc',
-      value: str
+      value
     },
     opt
   );
@@ -266,7 +152,8 @@ export const resolveColorFunc = (
     }
     return item as string | null;
   }
-  if (!REG_COLOR_FUNC.test(str)) {
+  const serializedValue = serializeColorValue(value, opt);
+  if (!serializedValue) {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       setCache(cacheKey, null);
@@ -276,25 +163,27 @@ export const resolveColorFunc = (
     if (isString(res)) {
       return res as string;
     }
-    return res as SpecifiedColorChannels;
+    return [...res] as SpecifiedColorChannels;
   }
-  const [cs, v1, v2, v3, v4] = parseColorFunc(
-    str,
-    opt
-  ) as SpecifiedColorChannels;
-  if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
-    const res: SpecifiedColorChannels = [cs, v1, v2, v3, v4];
-    setCache(cacheKey, res);
-    return [...res];
+  if (format === VAL_SPEC || format === VAL_COMP) {
+    setCache(cacheKey, serializedValue);
+    return [...serializedValue] as SpecifiedColorChannels;
   }
-  const x = parseFloat(`${v1}`);
-  const y = parseFloat(`${v2}`);
-  const z = parseFloat(`${v3}`);
-  const alpha = parseAlpha(`${v4}`);
+  const [cn, , , , alpha] = serializedValue;
+  if (format === VAL_MIX && (!colorSpace || cn === colorSpace)) {
+    setCache(cacheKey, serializedValue);
+    return [...serializedValue] as SpecifiedColorChannels;
+  }
+  if (!format && !colorSpace && (cn === 'rgb' || cn === 'srgb')) {
+    setCache(cacheKey, serializedValue);
+    return [...serializedValue] as SpecifiedColorChannels;
+  }
+  // FIXME: Use serializedValue for parseColorFunc
+  const [, x, y, z] = parseColorFunc(value, opt) as ComputedColorChannels;
   const [r, g, b] = transformXyzToRgb([x, y, z], true);
-  const res: SpecifiedColorChannels = ['rgb', r, g, b, alpha];
-  setCache(cacheKey, res);
-  return [...res];
+  const rgbValue = ['rgb', r, g, b, alpha];
+  setCache(cacheKey, rgbValue);
+  return [...rgbValue] as SpecifiedColorChannels;
 };
 
 /**
