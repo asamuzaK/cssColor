@@ -1201,8 +1201,8 @@ describe('transform linear prophoto to prophoto', () => {
   });
 });
 
-describe('transform xyz to prophoto rgb', () => {
-  const func = transform.transformXyzToProphotoRgb;
+describe('transform xyz-d50 to prophoto rgb', () => {
+  const func = transform.transformXyzD50ToProphotoRgb;
 
   it('should transform xyz (0, 0, 0) to prophoto rgb (0, 0, 0)', () => {
     const res = func([0, 0, 0]);
