@@ -71,7 +71,7 @@ describe('resolve CSS color', () => {
 
   it('should resolve color-mix with multi colors', () => {
     const res = func('color-mix(in srgb, red, green, blue)');
-    assert.strictEqual(res, 'color(srgb 0.333333 0.167333 0.333333)', 'result');
+    assert.strictEqual(res, 'color(srgb 0.333333 0.16732 0.333333)', 'result');
   });
 
   it('should clamp srgb values when alpha is negative or zero', () => {

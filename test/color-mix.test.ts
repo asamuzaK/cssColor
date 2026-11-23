@@ -1712,7 +1712,7 @@ describe('resolveColorMix', () => {
       const res = func(input, {
         format: 'computedValue'
       });
-      assert.deepEqual(res, ['srgb', 0.625, 0.6255, 0.125, 1], 'result');
+      assert.deepEqual(res, ['srgb', 0.625, 0.62549, 0.125, 1], 'result');
     });
 
     it('should return specified value for 3-level nested color-mix with percentages', () => {
@@ -1734,7 +1734,7 @@ describe('resolveColorMix', () => {
       const res = func(input, {
         format: 'computedValue'
       });
-      assert.deepEqual(res, ['srgb', 0.76, 0.7753, 0.09, 1], 'result');
+      assert.deepEqual(res, ['srgb', 0.76, 0.775294, 0.09, 1], 'result');
     });
   });
 

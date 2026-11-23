@@ -14,7 +14,6 @@ import { parseColorGeneric, roundToPrecision } from '../utils/util';
 
 /* constants */
 import {
-  DEC,
   DEG,
   DOZ,
   HEX,
@@ -187,10 +186,10 @@ export const serializeColorValue = (
     if (colorSpace === 'srgb') {
       return [
         'srgb',
-        roundToPrecision(r / MAX_RGB, DEC),
-        roundToPrecision(g / MAX_RGB, DEC),
-        roundToPrecision(b / MAX_RGB, DEC),
-        roundToPrecision(a, DEC)
+        roundToPrecision(r / MAX_RGB, HEX),
+        roundToPrecision(g / MAX_RGB, HEX),
+        roundToPrecision(b / MAX_RGB, HEX),
+        serializeAlpha(a as number)
       ];
     }
     return ['rgb', r, g, b, a];
@@ -215,9 +214,9 @@ export const serializeColorValue = (
       if (preserveNone || colorSpace === 'srgb') {
         return [
           'srgb',
-          Number.isNaN(c1) ? NONE : roundToPrecision(c1, DEC),
-          Number.isNaN(c2) ? NONE : roundToPrecision(c2, DEC),
-          Number.isNaN(c3) ? NONE : roundToPrecision(c3, DEC),
+          Number.isNaN(c1) ? NONE : roundToPrecision(c1, HEX),
+          Number.isNaN(c2) ? NONE : roundToPrecision(c2, HEX),
+          Number.isNaN(c3) ? NONE : roundToPrecision(c3, HEX),
           alphaValueIsNaN ? NONE : alphaValue
         ];
       }
@@ -226,30 +225,7 @@ export const serializeColorValue = (
         roundToPrecision(c1 * MAX_RGB, OCT),
         roundToPrecision(c2 * MAX_RGB, OCT),
         roundToPrecision(c3 * MAX_RGB, OCT),
-        roundToPrecision(alphaValue as number, OCT)
-      ];
-    }
-    case 'srgb':
-    case 'display-p3':
-    case 'a98-rgb': {
-      return [
-        colorNotation,
-        preserveNone && Number.isNaN(c1) ? NONE : roundToPrecision(c1, DEC),
-        preserveNone && Number.isNaN(c2) ? NONE : roundToPrecision(c2, DEC),
-        preserveNone && Number.isNaN(c3) ? NONE : roundToPrecision(c3, DEC),
-        preserveNone && alphaValueIsNaN ? NONE : alphaValue
-      ];
-    }
-    case 'srgb-linear':
-    case 'display-p3-linear':
-    case 'prophoto-rgb':
-    case 'rec2020': {
-      return [
-        colorNotation,
-        preserveNone && Number.isNaN(c1) ? NONE : roundToPrecision(c1, DOZ),
-        preserveNone && Number.isNaN(c2) ? NONE : roundToPrecision(c2, DOZ),
-        preserveNone && Number.isNaN(c3) ? NONE : roundToPrecision(c3, DOZ),
-        preserveNone && alphaValueIsNaN ? NONE : alphaValue
+        alphaValue
       ];
     }
     default: {

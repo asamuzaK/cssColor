@@ -317,12 +317,12 @@ describe('serialize color value', () => {
       NONE,
       1
     ]);
-    assert.deepEqual(func('rgb(none 0 128)'), ['srgb', NONE, 0, 0.502, 1]);
+    assert.deepEqual(func('rgb(none 0 128)'), ['srgb', NONE, 0, 0.501961, 1]);
     assert.deepEqual(func('rgb(255 0 128)', { format: VAL_MIX }), [
       'srgb',
       1,
       0,
-      0.502,
+      0.501961,
       1
     ]);
   });
@@ -389,18 +389,18 @@ describe('serialize color value', () => {
     assert.deepEqual(func('color(srgb 0.1 0.1234567 0.3)'), [
       'srgb',
       0.1,
-      0.1235,
+      0.123457,
       0.3,
       1
     ]);
     assert.deepEqual(
       func('color(display-p3 0.1 0.1234567 0.3)', { format: VAL_MIX }),
-      ['display-p3', 0.1, 0.1235, 0.3, 1]
+      ['display-p3', 0.1, 0.123457, 0.3, 1]
     );
     assert.deepEqual(func('color(a98-rgb 0.1 0.1234567 0.3)'), [
       'a98-rgb',
       0.1,
-      0.1235,
+      0.123457,
       0.3,
       1
     ]);
@@ -425,26 +425,26 @@ describe('serialize color value', () => {
       'srgb',
       0.1,
       0.2,
-      0.1235,
+      0.123457,
       1
     ]);
     assert.deepEqual(
       func('color(display-p3 0.1 0.2 0.1234567)', { format: VAL_MIX }),
-      ['display-p3', 0.1, 0.2, 0.1235, 1]
+      ['display-p3', 0.1, 0.2, 0.123457, 1]
     );
     assert.deepEqual(func('color(a98-rgb 0.1 0.2 0.1234567)'), [
       'a98-rgb',
       0.1,
       0.2,
-      0.1235,
+      0.123457,
       1
     ]);
   });
 
   it('should serialize srgb-linear, display-p3-linear, prophoto-rgb, and rec2020 color spaces', () => {
-    assert.deepEqual(func('color(srgb-linear 0.123456 0 1)'), [
+    assert.deepEqual(func('color(srgb-linear 0.1234567 0 1)'), [
       'srgb-linear',
-      0.12346,
+      0.123457,
       0,
       1,
       1
@@ -489,18 +489,18 @@ describe('serialize color value', () => {
     ]);
     assert.deepEqual(func('color(srgb-linear 0.1234567 0.2 0.3)'), [
       'srgb-linear',
-      0.12346,
+      0.123457,
       0.2,
       0.3,
       1
     ]);
     assert.deepEqual(
       func('color(prophoto-rgb 0.1234567 0.2 0.3)', { format: VAL_MIX }),
-      ['prophoto-rgb', 0.12346, 0.2, 0.3, 1]
+      ['prophoto-rgb', 0.123457, 0.2, 0.3, 1]
     );
     assert.deepEqual(func('color(display-p3-linear 0.1234567 0.2 0.3)'), [
       'display-p3-linear',
-      0.12346,
+      0.123457,
       0.2,
       0.3,
       1
@@ -525,18 +525,18 @@ describe('serialize color value', () => {
     assert.deepEqual(func('color(srgb-linear 0.1 0.1234567 0.3)'), [
       'srgb-linear',
       0.1,
-      0.12346,
+      0.123457,
       0.3,
       1
     ]);
     assert.deepEqual(
       func('color(prophoto-rgb 0.1 0.1234567 0.3)', { format: VAL_MIX }),
-      ['prophoto-rgb', 0.1, 0.12346, 0.3, 1]
+      ['prophoto-rgb', 0.1, 0.123457, 0.3, 1]
     );
     assert.deepEqual(func('color(display-p3-linear 0.1 0.1234567 0.3)'), [
       'display-p3-linear',
       0.1,
-      0.12346,
+      0.123457,
       0.3,
       1
     ]);
@@ -561,18 +561,18 @@ describe('serialize color value', () => {
       'srgb-linear',
       0.1,
       0.2,
-      0.12346,
+      0.123457,
       1
     ]);
     assert.deepEqual(
       func('color(prophoto-rgb 0.1 0.2 0.1234567)', { format: VAL_MIX }),
-      ['prophoto-rgb', 0.1, 0.2, 0.12346, 1]
+      ['prophoto-rgb', 0.1, 0.2, 0.123457, 1]
     );
     assert.deepEqual(func('color(display-p3-linear 0.1 0.2 0.1234567)'), [
       'display-p3-linear',
       0.1,
       0.2,
-      0.12346,
+      0.123457,
       1
     ]);
   });
