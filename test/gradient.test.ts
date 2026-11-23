@@ -226,10 +226,7 @@ describe('gradient color output', () => {
       grad.resolveGradient(value),
       'linear-gradient(rgba(0, 0, 0, 0), rgb(0, 0, 255))'
     );
-    assert.strictEqual(
-      grad.resolveGradient(value, { format: 'hex' }),
-      'linear-gradient(#000000, #0000ff)'
-    );
+    assert.strictEqual(grad.resolveGradient(value, { format: 'hex' }), 'none');
     assert.strictEqual(
       grad.resolveGradient(value, { format: 'hexAlpha' }),
       'linear-gradient(#00000000, #0000ff)'

@@ -635,11 +635,9 @@ describe('cache invalid color value', () => {
 describe('resolve invalid color value', () => {
   const func = util.resolveInvalidColorValue;
 
-  it('should return transparent color channels for hex, hexAlpha', () => {
-    assert.deepEqual(func('hex'), ['rgb', 0, 0, 0, 0]);
-  });
-
-  it('should return null for hsl, hwb, or VAL_MIX formats', () => {
+  it('should return null for hex, hexAlpha, hsl, hwb, or VAL_MIX formats', () => {
+    assert.isNull(func('hex'));
+    assert.isNull(func('hexAlpha'));
     assert.isNull(func('hsl'));
     assert.isNull(func('hwb'));
     assert.isNull(func(VAL_MIX));
@@ -655,6 +653,13 @@ describe('resolve invalid color value', () => {
 
   it('should return fallback channels for non-nullable format', () => {
     assert.deepEqual(func('rgb', false), ['srgb', NONE, NONE, NONE, NONE]);
+  });
+
+  it('should return fallback channels in string when stringify is true', () => {
+    assert.strictEqual(
+      func('rgb', false, true),
+      'color(srgb none none none / none)'
+    );
   });
 });
 

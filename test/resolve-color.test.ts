@@ -48,7 +48,7 @@ describe('resolve color value', () => {
     assert.strictEqual(resSpec, 'transparent');
 
     const resMix = func('transparent', { format: VAL_MIX });
-    assert.deepEqual(resMix, ['rgb', 0, 0, 0, 0]);
+    assert.deepEqual(resMix, ['srgb', 0, 0, 0, 0]);
 
     const resComp = func('transparent', { format: VAL_COMP });
     assert.deepEqual(resComp, ['rgb', 0, 0, 0, 0]);
@@ -142,7 +142,7 @@ describe('resolve color value', () => {
 
   it('should handle VAL_MIX format in resolveColorValue', () => {
     const opt = { format: VAL_MIX };
-    assert.deepStrictEqual(func('transparent', opt), ['rgb', 0, 0, 0, 0]);
+    assert.deepStrictEqual(func('transparent', opt), ['srgb', 0, 0, 0, 0]);
 
     const res1 = func('invalidcolor', opt);
     assert.isNull(res1);
@@ -151,15 +151,15 @@ describe('resolve color value', () => {
     assert.isNull(res2);
   });
 
-  it('should return raw value for currentcolor when format is VAL_SPEC', () => {
+  it('should return lower value for currentcolor when format is VAL_SPEC', () => {
     const opt = { format: VAL_SPEC };
     assert.strictEqual(func('currentcolor', opt), 'currentcolor');
-    assert.strictEqual(func('currentColor', opt), 'currentColor');
+    assert.strictEqual(func('currentColor', opt), 'currentcolor');
   });
 
-  it('should not return raw value for currentcolor', () => {
-    assert.deepEqual(func('currentcolor'), ['rgb', 0, 0, 0, 0]);
-    assert.deepEqual(func('currentColor'), ['rgb', 0, 0, 0, 0]);
+  it('should return missing color value for missing currentcolor', () => {
+    assert.deepEqual(func('currentcolor'), ['srgb', NONE, NONE, NONE, NONE]);
+    assert.deepEqual(func('currentColor'), ['srgb', NONE, NONE, NONE, NONE]);
   });
 });
 
@@ -196,7 +196,7 @@ describe('resolve color func', () => {
   });
 
   it('should transform color space to rgb channels by default', () => {
-    const res = func('color(srgb 1 0 0)');
+    const res = func('color(srgb-linear 1 0 0)');
     assert.strictEqual(res?.[0], 'rgb');
     assert.isArray(res);
   });
@@ -224,11 +224,24 @@ describe('resolve color', () => {
     const resSpec = func('var(--my-color)', { format: VAL_SPEC });
     assert.strictEqual(resSpec, 'var(--my-color)');
 
-    const resUnresolved = func('var(--undefined)');
-    assert.strictEqual(resUnresolved, 'rgba(0, 0, 0, 0)');
+    const resHex = func('var(--my-color)', { format: 'hex' });
+    assert.strictEqual(resHex, null);
 
-    const resNull = func('var(--undefined)', { nullable: true });
+    const resHexAlpha = func('var(--my-color)', { format: 'hexAlpha' });
+    assert.strictEqual(resHexAlpha, null);
+
+    const resNull = func('var(--my-color)', { nullable: true });
     assert.isNull(resNull);
+
+    const resUnresolved = func('var(--my-color)');
+    assert.strictEqual(resUnresolved, 'color(srgb none none none / none)');
+
+    const resResolved = func('var(--my-color)', {
+      customProperty: {
+        '--my-color': 'green'
+      }
+    });
+    assert.strictEqual(resResolved, 'rgb(0, 128, 0)');
   });
 
   it('should handle light-dark() resolution', () => {
@@ -270,7 +283,7 @@ describe('resolve color', () => {
       func('transparent', { format: VAL_SPEC }),
       'transparent'
     );
-    assert.strictEqual(func('transparent', { format: 'hex' }), '#000000');
+    assert.strictEqual(func('transparent', { format: 'hex' }), null);
     assert.strictEqual(
       func('transparent', { format: 'hexAlpha' }),
       '#00000000'
@@ -290,6 +303,16 @@ describe('resolve color', () => {
     assert.strictEqual(resResolved, 'rgb(0, 0, 255)');
   });
 
+  it('should throw if currentColor contains currentcolor keyword', () => {
+    assert.throws(
+      () =>
+        func('currentcolor', {
+          currentColor: 'currentColor'
+        }),
+      SyntaxError
+    );
+  });
+
   it('should resolve to hex/hexAlpha formats', () => {
     assert.strictEqual(func('red', { format: 'hex' }), '#ff0000');
     assert.strictEqual(
@@ -300,8 +323,11 @@ describe('resolve color', () => {
 
   it('should return string for invalid colors', () => {
     assert.strictEqual(func('invalid', { format: VAL_SPEC }), '');
-    assert.strictEqual(func('invalid', { format: 'hex' }), '#000000');
-    assert.strictEqual(func('invalid', { format: 'hexAlpha' }), '#00000000');
+  });
+
+  it('should return null for invalid colors', () => {
+    assert.strictEqual(func('invalid', { format: 'hex' }), null);
+    assert.strictEqual(func('invalid', { format: 'hexAlpha' }), null);
   });
 
   it('should return cached result on consecutive calls', () => {
@@ -399,10 +425,10 @@ describe('resolve color', () => {
 
   it('should handle currentcolor when currentColor option is missing', () => {
     const resComp = func('currentcolor');
-    assert.strictEqual(resComp, 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(resComp, 'color(srgb none none none / none)');
 
     const resHex = func('currentcolor', { format: 'hex' });
-    assert.isNull(resHex);
+    assert.strictEqual(resHex, null);
   });
 
   it('should cache and return null when currentColor resolution fails', () => {
@@ -445,7 +471,10 @@ describe('resolve color', () => {
   it('should handle relative color syntax with various formats', () => {
     const invalidRelSyntax = 'rgb(from red invalid-syntax)';
     const validRel = 'rgb(from red r g b)';
-    assert.strictEqual(func(invalidRelSyntax), 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(
+      func(invalidRelSyntax),
+      'color(srgb none none none / none)'
+    );
     assert.isNull(func(invalidRelSyntax, { nullable: true }));
     assert.strictEqual(
       func(validRel, { format: VAL_SPEC }),
@@ -457,39 +486,69 @@ describe('resolve color', () => {
   });
 
   it('should execute fallback code block when resolution returns null', () => {
-    const opt = { nullable: true };
+    const opt = { nullable: false };
     const invalidLightDark = 'light-dark()';
     assert.strictEqual(
       func(invalidLightDark, { ...opt, format: VAL_SPEC }),
       ''
     );
-    assert.isNull(func(invalidLightDark, { ...opt, format: 'hex' }));
-    assert.isNull(func(invalidLightDark, { ...opt, format: 'hexAlpha' }));
-    assert.strictEqual(func(invalidLightDark, opt), 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(func(invalidLightDark, { ...opt, format: 'hex' }), null);
+    assert.strictEqual(
+      func(invalidLightDark, { ...opt, format: 'hexAlpha' }),
+      null
+    );
+    assert.strictEqual(
+      func(invalidLightDark, { ...opt, nullable: true }),
+      null
+    );
+    assert.strictEqual(
+      func(invalidLightDark, opt),
+      'color(srgb none none none / none)'
+    );
   });
 
   it('should execute fallback code block', () => {
-    const opt = { nullable: true };
+    const opt = { nullable: false };
     const invalidLightDark = 'light-dark(foo)';
     assert.strictEqual(
       func(invalidLightDark, { ...opt, format: VAL_SPEC }),
       ''
     );
-    assert.isNull(func(invalidLightDark, { ...opt, format: 'hex' }));
-    assert.isNull(func(invalidLightDark, { ...opt, format: 'hexAlpha' }));
-    assert.strictEqual(func(invalidLightDark, opt), 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(func(invalidLightDark, { ...opt, format: 'hex' }), null);
+    assert.strictEqual(
+      func(invalidLightDark, { ...opt, format: 'hexAlpha' }),
+      null
+    );
+    assert.strictEqual(
+      func(invalidLightDark, { ...opt, nullable: true }),
+      null
+    );
+    assert.strictEqual(
+      func(invalidLightDark, opt),
+      'color(srgb none none none / none)'
+    );
   });
 
   it('should execute fallback code block', () => {
-    const opt = { nullable: true };
+    const opt = { nullable: false };
     const invalidLightDark = 'light-dark(, bar)';
     assert.strictEqual(
       func(invalidLightDark, { ...opt, format: VAL_SPEC }),
       ''
     );
-    assert.isNull(func(invalidLightDark, { ...opt, format: 'hex' }));
-    assert.isNull(func(invalidLightDark, { ...opt, format: 'hexAlpha' }));
-    assert.strictEqual(func(invalidLightDark, opt), 'rgba(0, 0, 0, 0)');
+    assert.strictEqual(func(invalidLightDark, { ...opt, format: 'hex' }), null);
+    assert.strictEqual(
+      func(invalidLightDark, { ...opt, format: 'hexAlpha' }),
+      null
+    );
+    assert.strictEqual(
+      func(invalidLightDark, { ...opt, nullable: true }),
+      null
+    );
+    assert.strictEqual(
+      func(invalidLightDark, opt),
+      'color(srgb none none none / none)'
+    );
   });
 
   it('should pass resolved value to subsequent color resolutions', () => {

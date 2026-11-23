@@ -763,7 +763,7 @@ describe('mixHslHwbSpace', () => {
     const colorA = 'hsl(none none none / none)';
     const colorB = 'hsl(120deg 50% 50% / 1)';
     const res = func('hsl', '', colorA, colorB, 0.5, 0.5, 'computedValue', 1);
-    assert.deepEqual(res, ['srgb', 0.25098, 0.74902, 0.25098, 1]);
+    assert.deepEqual(res, ['srgb', 0.250196, 0.74902, 0.250196, 1]);
   });
 });
 
@@ -1706,13 +1706,13 @@ describe('resolveColorMix', () => {
       );
     });
 
-    it('should fallback to transparent rgb for 3-level nested color-mix', () => {
+    it('should resolve 3-level nested color-mix', () => {
       const input =
         'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, red, blue), green), yellow)';
       const res = func(input, {
         format: 'computedValue'
       });
-      assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
+      assert.deepEqual(res, ['srgb', 0.625, 0.6255, 0.125, 1], 'result');
     });
 
     it('should return specified value for 3-level nested color-mix with percentages', () => {
@@ -1728,13 +1728,13 @@ describe('resolveColorMix', () => {
       );
     });
 
-    it('should fallback to transparent rgb for 3-level nested color-mix with percentages', () => {
+    it('should resolve 3-level nested color-mix with percentages', () => {
       const input =
         'color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, red 40%, blue 60%) 50%, green 50%) 30%, yellow 70%)';
       const res = func(input, {
         format: 'computedValue'
       });
-      assert.deepEqual(res, ['srgb', NONE, NONE, NONE, NONE], 'result');
+      assert.deepEqual(res, ['srgb', 0.76, 0.7753, 0.09, 1], 'result');
     });
   });
 

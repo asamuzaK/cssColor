@@ -548,8 +548,8 @@ export const parseHexAlpha = (value: string): number => {
 
 /**
  * Parses a CSS color string generically into color data.
- * @param value - The CSS color value string.
- * @returns The parsed color data object, or null if invalid.
+ * @param value - The CSS color value string
+ * @returns The parsed color data object, or null if invalid
  */
 export const parseColorGeneric = (value: string): ColorData | null => {
   const tokens = tokenize({ css: value });
@@ -595,17 +595,17 @@ export const cacheInvalidColorValue = (
  * Resolves an invalid color value according to the output format and nullability.
  * @param format - The output format
  * @param nullable - Whether the value can be null
+ * @param stringify - Whether to stringify value
  * @returns The resolved fallback value
  */
 export const resolveInvalidColorValue = (
   format: string,
-  nullable: boolean = false
+  nullable: boolean = false,
+  stringify: boolean = false
 ): SpecifiedColorChannels | string | null => {
   switch (format) {
     case 'hex':
-    case 'hexAlpha': {
-      return ['rgb', 0, 0, 0, 0];
-    }
+    case 'hexAlpha':
     case 'hsl':
     case 'hwb':
     case VAL_MIX: {
@@ -618,7 +618,10 @@ export const resolveInvalidColorValue = (
       if (nullable) {
         return null;
       }
-      return ['srgb', NONE, NONE, NONE, NONE] as SpecifiedColorChannels;
+      if (stringify) {
+        return 'color(srgb none none none / none)';
+      }
+      return ['srgb', NONE, NONE, NONE, NONE];
     }
   }
 };
