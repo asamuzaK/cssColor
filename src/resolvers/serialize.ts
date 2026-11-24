@@ -214,17 +214,23 @@ export const serializeColorValue = (
       if (preserveNone || colorSpace === 'srgb') {
         return [
           'srgb',
-          Number.isNaN(c1) ? NONE : roundToPrecision(c1, HEX),
-          Number.isNaN(c2) ? NONE : roundToPrecision(c2, HEX),
-          Number.isNaN(c3) ? NONE : roundToPrecision(c3, HEX),
+          Number.isNaN(c1)
+            ? NONE
+            : Math.min(Math.max(roundToPrecision(c1, HEX), 0), 1),
+          Number.isNaN(c2)
+            ? NONE
+            : Math.min(Math.max(roundToPrecision(c2, HEX), 0), 1),
+          Number.isNaN(c3)
+            ? NONE
+            : Math.min(Math.max(roundToPrecision(c3, HEX), 0), 1),
           alphaValueIsNaN ? NONE : alphaValue
         ];
       }
       return [
         colorNotation,
-        roundToPrecision(c1 * MAX_RGB, OCT),
-        roundToPrecision(c2 * MAX_RGB, OCT),
-        roundToPrecision(c3 * MAX_RGB, OCT),
+        Math.min(Math.max(roundToPrecision(c1 * MAX_RGB, OCT), 0), MAX_RGB),
+        Math.min(Math.max(roundToPrecision(c2 * MAX_RGB, OCT), 0), MAX_RGB),
+        Math.min(Math.max(roundToPrecision(c3 * MAX_RGB, OCT), 0), MAX_RGB),
         alphaValue
       ];
     }
