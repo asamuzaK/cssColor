@@ -34,7 +34,7 @@ import {
   SYN_MIX,
   VAL_SPEC
 } from '../utils/constant';
-import { NAMED_COLORS } from './named-color';
+import { NAMED_COLORS } from '../utils/named-color';
 const NAMESPACE = 'relative-color';
 const {
   CloseParen: PAREN_CLOSE,

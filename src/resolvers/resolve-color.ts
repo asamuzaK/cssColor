@@ -14,11 +14,11 @@ import {
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
 import { cssCalc, resolveVar } from '../utils/css-calc-var';
+import { serializeColorValue } from '../utils/serialize';
 import { resolveInvalidColorValue, splitValue } from '../utils/util';
 import { resolveColorMix } from './color-mix';
 import { parseColorFunc } from './parse-color';
 import { resolveRelativeColor } from './relative-color';
-import { serializeColorValue } from './serialize';
 
 /* constants */
 import {
@@ -31,7 +31,7 @@ import {
   VAL_MIX,
   VAL_SPEC
 } from '../utils/constant';
-import { NAMED_COLORS } from './named-color';
+import { NAMED_COLORS } from '../utils/named-color';
 const NAMESPACE = 'resolve-color';
 const RGB_TRANSPARENT = 'rgba(0, 0, 0, 0)';
 

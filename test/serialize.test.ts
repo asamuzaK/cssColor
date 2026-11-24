@@ -9,7 +9,7 @@ import { afterEach, assert, beforeEach, describe, it } from 'vitest';
 import { lruCache } from '../src/utils/cache';
 import { NONE, VAL_COMP, VAL_MIX, VAL_SPEC } from '../src/utils/constant';
 import { parseColorGeneric } from '../src/utils/util';
-import * as serialize from '../src/resolvers/serialize';
+import * as serialize from '../src/utils/serialize';
 
 beforeEach(() => {
   lruCache.clear();

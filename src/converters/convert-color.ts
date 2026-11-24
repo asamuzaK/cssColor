@@ -31,7 +31,6 @@ import {
   resolveColorFunc,
   resolveColorValue
 } from '../resolvers/resolve-color';
-import { serializeColorValue } from '../resolvers/serialize';
 import {
   ColorChannels,
   ColorChannelsWithPowerless,
@@ -41,6 +40,7 @@ import {
   TriColorChannels
 } from '../typedef';
 import { isString } from '../utils/common';
+import { serializeColorValue } from '../utils/serialize';
 
 /* Constants */
 import { MATRIX_XYZ_TO_L_RGB } from '../matrix/matrix';

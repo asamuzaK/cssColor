@@ -59,7 +59,7 @@ import {
   VAL_MIX,
   VAL_SPEC
 } from '../utils/constant';
-import { NAMED_COLORS } from './named-color';
+import { NAMED_COLORS } from '../utils/named-color';
 
 /* Regular expressions */
 const REG_COLOR = new RegExp(`^(?:${SYN_COLOR_TYPE})$`);

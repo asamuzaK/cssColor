@@ -9,8 +9,8 @@ import {
   Options,
   SpecifiedColorChannels
 } from '../typedef';
-import { isString } from '../utils/common';
-import { parseColorGeneric, roundToPrecision } from '../utils/util';
+import { isString } from './common';
+import { parseColorGeneric, roundToPrecision } from './util';
 
 /* constants */
 import {
@@ -25,7 +25,7 @@ import {
   TRIA,
   VAL_MIX,
   VAL_SPEC
-} from '../utils/constant';
+} from './constant';
 import { NAMED_COLORS } from './named-color';
 const { HasNoneKeywords: HAS_NONE } = SyntaxFlag;
 
@@ -146,7 +146,7 @@ export const serializeHwb = (
  * Serializes a CSS color value into its color channel representation.
  * @param value - The CSS color value string to parse.
  * @param opt - The resolution options.
- * @returns The parsed color channels array, string, or null.
+ * @returns The serialized color channels in array, string, or null.
  */
 export const serializeColorValue = (
   value: string,
@@ -194,21 +194,21 @@ export const serializeColorValue = (
     }
     return ['rgb', r, g, b, a];
   }
-  const parsed = parseColorGeneric(value);
-  if (!parsed) {
+  const parsedValue = parseColorGeneric(value);
+  if (!parsedValue) {
     return null;
   }
-  const { colorNotation, channels, alpha, syntaxFlags } = parsed;
+  const { colorNotation, channels, alpha, syntaxFlags } = parsedValue;
   const [c1, c2, c3] = channels;
   const preserveNone = syntaxFlags.has(HAS_NONE) || format === VAL_MIX;
   const alphaValue = serializeAlpha(alpha as number);
   const alphaValueIsNaN = Number.isNaN(alphaValue);
   switch (colorNotation) {
     case 'hsl': {
-      return serializeHsl(parsed, opt);
+      return serializeHsl(parsedValue, opt);
     }
     case 'hwb': {
-      return serializeHwb(parsed, opt);
+      return serializeHwb(parsedValue, opt);
     }
     case 'rgb': {
       if (preserveNone || colorSpace === 'srgb') {
