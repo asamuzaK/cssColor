@@ -4,7 +4,9 @@
 
 import {
   ColorChannels,
+  ComputedColorChannels,
   NumStrColorChannels,
+  Options,
   ReadonlyColorMatrix,
   TriColorChannels,
   ValidateColorComponentsOptions
@@ -12,6 +14,7 @@ import {
 
 /* Constants */
 import {
+  DEC,
   DEG,
   DEG_HALF,
   DUO,
@@ -36,10 +39,14 @@ import {
 } from '../utils/constant';
 import {
   D50,
+  MATRIX_A98_TO_XYZ,
   MATRIX_D50_TO_D65,
   MATRIX_D65_TO_D50,
   MATRIX_LMS_TO_OKLAB,
   MATRIX_L_RGB_TO_XYZ,
+  MATRIX_P3_TO_XYZ,
+  MATRIX_PROPHOTO_TO_XYZ_D50,
+  MATRIX_REC2020_TO_XYZ,
   MATRIX_XYZ_D50_TO_PROPHOTO,
   MATRIX_XYZ_TO_A98,
   MATRIX_XYZ_TO_LMS,
@@ -47,6 +54,10 @@ import {
   MATRIX_XYZ_TO_P3,
   MATRIX_XYZ_TO_REC2020
 } from './matrix';
+const PROPHOTO_GAMMA = 1.8;
+const REC2020_ALPHA = 1.09929682680944;
+const REC2020_BETA = 0.018053968510807;
+const REC2020_COEF = 4.5 * REC2020_BETA;
 
 /**
  * Validates color component values against specified ranges and length.
@@ -198,27 +209,23 @@ export const transformMatrix = (
 };
 
 /**
- * Transforms standard sRGB channels to linear sRGB.
- * @param rgb - The RGB channels: [r, g, b] (where r, g, b range from 0 to 255).
+ * Transforms sRGB channels to linear sRGB.
+ * @param rgb - The sRGB channels: [r, g, b] (ranging from 0 to 1).
  * @param [skip] - Whether to skip validation.
  * @returns The linear RGB channels: [r, g, b] (ranging from 0 to 1).
  */
-export const transformRgbToLinearRgb = (
+export const transformSrgbToLinearRgb = (
   rgb: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  let rr, gg, bb;
+  let r, g, b;
   if (skip) {
-    [rr, gg, bb] = rgb;
+    [r, g, b] = rgb;
   } else {
-    [rr, gg, bb] = validateColorComponents(rgb, {
-      maxLength: TRIA,
-      maxRange: MAX_RGB
+    [r, g, b] = validateColorComponents(rgb, {
+      maxLength: TRIA
     });
   }
-  let r = rr / MAX_RGB;
-  let g = gg / MAX_RGB;
-  let b = bb / MAX_RGB;
   const COND_POW = 0.04045;
   if (r > COND_POW) {
     r = Math.pow((r + LINEAR_OFFSET) / (1 + LINEAR_OFFSET), POW_LINEAR);
@@ -239,8 +246,67 @@ export const transformRgbToLinearRgb = (
 };
 
 /**
- * Transforms sRGB channels to XYZ color space.
- * @param rgb - The RGB channels: [r, g, b] (where r, g, b range from 0 to 255).
+ * Transforms sRGB channels to XYZ.
+ * @param rgb - The RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @param [skip] - Whether to skip validation.
+ * @returns The XYZ color channels: [x, y, z].
+ */
+export const transformSrgbToXyz = (
+  rgb: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let r, g, b;
+  if (skip) {
+    [r, g, b] = rgb;
+  } else {
+    [r, g, b] = validateColorComponents(rgb, {
+      maxLength: TRIA
+    }) as TriColorChannels;
+  }
+  const lRgb = transformSrgbToLinearRgb([r, g, b], true);
+  return transformMatrix(MATRIX_L_RGB_TO_XYZ, lRgb, true);
+};
+
+/**
+ * Transforms sRGB channels to XYZ-D50.
+ * @param rgb - The RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The XYZ-D50 color channels: [x, y, z].
+ */
+export const transformSrgbToXyzD50 = (
+  rgb: TriColorChannels
+): TriColorChannels => {
+  const xyz = transformSrgbToXyz(rgb);
+  return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+};
+
+/**
+ * Transforms RGB channels to linear sRGB.
+ * @param rgb - The RGB channels: [r, g, b] (ranging from 0 to 255).
+ * @param [skip] - Whether to skip validation.
+ * @returns The linear RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformRgbToLinearRgb = (
+  rgb: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let r, g, b;
+  if (skip) {
+    [r, g, b] = rgb;
+  } else {
+    [r, g, b] = validateColorComponents(rgb, {
+      maxLength: TRIA,
+      maxRange: MAX_RGB
+    });
+  }
+  return transformSrgbToLinearRgb(
+    [r / MAX_RGB, g / MAX_RGB, b / MAX_RGB],
+    true
+  );
+};
+
+/**
+ * Transforms RGB channels to XYZ.
+ * @param rgb - The RGB channels: [r, g, b] (ranging from 0 to 255).
  * @param [skip] - Whether to skip validation.
  * @returns The XYZ color channels: [x, y, z].
  */
@@ -248,61 +314,91 @@ export const transformRgbToXyz = (
   rgb: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  if (!skip) {
-    rgb = validateColorComponents(rgb, {
+  let r, g, b;
+  if (skip) {
+    [r, g, b] = rgb;
+  } else {
+    [r, g, b] = validateColorComponents(rgb, {
       maxLength: TRIA,
       maxRange: MAX_RGB
     }) as TriColorChannels;
   }
-  rgb = transformRgbToLinearRgb(rgb, true);
-  const xyz = transformMatrix(MATRIX_L_RGB_TO_XYZ, rgb, true);
-  return xyz;
+  const lRgb = transformRgbToLinearRgb([r, g, b], true);
+  return transformMatrix(MATRIX_L_RGB_TO_XYZ, lRgb, true);
 };
 
 /**
- * Transforms sRGB channels to XYZ-D50 color space.
- * @param rgb - The RGB channels: [r, g, b, alpha] (where r, g, b range from 0 to 255, and alpha ranges from 0 to 1).
+ * Transforms RGB channels to XYZ-D50.
+ * @param rgb - The RGB channels: [r, g, b] (ranging from 0 to 255).
  * @returns The XYZ-D50 color channels: [x, y, z].
  */
 export const transformRgbToXyzD50 = (
   rgb: TriColorChannels
 ): TriColorChannels => {
-  let xyz = transformRgbToXyz(rgb);
-  xyz = transformMatrix(MATRIX_D65_TO_D50, xyz, true);
-  return xyz;
+  const xyz = transformRgbToXyz(rgb);
+  return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
 };
 
 /**
- * Transforms linear sRGB channels to standard sRGB.
+ * Transforms linear RGB channels to sRGB.
  * @param rgb - The linear RGB channels: [r, g, b] (ranging from 0 to 1).
- * @param [round] - Whether to round the resulting values.
- * @returns The standard RGB channels: [r, g, b] (ranging from 0 to 255).
+ * @param [skip] - Whether to skip validation.
+ * @returns The sRGB channels: [r, g, b] (ranging from 0 to 1).
  */
-export const transformLinearRgbToRgb = (
+export const transformLinearRgbToSrgb = (
   rgb: TriColorChannels,
-  round: boolean = false
+  skip: boolean = false
 ): TriColorChannels => {
-  let [r, g, b] = validateColorComponents(rgb, {
-    maxLength: TRIA
-  });
+  let r, g, b;
+  if (skip) {
+    [r, g, b] = rgb;
+  } else {
+    [r, g, b] = validateColorComponents(rgb, {
+      maxLength: TRIA
+    });
+  }
   const COND_POW = 809 / 258400;
   if (r > COND_POW) {
     r = Math.pow(r, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
   } else {
     r *= LINEAR_COEF;
   }
-  r *= MAX_RGB;
   if (g > COND_POW) {
     g = Math.pow(g, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
   } else {
     g *= LINEAR_COEF;
   }
-  g *= MAX_RGB;
   if (b > COND_POW) {
     b = Math.pow(b, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
   } else {
     b *= LINEAR_COEF;
   }
+  return [r, g, b];
+};
+
+/**
+ * Transforms linear RGB channels to RGB.
+ * @param rgb - The linear RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @param [round] - Whether to round the resulting values.
+ * @param [skip] - Whether to skip validation.
+ * @returns The RGB channels: [r, g, b] (ranging from 0 to 255).
+ */
+export const transformLinearRgbToRgb = (
+  rgb: TriColorChannels,
+  round: boolean = false,
+  skip: boolean = false
+): TriColorChannels => {
+  let rr, gg, bb;
+  if (skip) {
+    [rr, gg, bb] = rgb;
+  } else {
+    [rr, gg, bb] = validateColorComponents(rgb, {
+      maxLength: TRIA
+    });
+  }
+  let [r, g, b] = transformLinearRgbToSrgb([rr, gg, bb], true);
+  r *= MAX_RGB;
+  g *= MAX_RGB;
   b *= MAX_RGB;
   return [
     round ? Math.round(r) : r,
@@ -312,23 +408,162 @@ export const transformLinearRgbToRgb = (
 };
 
 /**
- * Transforms XYZ color space channels to standard sRGB.
- * @param xyz - The XYZ color channels: [x, y, z].
- * @param [skip] - Whether to skip validation.
- * @returns The standard RGB channels: [r, g, b] (ranging from 0 to 255).
+ * Transforms linear Display P3 channels to Display P3.
+ * @param p3 - The linear Display P3 channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The Display P3 channels: [r, g, b] (ranging from 0 to 1).
  */
-export const transformXyzToRgb = (
+export const transformLinearP3ToP3 = (
+  p3: TriColorChannels
+): TriColorChannels => {
+  let [r, g, b] = validateColorComponents(p3, {
+    maxLength: TRIA
+  });
+  const COND_POW = 809 / 258400;
+  if (r > COND_POW) {
+    r = Math.pow(r, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
+  } else {
+    r *= LINEAR_COEF;
+  }
+  if (g > COND_POW) {
+    g = Math.pow(g, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
+  } else {
+    g *= LINEAR_COEF;
+  }
+  if (b > COND_POW) {
+    b = Math.pow(b, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
+  } else {
+    b *= LINEAR_COEF;
+  }
+  return [r, g, b];
+};
+
+/**
+ * Transforms linear ProPhoto RGB channels to ProPhoto RGB.
+ * @param prophoto - The linear ProPhoto RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The ProPhoto RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearProphotoToProphoto = (
+  prophoto: TriColorChannels
+): TriColorChannels => {
+  let [r, g, b] = validateColorComponents(prophoto, {
+    maxLength: TRIA
+  });
+  const PROPHOTO_COEF = PROPHOTO_GAMMA / HEX;
+  if (r < PROPHOTO_COEF) {
+    r /= PROPHOTO_GAMMA;
+  } else {
+    r = Math.pow(r, 1 / PROPHOTO_GAMMA);
+  }
+  if (g < PROPHOTO_COEF) {
+    g /= PROPHOTO_GAMMA;
+  } else {
+    g = Math.pow(g, 1 / PROPHOTO_GAMMA);
+  }
+  if (b < PROPHOTO_COEF) {
+    b /= PROPHOTO_GAMMA;
+  } else {
+    b = Math.pow(b, 1 / PROPHOTO_GAMMA);
+  }
+  return [r, g, b];
+};
+
+/**
+ * Transforms linear Rec. 2020 channels to Rec. 2020.
+ * @param rec2020 - The linear Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearRec2020ToRec2020 = (
+  rec2020: TriColorChannels
+): TriColorChannels => {
+  let [r, g, b] = validateColorComponents(rec2020, {
+    maxLength: TRIA
+  });
+  if (r < REC2020_COEF) {
+    r *= 4.5;
+  } else {
+    r = REC2020_ALPHA * Math.pow(r, 0.45) - (REC2020_ALPHA - 1);
+  }
+  if (g < REC2020_COEF) {
+    g *= 4.5;
+  } else {
+    g = REC2020_ALPHA * Math.pow(g, 0.45) - (REC2020_ALPHA - 1);
+  }
+  if (b < REC2020_COEF) {
+    b *= 4.5;
+  } else {
+    b = REC2020_ALPHA * Math.pow(b, 0.45) - (REC2020_ALPHA - 1);
+  }
+  return [r, g, b];
+};
+
+/**
+ * Transforms linear Adobe RGB channels to Adobe RGB (1998).
+ * @param a98 - The linear Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
+ * @returns The Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformLinearA98ToA98 = (
+  a98: TriColorChannels
+): TriColorChannels => {
+  const [r, g, b] = validateColorComponents(a98, {
+    maxLength: TRIA
+  });
+  return [
+    Math.pow(r, 1 / GAMMA),
+    Math.pow(g, 1 / GAMMA),
+    Math.pow(b, 1 / GAMMA)
+  ];
+};
+
+/**
+ * Transforms LAB channels to XYZ-D50.
+ * @param lab - The LAB cchannels: [l, a, b].
+ * @param [skip] - Whether to skip validation.
+ * @returns The XYZ-D50 channels: [x, y, z].
+ */
+/*
+export const transformLabToXyzD50 = (
+  lab: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+};
+*/
+
+/**
+ * Transforms XYZ (D65) channels to XYZ-D50.
+ * @param xyz - The XYZ channels: [x, y, z].
+ * @returns The XYZ-D50 channels: [x, y, z].
+ */
+export const transformXyzToXyzD50 = (
+  xyz: TriColorChannels
+): TriColorChannels => {
+  const [x, y, z] = validateColorComponents(xyz, {
+    maxLength: TRIA,
+    validateRange: false
+  }) as TriColorChannels;
+  return transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
+};
+
+/**
+ * Transforms XYZ channels to sRGB.
+ * @param xyz - The XYZ channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToSrgb = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
     }) as TriColorChannels;
   }
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, xyz, true);
-  [r, g, b] = transformLinearRgbToRgb(
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
+  return transformLinearRgbToSrgb(
     [
       Math.min(Math.max(r, 0), 1),
       Math.min(Math.max(g, 0), 1),
@@ -336,30 +571,43 @@ export const transformXyzToRgb = (
     ],
     true
   );
-  return [r, g, b];
 };
 
 /**
- * Transforms XYZ (D65) color channels to XYZ-D50.
- * @param xyz - The XYZ color channels: [x, y, z].
- * @returns The XYZ-D50 color channels: [x, y, z].
- */
-export const transformXyzToXyzD50 = (
-  xyz: TriColorChannels
-): TriColorChannels => {
-  xyz = validateColorComponents(xyz, {
-    maxLength: TRIA,
-    validateRange: false
-  }) as TriColorChannels;
-  xyz = transformMatrix(MATRIX_D65_TO_D50, xyz, true);
-  return xyz;
-};
-
-/**
- * Transforms XYZ color channels to HSL.
- * @param xyz - The XYZ color channels: [x, y, z].
+ * Transforms XYZ channels to RGB.
+ * @param xyz - The XYZ channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The HSL color channels: [h, s, l].
+ * @returns The RGB channels: [r, g, b] (ranging from 0 to 255).
+ */
+export const transformXyzToRgb = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_L_RGB, [x, y, z], true);
+  return transformLinearRgbToRgb(
+    [
+      Math.min(Math.max(r, 0), 1),
+      Math.min(Math.max(g, 0), 1),
+      Math.min(Math.max(b, 0), 1)
+    ],
+    true
+  );
+};
+
+/**
+ * Transforms XYZ channels to HSL.
+ * @param xyz - The XYZ channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The HSL channels: [h, s, l].
  */
 export const transformXyzToHsl = (
   xyz: TriColorChannels,
@@ -404,10 +652,10 @@ export const transformXyzToHsl = (
 };
 
 /**
- * Transforms XYZ color channels to HWB.
- * @param xyz - The XYZ color channels: [x, y, z].
+ * Transforms XYZ channels to HWB.
+ * @param xyz - The XYZ channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The HWB color channels: [h, w, b].
+ * @returns The HWB channels: [h, w, b].
  */
 export const transformXyzToHwb = (
   xyz: TriColorChannels,
@@ -426,22 +674,25 @@ export const transformXyzToHwb = (
 };
 
 /**
- * Transforms XYZ color channels to Oklab.
- * @param xyz - The XYZ color channels: [x, y, z].
+ * Transforms XYZ channels to Oklab.
+ * @param xyz - The XYZ channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The Oklab color channels: [l, a, b].
+ * @returns The Oklab channels: [l, a, b].
  */
 export const transformXyzToOklab = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
     }) as TriColorChannels;
   }
-  const lms = transformMatrix(MATRIX_XYZ_TO_LMS, xyz, true);
+  const lms = transformMatrix(MATRIX_XYZ_TO_LMS, [x, y, z], true);
   const xyzLms = lms.map((c: number) => Math.cbrt(c)) as TriColorChannels;
   let [l, a, b] = transformMatrix(MATRIX_LMS_TO_OKLAB, xyzLms, true);
   l = Math.min(Math.max(l, 0), 1);
@@ -454,10 +705,10 @@ export const transformXyzToOklab = (
 };
 
 /**
- * Transforms XYZ color channels to Oklch.
- * @param xyz - The XYZ color channels: [x, y, z].
+ * Transforms XYZ channels to Oklch.
+ * @param xyz - The XYZ channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The Oklch color channels: [l, c, h].
+ * @returns The Oklch channels: [l, c, h].
  */
 export const transformXyzToOklch = (
   xyz: TriColorChannels,
@@ -484,43 +735,176 @@ export const transformXyzToOklch = (
 };
 
 /**
- * Transforms XYZ-D50 color channels to standard sRGB.
- * @param xyz - The XYZ-D50 color channels: [x, y, z].
+ * Transforms XYZ channels to Display P3.
+ * @param xyz - The XYZ channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The standard RGB channels: [r, g, b] (ranging from 0 to 255).
+ * @returns The Display P3 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToDisplayP3 = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_P3, [x, y, z], true);
+  return transformLinearP3ToP3([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
+};
+
+/**
+ * Transforms XYZ channels to linear Display P3.
+ * @param xyz - The XYZ channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The linear Display P3 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToLinearP3 = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  return transformMatrix(MATRIX_XYZ_TO_P3, [x, y, z], true);
+};
+
+/**
+ * Transforms XYZ channels to Adobe RGB (1998).
+ * @param xyz - The XYZ channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToA98Rgb = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_A98, [x, y, z], true);
+  return transformLinearA98ToA98([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
+};
+
+/**
+ * Transforms XYZ channels to Rec. 2020.
+ * @param xyz - The XYZ channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
+ */
+export const transformXyzToRec2020 = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  const [r, g, b] = transformMatrix(MATRIX_XYZ_TO_REC2020, [x, y, z], true);
+  return transformLinearRec2020ToRec2020([
+    Math.min(Math.max(r, 0), 1),
+    Math.min(Math.max(g, 0), 1),
+    Math.min(Math.max(b, 0), 1)
+  ]);
+};
+
+/**
+ * Transforms XYZ-D50 channels to sRGB.
+ * @param xyz - The XYZ-D50 channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The RGB channels: [r, g, b] (ranging from 0 to 255).
+ */
+export const transformXyzD50ToSrgb = (
+  xyz: TriColorChannels,
+  skip: boolean = false
+): TriColorChannels => {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
+      maxLength: TRIA,
+      validateRange: false
+    }) as TriColorChannels;
+  }
+  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
+  return transformXyzToSrgb(xyzD65, true);
+};
+
+/**
+ * Transforms XYZ-D50 channels to RGB.
+ * @param xyz - The XYZ-D50 channels: [x, y, z].
+ * @param [skip] - Whether to skip validation.
+ * @returns The RGB channels: [r, g, b] (ranging from 0 to 255).
  */
 export const transformXyzD50ToRgb = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
     }) as TriColorChannels;
   }
-  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, xyz, true);
-  const rgb = transformXyzToRgb(xyzD65, true);
-  return rgb;
+  const xyzD65 = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
+  return transformXyzToRgb(xyzD65, true);
 };
 
 /**
- * Transforms XYZ-D50 color channels to CIELAB.
- * @param xyz - The XYZ-D50 color channels: [x, y, z].
+ * Transforms XYZ-D50 channels to LAB.
+ * @param xyz - The XYZ-D50 channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The CIELAB color channels: [l, a, b].
+ * @returns The LAB channels: [l, a, b].
  */
 export const transformXyzD50ToLab = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
     }) as TriColorChannels;
   }
-  const xyzD50 = xyz.map((val: number, i: number) => val / (D50[i] as number));
+  const xyzD50 = [x, y, z].map(
+    (val: number, i: number) => val / (D50[i] as number)
+  );
   const [f0, f1, f2] = xyzD50.map((val: number) =>
     val > LAB_EPSILON ? Math.cbrt(val) : (LAB_KAPPA * val + 16) / LAB_L
   ) as TriColorChannels;
@@ -537,10 +921,10 @@ export const transformXyzD50ToLab = (
 };
 
 /**
- * Transforms XYZ-D50 color channels to CIELCH.
- * @param xyz - The XYZ-D50 color channels: [x, y, z].
+ * Transforms XYZ-D50 channels to LCH.
+ * @param xyz - The XYZ-D50 channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The CIELCH color channels: [l, c, h].
+ * @returns The LCH channels: [l, c, h].
  */
 export const transformXyzD50ToLch = (
   xyz: TriColorChannels,
@@ -562,236 +946,138 @@ export const transformXyzD50ToLch = (
 };
 
 /**
- * Transforms linear Display P3 channels to standard Display P3.
- * @param p3 - The linear Display P3 channels: [r, g, b] (ranging from 0 to 1).
- * @returns The Display P3 channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformLinearP3ToP3 = (
-  p3: TriColorChannels
-): TriColorChannels => {
-  let [r, g, b] = validateColorComponents(p3, {
-    maxLength: TRIA
-  });
-  const COND_POW = 809 / 258400;
-  if (r > COND_POW) {
-    r = Math.pow(r, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
-  } else {
-    r *= LINEAR_COEF;
-  }
-  if (g > COND_POW) {
-    g = Math.pow(g, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
-  } else {
-    g *= LINEAR_COEF;
-  }
-  if (b > COND_POW) {
-    b = Math.pow(b, 1 / POW_LINEAR) * (1 + LINEAR_OFFSET) - LINEAR_OFFSET;
-  } else {
-    b *= LINEAR_COEF;
-  }
-  return [r, g, b];
-};
-
-/**
- * Transforms XYZ color space channels to Display P3.
- * @param xyz - The XYZ color channels: [x, y, z].
+ * Transforms XYZ channels to ProPhoto RGB.
+ * @param xyz - The XYZ channels: [x, y, z].
  * @param [skip] - Whether to skip validation.
- * @returns The Display P3 color channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformXyzToDisplayP3 = (
-  xyz: TriColorChannels,
-  skip: boolean = false
-): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
-      maxLength: TRIA,
-      validateRange: false
-    }) as TriColorChannels;
-  }
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_P3, xyz, true);
-  [r, g, b] = transformLinearP3ToP3([
-    Math.min(Math.max(r, 0), 1),
-    Math.min(Math.max(g, 0), 1),
-    Math.min(Math.max(b, 0), 1)
-  ]);
-  return [r, g, b];
-};
-
-/**
- * Transforms XYZ color space channels to linear Display P3.
- * @param xyz - The XYZ color channels: [x, y, z].
- * @param [skip] - Whether to skip validation.
- * @returns The linear Display P3 channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformXyzToLinearP3 = (
-  xyz: TriColorChannels,
-  skip: boolean = false
-): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
-      maxLength: TRIA,
-      validateRange: false
-    }) as TriColorChannels;
-  }
-  const p3 = transformMatrix(MATRIX_XYZ_TO_P3, xyz, true);
-  return p3;
-};
-
-/**
- * Transforms linear Adobe RGB channels to standard Adobe RGB (1998).
- * @param a98 - The linear Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
- * @returns The Adobe RGB channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformLinearA98ToA98 = (
-  a98: TriColorChannels
-): TriColorChannels => {
-  const [r, g, b] = validateColorComponents(a98, {
-    maxLength: TRIA
-  });
-  return [
-    Math.pow(r, 1 / GAMMA),
-    Math.pow(g, 1 / GAMMA),
-    Math.pow(b, 1 / GAMMA)
-  ];
-};
-
-/**
- * Transforms XYZ color space channels to Adobe RGB (1998).
- * @param xyz - The XYZ color channels: [x, y, z].
- * @param [skip] - Whether to skip validation.
- * @returns The Adobe RGB color channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformXyzToA98Rgb = (
-  xyz: TriColorChannels,
-  skip: boolean = false
-): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
-      maxLength: TRIA,
-      validateRange: false
-    }) as TriColorChannels;
-  }
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_A98, xyz, true);
-  [r, g, b] = transformLinearA98ToA98([
-    Math.min(Math.max(r, 0), 1),
-    Math.min(Math.max(g, 0), 1),
-    Math.min(Math.max(b, 0), 1)
-  ]);
-  return [r, g, b];
-};
-
-/**
- * Transforms linear ProPhoto RGB channels to standard ProPhoto RGB.
- * @param prophoto - The linear ProPhoto RGB channels: [r, g, b] (ranging from 0 to 1).
  * @returns The ProPhoto RGB channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformLinearProphotoToProphoto = (
-  prophoto: TriColorChannels
-): TriColorChannels => {
-  let [r, g, b] = validateColorComponents(prophoto, {
-    maxLength: TRIA
-  });
-  // ProPhoto RGB uses a gamma of 1.8 with a linear segment near black (threshold: 1/16 = 0.0625)
-  const E = 1 / 16;
-  const GAMMA_PRO = 1.8;
-  const COND_PRO = E * GAMMA_PRO;
-  if (r < COND_PRO) {
-    r /= GAMMA_PRO;
-  } else {
-    r = Math.pow(r, 1 / GAMMA_PRO);
-  }
-  if (g < COND_PRO) {
-    g /= GAMMA_PRO;
-  } else {
-    g = Math.pow(g, 1 / GAMMA_PRO);
-  }
-  if (b < COND_PRO) {
-    b /= GAMMA_PRO;
-  } else {
-    b = Math.pow(b, 1 / GAMMA_PRO);
-  }
-  return [r, g, b];
-};
-
-/**
- * Transforms linear Rec. 2020 channels to standard Rec. 2020.
- * @param rec2020 - The linear Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
- * @returns The Rec. 2020 channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformLinearRec2020ToRec2020 = (
-  rec2020: TriColorChannels
-): TriColorChannels => {
-  let [r, g, b] = validateColorComponents(rec2020, {
-    maxLength: TRIA
-  });
-  // Rec. 2020 uses the same transfer characteristic as Rec. 709
-  const ALPHA = 1.09929682680944;
-  const BETA = 0.018053968510807;
-  const COND_REC = 4.5 * BETA;
-  if (r < COND_REC) {
-    r *= 4.5;
-  } else {
-    r = ALPHA * Math.pow(r, 0.45) - (ALPHA - 1);
-  }
-  if (g < COND_REC) {
-    g *= 4.5;
-  } else {
-    g = ALPHA * Math.pow(g, 0.45) - (ALPHA - 1);
-  }
-  if (b < COND_REC) {
-    b *= 4.5;
-  } else {
-    b = ALPHA * Math.pow(b, 0.45) - (ALPHA - 1);
-  }
-  return [r, g, b];
-};
-
-/**
- * Transforms XYZ color space channels to Rec. 2020.
- * @param xyz - The XYZ color channels: [x, y, z].
- * @param [skip] - Whether to skip validation.
- * @returns The Rec. 2020 color channels: [r, g, b] (ranging from 0 to 1).
- */
-export const transformXyzToRec2020 = (
-  xyz: TriColorChannels,
-  skip: boolean = false
-): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
-      maxLength: TRIA,
-      validateRange: false
-    }) as TriColorChannels;
-  }
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_TO_REC2020, xyz, true);
-  [r, g, b] = transformLinearRec2020ToRec2020([
-    Math.min(Math.max(r, 0), 1),
-    Math.min(Math.max(g, 0), 1),
-    Math.min(Math.max(b, 0), 1)
-  ]);
-  return [r, g, b];
-};
-
-/**
- * Transforms XYZ color space channels to ProPhoto RGB.
- * @param xyz - The XYZ color channels: [x, y, z].
- * @param [skip] - Whether to skip validation.
- * @returns The ProPhoto RGB color channels: [r, g, b] (ranging from 0 to 1).
  */
 export const transformXyzD50ToProphotoRgb = (
   xyz: TriColorChannels,
   skip: boolean = false
 ): TriColorChannels => {
-  if (!skip) {
-    xyz = validateColorComponents(xyz, {
+  let x, y, z;
+  if (skip) {
+    [x, y, z] = xyz;
+  } else {
+    [x, y, z] = validateColorComponents(xyz, {
       maxLength: TRIA,
       validateRange: false
     }) as TriColorChannels;
   }
-  // ProPhoto RGB expects D50-adapted XYZ
-  let [r, g, b] = transformMatrix(MATRIX_XYZ_D50_TO_PROPHOTO, xyz, true);
-  [r, g, b] = transformLinearProphotoToProphoto([
+  const [r, g, b] = transformMatrix(
+    MATRIX_XYZ_D50_TO_PROPHOTO,
+    [x, y, z],
+    true
+  );
+  return transformLinearProphotoToProphoto([
     Math.min(Math.max(r, 0), 1),
     Math.min(Math.max(g, 0), 1),
     Math.min(Math.max(b, 0), 1)
   ]);
-  return [r, g, b];
+};
+
+/**
+ * Transforms color function channels to XYZ.
+ * @param channels - The color channels.
+ * @param [opt] - The resolution options.
+ * @returns The XYZ channels: [x, y, z], or null if invalid or unsupported.
+ */
+export const transformColorFunctionChannelsToXyz = (
+  channels: ComputedColorChannels,
+  opt: Options = {}
+): TriColorChannels | null => {
+  const [cs, c1, c2, c3] = channels;
+  const v1 = Number.isNaN(c1) ? 0 : c1;
+  const v2 = Number.isNaN(c2) ? 0 : c2;
+  const v3 = Number.isNaN(c3) ? 0 : c3;
+  const { d50 } = opt;
+  switch (cs) {
+    case 'srgb': {
+      const xyz = transformSrgbToXyz([v1, v2, v3]);
+      if (d50) {
+        return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+      }
+      return xyz;
+    }
+    case 'srgb-linear': {
+      const xyz = transformMatrix(MATRIX_L_RGB_TO_XYZ, [v1, v2, v3]);
+      if (d50) {
+        return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+      }
+      return xyz;
+    }
+    case 'display-p3': {
+      const lRgb = transformSrgbToLinearRgb([v1, v2, v3]);
+      const xyz = transformMatrix(MATRIX_P3_TO_XYZ, lRgb);
+      if (d50) {
+        return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+      }
+      return xyz;
+    }
+    case 'rec2020': {
+      const rgb = [v1, v2, v3].map(c => {
+        let cl;
+        if (c < REC2020_BETA * REC2020_COEF * DEC) {
+          cl = c / (REC2020_COEF * DEC);
+        } else {
+          cl = Math.pow(
+            (c + REC2020_ALPHA - 1) / REC2020_ALPHA,
+            1 / REC2020_COEF
+          );
+        }
+        return cl;
+      }) as TriColorChannels;
+      const xyz = transformMatrix(MATRIX_REC2020_TO_XYZ, rgb);
+      if (d50) {
+        return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+      }
+      return xyz;
+    }
+    case 'a98-rgb': {
+      const POW_A98 = 563 / 256;
+      const rgb = [v1, v2, v3].map(c => {
+        const cl = Math.pow(c, POW_A98);
+        return cl;
+      }) as TriColorChannels;
+      const xyz = transformMatrix(MATRIX_A98_TO_XYZ, rgb);
+      if (d50) {
+        return transformMatrix(MATRIX_D65_TO_D50, xyz, true);
+      }
+      return xyz;
+    }
+    case 'prophoto-rgb': {
+      const PROPHOTO_GAMMA = 1.8;
+      const rgb = [v1, v2, v3].map(c => {
+        let cl;
+        if (c > 1 / (HEX * DUO)) {
+          cl = Math.pow(c, PROPHOTO_GAMMA);
+        } else {
+          cl = c / HEX;
+        }
+        return cl;
+      }) as TriColorChannels;
+      const xyzD50 = transformMatrix(MATRIX_PROPHOTO_TO_XYZ_D50, rgb);
+      if (d50) {
+        return xyzD50;
+      }
+      return transformMatrix(MATRIX_D50_TO_D65, xyzD50, true);
+    }
+    case 'xyz':
+    case 'xyz-d65': {
+      if (d50) {
+        return transformMatrix(MATRIX_D65_TO_D50, [v1, v2, v3]);
+      }
+      return [v1, v2, v3];
+    }
+    case 'xyz-d50': {
+      if (d50) {
+        return [v1, v2, v3];
+      }
+      return transformMatrix(MATRIX_D50_TO_D65, [v1, v2, v3]);
+    }
+    // Unsupported color space.
+    default: {
+      return null;
+    }
+  }
 };

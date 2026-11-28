@@ -742,6 +742,13 @@ describe('parse parseColorFunc()', () => {
       );
     });
 
+    it('should preserve "none" keywords in computedValue format', () => {
+      assert.deepEqual(
+        func('color(srgb none none none / none)', { format: 'computedValue' }),
+        ['srgb', 'none', 'none', 'none', 'none']
+      );
+    });
+
     it('should return specified array when format is color-mix and cs matches colorSpace', () => {
       assert.deepEqual(
         func('color(display-p3 0.5 0.5 0.5 / none)', {
@@ -856,13 +863,6 @@ describe('parse parseColorFunc()', () => {
     assert.isArray(res);
     assert.strictEqual(res[0], 'xyz-d65');
     assert.strictEqual(res[4], 0.5);
-  });
-
-  it('should return parsed numeric alpha (0) when v4 is "none" but format is NOT "mixedValue"', () => {
-    const res = func('color(srgb 1 0 0 / none)');
-    assert.isArray(res);
-    assert.strictEqual(res[0], 'xyz-d65');
-    assert.strictEqual(res[4], 0);
   });
 
   it('should normalize xyz to xyz-d65 in standard conversion path', () => {

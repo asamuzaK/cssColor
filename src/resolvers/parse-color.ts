@@ -5,8 +5,8 @@
 import { SyntaxFlag } from '@csstools/css-color-parser';
 import { convertHexToRgb, convertHexToXyz } from '../converters/convert-hex';
 import {
+  transformColorFunctionChannelsToXyz,
   transformMatrix,
-  transformRgbToLinearRgb,
   transformRgbToXyz
 } from '../matrix/transform';
 import {
@@ -16,6 +16,7 @@ import {
   TriColorChannels
 } from '../typedef';
 import { isString } from '../utils/common';
+import { serializeColorValue } from '../utils/serialize';
 import {
   parseAlpha,
   parseColorGeneric,
@@ -26,22 +27,15 @@ import {
 /* Constants */
 import {
   D50,
-  MATRIX_A98_TO_XYZ,
   MATRIX_D50_TO_D65,
   MATRIX_D65_TO_D50,
   MATRIX_LMS_TO_XYZ,
-  MATRIX_L_RGB_TO_XYZ,
-  MATRIX_OKLAB_TO_LMS,
-  MATRIX_P3_TO_XYZ,
-  MATRIX_PROPHOTO_TO_XYZ_D50,
-  MATRIX_REC2020_TO_XYZ
+  MATRIX_OKLAB_TO_LMS
 } from '../matrix/matrix';
 import {
-  DEC,
   DEG,
   DEG_HALF,
   DOZ,
-  DUO,
   HEX,
   LAB_A,
   LAB_B,
@@ -521,9 +515,9 @@ export const parseColorFunc = (
   if (!isString(value)) {
     throw new TypeError(`${value} is not a string.`);
   }
-  const { colorSpace = '', d50 = false, format = '', nullable = false } = opt;
-  const parsed = parseColorGeneric(value.trim());
-  if (!parsed) {
+  const { colorSpace, d50 = false, format = '', nullable = false } = opt;
+  const serializedValue = serializeColorValue(value.trim(), opt);
+  if (!serializedValue) {
     const res = resolveInvalidColorValue(format, nullable);
     if (res === null) {
       return null;
@@ -532,119 +526,20 @@ export const parseColorFunc = (
     }
     return res as SpecifiedColorChannels;
   }
-  const cs = parsed.colorNotation;
-  const [v1, v2, v3] = parsed.channels;
-  const alphaVal = parsed.alpha;
-  const hasNone =
-    parsed.syntaxFlags instanceof Set &&
-    parsed.syntaxFlags.has(SyntaxFlag.HasNoneKeywords);
-  const r = Number.isNaN(v1) ? 0 : v1;
-  const g = Number.isNaN(v2) ? 0 : v2;
-  const b = Number.isNaN(v3) ? 0 : v3;
-  let alpha: number;
-  if (typeof alphaVal === 'number' && !Number.isNaN(alphaVal)) {
-    alpha = parseAlpha(String(alphaVal));
-  } else {
-    alpha = 0;
-  }
-  const isAlphaNone = Number.isNaN(alphaVal) && hasNone;
+  const [cs, , , , alpha] = serializedValue;
   if (REG_SPEC.test(format) || (format === VAL_MIX && cs === colorSpace)) {
-    return [
-      cs,
-      Number.isNaN(v1) ? NONE : roundToPrecision(r, HEX),
-      Number.isNaN(v2) ? NONE : roundToPrecision(g, HEX),
-      Number.isNaN(v3) ? NONE : roundToPrecision(b, HEX),
-      isAlphaNone ? NONE : alpha
-    ];
+    return serializedValue;
   }
-  let x = 0;
-  let y = 0;
-  let z = 0;
-  // srgb-linear
-  if (cs === 'srgb-linear') {
-    [x, y, z] = transformMatrix(MATRIX_L_RGB_TO_XYZ, [r, g, b]);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  } else if (cs === 'display-p3') {
-    // display-p3
-    const linearRgb = transformRgbToLinearRgb([
-      r * MAX_RGB,
-      g * MAX_RGB,
-      b * MAX_RGB
-    ]);
-    [x, y, z] = transformMatrix(MATRIX_P3_TO_XYZ, linearRgb);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  } else if (cs === 'rec2020') {
-    // rec2020
-    const ALPHA = 1.09929682680944;
-    const BETA = 0.018053968510807;
-    const REC_COEF = 0.45;
-    const rgb = [r, g, b].map(c => {
-      let cl;
-      if (c < BETA * REC_COEF * DEC) {
-        cl = c / (REC_COEF * DEC);
-      } else {
-        cl = Math.pow((c + ALPHA - 1) / ALPHA, 1 / REC_COEF);
-      }
-      return cl;
-    }) as TriColorChannels;
-    [x, y, z] = transformMatrix(MATRIX_REC2020_TO_XYZ, rgb);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  } else if (cs === 'a98-rgb') {
-    // a98-rgb
-    const POW_A98 = 563 / 256;
-    const rgb = [r, g, b].map(c => {
-      const cl = Math.pow(c, POW_A98);
-      return cl;
-    }) as TriColorChannels;
-    [x, y, z] = transformMatrix(MATRIX_A98_TO_XYZ, rgb);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  } else if (cs === 'prophoto-rgb') {
-    // prophoto-rgb
-    const POW_PROPHOTO = 1.8;
-    const rgb = [r, g, b].map(c => {
-      let cl;
-      if (c > 1 / (HEX * DUO)) {
-        cl = Math.pow(c, POW_PROPHOTO);
-      } else {
-        cl = c / HEX;
-      }
-      return cl;
-    }) as TriColorChannels;
-    [x, y, z] = transformMatrix(MATRIX_PROPHOTO_TO_XYZ_D50, rgb);
-    if (!d50) {
-      [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z], true);
-    }
-  } else if (/^xyz(?:-d(?:50|65))?$/.test(cs)) {
-    // xyz, xyz-d50, xyz-d65
-    [x, y, z] = [r, g, b];
-    if (cs === 'xyz-d50') {
-      if (!d50) {
-        [x, y, z] = transformMatrix(MATRIX_D50_TO_D65, [x, y, z]);
-      }
-    } else if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  } else {
-    // srgb
-    [x, y, z] = transformRgbToXyz([r * MAX_RGB, g * MAX_RGB, b * MAX_RGB]);
-    if (d50) {
-      [x, y, z] = transformMatrix(MATRIX_D65_TO_D50, [x, y, z], true);
-    }
-  }
+  const [x, y, z] = transformColorFunctionChannelsToXyz(
+    serializedValue as ComputedColorChannels,
+    opt
+  ) as TriColorChannels;
   return [
     d50 ? 'xyz-d50' : 'xyz-d65',
     roundToPrecision(x, HEX),
     roundToPrecision(y, HEX),
     roundToPrecision(z, HEX),
-    format === VAL_MIX && isAlphaNone ? NONE : alpha
+    alpha as number
   ];
 };
 

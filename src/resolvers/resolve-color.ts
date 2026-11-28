@@ -2,14 +2,18 @@
  * CSS color resolution and processing utilities.
  */
 
-import { transformXyzToRgb } from '../matrix/transform';
+import {
+  transformColorFunctionChannelsToXyz,
+  transformXyzToRgb
+} from '../matrix/transform';
 import { convertColorToRgb } from '../converters/convert-color';
 import { convertRgbToHex } from '../converters/convert-hex';
 import {
   ColorChannels,
   ComputedColorChannels,
   Options,
-  SpecifiedColorChannels
+  SpecifiedColorChannels,
+  TriColorChannels
 } from '../typedef';
 import { createCacheKey, getCache, setCache } from '../utils/cache';
 import { isString } from '../utils/common';
@@ -17,7 +21,6 @@ import { cssCalc, resolveVar } from '../utils/css-calc-var';
 import { serializeColorValue } from '../utils/serialize';
 import { resolveInvalidColorValue, splitValue } from '../utils/util';
 import { resolveColorMix } from './color-mix';
-import { parseColorFunc } from './parse-color';
 import { resolveRelativeColor } from './relative-color';
 
 /* constants */
@@ -179,12 +182,13 @@ export const resolveColorFunc = (
     setCache(cacheKey, serializedValue);
     return [...serializedValue] as SpecifiedColorChannels;
   }
-  // FIXME: Use serializedValue for parseColorFunc
-  const [, x, y, z] = parseColorFunc(value, opt) as ComputedColorChannels;
-  const [r, g, b] = transformXyzToRgb([x, y, z], true);
-  const rgbValue = ['rgb', r, g, b, alpha];
-  setCache(cacheKey, rgbValue);
-  return [...rgbValue] as SpecifiedColorChannels;
+  const xyz = transformColorFunctionChannelsToXyz(
+    serializedValue as ComputedColorChannels
+  ) as TriColorChannels;
+  const [r, g, b] = transformXyzToRgb(xyz, true);
+  const rgb = ['rgb', r, g, b, alpha];
+  setCache(cacheKey, rgb);
+  return [...rgb] as SpecifiedColorChannels;
 };
 
 /**

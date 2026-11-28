@@ -351,6 +351,43 @@ describe('transform matrix', () => {
   });
 });
 
+describe('transform srgb to linear rgb', () => {
+  const func = transform.transformSrgbToLinearRgb;
+
+  it('should return correct linear rgb values for standard 0-1 srgb array', () => {
+    const res = func([0, 0.5, 1]);
+    assert.isTrue(Array.isArray(res));
+    assert.strictEqual(res[0], 0);
+    assert.closeTo(res[1], 0.214041, 1e-4);
+    assert.strictEqual(res[2], 1);
+  });
+
+  it('should handle sRGB gamma threshold values correctly', () => {
+    const lowVal = 10;
+    const highVal = 20;
+    const res = func([lowVal / 255, highVal / 255, 0]);
+    assert.closeTo(res[0], lowVal / 255 / 12.92, 1e-5);
+    const normalizedHigh = highVal / 255;
+    assert.closeTo(
+      res[1],
+      Math.pow((normalizedHigh + 0.055) / 1.055, 2.4),
+      1e-5
+    );
+  });
+
+  it('should throw an error if array length is not 3', () => {
+    assert.throws(() => {
+      func([1, 1, 1, 1]);
+    }, /Unexpected array length/);
+  });
+
+  it('should throw a TypeError for non-array inputs', () => {
+    assert.throws(() => {
+      func({ r: 1, g: 1, b: 1 });
+    }, TypeError);
+  });
+});
+
 describe('transform rgb to linear rgb', () => {
   const func = transform.transformRgbToLinearRgb;
 
@@ -385,6 +422,45 @@ describe('transform rgb to linear rgb', () => {
     assert.throws(() => {
       func({ r: 255, g: 255, b: 255 });
     }, TypeError);
+  });
+});
+
+describe('transform srgb to xyz', () => {
+  const func = transform.transformSrgbToXyz;
+
+  it('should transform black (0, 0, 0) to xyz (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform white (1, 1, 1) to D65 white point xyz', () => {
+    const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 0.95047, 1e-4);
+    assert.closeTo(res[1], 1.0, 1e-4);
+    assert.closeTo(res[2], 1.089057, 1e-4);
+  });
+
+  it('should transform pure red (1, 0, 0) correctly', () => {
+    const res = func([1, 0, 0]);
+    assert.closeTo(res[0], 0.412456, 1e-4);
+    assert.closeTo(res[1], 0.212673, 1e-4);
+    assert.closeTo(res[2], 0.019334, 1e-4);
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([1, 1, 1], true);
+    assert.closeTo(res[0], 0.95047, 1e-4);
+    assert.closeTo(res[1], 1.0, 1e-4);
+    assert.closeTo(res[2], 1.089057, 1e-4);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([1.1, 0, 0]);
+    });
+    assert.throws(() => {
+      func([1, 0, 0, 1]);
+    });
   });
 });
 
@@ -427,6 +503,38 @@ describe('transform rgb to xyz', () => {
   });
 });
 
+describe('transform srgb to xyz-d50', () => {
+  const func = transform.transformSrgbToXyzD50;
+
+  it('should transform black (0, 0, 0) to xyz-d50 (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform white (1, 1, 1) to D50 white point xyz', () => {
+    const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 0.96422, 1e-4);
+    assert.closeTo(res[1], 1.0, 1e-4);
+    assert.closeTo(res[2], 0.8251, 1e-4);
+  });
+
+  it('should transform red (1, 0, 0) to D50 xyz correctly', () => {
+    const res = func([1, 0, 0]);
+    assert.closeTo(res[0], 0.43607, 1e-4);
+    assert.closeTo(res[1], 0.2225, 1e-4);
+    assert.closeTo(res[2], 0.01393, 1e-4);
+  });
+
+  it('should throw an error for invalid input', () => {
+    assert.throws(() => {
+      func([1.1, 0, 0]);
+    });
+    assert.throws(() => {
+      func([1, 0, 0, 1]);
+    });
+  });
+});
+
 describe('transform rgb to xyz-d50', () => {
   const func = transform.transformRgbToXyzD50;
 
@@ -442,7 +550,7 @@ describe('transform rgb to xyz-d50', () => {
     assert.closeTo(res[2], 0.8251, 1e-4);
   });
 
-  it('should transform pure red (255, 0, 0) to D50 xyz correctly', () => {
+  it('should transform red (255, 0, 0) to D50 xyz correctly', () => {
     const res = func([255, 0, 0]);
     assert.closeTo(res[0], 0.43607, 1e-4);
     assert.closeTo(res[1], 0.2225, 1e-4);
@@ -459,6 +567,49 @@ describe('transform rgb to xyz-d50', () => {
   });
 });
 
+describe('transform linear rgb to srgb', () => {
+  const func = transform.transformLinearRgbToSrgb;
+
+  it('should transform linear rgb (0, 0, 0) to rgb (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.deepEqual(res, [0, 0, 0]);
+  });
+
+  it('should transform linear rgb (1, 1, 1) to rgb (1, 1, 1)', () => {
+    const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should transform linear rgb (0, 0.214041, 1) to rgb (0, 0.5, 1)', () => {
+    const res = func([0, 0.214041, 1]);
+    assert.closeTo(res[0], 0, 1e-4);
+    assert.closeTo(res[1], 0.5, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should handle values below and above the gamma threshold correctly', () => {
+    const lowVal = 0.001;
+    const highVal = 0.2;
+    const res = func([lowVal, highVal, 0]);
+    assert.closeTo(res[0], lowVal * 12.92, 1e-4);
+    const expectedHigh = Math.pow(highVal, 1 / 2.4) * 1.055 - 0.055;
+    assert.closeTo(res[1], expectedHigh, 1e-4);
+    assert.strictEqual(res[2], 0);
+  });
+
+  it('should throw an error for invalid array length or values out of range', () => {
+    assert.throws(() => {
+      func([1.5, 0, 0]);
+    });
+
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});
+
 describe('transform linear rgb to rgb', () => {
   const func = transform.transformLinearRgbToRgb;
 
@@ -469,6 +620,13 @@ describe('transform linear rgb to rgb', () => {
 
   it('should transform linear rgb (1, 1, 1) to rgb (255, 255, 255)', () => {
     const res = func([1, 1, 1]);
+    assert.closeTo(res[0], 255, 1e-4);
+    assert.closeTo(res[1], 255, 1e-4);
+    assert.closeTo(res[2], 255, 1e-4);
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([1, 1, 1], false, true);
     assert.closeTo(res[0], 255, 1e-4);
     assert.closeTo(res[1], 255, 1e-4);
     assert.closeTo(res[2], 255, 1e-4);
@@ -499,6 +657,52 @@ describe('transform linear rgb to rgb', () => {
       func([1.5, 0, 0]);
     });
 
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
+  });
+});
+
+describe('transform xyz to srgb', () => {
+  const func = transform.transformXyzToSrgb;
+
+  it('should transform xyz (0, 0, 0) to rgb (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.closeTo(res[0], 0, 1e-4);
+    assert.closeTo(res[1], 0, 1e-4);
+    assert.closeTo(res[1], 0, 1e-4);
+  });
+
+  it('should transform D65 white point xyz to rgb (1, 1, 1)', () => {
+    const res = func([0.95047, 1.0, 1.089057]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+  });
+
+  it('should transform pure red xyz to rgb (1, 0, 0)', () => {
+    const res = func([0.412456, 0.212673, 0.019334]);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 0, 1e-4);
+    assert.closeTo(res[2], 0, 1e-4);
+  });
+
+  it('should clamp out-of-gamut values to 0-1 range', () => {
+    const res = func([-1, 2, -0.5]);
+    assert.isTrue(res.every(val => val >= 0 && val <= 1));
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([0.95047, 1.0, 1.089057], true);
+    assert.closeTo(res[0], 1, 1e-4);
+    assert.closeTo(res[1], 1, 1e-4);
+    assert.closeTo(res[2], 1, 1e-4);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
     assert.throws(() => {
       func([0.5, 0.5, 0.5, 1]);
     });
@@ -786,6 +990,47 @@ describe('transform xyz to oklch', () => {
     const res = func(magentaXyz);
     assert.isTrue(res[1] > 0);
     assert.isTrue(res[2] > 270 && res[2] < 360);
+  });
+});
+
+describe('transform xyz-d50 to srgb', () => {
+  const func = transform.transformXyzD50ToSrgb;
+
+  it('should transform xyz-d50 (0, 0, 0) to rgb (0, 0, 0)', () => {
+    const res = func([0, 0, 0]);
+    assert.closeTo(res[0], 0, 1e-3);
+    assert.closeTo(res[1], 0, 1e-3);
+    assert.closeTo(res[2], 0, 1e-3);
+  });
+
+  it('should transform D50 white point xyz to rgb (1, 1, 1)', () => {
+    const res = func([0.96422, 1.0, 0.8251]);
+    assert.closeTo(res[0], 1, 1e-3);
+    assert.closeTo(res[1], 1, 1e-3);
+    assert.closeTo(res[2], 1, 1e-3);
+  });
+
+  it('should transform red D50 xyz to rgb (1, 0, 0)', () => {
+    const res = func([0.43607, 0.2225, 0.01393]);
+    assert.closeTo(res[0], 1, 1e-3);
+    assert.closeTo(res[1], 0, 1e-3);
+    assert.closeTo(res[2], 0, 1e-3);
+  });
+
+  it('should work when skip validation is true', () => {
+    const res = func([0, 0, 0], true);
+    assert.closeTo(res[0], 0, 1e-3);
+    assert.closeTo(res[1], 0, 1e-3);
+    assert.closeTo(res[2], 0, 1e-3);
+  });
+
+  it('should throw an error for invalid input when skip is false', () => {
+    assert.throws(() => {
+      func([0.5, 0.5]);
+    });
+    assert.throws(() => {
+      func([0.5, 0.5, 0.5, 1]);
+    });
   });
 });
 
@@ -1233,5 +1478,114 @@ describe('transform xyz-d50 to prophoto rgb', () => {
     assert.throws(() => {
       func([0.5, 0.5, 0.5, 1]);
     });
+  });
+});
+
+describe('transform color function channels to xyz', () => {
+  const func = transform.transformColorFunctionChannelsToXyz;
+
+  it('should convert srgb channels to xyz-d65 and xyz-d50', () => {
+    const resD65 = func(['srgb', 1, 0, 0, 1]);
+    assert.isArray(resD65);
+    assert.closeTo(resD65![0], 0.412456, 1e-4);
+    assert.closeTo(resD65![1], 0.212673, 1e-4);
+    assert.closeTo(resD65![2], 0.019334, 1e-4);
+
+    const resD50 = func(['srgb', 1, 0, 0, 1], { d50: true });
+    assert.isArray(resD50);
+    assert.closeTo(resD50![0], 0.43607, 1e-4);
+    assert.closeTo(resD50![1], 0.2225, 1e-4);
+    assert.closeTo(resD50![2], 0.01393, 1e-4);
+  });
+
+  it('should convert srgb-linear channels to xyz-d65 and xyz-d50', () => {
+    const resD65 = func(['srgb-linear', 0.5, 0.5, 0.5, 1]);
+    assert.isArray(resD65);
+    assert.strictEqual(resD65!.length, 3);
+
+    const resD50 = func(['srgb-linear', 0.5, 0.5, 0.5, 1], { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50!.length, 3);
+  });
+
+  it('should convert display-p3 channels to xyz-d65 and xyz-d50', () => {
+    const resD65 = func(['display-p3', 1, 0, 0, 1]);
+    assert.isArray(resD65);
+    assert.strictEqual(resD65!.length, 3);
+
+    const resD50 = func(['display-p3', 1, 0, 0, 1], { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50!.length, 3);
+  });
+
+  it('should convert rec2020 channels testing both linear and power curve branches', () => {
+    const resLinear = func(['rec2020', 0.05, 0.05, 0.05, 1]);
+    assert.isArray(resLinear);
+    assert.strictEqual(resLinear!.length, 3);
+
+    const resPower = func(['rec2020', 0.5, 0.5, 0.5, 1], { d50: true });
+    assert.isArray(resPower);
+    assert.strictEqual(resPower!.length, 3);
+  });
+
+  it('should apply linear division when rec2020 channel is below threshold', () => {
+    const BETA = 0.018053968510807;
+    const COEF = 4.5 * BETA;
+    const DEC = 10;
+    const threshold = BETA * COEF * DEC;
+    const c = 0.01;
+    assert.isBelow(c, threshold);
+    const res = func(['rec2020', c, c, c, 1]);
+    assert.isArray(res);
+    assert.strictEqual(res!.length, 3);
+    const expectedCl = c / (COEF * DEC);
+    const expectedX = (0.636958 + 0.144617 + 0.168881) * expectedCl;
+    assert.closeTo(res![0], expectedX, 1e-4);
+  });
+
+  it('should convert a98-rgb channels to xyz-d65 and xyz-d50', () => {
+    const resD65 = func(['a98-rgb', 0.8, 0.2, 0.1, 1]);
+    assert.isArray(resD65);
+    assert.strictEqual(resD65!.length, 3);
+
+    const resD50 = func(['a98-rgb', 0.8, 0.2, 0.1, 1], { d50: true });
+    assert.isArray(resD50);
+    assert.strictEqual(resD50!.length, 3);
+  });
+
+  it('should convert prophoto-rgb channels testing both threshold branches and d50 option', () => {
+    const resLinear = func(['prophoto-rgb', 0.01, 0.01, 0.01, 1]);
+    assert.isArray(resLinear);
+    assert.strictEqual(resLinear!.length, 3);
+
+    const resPowerD50 = func(['prophoto-rgb', 0.5, 0.5, 0.5, 1], { d50: true });
+    assert.isArray(resPowerD50);
+    assert.strictEqual(resPowerD50!.length, 3);
+  });
+
+  it('should handle xyz, xyz-d65, and xyz-d50 color spaces with and without d50 option', () => {
+    const xyzD65 = func(['xyz', 0.2, 0.3, 0.4, 1]);
+    assert.deepStrictEqual(xyzD65, [0.2, 0.3, 0.4]);
+
+    const xyzD65ToD50 = func(['xyz-d65', 0.2, 0.3, 0.4, 1], { d50: true });
+    assert.isArray(xyzD65ToD50);
+    assert.strictEqual(xyzD65ToD50!.length, 3);
+
+    const xyzD50ToD65 = func(['xyz-d50', 0.2, 0.3, 0.4, 1]);
+    assert.isArray(xyzD50ToD65);
+    assert.strictEqual(xyzD50ToD65!.length, 3);
+
+    const xyzD50Keep = func(['xyz-d50', 0.2, 0.3, 0.4, 1], { d50: true });
+    assert.deepStrictEqual(xyzD50Keep, [0.2, 0.3, 0.4]);
+  });
+
+  it('should treat NaN channel values as 0', () => {
+    const res = func(['xyz', NaN, NaN, NaN, 1]);
+    assert.deepStrictEqual(res, [0, 0, 0]);
+  });
+
+  it('should return null for unsupported color spaces', () => {
+    assert.isNull(func(['lab', 50, 0, 0, 1] as any));
+    assert.isNull(func(['unknown' as any, 0, 0, 0, 1]));
   });
 });

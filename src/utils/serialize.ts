@@ -3,6 +3,7 @@
  */
 
 import { ColorData, SyntaxFlag } from '@csstools/css-color-parser';
+import { ComponentValue } from '@csstools/css-parser-algorithms';
 import { convertHexToRgb } from '../converters/convert-hex';
 import {
   ComputedColorChannels,
@@ -38,7 +39,7 @@ const REG_NAMED_COLOR = /^[a-z]+$/i;
  * @param value - The alpha value to serialize.
  * @returns - The serialized alpha value.
  */
-export const serializeAlpha = (value: number): number => {
+export const serializeAlpha = (value: number | ComponentValue): number => {
   if (typeof value !== 'number') {
     return Number.NaN;
   }
@@ -62,6 +63,8 @@ export const serializeHsl = (
   const { colorNotation, channels, alpha, syntaxFlags } = value;
   const [c1, c2, c3] = channels;
   const { format } = opt;
+  const alphaValue = serializeAlpha(alpha);
+  const alphaValueIsNaN = Number.isNaN(alphaValue);
   const preserveNone = syntaxFlags.has(HAS_NONE) || format === VAL_MIX;
   if (preserveNone) {
     return [
@@ -69,10 +72,9 @@ export const serializeHsl = (
       Number.isNaN(c1) ? NONE : roundToPrecision(c1, HEX),
       Number.isNaN(c2) ? NONE : roundToPrecision(c2, HEX),
       Number.isNaN(c3) ? NONE : roundToPrecision(c3, HEX),
-      Number.isNaN(alpha) ? NONE : serializeAlpha(alpha as number)
+      alphaValueIsNaN ? NONE : alphaValue
     ];
   }
-  const alphaValue = serializeAlpha(alpha as number);
   const h = (c1 / DEG) * DOZ;
   const s = Math.min(Math.max(c2, 0), MAX_PCT);
   const l = Math.min(Math.max(c3, 0), MAX_PCT) / MAX_PCT;
@@ -105,6 +107,8 @@ export const serializeHwb = (
   const { colorNotation, channels, alpha, syntaxFlags } = value;
   const [c1, c2, c3] = channels;
   const { format } = opt;
+  const alphaValue = serializeAlpha(alpha);
+  const alphaValueIsNaN = Number.isNaN(alphaValue);
   const preserveNone = syntaxFlags.has(HAS_NONE) || format === VAL_MIX;
   if (preserveNone) {
     return [
@@ -112,10 +116,9 @@ export const serializeHwb = (
       Number.isNaN(c1) ? NONE : roundToPrecision(c1, HEX),
       Number.isNaN(c2) ? NONE : roundToPrecision(c2, HEX),
       Number.isNaN(c3) ? NONE : roundToPrecision(c3, HEX),
-      Number.isNaN(alpha) ? NONE : serializeAlpha(alpha as number)
+      alphaValueIsNaN ? NONE : alphaValue
     ];
   }
-  const alphaValue = serializeAlpha(alpha as number);
   const h = c1;
   const wh = Math.min(Math.max(c2, 0), MAX_PCT) / MAX_PCT;
   const bk = Math.min(Math.max(c3, 0), MAX_PCT) / MAX_PCT;
@@ -201,7 +204,7 @@ export const serializeColorValue = (
   const { colorNotation, channels, alpha, syntaxFlags } = parsedValue;
   const [c1, c2, c3] = channels;
   const preserveNone = syntaxFlags.has(HAS_NONE) || format === VAL_MIX;
-  const alphaValue = serializeAlpha(alpha as number);
+  const alphaValue = serializeAlpha(alpha);
   const alphaValueIsNaN = Number.isNaN(alphaValue);
   switch (colorNotation) {
     case 'hsl': {
@@ -235,12 +238,21 @@ export const serializeColorValue = (
       ];
     }
     default: {
+      if (preserveNone) {
+        return [
+          colorNotation,
+          Number.isNaN(c1) ? NONE : roundToPrecision(c1, HEX),
+          Number.isNaN(c2) ? NONE : roundToPrecision(c2, HEX),
+          Number.isNaN(c3) ? NONE : roundToPrecision(c3, HEX),
+          alphaValueIsNaN ? NONE : alphaValue
+        ];
+      }
       return [
         colorNotation,
-        preserveNone && Number.isNaN(c1) ? NONE : roundToPrecision(c1, HEX),
-        preserveNone && Number.isNaN(c2) ? NONE : roundToPrecision(c2, HEX),
-        preserveNone && Number.isNaN(c3) ? NONE : roundToPrecision(c3, HEX),
-        preserveNone && alphaValueIsNaN ? NONE : alphaValue
+        roundToPrecision(c1, HEX),
+        roundToPrecision(c2, HEX),
+        roundToPrecision(c3, HEX),
+        alphaValue
       ];
     }
   }
